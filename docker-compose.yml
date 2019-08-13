@@ -1,0 +1,21 @@
+version: '3'
+services:
+  db:
+    container_name: marketing_db
+    image: postgres:10.6
+    ports:
+      - "4540:5432"
+    environment:
+      POSTGRES_DB: marketing
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+  db-admin:
+    container_name: marketing_dbadmin
+    image: dpage/pgadmin4
+    depends_on:
+      - db
+    ports:
+      - "6432:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: dev@marketing.com
+      PGADMIN_DEFAULT_PASSWORD: zblash
