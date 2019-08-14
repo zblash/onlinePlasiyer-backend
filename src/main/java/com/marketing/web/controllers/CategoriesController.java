@@ -23,12 +23,13 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/category")
+@RequestMapping("/categories")
 public class CategoriesController {
 
     @Autowired
     private CategoryService categoryService;
 
+    @GetMapping
     public ResponseEntity<List<Category>> getAll(){
        return ResponseEntity.ok(categoryService.findAll());
     }
@@ -50,7 +51,7 @@ public class CategoriesController {
     @PutMapping("/update/{id}")
     public ResponseEntity<Category> updateCategory(@PathVariable(value = "id") Long id,@Valid @RequestBody Category updatedCategory){
         Category category = categoryService.findById(id);
-        return ResponseEntity.ok(categoryService.update(category));
+        return ResponseEntity.ok(categoryService.update(updatedCategory));
     }
 
 

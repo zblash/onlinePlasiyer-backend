@@ -1,5 +1,6 @@
 package com.marketing.web.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 @Data
@@ -26,14 +31,24 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotBlank
+    @Size(min = 3,max = 20)
     private String userName;
 
+    @NotBlank
+    @Size(min = 3,max = 20)
     private String name;
 
+    @NotBlank
+    @Size(min = 5, max = 90)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
+    @Email
+    @NotBlank
     private String email;
 
+    @NotBlank
     private String taxNumber;
 
     @ManyToOne(fetch = FetchType.EAGER)
