@@ -1,9 +1,10 @@
-package com.marketing.web.services;
+package com.marketing.web.services.impl;
 
 import com.marketing.web.models.Role;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.RoleRepository;
 import com.marketing.web.repositories.UserRepository;
+import com.marketing.web.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class UserService implements BaseService<User> {
+public class UserService implements IUserService {
 
     @Autowired
     private UserRepository userRepository;
@@ -22,6 +23,7 @@ public class UserService implements BaseService<User> {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Override
     public User findByUserName(String userName) {
         return userRepository.findByUserName(userName).orElseThrow(RuntimeException::new);
     }

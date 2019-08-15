@@ -1,9 +1,9 @@
-package com.marketing.web.services;
+package com.marketing.web.services.impl;
 
 import com.marketing.web.dtos.ProductDTO;
 import com.marketing.web.models.Product;
-import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.repositories.ProductRepository;
+import com.marketing.web.services.IProductService;
 import com.marketing.web.utils.ProductMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class ProductService implements BaseService<Product> {
+public class ProductService implements IProductService {
 
     @Autowired
     private ProductRepository productRepository;
@@ -49,7 +49,11 @@ public class ProductService implements BaseService<Product> {
     }
 
     @Override
-    public Product update(Product product) {
+    public Product update(Product product,Product updatedProduct) {
+        product.setBarcode(updatedProduct.getBarcode());
+        product.setName(updatedProduct.getName());
+        product.setPhotoUrl(updatedProduct.getPhotoUrl());
+        product.setCategory(updatedProduct.getCategory());
         return productRepository.save(product);
     }
 

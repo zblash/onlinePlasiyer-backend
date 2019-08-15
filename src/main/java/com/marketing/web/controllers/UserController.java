@@ -2,7 +2,7 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.models.User;
 import com.marketing.web.security.JWTAuthToken.JWTGenerator;
-import com.marketing.web.services.UserService;
+import com.marketing.web.services.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

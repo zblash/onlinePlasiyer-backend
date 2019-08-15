@@ -1,10 +1,11 @@
-package com.marketing.web.services;
+package com.marketing.web.services.impl;
 
 import com.marketing.web.dtos.ProductDTO;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.ProductSpecifyRepository;
+import com.marketing.web.services.IProductSpecifyService;
 import com.marketing.web.utils.ProductMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class ProductSpecifyService implements BaseService<ProductSpecify> {
+public class ProductSpecifyService implements IProductSpecifyService {
 
     @Autowired
     private ProductSpecifyRepository productSpecifyRepository;
@@ -28,10 +29,6 @@ public class ProductSpecifyService implements BaseService<ProductSpecify> {
     }
 
     @Override
-    public ProductSpecify create(ProductSpecify productSpecify) {
-        return null;
-    }
-
     public ProductSpecify create(ProductDTO productDTO, Product product, User user) {
         ProductSpecify productSpecify = ProductMapper.INSTANCE.ProductDTOtoProductSpecify(productDTO);
         productSpecify.setProduct(product);

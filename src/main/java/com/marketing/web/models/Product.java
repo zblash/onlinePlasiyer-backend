@@ -48,7 +48,6 @@ public class Product implements Serializable {
 
     private String photoUrl;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id",referencedColumnName = "id")
     private Category category;

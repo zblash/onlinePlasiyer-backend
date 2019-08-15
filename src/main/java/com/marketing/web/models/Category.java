@@ -1,5 +1,6 @@
 package com.marketing.web.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,7 @@ public class Category {
     @NotBlank
     private String name;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "category",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Product> products;
 }

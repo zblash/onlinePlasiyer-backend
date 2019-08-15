@@ -5,10 +5,9 @@ import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.pubsub.ProductProducer;
 import com.marketing.web.pubsub.ProductSubscriber;
-import com.marketing.web.services.ProductService;
-import com.marketing.web.services.ProductSpecifyService;
-import com.marketing.web.services.UserService;
-import com.marketing.web.utils.ProductMapper;
+import com.marketing.web.services.impl.ProductService;
+import com.marketing.web.services.impl.ProductSpecifyService;
+import com.marketing.web.services.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -51,6 +50,11 @@ public class ProductsController {
         return ResponseEntity.ok(productService.findAll());
     }
 
+    @GetMapping("/category/{id}")
+    public ResponseEntity<List<Product>> getAllByCategory(@PathVariable Long id){
+        return ResponseEntity.ok(productService.findByCategory(id));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Product> getAll(@PathVariable Long id){
         return ResponseEntity.ok(productService.findById(id));
@@ -79,8 +83,7 @@ public class ProductsController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<Product> updateCategory(@PathVariable(value = "id") Long id,@Valid @RequestBody Product updatedProduct){
-        Product product = productService.findById(id);
-        return ResponseEntity.ok(productService.update(updatedProduct));
+        return ResponseEntity.ok(productService.update(productService.findById(id),updatedProduct));
     }
 
     @GetMapping("/live")
