@@ -19,3 +19,8 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: dev@marketing.com
       PGADMIN_DEFAULT_PASSWORD: zblash
+  redis:
+    image: redis
+    container_name: pubsub
+    ports:
+      - "3131:6379"

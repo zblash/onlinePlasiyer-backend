@@ -24,14 +24,12 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private JWTGenerator jwtGenerator;
-
     @PostMapping("/signin")
     public ResponseEntity<?> login(@RequestBody(required = true) Map<String,String> login){
         User userDetails = userService.findByUserName(login.get("username"));
 
         if (passwordEncoder.matches(login.get("password"),userDetails.getPassword())){
-            String jwt= jwtGenerator.generate(userDetails);
+            String jwt= JWTGenerator.generate(userDetails);
             return new ResponseEntity<>(jwt, HttpStatus.OK);
         }
 

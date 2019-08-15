@@ -1,7 +1,10 @@
 package com.marketing.web.services;
 
+import com.marketing.web.dtos.ProductDTO;
 import com.marketing.web.models.Product;
+import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.repositories.ProductRepository;
+import com.marketing.web.utils.ProductMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,9 +16,16 @@ public class ProductService implements BaseService<Product> {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private ProductSpecifyService productSpecifyService;
+
     public List<Product> findByCategory(Long categoryId){
         return productRepository.findByCategoryId(categoryId)
                 .orElseThrow(RuntimeException::new);
+    }
+
+    public Product findByBarcode(String barcode){
+        return productRepository.findByBarcode(barcode).orElse(null);
     }
 
     @Override
@@ -30,6 +40,11 @@ public class ProductService implements BaseService<Product> {
 
     @Override
     public Product create(Product product) {
+        return productRepository.save(product);
+    }
+
+    public Product create(ProductDTO productDTO) {
+        Product product = ProductMapper.INSTANCE.ProductDTOtoProduct(productDTO);
         return productRepository.save(product);
     }
 

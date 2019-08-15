@@ -12,8 +12,7 @@ import java.util.Date;
 
 @Component
 public class JWTGenerator {
-    private final Logger logger = LoggerFactory.getLogger(JWTGenerator.class);
-    public String generate(User jwtUser) {
+    public static String generate(User jwtUser) {
 
         Claims claims = Jwts.claims()
                 .setSubject(jwtUser.getUserName());
@@ -25,7 +24,6 @@ public class JWTGenerator {
                 .signWith(SignatureAlgorithm.HS512, "D6D317C8F7CEDC7B170B892FE9D3A8C4CD0861BE653203FB6D349C2478D92811")
                 .setExpiration(new Date(System.currentTimeMillis() + 86_400_000))
                 .compact();
-        logger.info(j);
         return j;
     }
 }
