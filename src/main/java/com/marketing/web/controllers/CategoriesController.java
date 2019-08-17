@@ -31,6 +31,16 @@ public class CategoriesController {
        return ResponseEntity.ok(categoryService.findAll());
     }
 
+    @GetMapping("/base")
+    public ResponseEntity<List<Category>> getBaseCategories(){
+        return ResponseEntity.ok(categoryService.findBaseCategories());
+    }
+
+    @GetMapping("/sub")
+    public ResponseEntity<List<Category>> getSubCategories(){
+        return ResponseEntity.ok(categoryService.findSubCategories());
+    }
+
     @PostMapping("/create")
     public ResponseEntity<Category> createCategory(@Valid @RequestBody CategoryDTO categoryDTO){
         return ResponseEntity.ok(categoryService.create(categoryDTO));

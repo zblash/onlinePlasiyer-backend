@@ -14,4 +14,8 @@ public interface ICategoryService {
     Category update(Category category, Category updatedCategory);
 
     void delete(Category category);
+
+    List<Category> findBaseCategories();
+
+    List<Category> findSubCategories();
 }

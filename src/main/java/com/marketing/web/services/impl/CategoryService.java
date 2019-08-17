@@ -21,6 +21,16 @@ public class CategoryService implements ICategoryService {
     private Logger logger = LoggerFactory.getLogger(CategoryService.class);
 
     @Override
+    public List<Category> findBaseCategories() {
+        return categoryRepository.findBySubCategory(false);
+    }
+
+    @Override
+    public List<Category> findSubCategories() {
+        return categoryRepository.findBySubCategory(true);
+    }
+
+    @Override
     public List<Category> findAll() {
         return categoryRepository.findAll();
     }
@@ -50,4 +60,5 @@ public class CategoryService implements ICategoryService {
     public void delete(Category category) {
         categoryRepository.delete(category);
     }
+
 }
