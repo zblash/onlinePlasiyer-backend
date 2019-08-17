@@ -61,7 +61,7 @@ public class ProductsController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Product> createPost(@Valid @RequestBody ProductDTO productDTO){
+    public ResponseEntity<Product> createProduct(@Valid @RequestBody ProductDTO productDTO){
         Product product = productService.findByBarcode(productDTO.getBarcode());
         if (product == null){
             product = productService.create(productDTO);
@@ -73,7 +73,7 @@ public class ProductsController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public Map<String,Product> deleteCategory(@PathVariable(value = "id") Long id){
+    public Map<String,Product> deleteProduct(@PathVariable(value = "id") Long id){
         Product product = productService.findById(id);
         productService.delete(product);
         Map<String,Product> response = new HashMap<>();
@@ -82,7 +82,7 @@ public class ProductsController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Product> updateCategory(@PathVariable(value = "id") Long id,@Valid @RequestBody Product updatedProduct){
+    public ResponseEntity<Product> updateProduct(@PathVariable(value = "id") Long id,@Valid @RequestBody Product updatedProduct){
         return ResponseEntity.ok(productService.update(productService.findById(id),updatedProduct));
     }
 

@@ -1,5 +1,6 @@
 package com.marketing.web.dtos;
 
+import com.marketing.web.models.UnitType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,9 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class ProductDTO implements Serializable {
 
+    @NotNull
+    private Long categoryId;
+
     @NotBlank
     @Size(min = 3,max = 20)
     private String name;
@@ -21,6 +25,9 @@ public class ProductDTO implements Serializable {
     @NotBlank
     @Size(min = 10,max = 100)
     private String barcode;
+
+    @NotNull
+    private double tax;
 
     @NotNull
     private double totalPrice;
@@ -32,7 +39,10 @@ public class ProductDTO implements Serializable {
     private int quantity;
 
     @NotNull
-    private double tax;
+    private double contents;
+
+    @NotNull
+    private UnitType unitType;
 
     @NotNull
     private double recommendedRetailPrice;

@@ -2,12 +2,13 @@ package com.marketing.web.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -34,7 +35,10 @@ public class ProductSpecify {
 
     private int quantity;
 
-    private double tax;
+    private double contents;
+
+    @Enumerated(EnumType.STRING)
+    private UnitType unitType;
 
     private double recommendedRetailPrice;
 

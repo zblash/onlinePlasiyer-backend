@@ -1,4 +1,4 @@
-package com.marketing.web.utils;
+package com.marketing.web.utils.mappers;
 
 import com.marketing.web.dtos.ProductDTO;
 import com.marketing.web.models.Product;

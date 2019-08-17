@@ -1,10 +1,11 @@
 package com.marketing.web.services.impl;
 
 import com.marketing.web.dtos.ProductDTO;
+import com.marketing.web.models.Category;
 import com.marketing.web.models.Product;
 import com.marketing.web.repositories.ProductRepository;
 import com.marketing.web.services.IProductService;
-import com.marketing.web.utils.ProductMapper;
+import com.marketing.web.utils.mappers.ProductMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +18,14 @@ public class ProductService implements IProductService {
     private ProductRepository productRepository;
 
     @Autowired
-    private ProductSpecifyService productSpecifyService;
+    private CategoryService categoryService;
 
+    @Override
     public List<Product> findByCategory(Long categoryId){
-        return productRepository.findByCategoryId(categoryId)
-                .orElseThrow(RuntimeException::new);
+        Category category = categoryService.findById(categoryId);
+        List<Category> categories = category.collectLeafChildren();
+        return productRepository.findByCategoryIn(categories);
+
     }
 
     public Product findByBarcode(String barcode){
@@ -39,12 +43,9 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product create(Product product) {
-        return productRepository.save(product);
-    }
-
     public Product create(ProductDTO productDTO) {
         Product product = ProductMapper.INSTANCE.ProductDTOtoProduct(productDTO);
+        product.setCategory(categoryService.findById(productDTO.getCategoryId()));
         return productRepository.save(product);
     }
 

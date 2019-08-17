@@ -1,5 +1,6 @@
 package com.marketing.web.controllers;
 
+import com.marketing.web.dtos.LoginDTO;
 import com.marketing.web.models.User;
 import com.marketing.web.security.JWTAuthToken.JWTGenerator;
 import com.marketing.web.services.impl.UserService;
@@ -26,11 +27,16 @@ public class UserController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> login(@RequestBody(required = true) Map<String,String> login){
-        User userDetails = userService.findByUserName(login.get("username"));
+        User userDetails = userService.findByUserName(login.get("userName"));
 
         if (passwordEncoder.matches(login.get("password"),userDetails.getPassword())){
             String jwt= JWTGenerator.generate(userDetails);
-            return new ResponseEntity<>(jwt, HttpStatus.OK);
+            LoginDTO loginDTO = new LoginDTO.LoginDTOBuilder(jwt)
+                    .email(userDetails.getEmail())
+                    .name(userDetails.getName())
+                    .userName(userDetails.getUserName())
+                    .build();
+            return new ResponseEntity<>(loginDTO, HttpStatus.OK);
         }
 
         return new ResponseEntity<>("", HttpStatus.UNAUTHORIZED);

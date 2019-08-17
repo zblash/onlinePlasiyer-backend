@@ -6,7 +6,9 @@ import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.ProductSpecifyRepository;
 import com.marketing.web.services.IProductSpecifyService;
-import com.marketing.web.utils.ProductMapper;
+import com.marketing.web.utils.mappers.ProductMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,9 @@ import java.util.List;
 
 @Service
 public class ProductSpecifyService implements IProductSpecifyService {
+
+
+    private Logger logger = LoggerFactory.getLogger(ProductSpecifyService.class);
 
     @Autowired
     private ProductSpecifyRepository productSpecifyRepository;
@@ -33,6 +38,8 @@ public class ProductSpecifyService implements IProductSpecifyService {
         ProductSpecify productSpecify = ProductMapper.INSTANCE.ProductDTOtoProductSpecify(productDTO);
         productSpecify.setProduct(product);
         productSpecify.setUser(user);
+        productSpecify.setUnitType(productDTO.getUnitType());
+
         return productSpecifyRepository.save(productSpecify);
     }
 

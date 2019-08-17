@@ -15,8 +15,6 @@ public interface IProductService {
 
     Product findById(Long id);
 
-    Product create(Product product);
-
     Product create(ProductDTO productDTO);
 
     Product update(Product product,Product updatedProduct);

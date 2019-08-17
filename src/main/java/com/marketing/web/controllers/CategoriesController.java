@@ -1,5 +1,6 @@
 package com.marketing.web.controllers;
 
+import com.marketing.web.dtos.CategoryDTO;
 import com.marketing.web.models.Category;
 import com.marketing.web.services.impl.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +32,8 @@ public class CategoriesController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Category> createPost(@Valid @RequestBody Category category){
-        return ResponseEntity.ok(categoryService.create(category));
+    public ResponseEntity<Category> createCategory(@Valid @RequestBody CategoryDTO categoryDTO){
+        return ResponseEntity.ok(categoryService.create(categoryDTO));
     }
 
     @DeleteMapping("/delete/{id}")
@@ -46,8 +47,7 @@ public class CategoriesController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<Category> updateCategory(@PathVariable(value = "id") Long id,@Valid @RequestBody Category updatedCategory){
-        Category category = categoryService.findById(id);
-        return ResponseEntity.ok(categoryService.update(updatedCategory));
+        return ResponseEntity.ok(categoryService.update(categoryService.findById(id),updatedCategory));
     }
 
 
