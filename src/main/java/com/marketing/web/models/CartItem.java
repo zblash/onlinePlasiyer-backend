@@ -39,4 +39,6 @@ public class CartItem {
     @NotNull
     private int quantity;
 
+    private double totalPrice;
+
 }

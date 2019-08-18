@@ -1,5 +1,6 @@
 package com.marketing.web.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -58,5 +59,10 @@ public class User {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id",referencedColumnName = "id")
     private Address address;
+
+    @JsonIgnore
+    @OneToOne(cascade = CascadeType.ALL,mappedBy = "user")
+    @JoinColumn(name = "cart_id",referencedColumnName = "id")
+    private Cart cart;
 
 }

@@ -29,7 +29,6 @@ public class CartService implements ICartService {
     public Cart create(User user) {
         Cart cart = new Cart();
         cart.setUser(user);
-        cart.setTotalPrice(0);
         return cartRepository.save(cart);
     }
 

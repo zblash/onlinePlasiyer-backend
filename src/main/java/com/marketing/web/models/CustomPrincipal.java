@@ -25,6 +25,15 @@ public class CustomPrincipal implements UserDetails {
         this.authorities = grantedAuthorities;
     }
 
+    public CustomPrincipal(String userName, long id, String token, List<GrantedAuthority> grantedAuthorities,User user) {
+
+        this.userName = userName;
+        this.id = id;
+        this.token= token;
+        this.authorities = grantedAuthorities;
+        this.user = user;
+    }
+
     public CustomPrincipal(User user) {
         this.user = user;
         this.userName = user.getUserName();

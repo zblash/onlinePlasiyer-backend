@@ -1,5 +1,6 @@
 package com.marketing.web.services.impl;
 
+import com.marketing.web.models.Cart;
 import com.marketing.web.models.Role;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.RoleRepository;
@@ -49,7 +50,8 @@ public class UserService implements IUserService {
         user.setRole(role);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User createdUser = userRepository.save(user);
-        cartService.create(createdUser);
+        Cart cart = cartService.create(createdUser);
+        user.setCart(cart);
         return createdUser;
     }
 

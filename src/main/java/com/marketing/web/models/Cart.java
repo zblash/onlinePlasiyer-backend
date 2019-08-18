@@ -34,8 +34,7 @@ public class Cart implements Serializable {
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;
 
-    @OneToMany(mappedBy = "cart",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "cart",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
     private List<CartItem> items;
 
-    private double totalPrice;
 }

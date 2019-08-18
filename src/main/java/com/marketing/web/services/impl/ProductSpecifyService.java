@@ -25,12 +25,12 @@ public class ProductSpecifyService implements IProductSpecifyService {
 
     @Override
     public List<ProductSpecify> findAll() {
-        return null;
+        return productSpecifyRepository.findAll();
     }
 
     @Override
     public ProductSpecify findById(Long id) {
-        return null;
+        return productSpecifyRepository.findById(id).orElseThrow(RuntimeException::new);
     }
 
     @Override

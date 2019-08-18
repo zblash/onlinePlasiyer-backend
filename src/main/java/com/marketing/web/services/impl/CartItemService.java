@@ -6,6 +6,8 @@ import com.marketing.web.models.CartItem;
 import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.repositories.CartItemRepository;
 import com.marketing.web.services.ICartItemService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,8 @@ public class CartItemService implements ICartItemService {
 
     @Autowired
     private CartItemRepository cartItemRepository;
+
+    private Logger logger = LoggerFactory.getLogger(CartItemService.class);
 
     @Override
     public List<CartItem> findAll() {
@@ -51,14 +55,19 @@ public class CartItemService implements ICartItemService {
 
     public CartItem createOrUpdate(Cart cart, CartItemDTO cartItemDTO){
         CartItem cartItem = cartItemDTOtoCartItem(cartItemDTO);
-        Optional<CartItem> optionalCartItem = cart.getItems().stream()
-                .filter(c -> c.getProduct().getId().equals(cartItem.getProduct().getId()))
-                .findFirst();
-        if (optionalCartItem.isPresent()){
-            CartItem findedItem = optionalCartItem.get();
-            cartItem.setQuantity(findedItem.getQuantity()+cartItem.getQuantity());
-           return update(findedItem,cartItem);
+
+        if (!cart.getItems().isEmpty() && cart.getItems() != null) {
+            Optional<CartItem> optionalCartItem = cart.getItems().stream()
+                    .filter(c -> c.getProduct().getId().equals(cartItem.getProduct().getId()))
+                    .findFirst();
+            if (optionalCartItem.isPresent()) {
+                CartItem findedItem = optionalCartItem.get();
+                cartItem.setQuantity(findedItem.getQuantity() + cartItem.getQuantity());
+                cartItem.setTotalPrice(cartItem.getProduct().getTotalPrice() * cartItem.getQuantity());
+                return update(findedItem, cartItem);
+            }
         }
+
         cartItem.setCart(cart);
         return create(cartItem);
     }
@@ -68,6 +77,7 @@ public class CartItemService implements ICartItemService {
         ProductSpecify product = productSpecifyService.findById(cartItemDTO.getProductId());
         cartItem.setProduct(product);
         cartItem.setQuantity(cartItemDTO.getQuantity());
+        cartItem.setTotalPrice(product.getTotalPrice() * cartItem.getQuantity());
         return cartItem;
     }
 }
