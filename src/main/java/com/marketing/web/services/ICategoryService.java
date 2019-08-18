@@ -7,6 +7,8 @@ public interface ICategoryService {
 
     List<Category> findAll();
 
+    List<Category> findBySubCategory(boolean isSub);
+
     Category findById(Long id);
 
     Category create(CategoryDTO categoryDTO);
@@ -15,7 +17,4 @@ public interface ICategoryService {
 
     void delete(Category category);
 
-    List<Category> findBaseCategories();
-
-    List<Category> findSubCategories();
 }

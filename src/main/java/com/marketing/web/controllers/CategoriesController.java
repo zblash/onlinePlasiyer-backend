@@ -3,6 +3,8 @@ package com.marketing.web.controllers;
 import com.marketing.web.dtos.CategoryDTO;
 import com.marketing.web.models.Category;
 import com.marketing.web.services.impl.CategoryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -27,19 +30,14 @@ public class CategoriesController {
     private CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<List<Category>> getAll(){
+    public ResponseEntity<List<Category>> getAll(@RequestParam(required = false) boolean filter,
+                                                 @RequestParam(required = false) boolean sub){
+        if (filter){
+           return ResponseEntity.ok(categoryService.findBySubCategory(sub));
+        }
        return ResponseEntity.ok(categoryService.findAll());
     }
 
-    @GetMapping("/base")
-    public ResponseEntity<List<Category>> getBaseCategories(){
-        return ResponseEntity.ok(categoryService.findBaseCategories());
-    }
-
-    @GetMapping("/sub")
-    public ResponseEntity<List<Category>> getSubCategories(){
-        return ResponseEntity.ok(categoryService.findSubCategories());
-    }
 
     @PostMapping("/create")
     public ResponseEntity<Category> createCategory(@Valid @RequestBody CategoryDTO categoryDTO){

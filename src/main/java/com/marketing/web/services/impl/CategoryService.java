@@ -18,21 +18,14 @@ public class CategoryService implements ICategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    private Logger logger = LoggerFactory.getLogger(CategoryService.class);
-
-    @Override
-    public List<Category> findBaseCategories() {
-        return categoryRepository.findBySubCategory(false);
-    }
-
-    @Override
-    public List<Category> findSubCategories() {
-        return categoryRepository.findBySubCategory(true);
-    }
-
     @Override
     public List<Category> findAll() {
         return categoryRepository.findAll();
+    }
+
+    @Override
+    public List<Category> findBySubCategory(boolean isSub) {
+        return categoryRepository.findBySubCategory(isSub);
     }
 
     @Override
@@ -43,7 +36,6 @@ public class CategoryService implements ICategoryService {
     @Override
     public Category create(CategoryDTO categoryDTO) {
         Category category = CategoryMapper.INSTANCE.CategoryDTOtoCategory(categoryDTO);
-        logger.info(Boolean.toString(categoryDTO.isSubCategory()));
         if (category.isSubCategory() && categoryDTO.getParentId() != null){
             category.setParent(categoryRepository.findById(categoryDTO.getParentId()).orElseThrow(RuntimeException::new));
         }
