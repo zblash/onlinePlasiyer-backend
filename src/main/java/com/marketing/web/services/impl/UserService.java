@@ -23,6 +23,9 @@ public class UserService implements IUserService {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private CartService cartService;
+
     @Override
     public User findByUserName(String userName) {
         return userRepository.findByUserName(userName).orElseThrow(RuntimeException::new);
@@ -45,7 +48,9 @@ public class UserService implements IUserService {
         roleRepository.save(role);
         user.setRole(role);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        User createdUser = userRepository.save(user);
+        cartService.create(createdUser);
+        return createdUser;
     }
 
     @Override
