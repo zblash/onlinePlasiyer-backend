@@ -1,6 +1,7 @@
 package com.marketing.web.services;
 
 
+import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItem;
 
 import java.util.List;
@@ -13,8 +14,10 @@ public interface ICartItemService {
 
     CartItem create(CartItem cartItem);
 
-    CartItem update(CartItem cartItem,CartItem updatedCartItem);
+    CartItem update(Cart cart, CartItem cartItem,CartItem updatedCartItem);
 
-    void delete(CartItem cartItem);
+    void delete(Cart cart, CartItem cartItem);
+
+    void deleteAll(Cart cart);
 
 }

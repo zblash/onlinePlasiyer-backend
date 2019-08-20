@@ -41,16 +41,37 @@ public class CartItemService implements ICartItemService {
     }
 
     @Override
-    public CartItem update(CartItem cartItem, CartItem updatedCartItem) {
-        cartItem.setProduct(updatedCartItem.getProduct());
-        cartItem.setCart(updatedCartItem.getCart());
-        cartItem.setQuantity(updatedCartItem.getQuantity());
-        return cartItemRepository.save(cartItem);
+    public CartItem update(Cart cart, CartItem cartItem, CartItem updatedCartItem) {
+        Optional<CartItem> optionalCartItem = cart.getItems().stream()
+                .filter(c -> c.getId().equals(cartItem.getId()))
+                .findFirst();
+        if (optionalCartItem.isPresent()) {
+            cartItem.setProduct(updatedCartItem.getProduct());
+            cartItem.setCart(updatedCartItem.getCart());
+            cartItem.setQuantity(updatedCartItem.getQuantity());
+            cartItem.setTotalPrice(updatedCartItem.getTotalPrice());
+            return cartItemRepository.save(cartItem);
+        } else {
+            throw new RuntimeException();
+        }
     }
 
     @Override
-    public void delete(CartItem cartItem) {
-        cartItemRepository.delete(cartItem);
+    public void delete(Cart cart, CartItem cartItem) {
+
+        Optional<CartItem> optionalCartItem = cart.getItems().stream()
+                .filter(c -> c.getProduct().getId().equals(cartItem.getId()))
+                .findFirst();
+        if (optionalCartItem.isPresent()) {
+            cartItemRepository.delete(optionalCartItem.get());
+        } else {
+            throw new RuntimeException();
+        }
+    }
+
+    @Override
+    public void deleteAll(Cart cart) {
+        cartItemRepository.deleteAll(cart.getItems());
     }
 
     public CartItem createOrUpdate(Cart cart, CartItemDTO cartItemDTO){
@@ -61,10 +82,8 @@ public class CartItemService implements ICartItemService {
                     .filter(c -> c.getProduct().getId().equals(cartItem.getProduct().getId()))
                     .findFirst();
             if (optionalCartItem.isPresent()) {
-                CartItem findedItem = optionalCartItem.get();
-                cartItem.setQuantity(findedItem.getQuantity() + cartItem.getQuantity());
-                cartItem.setTotalPrice(cartItem.getProduct().getTotalPrice() * cartItem.getQuantity());
-                return update(findedItem, cartItem);
+                CartItem foundItem = optionalCartItem.get();
+                return update(cart, foundItem, cartItem);
             }
         }
 
@@ -72,7 +91,7 @@ public class CartItemService implements ICartItemService {
         return create(cartItem);
     }
 
-    private CartItem cartItemDTOtoCartItem(CartItemDTO cartItemDTO){
+    public CartItem cartItemDTOtoCartItem(CartItemDTO cartItemDTO){
         CartItem cartItem = new CartItem();
         ProductSpecify product = productSpecifyService.findById(cartItemDTO.getProductId());
         cartItem.setProduct(product);
