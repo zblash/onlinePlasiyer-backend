@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum OrderStatus {
-    ORD("ORDERED"),
-    INB("IN_BASKET");
+    FNS("FINISHED"),
+    NEW("NEW"),
+    PAD("PAID");
 
     private String value;
 
