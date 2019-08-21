@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -33,9 +35,22 @@ public class OrderItem implements Serializable {
     @JsonIgnore
     private Order order;
 
-    @OneToOne
+    private double price;
+
+    private double unitPrice;
+
+    @Enumerated(EnumType.STRING)
+    private UnitType unitType;
+
+    private double recommendedRetailPrice;
+
+    @ManyToOne
     @JoinColumn(name = "product_id",referencedColumnName = "id")
-    private ProductSpecify product;
+    private Product product;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id",referencedColumnName = "id")
+    private User seller;
 
     @NotNull
     private int quantity;

@@ -1,12 +1,7 @@
 package com.marketing.web.utils.mappers;
 
-import com.marketing.web.dtos.CategoryDTO;
-import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItem;
-import com.marketing.web.models.Category;
-import com.marketing.web.models.Order;
 import com.marketing.web.models.OrderItem;
-import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -15,7 +10,18 @@ public interface OrderMapper {
 
     OrderMapper INSTANCE = Mappers.getMapper( OrderMapper.class );
 
-    @InheritInverseConfiguration
-    OrderItem cartItemToOrderItem(CartItem cartItem);
+
+    default OrderItem cartItemToOrderItem(CartItem cartItem){
+        OrderItem orderItem = new OrderItem();
+        orderItem.setPrice(cartItem.getProduct().getTotalPrice());
+        orderItem.setUnitPrice(cartItem.getProduct().getUnitPrice());
+        orderItem.setUnitType(cartItem.getProduct().getUnitType());
+        orderItem.setRecommendedRetailPrice(cartItem.getProduct().getRecommendedRetailPrice());
+        orderItem.setProduct(cartItem.getProduct().getProduct());
+        orderItem.setSeller(cartItem.getProduct().getUser());
+        orderItem.setQuantity(cartItem.getQuantity());
+        orderItem.setTotalPrice(cartItem.getTotalPrice());
+        return orderItem;
+    }
 
 }

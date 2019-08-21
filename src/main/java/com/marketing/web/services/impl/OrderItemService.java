@@ -27,7 +27,7 @@ public class OrderItemService implements IOrderItemService {
        Set<OrderItem> orderItems = new HashSet<>();
        for (CartItem cartItem : cartItems){
            OrderItem orderItem = OrderMapper.INSTANCE.cartItemToOrderItem(cartItem);
-           Optional<Order> optionalOrder = orders.stream().filter(order -> order.getSeller().getId().equals(orderItem.getProduct().getUser().getId())).findFirst();
+           Optional<Order> optionalOrder = orders.stream().filter(order -> order.getSeller().getId().equals(orderItem.getSeller().getId())).findFirst();
            optionalOrder.ifPresent(orderItem::setOrder);
            orderItems.add(orderItem);
        }
