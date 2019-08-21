@@ -13,20 +13,27 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductDTO implements Serializable {
-
-    @NotNull
-    private Long categoryId;
-
-    @NotBlank
-    @Size(min = 3,max = 20)
-    private String name;
+public class ProductSpecifyDTO implements Serializable {
 
     @NotBlank
     @Size(min = 10,max = 100)
     private String barcode;
 
     @NotNull
-    private double tax;
+    private double totalPrice;
 
+    @NotNull
+    private double unitPrice;
+
+    @NotNull
+    private int quantity;
+
+    @NotNull
+    private double contents;
+
+    @NotNull
+    private UnitType unitType;
+
+    @NotNull
+    private double recommendedRetailPrice;
 }

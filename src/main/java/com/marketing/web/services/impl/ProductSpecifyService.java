@@ -1,12 +1,14 @@
 package com.marketing.web.services.impl;
 
 import com.marketing.web.dtos.ProductDTO;
+import com.marketing.web.dtos.ProductSpecifyDTO;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.ProductSpecifyRepository;
 import com.marketing.web.services.IProductSpecifyService;
 import com.marketing.web.utils.mappers.ProductMapper;
+import com.marketing.web.utils.mappers.ProductSpecifyMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +36,11 @@ public class ProductSpecifyService implements IProductSpecifyService {
     }
 
     @Override
-    public ProductSpecify create(ProductDTO productDTO, Product product, User user) {
-        ProductSpecify productSpecify = ProductMapper.INSTANCE.ProductDTOtoProductSpecify(productDTO);
+    public ProductSpecify create(ProductSpecifyDTO productSpecifyDTO, Product product, User user) {
+        ProductSpecify productSpecify = ProductSpecifyMapper.INSTANCE.dtoToProductSpecify(productSpecifyDTO);
         productSpecify.setProduct(product);
         productSpecify.setUser(user);
-        productSpecify.setUnitType(productDTO.getUnitType());
+        productSpecify.setUnitType(productSpecifyDTO.getUnitType());
 
         return productSpecifyRepository.save(productSpecify);
     }

@@ -55,6 +55,8 @@ public class Product implements Serializable {
     @JoinColumn(name = "category_id",referencedColumnName = "id")
     private Category category;
 
+    private boolean status;
+
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
     private Set<ProductSpecify> productSpecifies;
 

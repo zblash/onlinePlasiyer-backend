@@ -1,8 +1,11 @@
 package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.ProductDTO;
+import com.marketing.web.dtos.ProductSpecifyDTO;
+import com.marketing.web.models.CustomPrincipal;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
+import com.marketing.web.models.User;
 import com.marketing.web.pubsub.ProductProducer;
 import com.marketing.web.pubsub.ProductSubscriber;
 import com.marketing.web.services.impl.ProductService;
@@ -10,6 +13,9 @@ import com.marketing.web.services.impl.ProductSpecifyService;
 import com.marketing.web.services.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,18 +61,37 @@ public class ProductsController {
         return ResponseEntity.ok(productService.findByCategory(id));
     }
 
+    @GetMapping("/bybarcode/{barcode}")
+    public ResponseEntity<Product> getByBarcode(@PathVariable String barcode){
+        return ResponseEntity.ok(productService.findByBarcode(barcode));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Product> getAll(@PathVariable Long id){
         return ResponseEntity.ok(productService.findById(id));
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Product> createProduct(@Valid @RequestBody ProductDTO productDTO){
+    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDTO productDTO){
         Product product = productService.findByBarcode(productDTO.getBarcode());
         if (product == null){
-            product = productService.create(productDTO);
+            return ResponseEntity.ok(productService.create(productDTO,false));
         }
-        ProductSpecify productSpecify = productSpecifyService.create(productDTO,product,userService.findAll().get(0));
+
+        return ResponseEntity.ok("Product already added in system");
+
+    }
+
+    @PreAuthorize("hasRole('ROLE_SALER')")
+    @PostMapping("/specify/create")
+    public ResponseEntity<?> createProductSpecify(@Valid @RequestBody ProductSpecifyDTO productSpecifyDTO){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        Product product = productService.findByBarcode(productSpecifyDTO.getBarcode());
+        if (product == null){
+            return ResponseEntity.ok("There is no product with this barcode "+productSpecifyDTO.getBarcode());
+        }
+        ProductSpecify productSpecify = productSpecifyService.create(productSpecifyDTO,product,user);
         product.addProductSpecify(productSpecify);
         productProducer.sendProduct(product.getId());
         return ResponseEntity.ok(product);

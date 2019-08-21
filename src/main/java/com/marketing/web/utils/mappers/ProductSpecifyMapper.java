@@ -1,18 +1,16 @@
 package com.marketing.web.utils.mappers;
 
-import com.marketing.web.dtos.ProductDTO;
-import com.marketing.web.models.Product;
+import com.marketing.web.dtos.ProductSpecifyDTO;
 import com.marketing.web.models.ProductSpecify;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
-public interface ProductMapper {
+public interface ProductSpecifyMapper {
 
-    ProductMapper INSTANCE = Mappers.getMapper( ProductMapper.class );
+    ProductSpecifyMapper INSTANCE = Mappers.getMapper( ProductSpecifyMapper.class );
 
     @InheritInverseConfiguration
-    Product ProductDTOtoProduct(ProductDTO dto);
-
+    ProductSpecify dtoToProductSpecify(ProductSpecifyDTO productSpecifyDTO);
 }

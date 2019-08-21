@@ -43,8 +43,7 @@ public class Order implements Serializable {
     @NotNull
     private OrderStatus status;
 
-    @OneToMany(mappedBy = "order",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
-    @Fetch(value = FetchMode.SUBSELECT)
+    @OneToMany(mappedBy = "order",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
 
     @OneToOne
@@ -55,9 +54,11 @@ public class Order implements Serializable {
     @JoinColumn(name = "buyer_id",referencedColumnName = "id")
     private User buyer;
 
-    @NotNull
     @Temporal(TemporalType.DATE)
-    private Date lastModifiedDate;
+    private Date orderDate;
+
+    @Temporal(TemporalType.DATE)
+    private Date waybillDate;
 
     public void addOrderItem(OrderItem orderItem){
         if (orderItems == null){

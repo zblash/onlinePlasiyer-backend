@@ -1,6 +1,8 @@
 package com.marketing.web.utils.mappers;
 
+import com.marketing.web.dtos.OrderDTO;
 import com.marketing.web.models.CartItem;
+import com.marketing.web.models.Order;
 import com.marketing.web.models.OrderItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -22,6 +24,17 @@ public interface OrderMapper {
         orderItem.setQuantity(cartItem.getQuantity());
         orderItem.setTotalPrice(cartItem.getTotalPrice());
         return orderItem;
+    }
+
+    default OrderDTO orderToOrderDTO(Order order){
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setBuyerName(order.getBuyer().getName());
+        orderDTO.setSellerName(order.getSeller().getName());
+        orderDTO.setOrderDate(order.getOrderDate());
+        orderDTO.setWaybillDate(order.getWaybillDate());
+        orderDTO.setTotalPrice(order.getTotalPrice());
+        orderDTO.setStatus(order.getStatus());
+        return orderDTO;
     }
 
 }

@@ -39,7 +39,7 @@ public class OrderService implements IOrderService {
             Order order = new Order();
             order.setBuyer(user);
             order.setSeller(seller);
-            order.setLastModifiedDate(new Date());
+            order.setOrderDate(new Date());
             order.setStatus(OrderStatus.NEW);
             order.setTotalPrice(orderTotalPrice);
             orders.add(order);
