@@ -10,11 +10,17 @@ import com.marketing.web.services.IOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
+
+import static java.util.Comparator.comparingLong;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toCollection;
 
 @Service
 public class OrderService implements IOrderService {
@@ -24,8 +30,9 @@ public class OrderService implements IOrderService {
 
     @Override
     public List<Order> createAll(User user, List<CartItem> cartItems) {
-        Set<Order> orders = new HashSet<>();
-        List<User> sellers = cartItems.stream().map(cartItem -> cartItem.getProduct().getUser()).distinct().collect(Collectors.toList());
+        List<Order> orders = new ArrayList<>();
+        List<User> sellers = cartItems.stream().map(cartItem -> cartItem.getProduct().getUser())
+                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(User::getId))), ArrayList::new));
         for (User seller : sellers){
             double orderTotalPrice = cartItems.stream().filter(cartItem -> cartItem.getProduct().getUser().getId().equals(seller.getId()))
                     .mapToDouble(CartItem::getTotalPrice).sum();

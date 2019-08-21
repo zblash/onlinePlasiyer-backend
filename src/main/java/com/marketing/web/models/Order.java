@@ -3,6 +3,8 @@ package com.marketing.web.models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.CascadeType;
@@ -42,7 +44,8 @@ public class Order implements Serializable {
     private OrderStatus status;
 
     @OneToMany(mappedBy = "order",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
-    private List<OrderItem> items;
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<OrderItem> orderItems;
 
     @OneToOne
     @JoinColumn(name = "seller_id",referencedColumnName = "id")
@@ -57,15 +60,15 @@ public class Order implements Serializable {
     private Date lastModifiedDate;
 
     public void addOrderItem(OrderItem orderItem){
-        if (items == null){
-            items = new ArrayList<>();
+        if (orderItems == null){
+            orderItems = new ArrayList<>();
         }
-        items.add(orderItem);
+        orderItems.add(orderItem);
     }
 
     public void removeOrderItem(OrderItem orderItem){
-        if (items != null){
-            items.remove(orderItem);
+        if (orderItems != null){
+            orderItems.remove(orderItem);
         }
 
     }

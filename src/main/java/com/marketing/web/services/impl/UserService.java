@@ -45,7 +45,7 @@ public class UserService implements IUserService {
     @Override
     public User create(User user) {
         Role role = new Role();
-        role.setName("ROLE_USER");
+        role.setName("ROLE_ADMIN");
         roleRepository.save(role);
         user.setRole(role);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
