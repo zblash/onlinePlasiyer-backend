@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface IProductService {
 
+    List<Product> findAllByStatus(boolean status);
+
     List<Product> findByCategory(Long categoryId);
 
     Product findByBarcode(String barcode);
@@ -21,4 +23,5 @@ public interface IProductService {
 
     void delete(Product product);
 
+    List<Product> filterByState(List<Product> products, String userState);
 }

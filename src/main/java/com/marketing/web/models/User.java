@@ -14,12 +14,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 @Entity
 @Data
@@ -53,6 +55,8 @@ public class User {
     @NotBlank
     private String taxNumber;
 
+    private boolean status;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id",referencedColumnName = "id")
     private Role role;
@@ -60,6 +64,9 @@ public class User {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id",referencedColumnName = "id")
     private Address address;
+
+    @ManyToMany
+    private List<State> activeStates;
 
     @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL,mappedBy = "user")

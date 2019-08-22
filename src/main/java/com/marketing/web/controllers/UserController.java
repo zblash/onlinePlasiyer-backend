@@ -1,9 +1,13 @@
 package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.LoginDTO;
+import com.marketing.web.dtos.RegisterDTO;
+import com.marketing.web.models.Address;
 import com.marketing.web.models.User;
 import com.marketing.web.security.JWTAuthToken.JWTGenerator;
+import com.marketing.web.services.impl.AddressService;
 import com.marketing.web.services.impl.UserService;
+import com.marketing.web.utils.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,6 +26,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AddressService addressService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -45,8 +52,12 @@ public class UserController {
     }
 
     @PostMapping("/sign-up")
-    public ResponseEntity<?> signUp(@Valid @RequestBody User user){
-        userService.create(user);
+    public ResponseEntity<?> signUp(@Valid @RequestBody RegisterDTO registerDTO){
+        User user = UserMapper.INSTANCE.registerDTOToUser(registerDTO);
+        Address address = addressService.create(UserMapper.INSTANCE.registerDTOToAddress(registerDTO));
+        user.setStatus(false);
+        user.setAddress(address);
+        userService.create(user,registerDTO.getRoleType());
         return new ResponseEntity<>(user, new HttpHeaders(), HttpStatus.OK);
     }
 

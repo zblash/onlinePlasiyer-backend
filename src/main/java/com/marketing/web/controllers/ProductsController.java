@@ -5,9 +5,11 @@ import com.marketing.web.dtos.ProductSpecifyDTO;
 import com.marketing.web.models.CustomPrincipal;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
+import com.marketing.web.models.State;
 import com.marketing.web.models.User;
 import com.marketing.web.pubsub.ProductProducer;
 import com.marketing.web.pubsub.ProductSubscriber;
+import com.marketing.web.repositories.StateRepository;
 import com.marketing.web.services.impl.ProductService;
 import com.marketing.web.services.impl.ProductSpecifyService;
 import com.marketing.web.services.impl.UserService;
@@ -28,8 +30,10 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/products")
@@ -50,15 +54,19 @@ public class ProductsController {
     @Autowired
     private ProductProducer productProducer;
 
-
     @GetMapping
     public ResponseEntity<List<Product>> getAll(){
-        return ResponseEntity.ok(productService.findAll());
+        return ResponseEntity.ok(productService.findAllByStatus(true));
     }
 
     @GetMapping("/category/{id}")
     public ResponseEntity<List<Product>> getAllByCategory(@PathVariable Long id){
-        return ResponseEntity.ok(productService.findByCategory(id));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        String userState = user.getAddress().getState();
+        List<Product> products = productService.findByCategory(id);
+        return ResponseEntity.ok(productService.filterByState(products, userState));
+
     }
 
     @GetMapping("/bybarcode/{barcode}")
@@ -67,10 +75,11 @@ public class ProductsController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getAll(@PathVariable Long id){
+    public ResponseEntity<Product> getById(@PathVariable Long id){
         return ResponseEntity.ok(productService.findById(id));
     }
 
+    @PreAuthorize("hasRole('ROLE_SALER')")
     @PostMapping("/create")
     public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDTO productDTO){
         Product product = productService.findByBarcode(productDTO.getBarcode());
@@ -92,6 +101,7 @@ public class ProductsController {
             return ResponseEntity.ok("There is no product with this barcode "+productSpecifyDTO.getBarcode());
         }
         ProductSpecify productSpecify = productSpecifyService.create(productSpecifyDTO,product,user);
+
         product.addProductSpecify(productSpecify);
         productProducer.sendProduct(product.getId());
         return ResponseEntity.ok(product);

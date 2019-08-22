@@ -3,13 +3,16 @@ package com.marketing.web.services.impl;
 import com.marketing.web.dtos.ProductDTO;
 import com.marketing.web.models.Category;
 import com.marketing.web.models.Product;
+import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.repositories.ProductRepository;
 import com.marketing.web.services.IProductService;
 import com.marketing.web.utils.mappers.ProductMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ProductService implements IProductService {
@@ -19,6 +22,11 @@ public class ProductService implements IProductService {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Override
+    public List<Product> findAllByStatus(boolean status){
+        return productRepository.findAllByStatus(status);
+    }
 
     @Override
     public List<Product> findByCategory(Long categoryId){
@@ -62,5 +70,21 @@ public class ProductService implements IProductService {
     @Override
     public void delete(Product product) {
         productRepository.delete(product);
+    }
+
+    @Override
+    public List<Product> filterByState(List<Product> products, String userState) {
+        for (Product product : products){
+            Set<ProductSpecify> filteredProductSpecifies = new HashSet<>();
+            for (ProductSpecify productSpecify : product.getProductSpecifies()){
+                long stateCount = productSpecify.getStates().stream()
+                        .filter(state -> state.getTitle().equals(userState)).count();
+                if (stateCount > 0){
+                    filteredProductSpecifies.add(productSpecify);
+                }
+            }
+            product.setProductSpecifies(filteredProductSpecifies);
+        }
+        return products;
     }
 }

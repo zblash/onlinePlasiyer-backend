@@ -2,6 +2,7 @@ package com.marketing.web.services.impl;
 
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.Role;
+import com.marketing.web.models.RoleType;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.RoleRepository;
 import com.marketing.web.repositories.UserRepository;
@@ -43,9 +44,9 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User create(User user) {
+    public User create(User user, RoleType roleType) {
         Role role = new Role();
-        role.setName("ROLE_ADMIN");
+        role.setName("ROLE_"+roleType.toString());
         roleRepository.save(role);
         user.setRole(role);
         user.setPassword(passwordEncoder.encode(user.getPassword()));

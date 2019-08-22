@@ -14,8 +14,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.util.List;
 
 @Entity
 @Getter
@@ -51,4 +53,6 @@ public class ProductSpecify {
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;
 
+    @ManyToMany
+    private List<State> states;
 }
