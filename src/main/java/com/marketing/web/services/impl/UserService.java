@@ -39,6 +39,11 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public List<User> findAllByStatus(boolean status) {
+        return userRepository.findAllByStatus(status);
+    }
+
+    @Override
     public User findById(Long id) {
         return userRepository.findById(id).orElseThrow(RuntimeException::new);
     }
@@ -57,8 +62,17 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User update(User user) {
-        return null;
+    public User update(User user, User updatedUser) {
+        user.setUserName(updatedUser.getUserName());
+        user.setName(updatedUser.getName());
+        user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+        user.setEmail(updatedUser.getEmail());
+        user.setTaxNumber(updatedUser.getTaxNumber());
+        user.setStatus(updatedUser.isStatus());
+        user.setRole(updatedUser.getRole());
+        user.setActiveStates(updatedUser.getActiveStates());
+        user.setAddress(updatedUser.getAddress());
+        return userRepository.save(user);
     }
 
     @Override

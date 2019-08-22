@@ -11,11 +11,13 @@ public interface IUserService {
 
     List<User> findAll();
 
+    List<User> findAllByStatus(boolean status);
+
     User findById(Long id);
 
     User create(User user, RoleType roleType);
 
-    User update(User user);
+    User update(User user, User updatedUser);
 
     void delete(User user);
 }
