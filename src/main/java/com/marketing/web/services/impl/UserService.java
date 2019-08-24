@@ -1,10 +1,14 @@
 package com.marketing.web.services.impl;
 
 import com.marketing.web.models.Cart;
+import com.marketing.web.models.City;
 import com.marketing.web.models.Role;
 import com.marketing.web.models.RoleType;
+import com.marketing.web.models.State;
 import com.marketing.web.models.User;
+import com.marketing.web.repositories.CityRepository;
 import com.marketing.web.repositories.RoleRepository;
+import com.marketing.web.repositories.StateRepository;
 import com.marketing.web.repositories.UserRepository;
 import com.marketing.web.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +28,11 @@ public class UserService implements IUserService {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private StateRepository stateRepository;
+    @Autowired
+    private CityRepository cityRepository;
 
     @Autowired
     private CartService cartService;
@@ -55,6 +64,10 @@ public class UserService implements IUserService {
         roleRepository.save(role);
         user.setRole(role);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        Long l = Long.valueOf(2);
+        City city = cityRepository.findById(l).orElse(null);
+        List<State> states = stateRepository.findAllByCity(city);
+        user.setActiveStates(states);
         User createdUser = userRepository.save(user);
         Cart cart = cartService.create(createdUser);
         user.setCart(cart);

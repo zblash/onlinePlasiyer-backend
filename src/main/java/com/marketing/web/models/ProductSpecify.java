@@ -53,6 +53,6 @@ public class ProductSpecify {
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<State> states;
 }

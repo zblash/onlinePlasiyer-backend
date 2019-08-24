@@ -54,7 +54,7 @@ public class ProductSpecifyService implements IProductSpecifyService {
                 states.addAll(stateRepository.findAllByTitleIn(productSpecifyDTO.getStates()));
         }else if(!productSpecifyDTO.getCity().isEmpty()){
            City city = cityRepository.findByTitle(productSpecifyDTO.getCity().toUpperCase()).orElseThrow(RuntimeException::new);
-           states.addAll(city.getStates());
+           states.addAll(stateRepository.findAllByCity(city));
         }
 
 
@@ -88,7 +88,7 @@ public class ProductSpecifyService implements IProductSpecifyService {
                 allowedStates.add(state);
             }
         }
-        return allowedStates;
+        return allowedStates.isEmpty() ? user.getActiveStates() : allowedStates;
     }
 }
 

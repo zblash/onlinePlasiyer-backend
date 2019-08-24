@@ -1,8 +1,12 @@
 package com.marketing.web.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -29,6 +33,4 @@ public class City {
 
     private int code;
 
-    @OneToMany(mappedBy = "city",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
-    private Set<State> states;
 }

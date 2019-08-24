@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.Map;
 
 @RestController
@@ -37,12 +38,13 @@ public class UserController {
     public ResponseEntity<?> login(@RequestBody(required = true) Map<String,String> login){
         User userDetails = userService.findByUserName(login.get("userName"));
 
-        if (passwordEncoder.matches(login.get("password"),userDetails.getPassword())){
+        if (userDetails.isStatus() && passwordEncoder.matches(login.get("password"),userDetails.getPassword())){
             String jwt= JWTGenerator.generate(userDetails);
             LoginDTO loginDTO = new LoginDTO.LoginDTOBuilder(jwt)
                     .email(userDetails.getEmail())
                     .name(userDetails.getName())
                     .userName(userDetails.getUserName())
+                    .role(userDetails.getRole().getName())
                     .build();
             return new ResponseEntity<>(loginDTO, HttpStatus.OK);
         }
@@ -55,7 +57,7 @@ public class UserController {
     public ResponseEntity<?> signUp(@Valid @RequestBody RegisterDTO registerDTO){
         User user = UserMapper.INSTANCE.registerDTOToUser(registerDTO);
         Address address = addressService.create(UserMapper.INSTANCE.registerDTOToAddress(registerDTO));
-        user.setStatus(false);
+        user.setStatus(true);
         user.setAddress(address);
         userService.create(user,registerDTO.getRoleType());
         return new ResponseEntity<>(user, new HttpHeaders(), HttpStatus.OK);

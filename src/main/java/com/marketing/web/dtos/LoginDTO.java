@@ -17,12 +17,15 @@ public class LoginDTO implements Serializable {
 
     private String email;
 
+    private String role;
+
     private String token;
 
     private LoginDTO(LoginDTOBuilder builder){
         this.userName = builder.userName;
         this.name = builder.name;
         this.email = builder.email;
+        this.role = builder.role;
         this.token = builder.token;
     }
 
@@ -33,6 +36,8 @@ public class LoginDTO implements Serializable {
         private String name;
 
         private String email;
+
+        private String role;
 
         private String token;
 
@@ -52,6 +57,11 @@ public class LoginDTO implements Serializable {
 
         public LoginDTOBuilder email(String email){
             this.email = email;
+            return this;
+        }
+
+        public LoginDTOBuilder role(String role){
+            this.role = role;
             return this;
         }
 

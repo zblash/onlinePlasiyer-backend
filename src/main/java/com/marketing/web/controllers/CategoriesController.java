@@ -41,9 +41,6 @@ public class CategoriesController {
         if (filter){
            return ResponseEntity.ok(categoryService.findBySubCategory(sub));
         }
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        CustomPrincipal pricipal = (CustomPrincipal) auth.getPrincipal();
-        logger.info(pricipal.getUser().getName());
        return ResponseEntity.ok(categoryService.findAll());
     }
 
