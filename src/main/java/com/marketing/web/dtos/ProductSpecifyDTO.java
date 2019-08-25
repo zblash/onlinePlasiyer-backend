@@ -40,5 +40,5 @@ public class ProductSpecifyDTO implements Serializable {
 
     private String city;
 
-    private List<String> states;
+    private List<String> stateList;
 }

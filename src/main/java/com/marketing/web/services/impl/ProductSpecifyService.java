@@ -50,8 +50,8 @@ public class ProductSpecifyService implements IProductSpecifyService {
     @Override
     public ProductSpecify create(ProductSpecifyDTO productSpecifyDTO, Product product, User user) {
         List<State> states = new CopyOnWriteArrayList<>();
-        if (!productSpecifyDTO.getStates().isEmpty() && productSpecifyDTO.getStates() != null){
-                states.addAll(stateRepository.findAllByTitleIn(productSpecifyDTO.getStates()));
+        if (!productSpecifyDTO.getStateList().isEmpty() && productSpecifyDTO.getStateList() != null){
+                states.addAll(stateRepository.findAllByTitleIn(productSpecifyDTO.getStateList()));
         }else if(!productSpecifyDTO.getCity().isEmpty()){
            City city = cityRepository.findByTitle(productSpecifyDTO.getCity().toUpperCase()).orElseThrow(RuntimeException::new);
            states.addAll(stateRepository.findAllByCity(city));
