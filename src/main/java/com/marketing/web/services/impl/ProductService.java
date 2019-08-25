@@ -55,6 +55,7 @@ public class ProductService implements IProductService {
         Product product = ProductMapper.INSTANCE.ProductDTOtoProduct(productDTO);
         product.setCategory(categoryService.findById(productDTO.getCategoryId()));
         product.setStatus(status);
+        product.setPhotoUrl(productDTO.getPhotoUrl());
         return productRepository.save(product);
     }
 

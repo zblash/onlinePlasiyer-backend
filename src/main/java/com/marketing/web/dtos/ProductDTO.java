@@ -1,5 +1,6 @@
 package com.marketing.web.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.marketing.web.models.UnitType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,5 +29,8 @@ public class ProductDTO implements Serializable {
 
     @NotNull
     private double tax;
+
+    @JsonIgnore
+    private String photoUrl;
 
 }

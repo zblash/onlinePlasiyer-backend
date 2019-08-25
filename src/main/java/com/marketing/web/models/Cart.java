@@ -38,7 +38,7 @@ public class Cart implements Serializable {
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;
 
-    @OneToMany(mappedBy = "cart",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "cart",cascade = CascadeType.REMOVE,orphanRemoval = true,fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
     private List<CartItem> items;
 

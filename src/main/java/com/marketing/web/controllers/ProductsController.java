@@ -12,12 +12,16 @@ import com.marketing.web.pubsub.ProductSubscriber;
 import com.marketing.web.repositories.StateRepository;
 import com.marketing.web.services.impl.ProductService;
 import com.marketing.web.services.impl.ProductSpecifyService;
+import com.marketing.web.services.impl.StorageService;
 import com.marketing.web.services.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,15 +29,25 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.validation.Valid;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/products")
@@ -54,6 +68,9 @@ public class ProductsController {
     @Autowired
     private ProductProducer productProducer;
 
+    @Autowired
+    private StorageService storageService;
+
     @GetMapping
     public ResponseEntity<List<Product>> getAll(){
         return ResponseEntity.ok(productService.findAllByStatus(true));
@@ -64,7 +81,7 @@ public class ProductsController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
         String userState = user.getAddress().getState();
-        List<Product> products = productService.findByCategory(id);
+        List<Product> products = productService.findByCategory(id).stream().filter(Product::isStatus).collect(Collectors.toList());
         return ResponseEntity.ok(productService.filterByState(products, userState));
 
     }
@@ -81,9 +98,11 @@ public class ProductsController {
 
     @PreAuthorize("hasRole('ROLE_SALER')")
     @PostMapping("/create")
-    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDTO productDTO){
+    public ResponseEntity<?> createProduct(@Valid ProductDTO productDTO, @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
         Product product = productService.findByBarcode(productDTO.getBarcode());
         if (product == null){
+            String fileName = storageService.store(uploadfile);
+            productDTO.setPhotoUrl(fileName);
             return ResponseEntity.ok(productService.create(productDTO,false));
         }
 

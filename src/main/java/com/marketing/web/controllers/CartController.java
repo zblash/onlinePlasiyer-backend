@@ -6,14 +6,18 @@ import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItem;
 import com.marketing.web.models.CustomPrincipal;
 import com.marketing.web.models.Order;
+import com.marketing.web.models.State;
 import com.marketing.web.models.User;
 import com.marketing.web.services.impl.CartItemService;
 import com.marketing.web.services.impl.OrderItemService;
 import com.marketing.web.services.impl.OrderService;
+import com.marketing.web.services.impl.ProductService;
+import com.marketing.web.services.impl.ProductSpecifyService;
 import com.marketing.web.utils.mappers.CartMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,6 +51,9 @@ public class CartController {
     @Autowired
     private OrderItemService orderItemService;
 
+    @Autowired
+    private ProductSpecifyService productSpecifyService;
+
     private Logger logger = LoggerFactory.getLogger(CartController.class);
 
     @GetMapping
@@ -59,11 +66,15 @@ public class CartController {
     }
 
     @PostMapping("/addItem")
-    public ResponseEntity<CartItem> addItem(@Valid @RequestBody CartItemDTO cartItemDTO){
+    public ResponseEntity<?> addItem(@Valid @RequestBody CartItemDTO cartItemDTO){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
-        CartItem cartItem = cartItemService.createOrUpdate(user.getCart(),cartItemDTO);
-        return ResponseEntity.ok(cartItem);
+        List<State> productStates = productSpecifyService.findById(cartItemDTO.getProductId()).getStates();
+        if (user.getActiveStates().containsAll(productStates)) {
+            CartItem cartItem = cartItemService.createOrUpdate(user.getCart(), cartItemDTO);
+            return ResponseEntity.ok(cartItem);
+        }
+        return new ResponseEntity<>("You can't order this product", HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("/removeItem/{id}")

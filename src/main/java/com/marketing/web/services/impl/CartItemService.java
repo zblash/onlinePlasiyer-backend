@@ -47,7 +47,6 @@ public class CartItemService implements ICartItemService {
                 .findFirst();
         if (optionalCartItem.isPresent()) {
             cartItem.setProduct(updatedCartItem.getProduct());
-            cartItem.setCart(updatedCartItem.getCart());
             cartItem.setQuantity(updatedCartItem.getQuantity());
             cartItem.setTotalPrice(updatedCartItem.getTotalPrice());
             return cartItemRepository.save(cartItem);
@@ -71,7 +70,10 @@ public class CartItemService implements ICartItemService {
 
     @Override
     public void deleteAll(Cart cart) {
-        cartItemRepository.deleteAll(cart.getItems());
+        for (CartItem cartItem : cart.getItems()){
+            logger.info(Long.toString(cartItem.getId()));
+            cartItemRepository.delete(cartItemRepository.findById(cartItem.getId()).orElse(null));
+        }
     }
 
     public CartItem createOrUpdate(Cart cart, CartItemDTO cartItemDTO){

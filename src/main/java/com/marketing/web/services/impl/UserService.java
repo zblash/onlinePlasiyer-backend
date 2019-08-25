@@ -64,9 +64,7 @@ public class UserService implements IUserService {
         roleRepository.save(role);
         user.setRole(role);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        Long l = Long.valueOf(2);
-        City city = cityRepository.findById(l).orElse(null);
-        List<State> states = stateRepository.findAllByCity(city);
+        List<State> states = stateRepository.findAllByCity(cityRepository.findByTitle("ANTALYA").orElse(null));
         user.setActiveStates(states);
         User createdUser = userRepository.save(user);
         Cart cart = cartService.create(createdUser);
