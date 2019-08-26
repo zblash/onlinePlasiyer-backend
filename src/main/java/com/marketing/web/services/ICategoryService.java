@@ -13,7 +13,7 @@ public interface ICategoryService {
 
     Category create(CategoryDTO categoryDTO);
 
-    Category update(Category category, Category updatedCategory);
+    Category update(Category category, CategoryDTO updatedCategoryDTO);
 
     void delete(Category category);
 

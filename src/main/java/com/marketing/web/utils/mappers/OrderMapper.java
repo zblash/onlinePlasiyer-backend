@@ -19,7 +19,10 @@ public interface OrderMapper {
         orderItem.setUnitPrice(cartItem.getProduct().getUnitPrice());
         orderItem.setUnitType(cartItem.getProduct().getUnitType());
         orderItem.setRecommendedRetailPrice(cartItem.getProduct().getRecommendedRetailPrice());
-        orderItem.setProduct(cartItem.getProduct().getProduct());
+        orderItem.setProductBarcode(cartItem.getProduct().getProduct().getBarcode());
+        orderItem.setProductName(cartItem.getProduct().getProduct().getName());
+        orderItem.setProductTax(cartItem.getProduct().getProduct().getTax());
+        orderItem.setProductPhotoUrl(cartItem.getProduct().getProduct().getPhotoUrl());
         orderItem.setSeller(cartItem.getProduct().getUser());
         orderItem.setQuantity(cartItem.getQuantity());
         orderItem.setTotalPrice(cartItem.getTotalPrice());

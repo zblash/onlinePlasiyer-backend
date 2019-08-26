@@ -1,5 +1,6 @@
 package com.marketing.web.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ public class CategoryDTO implements Serializable {
     @NotBlank
     private String name;
 
+    @JsonIgnore
     private String photoUrl;
 
     @NotNull

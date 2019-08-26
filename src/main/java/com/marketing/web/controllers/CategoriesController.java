@@ -44,27 +44,5 @@ public class CategoriesController {
        return ResponseEntity.ok(categoryService.findAll());
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/create")
-    public ResponseEntity<Category> createCategory(@Valid @RequestBody CategoryDTO categoryDTO){
-        return ResponseEntity.ok(categoryService.create(categoryDTO));
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/delete/{id}")
-    public Map<String,Category> deleteCategory(@PathVariable(value = "id") Long id){
-        Category category = categoryService.findById(id);
-        categoryService.delete(category);
-        Map<String,Category> response = new HashMap<>();
-        response.put("deleted",category);
-        return response;
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("/update/{id}")
-    public ResponseEntity<Category> updateCategory(@PathVariable(value = "id") Long id,@Valid @RequestBody Category updatedCategory){
-        return ResponseEntity.ok(categoryService.update(categoryService.findById(id),updatedCategory));
-    }
-
 
 }
