@@ -21,32 +21,12 @@ import java.io.IOException;
 public class PhotosController {
 
     @Autowired
-    private ProductService productService;
-
-    @Autowired
-    private CategoryService categoryService;
-
-
-    @Autowired
     private StorageService storageService;
 
-    @RequestMapping(value = "/product/{id}", method = RequestMethod.GET,
+    @RequestMapping(value = "/{name}", method = RequestMethod.GET,
             produces = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity<byte[]> getProductImage(@PathVariable Long id) throws IOException {
-        Product product = productService.findById(id);
-        byte[] bytes = storageService.loadAsByteArray(product.getPhotoUrl());
-
-        return ResponseEntity
-                .ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(bytes);
-    }
-
-    @RequestMapping(value = "/category/{id}", method = RequestMethod.GET,
-            produces = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity<byte[]> getCategoryImage(@PathVariable Long id) throws IOException {
-        Category category = categoryService.findById(id);
-        byte[] bytes = storageService.loadAsByteArray(category.getPhotoUrl());
+    public ResponseEntity<byte[]> getProductImage(@PathVariable String name) throws IOException {
+        byte[] bytes = storageService.loadAsByteArray(name);
 
         return ResponseEntity
                 .ok()
