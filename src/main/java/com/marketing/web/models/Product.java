@@ -1,11 +1,7 @@
 package com.marketing.web.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -26,12 +22,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "products")
-public class Product implements Serializable {
+public class Product extends Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

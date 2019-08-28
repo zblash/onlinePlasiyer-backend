@@ -1,13 +1,11 @@
 package com.marketing.web.services.impl;
 
 import com.marketing.web.models.Cart;
-import com.marketing.web.models.City;
 import com.marketing.web.models.Role;
-import com.marketing.web.models.RoleType;
+import com.marketing.web.enums.RoleType;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.CityRepository;
-import com.marketing.web.repositories.RoleRepository;
 import com.marketing.web.repositories.StateRepository;
 import com.marketing.web.repositories.UserRepository;
 import com.marketing.web.services.IUserService;
@@ -27,7 +25,7 @@ public class UserService implements IUserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private RoleRepository roleRepository;
+    private RoleService roleService;
 
     @Autowired
     private StateRepository stateRepository;
@@ -48,6 +46,12 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public List<User> findAllByRole(RoleType roleType) {
+        Role role = roleService.createOrFind("ROLE_"+roleType.toString());
+        return userRepository.findAllByRole(role);
+    }
+
+    @Override
     public List<User> findAllByStatus(boolean status) {
         return userRepository.findAllByStatus(status);
     }
@@ -59,9 +63,7 @@ public class UserService implements IUserService {
 
     @Override
     public User create(User user, RoleType roleType) {
-        Role role = new Role();
-        role.setName("ROLE_"+roleType.toString());
-        roleRepository.save(role);
+        Role role = roleService.createOrFind("ROLE_"+roleType.toString());
         user.setRole(role);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         List<State> states = stateRepository.findAllByCity(cityRepository.findByTitle("ANTALYA").orElse(null));

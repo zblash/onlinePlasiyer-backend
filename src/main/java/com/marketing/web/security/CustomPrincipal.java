@@ -1,5 +1,6 @@
-package com.marketing.web.models;
+package com.marketing.web.security;
 
+import com.marketing.web.models.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

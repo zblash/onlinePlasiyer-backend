@@ -2,6 +2,7 @@ package com.marketing.web.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
@@ -14,8 +15,9 @@ import javax.persistence.Table;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "roles")
-public class Role {
+public class Role extends Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -12,6 +12,8 @@ public interface IOrderService {
 
     List<Order> findByBuyer(Long id);
 
+    Order findByBuyerAndId(Long buyerId, Long id);
+
     List<Order> findBySeller(Long id);
 
 }

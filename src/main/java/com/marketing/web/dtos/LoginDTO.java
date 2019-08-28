@@ -2,15 +2,17 @@ package com.marketing.web.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = false)
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class LoginDTO implements Serializable {
+@AllArgsConstructor
+public class LoginDTO extends DTO {
 
     private String userName;
 

@@ -2,8 +2,7 @@ package com.marketing.web.services.impl;
 
 import com.marketing.web.models.CartItem;
 import com.marketing.web.models.Order;
-import com.marketing.web.models.OrderItem;
-import com.marketing.web.models.OrderStatus;
+import com.marketing.web.enums.OrderStatus;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.OrderRepository;
 import com.marketing.web.services.IOrderService;
@@ -12,11 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparingLong;
 import static java.util.stream.Collectors.collectingAndThen;
@@ -50,6 +46,11 @@ public class OrderService implements IOrderService {
     @Override
     public List<Order> findByBuyer(Long id) {
         return orderRepository.findAllByBuyer_Id(id);
+    }
+
+    @Override
+    public Order findByBuyerAndId(Long buyerId, Long id) {
+        return orderRepository.findByBuyer_IdAndId(buyerId,id).orElseThrow(RuntimeException::new);
     }
 
     @Override

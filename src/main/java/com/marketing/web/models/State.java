@@ -17,8 +17,9 @@ import javax.persistence.Table;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "states")
-public class State {
+public class State extends Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

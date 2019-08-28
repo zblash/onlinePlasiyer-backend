@@ -3,6 +3,7 @@ package com.marketing.web.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
@@ -20,8 +21,9 @@ import javax.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "cartitems")
-public class CartItem {
+public class CartItem extends Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -4,14 +4,13 @@ import com.marketing.web.dtos.CartDTO;
 import com.marketing.web.dtos.CartItemDTO;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItem;
-import com.marketing.web.models.CustomPrincipal;
+import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
 import com.marketing.web.services.impl.CartItemService;
 import com.marketing.web.services.impl.OrderItemService;
 import com.marketing.web.services.impl.OrderService;
-import com.marketing.web.services.impl.ProductService;
 import com.marketing.web.services.impl.ProductSpecifyService;
 import com.marketing.web.utils.mappers.CartMapper;
 import org.slf4j.Logger;
@@ -29,14 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-
-import static java.util.Comparator.comparingLong;
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toCollection;
 
 @RestController
 @RequestMapping("/api/cart")

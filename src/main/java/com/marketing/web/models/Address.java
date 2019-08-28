@@ -2,6 +2,7 @@ package com.marketing.web.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
@@ -19,8 +20,9 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "addresses")
-public class Address {
+public class Address extends Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

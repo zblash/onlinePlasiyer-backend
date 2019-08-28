@@ -29,9 +29,9 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "users")
-public class User {
+public class User extends Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -1,22 +1,22 @@
-package com.marketing.web.models;
+package com.marketing.web.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum OrderStatus {
-    FNS("FINISHED"),
-    NEW("NEW"),
-    PAD("PAID");
+public enum UnitType {
+    KG("KG"),
+    KL("KL"),
+    AD("AD");
 
     private String value;
 
-    OrderStatus(String value) {
+    UnitType(String value) {
         this.value = value;
     }
 
     @JsonCreator
-    public static OrderStatus fromValue(String text) {
-        for (OrderStatus b : OrderStatus.values()) {
+    public static UnitType fromValue(String text) {
+        for (UnitType b : UnitType.values()) {
             if (String.valueOf(b.value).equals(text)) {
                 return b;
             }

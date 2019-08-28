@@ -1,9 +1,9 @@
 package com.marketing.web.dtos;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.marketing.web.models.UnitType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
@@ -11,10 +11,11 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 
+@EqualsAndHashCode(callSuper = false)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductDTO implements Serializable {
+public class ProductDTO extends DTO {
 
     @NotNull
     private Long categoryId;
@@ -33,4 +34,5 @@ public class ProductDTO implements Serializable {
     @JsonIgnore
     private String photoUrl;
 
+    private boolean status;
 }

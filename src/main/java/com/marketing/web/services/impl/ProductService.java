@@ -51,10 +51,9 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product create(ProductDTO productDTO, boolean status) {
+    public Product create(ProductDTO productDTO) {
         Product product = ProductMapper.INSTANCE.ProductDTOtoProduct(productDTO);
         product.setCategory(categoryService.findById(productDTO.getCategoryId()));
-        product.setStatus(status);
         product.setPhotoUrl(productDTO.getPhotoUrl());
         return productRepository.save(product);
     }

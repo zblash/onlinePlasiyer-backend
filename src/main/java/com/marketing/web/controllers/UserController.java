@@ -1,7 +1,10 @@
 package com.marketing.web.controllers;
 
+import com.marketing.web.dtos.CustomerUser;
 import com.marketing.web.dtos.LoginDTO;
+import com.marketing.web.dtos.MerchantUser;
 import com.marketing.web.dtos.RegisterDTO;
+import com.marketing.web.enums.RoleType;
 import com.marketing.web.models.Address;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
@@ -15,12 +18,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -67,4 +69,41 @@ public class UserController {
         return new ResponseEntity<>(user, new HttpHeaders(), HttpStatus.OK);
     }
 
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/api/users/customers")
+    public ResponseEntity<List<CustomerUser>> getAllCustomers(){
+
+        return ResponseEntity.ok(userService.findAllByRole(RoleType.CUSTOMER).stream()
+                .map(UserMapper.INSTANCE::userToCustomer)
+                .collect(Collectors.toList()));
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/api/users/merchant")
+    public ResponseEntity<List<MerchantUser>> getAllMerchants(){
+        return ResponseEntity.ok(userService.findAllByRole(RoleType.MERCHANT).stream()
+                .map(UserMapper.INSTANCE::userToMerchant)
+                .collect(Collectors.toList()));
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/api/users/passive")
+    public ResponseEntity<List<User>> getPassiveUsers(){
+        return ResponseEntity.ok(userService.findAllByStatus(false));
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/api/users/active")
+    public ResponseEntity<List<User>> getActiveUsers(){
+        return ResponseEntity.ok(userService.findAllByStatus(true));
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping("/api/users/setActive/{id}")
+    public ResponseEntity<User> setActiveUser(@PathVariable Long id){
+        User user = userService.findById(id);
+        user.setStatus(true);
+        return ResponseEntity.ok(userService.update(user,user));
+    }
 }

@@ -1,22 +1,22 @@
-package com.marketing.web.models;
+package com.marketing.web.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum RoleType {
-    SALER("SALER"),
-    ADMIN("ADMIN"),
-    CUSTOMER("CUSTOMER");
+public enum OrderStatus {
+    FNS("FINISHED"),
+    NEW("NEW"),
+    PAD("PAID");
 
     private String value;
 
-    RoleType(String value) {
+    OrderStatus(String value) {
         this.value = value;
     }
 
     @JsonCreator
-    public static RoleType fromValue(String text) {
-        for (RoleType b : RoleType.values()) {
+    public static OrderStatus fromValue(String text) {
+        for (OrderStatus b : OrderStatus.values()) {
             if (String.valueOf(b.value).equals(text)) {
                 return b;
             }

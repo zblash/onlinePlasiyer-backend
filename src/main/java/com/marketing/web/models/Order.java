@@ -1,14 +1,12 @@
 package com.marketing.web.models;
 
+import com.marketing.web.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -30,8 +28,9 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "orders")
-public class Order implements Serializable {
+public class Order extends Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -41,9 +40,16 @@ public class Order implements Serializable {
     private double totalPrice;
 
     @NotNull
+    private double paidPrice;
+
+    private double unPaidPrice;
+
+    private double discount;
+
+    @NotNull
     private OrderStatus status;
 
-    @OneToMany(mappedBy = "order",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
     private List<OrderItem> orderItems;
 
     @OneToOne

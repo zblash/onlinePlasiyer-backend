@@ -1,10 +1,8 @@
 package com.marketing.web.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.marketing.web.enums.UnitType;
+import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -20,12 +18,12 @@ import javax.persistence.Table;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "product_specifies")
-public class ProductSpecify {
+public class ProductSpecify extends Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

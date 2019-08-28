@@ -2,26 +2,21 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.ProductDTO;
 import com.marketing.web.dtos.ProductSpecifyDTO;
-import com.marketing.web.models.CustomPrincipal;
+import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
-import com.marketing.web.models.State;
 import com.marketing.web.models.User;
 import com.marketing.web.pubsub.ProductProducer;
 import com.marketing.web.pubsub.ProductSubscriber;
-import com.marketing.web.repositories.StateRepository;
 import com.marketing.web.services.impl.ProductService;
 import com.marketing.web.services.impl.ProductSpecifyService;
 import com.marketing.web.services.impl.StorageService;
 import com.marketing.web.services.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,24 +24,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.validation.Valid;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -96,21 +82,26 @@ public class ProductsController {
         return ResponseEntity.ok(productService.findById(id));
     }
 
-    @PreAuthorize("hasRole('ROLE_SALER')")
+    @PreAuthorize("hasRole('ROLE_SALER') or hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<?> createProduct(@Valid ProductDTO productDTO, @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
         Product product = productService.findByBarcode(productDTO.getBarcode());
         if (product == null){
             String fileName = storageService.store(uploadfile);
             productDTO.setPhotoUrl(fileName);
-            return ResponseEntity.ok(productService.create(productDTO,false));
+            if (!user.getRole().getName().equals("ROLE_ADMIN")){
+                productDTO.setStatus(false);
+            }
+            return ResponseEntity.ok(productService.create(productDTO));
         }
 
         return ResponseEntity.ok("Product already added in system");
 
     }
 
-    @PreAuthorize("hasRole('ROLE_SALER')")
+    @PreAuthorize("hasRole('ROLE_SALER') or hasRole('ROLE_ADMIN')")
     @PostMapping("/specify/create")
     public ResponseEntity<?> createProductSpecify(@Valid @RequestBody ProductSpecifyDTO productSpecifyDTO){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -126,6 +117,7 @@ public class ProductsController {
         return ResponseEntity.ok(product);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/delete/{id}")
     public Map<String,Product> deleteProduct(@PathVariable(value = "id") Long id){
         Product product = productService.findById(id);
@@ -135,6 +127,7 @@ public class ProductsController {
         return response;
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
     public ResponseEntity<Product> updateProduct(@PathVariable(value = "id") Long id,@Valid @RequestBody Product updatedProduct){
         return ResponseEntity.ok(productService.update(productService.findById(id),updatedProduct));

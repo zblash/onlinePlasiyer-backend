@@ -22,8 +22,9 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "cities")
-public class City {
+public class City extends Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

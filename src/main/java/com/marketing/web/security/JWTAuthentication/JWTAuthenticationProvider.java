@@ -1,11 +1,9 @@
 package com.marketing.web.security.JWTAuthentication;
 
-import com.marketing.web.models.CustomPrincipal;
+import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.models.User;
 import com.marketing.web.security.JWTAuthToken.JWTAuthToken;
 import com.marketing.web.security.JWTAuthToken.JWTValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,12 +11,9 @@ import org.springframework.security.authentication.dao.AbstractUserDetailsAuthen
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Component
