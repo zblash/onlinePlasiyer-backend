@@ -5,7 +5,7 @@ import com.marketing.web.models.State;
 import com.marketing.web.pubsub.ProductConsumer;
 import com.marketing.web.repositories.CityRepository;
 import com.marketing.web.repositories.StateRepository;
-import com.marketing.web.services.impl.StorageService;
+import com.marketing.web.services.storage.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;

@@ -1,17 +1,17 @@
 package com.marketing.web.controllers;
 
-import com.marketing.web.dtos.ProductDTO;
-import com.marketing.web.dtos.ProductSpecifyDTO;
+import com.marketing.web.dtos.product.ProductDTO;
+import com.marketing.web.dtos.product.ProductSpecifyDTO;
 import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.models.User;
 import com.marketing.web.pubsub.ProductProducer;
 import com.marketing.web.pubsub.ProductSubscriber;
-import com.marketing.web.services.impl.ProductService;
-import com.marketing.web.services.impl.ProductSpecifyService;
-import com.marketing.web.services.impl.StorageService;
-import com.marketing.web.services.impl.UserService;
+import com.marketing.web.services.product.ProductService;
+import com.marketing.web.services.product.ProductSpecifyService;
+import com.marketing.web.services.storage.StorageService;
+import com.marketing.web.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -82,7 +82,7 @@ public class ProductsController {
         return ResponseEntity.ok(productService.findById(id));
     }
 
-    @PreAuthorize("hasRole('ROLE_SALER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<?> createProduct(@Valid ProductDTO productDTO, @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -101,7 +101,7 @@ public class ProductsController {
 
     }
 
-    @PreAuthorize("hasRole('ROLE_SALER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping("/specify/create")
     public ResponseEntity<?> createProductSpecify(@Valid @RequestBody ProductSpecifyDTO productSpecifyDTO){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

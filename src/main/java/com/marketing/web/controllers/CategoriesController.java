@@ -1,9 +1,9 @@
 package com.marketing.web.controllers;
 
-import com.marketing.web.dtos.CategoryDTO;
+import com.marketing.web.dtos.category.CategoryDTO;
 import com.marketing.web.models.Category;
-import com.marketing.web.services.impl.CategoryService;
-import com.marketing.web.services.impl.StorageService;
+import com.marketing.web.services.category.CategoryService;
+import com.marketing.web.services.storage.StorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

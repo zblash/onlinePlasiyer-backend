@@ -1,11 +1,6 @@
 package com.marketing.web.controllers;
 
-import com.marketing.web.models.Category;
-import com.marketing.web.models.Product;
-import com.marketing.web.models.ProductSpecify;
-import com.marketing.web.services.impl.CategoryService;
-import com.marketing.web.services.impl.ProductService;
-import com.marketing.web.services.impl.StorageService;
+import com.marketing.web.services.storage.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

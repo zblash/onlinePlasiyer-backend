@@ -1,6 +1,6 @@
 package com.marketing.web.utils.mappers;
 
-import com.marketing.web.dtos.CartDTO;
+import com.marketing.web.dtos.cart.CartDTO;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItem;
 import org.mapstruct.Mapper;

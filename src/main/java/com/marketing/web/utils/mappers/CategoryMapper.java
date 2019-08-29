@@ -1,6 +1,6 @@
 package com.marketing.web.utils.mappers;
 
-import com.marketing.web.dtos.CategoryDTO;
+import com.marketing.web.dtos.category.CategoryDTO;
 import com.marketing.web.models.Category;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;

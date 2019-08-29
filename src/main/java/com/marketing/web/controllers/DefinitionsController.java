@@ -2,7 +2,7 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.enums.UnitType;
-import com.marketing.web.services.impl.RoleService;
+import com.marketing.web.services.user.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

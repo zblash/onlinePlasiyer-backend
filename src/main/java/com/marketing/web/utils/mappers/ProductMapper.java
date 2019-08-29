@@ -1,8 +1,7 @@
 package com.marketing.web.utils.mappers;
 
-import com.marketing.web.dtos.ProductDTO;
+import com.marketing.web.dtos.product.ProductDTO;
 import com.marketing.web.models.Product;
-import com.marketing.web.models.ProductSpecify;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

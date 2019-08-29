@@ -1,9 +1,11 @@
 package com.marketing.web.utils.mappers;
 
-import com.marketing.web.dtos.OrderDTO;
+import com.marketing.web.dtos.order.ReadableOrder;
+import com.marketing.web.dtos.order.WritableOrder;
 import com.marketing.web.models.CartItem;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.OrderItem;
+import org.aspectj.weaver.ast.Or;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -29,15 +31,15 @@ public interface OrderMapper {
         return orderItem;
     }
 
-    default OrderDTO orderToOrderDTO(Order order){
-        OrderDTO orderDTO = new OrderDTO();
-        orderDTO.setBuyerName(order.getBuyer().getName());
-        orderDTO.setSellerName(order.getSeller().getName());
-        orderDTO.setOrderDate(order.getOrderDate());
-        orderDTO.setWaybillDate(order.getWaybillDate());
-        orderDTO.setTotalPrice(order.getTotalPrice());
-        orderDTO.setStatus(order.getStatus());
-        return orderDTO;
+    default ReadableOrder orderToReadableOrder(Order order){
+        ReadableOrder readableOrder = new ReadableOrder();
+        readableOrder.setBuyerName(order.getBuyer().getName());
+        readableOrder.setSellerName(order.getSeller().getName());
+        readableOrder.setOrderDate(order.getOrderDate());
+        readableOrder.setWaybillDate(order.getWaybillDate());
+        readableOrder.setTotalPrice(order.getTotalPrice());
+        readableOrder.setStatus(order.getStatus());
+        return readableOrder;
     }
 
 }

@@ -1,16 +1,16 @@
 package com.marketing.web.controllers;
 
-import com.marketing.web.dtos.CustomerUser;
-import com.marketing.web.dtos.LoginDTO;
-import com.marketing.web.dtos.MerchantUser;
-import com.marketing.web.dtos.RegisterDTO;
+import com.marketing.web.dtos.user.CustomerUser;
+import com.marketing.web.dtos.user.LoginDTO;
+import com.marketing.web.dtos.user.MerchantUser;
+import com.marketing.web.dtos.user.RegisterDTO;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.models.Address;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
 import com.marketing.web.security.JWTAuthToken.JWTGenerator;
-import com.marketing.web.services.impl.AddressService;
-import com.marketing.web.services.impl.UserService;
+import com.marketing.web.services.user.AddressService;
+import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -21,7 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

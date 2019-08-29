@@ -1,8 +1,8 @@
 package com.marketing.web.utils.mappers;
 
-import com.marketing.web.dtos.CustomerUser;
-import com.marketing.web.dtos.MerchantUser;
-import com.marketing.web.dtos.RegisterDTO;
+import com.marketing.web.dtos.user.CustomerUser;
+import com.marketing.web.dtos.user.MerchantUser;
+import com.marketing.web.dtos.user.RegisterDTO;
 import com.marketing.web.models.Address;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;

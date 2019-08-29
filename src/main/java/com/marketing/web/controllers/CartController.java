@@ -1,17 +1,17 @@
 package com.marketing.web.controllers;
 
-import com.marketing.web.dtos.CartDTO;
-import com.marketing.web.dtos.CartItemDTO;
+import com.marketing.web.dtos.cart.CartDTO;
+import com.marketing.web.dtos.cart.CartItemDTO;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItem;
 import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
-import com.marketing.web.services.impl.CartItemService;
-import com.marketing.web.services.impl.OrderItemService;
-import com.marketing.web.services.impl.OrderService;
-import com.marketing.web.services.impl.ProductSpecifyService;
+import com.marketing.web.services.cart.CartItemService;
+import com.marketing.web.services.order.OrderItemService;
+import com.marketing.web.services.order.OrderService;
+import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.utils.mappers.CartMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,10 +61,13 @@ public class CartController {
     public ResponseEntity<?> addItem(@Valid @RequestBody CartItemDTO cartItemDTO){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
-        List<State> productStates = productSpecifyService.findById(cartItemDTO.getProductId()).getStates();
-        if (user.getActiveStates().containsAll(productStates)) {
-            CartItem cartItem = cartItemService.createOrUpdate(user.getCart(), cartItemDTO);
-            return ResponseEntity.ok(cartItem);
+        if (cartItemDTO.getQuantity() < 1) {
+            List<State> productStates = productSpecifyService.findById(cartItemDTO.getProductId()).getStates();
+            if (user.getActiveStates().containsAll(productStates)) {
+                CartItem cartItem = cartItemService.createOrUpdate(user.getCart(), cartItemDTO);
+                return ResponseEntity.ok(cartItem);
+            }
+            return new ResponseEntity<>("Quantity must bigger than 0", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>("You can't order this product", HttpStatus.BAD_REQUEST);
     }
@@ -77,19 +80,6 @@ public class CartController {
         return ResponseEntity.ok("Removed Item from User's cart with id:"+id);
     }
 
-    @PostMapping("/updateItem/{id}")
-    public ResponseEntity<?> updateItem(@PathVariable Long id,@Valid @RequestBody CartItemDTO cartItemDTO){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
-        CartItem foundItem = cartItemService.findById(id);
-        if (cartItemDTO.getQuantity() < 1){
-            cartItemService.delete(user.getCart(),foundItem);
-            return ResponseEntity.ok("Removed Item from User's cart with id:"+id);
-        }
-
-        CartItem cartItem = cartItemService.update(user.getCart(), foundItem, cartItemService.cartItemDTOtoCartItem(cartItemDTO));
-        return ResponseEntity.ok(cartItem);
-    }
 
     @GetMapping("/clear")
     public ResponseEntity<?> clearCart(){
