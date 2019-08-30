@@ -40,13 +40,6 @@ public class Order extends Model {
     private double totalPrice;
 
     @NotNull
-    private double paidPrice;
-
-    private double unPaidPrice;
-
-    private double discount;
-
-    @NotNull
     private OrderStatus status;
 
     @OneToMany(mappedBy = "order",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)

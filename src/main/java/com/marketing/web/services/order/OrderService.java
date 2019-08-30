@@ -30,21 +30,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public List<Order> createAll(User user, List<CartItem> cartItems) {
-        List<Order> orders = new ArrayList<>();
-        List<User> sellers = cartItems.stream().map(cartItem -> cartItem.getProduct().getUser())
-                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(User::getId))), ArrayList::new));
-        for (User seller : sellers){
-            double orderTotalPrice = cartItems.stream().filter(cartItem -> cartItem.getProduct().getUser().getId().equals(seller.getId()))
-                    .mapToDouble(CartItem::getTotalPrice).sum();
-            Order order = new Order();
-            order.setBuyer(user);
-            order.setSeller(seller);
-            order.setOrderDate(new Date());
-            order.setStatus(OrderStatus.NEW);
-            order.setTotalPrice(orderTotalPrice);
-            orders.add(order);
-        }
+    public List<Order> createAll(List<Order> orders) {
         return orderRepository.saveAll(orders);
     }
 
@@ -72,9 +58,6 @@ public class OrderService implements IOrderService {
         Order order = findById(id);
         order.setWaybillDate(updatedOrder.getWaybillDate());
         order.setStatus(updatedOrder.getStatus());
-        order.setDiscount(updatedOrder.getDiscount());
-        order.setUnPaidPrice(updatedOrder.getUnPaidPrice());
-        order.setPaidPrice(updatedOrder.getPaidPrice());
         order.setTotalPrice(updatedOrder.getTotalPrice());
         return orderRepository.save(order);
     }

@@ -20,14 +20,7 @@ public class OrderItemService implements IOrderItemService {
     private OrderItemRepository orderItemRepository;
 
     @Override
-    public List<OrderItem> createAll(List<CartItem> cartItems, List<Order> orders) {
-       List<OrderItem> orderItems = new ArrayList<>();
-       for (CartItem cartItem : cartItems){
-           OrderItem orderItem = OrderMapper.INSTANCE.cartItemToOrderItem(cartItem);
-           Optional<Order> optionalOrder = orders.stream().filter(order -> order.getSeller().getId().equals(orderItem.getSeller().getId())).findFirst();
-           optionalOrder.ifPresent(orderItem::setOrder);
-           orderItems.add(orderItem);
-       }
+    public List<OrderItem> createAll(List<OrderItem> orderItems) {
        return orderItemRepository.saveAll(orderItems);
     }
 }

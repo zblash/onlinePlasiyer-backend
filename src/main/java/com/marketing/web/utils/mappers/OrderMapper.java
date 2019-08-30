@@ -39,6 +39,7 @@ public interface OrderMapper {
         readableOrder.setWaybillDate(order.getWaybillDate());
         readableOrder.setTotalPrice(order.getTotalPrice());
         readableOrder.setStatus(order.getStatus());
+        readableOrder.setOrderItems(order.getOrderItems());
         return readableOrder;
     }
 

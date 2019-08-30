@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface IOrderItemService {
 
-    List<OrderItem> createAll(List<CartItem> cartItems,List<Order> orders);
+    List<OrderItem> createAll(List<OrderItem> orderItems);
 
 }

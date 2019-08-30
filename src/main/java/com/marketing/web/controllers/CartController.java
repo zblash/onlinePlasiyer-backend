@@ -2,6 +2,7 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.cart.CartDTO;
 import com.marketing.web.dtos.cart.CartItemDTO;
+import com.marketing.web.dtos.order.ReadableOrder;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItem;
 import com.marketing.web.security.CustomPrincipal;
@@ -12,6 +13,7 @@ import com.marketing.web.services.cart.CartItemService;
 import com.marketing.web.services.order.OrderItemService;
 import com.marketing.web.services.order.OrderService;
 import com.marketing.web.services.product.ProductSpecifyService;
+import com.marketing.web.utils.facade.OrderFacade;
 import com.marketing.web.utils.mappers.CartMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,9 @@ public class CartController {
 
     @Autowired
     private ProductSpecifyService productSpecifyService;
+
+    @Autowired
+    private OrderFacade orderFacade;
 
     private Logger logger = LoggerFactory.getLogger(CartController.class);
 
@@ -96,11 +101,9 @@ public class CartController {
         Cart cart = user.getCart();
 
         if (!cart.getItems().isEmpty() && cart.getItems() != null) {
-            List<Order> orders = orderService.createAll(user, cart.getItems());
-            orderItemService.createAll(cart.getItems(), orders);
-            cartItemService.deleteAll(cart);
-            return ResponseEntity.ok(orderService.findByBuyer(user.getId()));
+            List<ReadableOrder> readableOrders = orderFacade.checkoutCart(user,cart,cart.getItems());
+            return ResponseEntity.ok(readableOrders);
         }
-        return ResponseEntity.ok("Cart is empty");
+        return new ResponseEntity<>("Cart is empty", HttpStatus.BAD_REQUEST);
     }
 }

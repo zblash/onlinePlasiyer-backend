@@ -1,27 +1,27 @@
-package com.marketing.web.dtos.order;
+package com.marketing.web.dtos.invoice;
 
 import com.marketing.web.dtos.DTO;
-import com.marketing.web.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
-import java.util.Date;
-
 @EqualsAndHashCode(callSuper = false)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WritableOrder extends DTO {
+public class ReadableInvoice extends DTO {
+
+    private double totalPrice;
 
     private double paidPrice;
 
+    private double unPaidPrice;
+
     private double discount;
 
-    @NotNull
-    private OrderStatus status;
+    private String seller;
 
-    private Date waybillDate;
+    private String buyer;
+
 }

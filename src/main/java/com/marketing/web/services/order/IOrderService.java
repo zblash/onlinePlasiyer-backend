@@ -10,7 +10,7 @@ public interface IOrderService {
 
     Order findById(Long id);
 
-    List<Order> createAll(User user, List<CartItem> cartItems);
+    List<Order> createAll(List<Order> orders);
 
     List<Order> findByBuyer(Long id);
 
