@@ -1,5 +1,6 @@
 package com.marketing.web.services.order;
 
+import com.marketing.web.dtos.order.SearchOrder;
 import com.marketing.web.models.CartItem;
 import com.marketing.web.models.Order;
 import com.marketing.web.enums.OrderStatus;
@@ -23,6 +24,19 @@ public class OrderService implements IOrderService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Override
+    public List<Order> findAllByFilter(SearchOrder searchOrder) {
+        List<Order> orders = new ArrayList<>();
+        if (searchOrder.getStartDate() != null && searchOrder.getEndDate() != null && searchOrder.getBuyerId() != null && searchOrder.getSellerId() != null){
+           orders = orderRepository.findAllByOrderDateRangeAndUsers(searchOrder.getStartDate(),searchOrder.getEndDate(),searchOrder.getSellerId(),searchOrder.getBuyerId());
+        }else if ((searchOrder.getStartDate() == null || searchOrder.getEndDate() == null) && searchOrder.getBuyerId() != null && searchOrder.getSellerId() != null){
+            orders = orderRepository.findAllByUsers(searchOrder.getSellerId(),searchOrder.getBuyerId());
+        }else if (searchOrder.getStartDate() != null && searchOrder.getEndDate() != null && (searchOrder.getBuyerId() == null || searchOrder.getSellerId() == null)){
+            orders = orderRepository.findAllByOrderDateRange(searchOrder.getStartDate(),searchOrder.getEndDate());
+        }
+        return orders;
+    }
 
     @Override
     public Order findById(Long id) {

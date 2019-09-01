@@ -33,6 +33,7 @@ public interface OrderMapper {
 
     default ReadableOrder orderToReadableOrder(Order order){
         ReadableOrder readableOrder = new ReadableOrder();
+        readableOrder.setId(order.getId());
         readableOrder.setBuyerName(order.getBuyer().getName());
         readableOrder.setSellerName(order.getSeller().getName());
         readableOrder.setOrderDate(order.getOrderDate());

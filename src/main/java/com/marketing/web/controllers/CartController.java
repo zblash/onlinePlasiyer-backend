@@ -66,15 +66,15 @@ public class CartController {
     public ResponseEntity<?> addItem(@Valid @RequestBody CartItemDTO cartItemDTO){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
-        if (cartItemDTO.getQuantity() < 1) {
+        if (cartItemDTO.getQuantity() > 1) {
             List<State> productStates = productSpecifyService.findById(cartItemDTO.getProductId()).getStates();
             if (user.getActiveStates().containsAll(productStates)) {
                 CartItem cartItem = cartItemService.createOrUpdate(user.getCart(), cartItemDTO);
                 return ResponseEntity.ok(cartItem);
             }
-            return new ResponseEntity<>("Quantity must bigger than 0", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("You can't order this product", HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>("You can't order this product", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Quantity must bigger than 0", HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("/removeItem/{id}")

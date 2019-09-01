@@ -18,6 +18,8 @@ import java.util.List;
 @AllArgsConstructor
 public class ReadableOrder extends DTO {
 
+    private Long id;
+
     private double totalPrice;
 
     private OrderStatus status;

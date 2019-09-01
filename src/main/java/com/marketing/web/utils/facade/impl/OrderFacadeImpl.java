@@ -1,6 +1,7 @@
 package com.marketing.web.utils.facade.impl;
 
 import com.marketing.web.dtos.order.ReadableOrder;
+import com.marketing.web.dtos.order.SearchOrder;
 import com.marketing.web.dtos.order.WritableOrder;
 import com.marketing.web.enums.OrderStatus;
 import com.marketing.web.models.*;
@@ -42,12 +43,14 @@ public class OrderFacadeImpl implements OrderFacade {
         order.setStatus(writableOrder.getStatus());
         order.setWaybillDate(writableOrder.getWaybillDate());
 
-        if (writableOrder.getStatus().equals(OrderStatus.FNS)){
+        if (writableOrder.getStatus().equals(OrderStatus.FNS) || order.getStatus().equals(OrderStatus.PAD)){
             Invoice invoice = new Invoice();
             invoice.setBuyer(order.getBuyer());
             invoice.setSeller(order.getSeller());
             double discount = Optional.of(writableOrder.getDiscount()).orElse(0.0);
             double paidPrice = Optional.of(writableOrder.getPaidPrice()).orElse(order.getTotalPrice());
+            paidPrice = paidPrice > order.getTotalPrice() ? order.getTotalPrice() : paidPrice;
+            discount = discount >= order.getTotalPrice() || discount < 0 ? 0.0 : discount;
             invoice.setDiscount(discount);
             invoice.setPaidPrice(paidPrice);
             invoice.setUnPaidPrice((order.getTotalPrice()-discount)-paidPrice);
@@ -99,4 +102,5 @@ public class OrderFacadeImpl implements OrderFacade {
             return orderService.findByBuyer(user.getId()).stream().map(OrderMapper.INSTANCE::orderToReadableOrder).collect(Collectors.toList());
         }
     }
+
 }

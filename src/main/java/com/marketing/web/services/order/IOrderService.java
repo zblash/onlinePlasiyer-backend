@@ -1,5 +1,6 @@
 package com.marketing.web.services.order;
 
+import com.marketing.web.dtos.order.SearchOrder;
 import com.marketing.web.models.CartItem;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
@@ -7,6 +8,8 @@ import com.marketing.web.models.User;
 import java.util.List;
 
 public interface IOrderService {
+
+    List<Order> findAllByFilter(SearchOrder searchOrder);
 
     Order findById(Long id);
 
