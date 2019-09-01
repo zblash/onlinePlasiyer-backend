@@ -47,7 +47,9 @@ public class UserController {
             loginDTOBuilder.email(userDetails.getEmail());
             loginDTOBuilder.name(userDetails.getName());
             loginDTOBuilder.userName(userDetails.getUserName());
-            loginDTOBuilder.role(userDetails.getRole().getName());
+            String role = userDetails.getRole().getName().split("_")[1];
+            loginDTOBuilder.role(role);
+            loginDTOBuilder.address(userDetails.getAddress());
             loginDTOBuilder.activeStates(userDetails.getActiveStates().stream().map(State::getTitle).collect(Collectors.toList()));
             LoginDTO loginDTO = loginDTOBuilder
                     .build();

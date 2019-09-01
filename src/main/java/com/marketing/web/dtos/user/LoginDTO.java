@@ -1,6 +1,7 @@
 package com.marketing.web.dtos.user;
 
 import com.marketing.web.dtos.DTO;
+import com.marketing.web.models.Address;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,6 +25,8 @@ public class LoginDTO extends DTO {
 
     private String token;
 
+    private Address address;
+
     private List<String> activeStates;
 
     private LoginDTO(LoginDTOBuilder builder){
@@ -32,6 +35,7 @@ public class LoginDTO extends DTO {
         this.email = builder.email;
         this.role = builder.role;
         this.token = builder.token;
+        this.address = builder.address;
         this.activeStates = builder.activeStates;
     }
 
@@ -46,6 +50,8 @@ public class LoginDTO extends DTO {
         private String role;
 
         private String token;
+
+        private Address address;
 
         private List<String> activeStates;
 
@@ -70,6 +76,11 @@ public class LoginDTO extends DTO {
 
         public LoginDTOBuilder role(String role){
             this.role = role;
+            return this;
+        }
+
+        public LoginDTOBuilder address(Address address){
+            this.address = address;
             return this;
         }
 

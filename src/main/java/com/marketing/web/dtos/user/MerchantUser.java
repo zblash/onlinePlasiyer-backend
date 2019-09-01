@@ -1,6 +1,7 @@
 package com.marketing.web.dtos.user;
 
 import com.marketing.web.dtos.DTO;
+import com.marketing.web.models.Address;
 import com.marketing.web.models.State;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +25,8 @@ public class MerchantUser extends DTO {
     private String taxNumber;
 
     private boolean status;
+
+    private Address address;
 
     private List<String> activeStates;
 }
