@@ -73,7 +73,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User update(User user, User updatedUser) {
+    public User update(Long id, User updatedUser) {
+        User user = findById(id);
         user.setUserName(updatedUser.getUserName());
         user.setName(updatedUser.getName());
         user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));

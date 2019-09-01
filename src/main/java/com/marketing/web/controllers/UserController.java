@@ -8,6 +8,8 @@ import com.marketing.web.enums.RoleType;
 import com.marketing.web.models.Address;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
+import com.marketing.web.repositories.StateRepository;
+import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.security.JWTAuthToken.JWTGenerator;
 import com.marketing.web.services.user.AddressService;
 import com.marketing.web.services.user.UserService;
@@ -17,10 +19,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,6 +38,9 @@ public class UserController {
 
     @Autowired
     private AddressService addressService;
+
+    @Autowired
+    private StateRepository stateRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -70,6 +78,18 @@ public class UserController {
         return new ResponseEntity<>(user, new HttpHeaders(), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ROLE_MERCHANT')")
+    @PostMapping("/api/users/addActiveState")
+    public ResponseEntity<?> addActiveState(@RequestBody List<String> states){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        List<State> stateList = stateRepository.findAllByTitleIn(states);
+        List<State> addedList = user.getActiveStates();
+        addedList.addAll(stateList);
+        user.setActiveStates(addedList.stream().distinct().collect(Collectors.toList()));
+        userService.update(user.getId(),user);
+        return ResponseEntity.ok("Added active states");
+    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/api/users/customers")
@@ -105,6 +125,6 @@ public class UserController {
     public ResponseEntity<User> setActiveUser(@PathVariable Long id){
         User user = userService.findById(id);
         user.setStatus(true);
-        return ResponseEntity.ok(userService.update(user,user));
+        return ResponseEntity.ok(userService.update(user.getId(),user));
     }
 }

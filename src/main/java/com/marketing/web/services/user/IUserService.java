@@ -19,7 +19,7 @@ public interface IUserService {
 
     User create(User user, RoleType roleType);
 
-    User update(User user, User updatedUser);
+    User update(Long id, User updatedUser);
 
     void delete(User user);
 }
