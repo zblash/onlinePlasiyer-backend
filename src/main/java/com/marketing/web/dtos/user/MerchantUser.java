@@ -16,6 +16,8 @@ import java.util.List;
 @NoArgsConstructor
 public class MerchantUser extends DTO {
 
+    private Long id;
+
     private String userName;
 
     private String name;

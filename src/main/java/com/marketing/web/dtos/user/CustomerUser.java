@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CustomerUser extends DTO {
 
+    private Long id;
+
     private String userName;
 
     private String name;

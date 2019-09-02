@@ -25,6 +25,7 @@ public interface UserMapper {
 
     default MerchantUser userToMerchant(User user){
         MerchantUser merchantUser = new MerchantUser();
+        merchantUser.setId(user.getId());
         merchantUser.setEmail(user.getEmail());
         merchantUser.setName(user.getName());
         merchantUser.setStatus(user.isStatus());
@@ -36,6 +37,7 @@ public interface UserMapper {
 
     default CustomerUser userToCustomer(User user){
         CustomerUser customerUser = new CustomerUser();
+        customerUser.setId(user.getId());
         customerUser.setEmail(user.getEmail());
         customerUser.setName(user.getName());
         customerUser.setStatus(user.isStatus());

@@ -91,6 +91,14 @@ public class UserController {
         return ResponseEntity.ok("Added active states");
     }
 
+    @PreAuthorize("hasRole('ROLE_MERCHANT')")
+    @GetMapping("/api/users/activeStates")
+    public ResponseEntity<?> getActiveStates(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        return ResponseEntity.ok(user.getActiveStates().stream().map(State::getTitle).collect(Collectors.toList()));
+    }
+
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/api/users/customers")
     public ResponseEntity<List<CustomerUser>> getAllCustomers(){
@@ -125,6 +133,14 @@ public class UserController {
     public ResponseEntity<User> setActiveUser(@PathVariable Long id){
         User user = userService.findById(id);
         user.setStatus(true);
+        return ResponseEntity.ok(userService.update(user.getId(),user));
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping("/api/users/setPassive/{id}")
+    public ResponseEntity<User> setPassiveUser(@PathVariable Long id){
+        User user = userService.findById(id);
+        user.setStatus(false);
         return ResponseEntity.ok(userService.update(user.getId(),user));
     }
 }
