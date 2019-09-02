@@ -57,9 +57,15 @@ public class ProductsController {
     @Autowired
     private StorageService storageService;
 
+    @GetMapping("/actives")
+    public ResponseEntity<List<Product>> getAllActive(){
+        return ResponseEntity.ok(productService.findAllByStatus(true));
+    }
+
+
     @GetMapping
     public ResponseEntity<List<Product>> getAll(){
-        return ResponseEntity.ok(productService.findAllByStatus(true));
+        return ResponseEntity.ok(productService.findAll());
     }
 
     @GetMapping("/category/{id}")
