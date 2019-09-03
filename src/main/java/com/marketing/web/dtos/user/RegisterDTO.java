@@ -21,7 +21,7 @@ public class RegisterDTO extends DTO {
 
     @NotBlank
     @Size(min = 3,max = 20)
-    private String userName;
+    private String username;
 
     @NotBlank
     @Size(min = 3,max = 20)

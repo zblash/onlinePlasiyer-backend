@@ -47,7 +47,7 @@ public class UserController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> login(@RequestBody(required = true) Map<String,String> login){
-        User userDetails = userService.findByUserName(login.get("userName"));
+        User userDetails = userService.findByUserName(login.get("username"));
 
         if (userDetails.isStatus() && passwordEncoder.matches(login.get("password"),userDetails.getPassword())){
             String jwt= JWTGenerator.generate(userDetails);
