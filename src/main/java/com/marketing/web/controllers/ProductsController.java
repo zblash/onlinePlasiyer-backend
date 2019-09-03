@@ -57,15 +57,14 @@ public class ProductsController {
     @Autowired
     private StorageService storageService;
 
-    @GetMapping("/actives")
-    public ResponseEntity<List<Product>> getAllActive(){
-        return ResponseEntity.ok(productService.findAllByStatus(true));
-    }
-
-
     @GetMapping
     public ResponseEntity<List<Product>> getAll(){
         return ResponseEntity.ok(productService.findAll());
+    }
+
+    @GetMapping("/actives")
+    public ResponseEntity<List<Product>> getAllActives(){
+        return ResponseEntity.ok(productService.findAllByStatus(true));
     }
 
     @GetMapping("/category/{id}")
@@ -78,7 +77,7 @@ public class ProductsController {
 
     }
 
-    @GetMapping("/bybarcode/{barcode}")
+    @GetMapping("/barcode/{barcode}")
     public ResponseEntity<Product> getByBarcode(@PathVariable String barcode){
         return ResponseEntity.ok(productService.findByBarcode(barcode));
     }
