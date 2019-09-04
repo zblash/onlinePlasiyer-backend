@@ -1,6 +1,7 @@
 package com.marketing.web.services.product;
 
 import com.marketing.web.dtos.product.ProductDTO;
+import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Category;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
@@ -48,7 +49,8 @@ public class ProductService implements IProductService {
 
     @Override
     public Product findById(Long id) {
-        return productRepository.findById(id).orElseThrow(RuntimeException::new);
+
+        return productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product not found with id: "+id));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.marketing.web.services.cart;
 
 import com.marketing.web.dtos.cart.CartItemDTO;
+import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItem;
 import com.marketing.web.models.ProductSpecify;
@@ -32,7 +33,7 @@ public class CartItemService implements ICartItemService {
 
     @Override
     public CartItem findById(Long id) {
-        return cartItemRepository.findById(id).orElseThrow(RuntimeException::new);
+        return cartItemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("CartItem not found with id: "+ id));
     }
 
     @Override
@@ -51,7 +52,7 @@ public class CartItemService implements ICartItemService {
             cartItem.setTotalPrice(updatedCartItem.getTotalPrice());
             return cartItemRepository.save(cartItem);
         } else {
-            throw new RuntimeException();
+            throw new ResourceNotFoundException("CartItem not found");
         }
     }
 
@@ -64,7 +65,7 @@ public class CartItemService implements ICartItemService {
         if (optionalCartItem.isPresent()) {
             cartItemRepository.delete(optionalCartItem.get());
         } else {
-            throw new RuntimeException();
+            throw new ResourceNotFoundException("CartItem not found");
         }
     }
 

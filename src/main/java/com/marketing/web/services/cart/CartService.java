@@ -1,5 +1,6 @@
 package com.marketing.web.services.cart;
 
+import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.CartRepository;
@@ -22,7 +23,7 @@ public class CartService implements ICartService {
 
     @Override
     public Cart findById(Long id) {
-        return cartRepository.findById(id).orElseThrow(RuntimeException::new);
+        return cartRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: "+ id));
     }
 
     @Override

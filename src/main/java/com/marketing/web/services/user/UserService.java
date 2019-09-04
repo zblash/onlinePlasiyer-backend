@@ -1,5 +1,6 @@
 package com.marketing.web.services.user;
 
+import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.Role;
 import com.marketing.web.enums.RoleType;
@@ -37,7 +38,7 @@ public class UserService implements IUserService {
 
     @Override
     public User findByUserName(String userName) {
-        return userRepository.findByUserName(userName).orElseThrow(RuntimeException::new);
+        return userRepository.findByUserName(userName).orElseThrow(() -> new ResourceNotFoundException("User not found with username: "+ userName));
     }
 
     @Override
@@ -58,7 +59,7 @@ public class UserService implements IUserService {
 
     @Override
     public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(RuntimeException::new);
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: "+ id));
     }
 
     @Override

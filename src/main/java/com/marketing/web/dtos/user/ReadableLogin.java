@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginDTO extends DTO {
+public class ReadableLogin extends DTO {
 
     private String userName;
 
@@ -29,7 +29,7 @@ public class LoginDTO extends DTO {
 
     private List<String> activeStates;
 
-    private LoginDTO(LoginDTOBuilder builder){
+    private ReadableLogin(LoginDTOBuilder builder){
         this.userName = builder.userName;
         this.name = builder.name;
         this.email = builder.email;
@@ -89,9 +89,9 @@ public class LoginDTO extends DTO {
             return this;
         }
 
-        public LoginDTO build() {
-            LoginDTO loginDTO = new LoginDTO(this);
-            return loginDTO;
+        public ReadableLogin build() {
+            ReadableLogin readableLogin = new ReadableLogin(this);
+            return readableLogin;
         }
 
     }

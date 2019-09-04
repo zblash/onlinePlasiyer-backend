@@ -1,5 +1,6 @@
 package com.marketing.web.services.user;
 
+import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Address;
 import com.marketing.web.repositories.AddressRepository;
 import com.marketing.web.services.user.IAddressService;
@@ -21,7 +22,7 @@ public class AddressService implements IAddressService {
 
     @Override
     public Address findById(Long id) {
-        return addressRepository.findById(id).orElseThrow(RuntimeException::new);
+        return addressRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Address not found with id: "+ id));
     }
 
     @Override

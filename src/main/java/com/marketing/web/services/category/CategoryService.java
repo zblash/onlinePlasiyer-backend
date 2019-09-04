@@ -1,6 +1,7 @@
 package com.marketing.web.services.category;
 
 import com.marketing.web.dtos.category.CategoryDTO;
+import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Category;
 import com.marketing.web.models.Product;
 import com.marketing.web.repositories.CategoryRepository;
@@ -34,14 +35,14 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public Category findById(Long id) {
-        return categoryRepository.findById(id).orElseThrow(RuntimeException::new);
+        return categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category not found with id: "+ id));
     }
 
     @Override
     public Category create(CategoryDTO categoryDTO) {
         Category category = CategoryMapper.INSTANCE.CategoryDTOtoCategory(categoryDTO);
         if (category.isSubCategory() && categoryDTO.getParentId() != null){
-            category.setParent(categoryRepository.findById(categoryDTO.getParentId()).orElseThrow(RuntimeException::new));
+            category.setParent(categoryRepository.findById(categoryDTO.getParentId()).orElseThrow(() -> new ResourceNotFoundException("Base Category not found with given parentId: "+ categoryDTO.getParentId())));
         }
         return categoryRepository.save(category);
     }
@@ -51,7 +52,7 @@ public class CategoryService implements ICategoryService {
         Category updatedCategory = CategoryMapper.INSTANCE.CategoryDTOtoCategory(updatedCategoryDTO);
         category.setName(updatedCategory.getName());
         if (updatedCategory.isSubCategory() && updatedCategoryDTO.getParentId() != null){
-            category.setParent(categoryRepository.findById(updatedCategoryDTO.getParentId()).orElseThrow(RuntimeException::new));
+            category.setParent(categoryRepository.findById(updatedCategoryDTO.getParentId()).orElseThrow(() -> new ResourceNotFoundException("Base Category not found with given parentId: "+ updatedCategoryDTO.getParentId())));
         }
         if (updatedCategory.getPhotoUrl() != null && !updatedCategory.getPhotoUrl().isEmpty()){
             category.setPhotoUrl(updatedCategory.getPhotoUrl());

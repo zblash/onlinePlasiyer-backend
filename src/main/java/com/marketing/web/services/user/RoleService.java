@@ -1,5 +1,6 @@
 package com.marketing.web.services.user;
 
+import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Role;
 import com.marketing.web.repositories.RoleRepository;
 import com.marketing.web.services.user.IRoleService;
@@ -23,7 +24,7 @@ public class RoleService implements IRoleService {
 
     @Override
     public Role findByName(String name) {
-        return roleRepository.findByName(name).orElseThrow(RuntimeException::new);
+        return roleRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Role not found with given name: "+ name));
     }
 
     @Override

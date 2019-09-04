@@ -1,6 +1,7 @@
 package com.marketing.web.services.order;
 
 import com.marketing.web.dtos.order.SearchOrder;
+import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.CartItem;
 import com.marketing.web.models.Order;
 import com.marketing.web.enums.OrderStatus;
@@ -40,7 +41,7 @@ public class OrderService implements IOrderService {
 
     @Override
     public Order findById(Long id) {
-        return orderRepository.findById(id).orElseThrow(RuntimeException::new);
+        return orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order not found with id:" + id));
     }
 
     @Override
@@ -55,12 +56,12 @@ public class OrderService implements IOrderService {
 
     @Override
     public Order findByBuyerAndId(Long buyerId, Long id) {
-        return orderRepository.findByBuyer_IdAndId(buyerId,id).orElseThrow(RuntimeException::new);
+        return orderRepository.findByBuyer_IdAndId(buyerId,id).orElseThrow(() -> new ResourceNotFoundException("You have no order with id: "+ id));
     }
 
     @Override
     public Order findBySellerAndId(Long selerId, Long id) {
-        return orderRepository.findBySeller_IdAndId(selerId,id).orElseThrow(RuntimeException::new);
+        return orderRepository.findBySeller_IdAndId(selerId,id).orElseThrow(() -> new ResourceNotFoundException("You have no order with id: "+ id));
     }
     @Override
     public List<Order> findBySeller(Long id) {

@@ -1,6 +1,7 @@
 package com.marketing.web.services.invoice;
 
 import com.marketing.web.enums.RoleType;
+import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Invoice;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.InvoiceRepository;
@@ -25,12 +26,12 @@ public class InvoiceServiceImpl implements InvoiceService{
 
     @Override
     public Invoice findById(Long id) {
-        return invoiceRepository.findById(id).orElseThrow(RuntimeException::new);
+        return invoiceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: "+ id));
     }
 
     @Override
     public Invoice findByOrder(Long orderId) {
-        return invoiceRepository.findByOrder_Id(orderId).orElseThrow(RuntimeException::new);
+        return invoiceRepository.findByOrder_Id(orderId).orElseThrow(() -> new ResourceNotFoundException("Invoice not found with given orderId: "+ orderId));
     }
 
     @Override
@@ -40,7 +41,7 @@ public class InvoiceServiceImpl implements InvoiceService{
         }else if (user.getRole().getName().equals(RoleType.MERCHANT.toString())){
             return invoiceRepository.findAllBySeller_Id(user.getId());
         }
-        throw new RuntimeException();
+        throw new ResourceNotFoundException("You have no invoice(s)");
     }
 
 

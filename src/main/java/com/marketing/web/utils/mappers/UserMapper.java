@@ -1,8 +1,6 @@
 package com.marketing.web.utils.mappers;
 
-import com.marketing.web.dtos.user.CustomerUser;
-import com.marketing.web.dtos.user.MerchantUser;
-import com.marketing.web.dtos.user.RegisterDTO;
+import com.marketing.web.dtos.user.*;
 import com.marketing.web.models.Address;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
@@ -18,10 +16,13 @@ public interface UserMapper {
     UserMapper INSTANCE = Mappers.getMapper( UserMapper.class );
 
     @InheritInverseConfiguration
-    User registerDTOToUser(RegisterDTO registerDTO);
+    User writableRegisterToUser(WritableRegister writableRegister);
 
     @InheritInverseConfiguration
-    Address registerDTOToAddress(RegisterDTO registerDTO);
+    ReadableRegister userToReadableRegister(User user);
+
+    @InheritInverseConfiguration
+    Address registerDTOToAddress(WritableRegister writableRegister);
 
     default MerchantUser userToMerchant(User user){
         MerchantUser merchantUser = new MerchantUser();

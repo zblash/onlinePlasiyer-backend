@@ -17,7 +17,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegisterDTO extends DTO {
+public class WritableRegister extends DTO {
 
     @NotBlank
     @Size(min = 3,max = 20)

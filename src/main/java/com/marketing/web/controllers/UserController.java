@@ -1,9 +1,6 @@
 package com.marketing.web.controllers;
 
-import com.marketing.web.dtos.user.CustomerUser;
-import com.marketing.web.dtos.user.LoginDTO;
-import com.marketing.web.dtos.user.MerchantUser;
-import com.marketing.web.dtos.user.RegisterDTO;
+import com.marketing.web.dtos.user.*;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.models.Address;
 import com.marketing.web.models.State;
@@ -25,9 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -46,12 +41,12 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("/signin")
-    public ResponseEntity<?> login(@RequestBody(required = true) Map<String,String> login){
-        User userDetails = userService.findByUserName(login.get("username"));
+    public ResponseEntity<?> login(@RequestBody WritableLogin writableLogin){
+        User userDetails = userService.findByUserName(writableLogin.getUsername());
 
-        if (userDetails.isStatus() && passwordEncoder.matches(login.get("password"),userDetails.getPassword())){
+        if (userDetails.isStatus() && passwordEncoder.matches(writableLogin.getPassword(),userDetails.getPassword())){
             String jwt= JWTGenerator.generate(userDetails);
-            LoginDTO.LoginDTOBuilder loginDTOBuilder = new LoginDTO.LoginDTOBuilder(jwt);
+            ReadableLogin.LoginDTOBuilder loginDTOBuilder = new ReadableLogin.LoginDTOBuilder(jwt);
             loginDTOBuilder.email(userDetails.getEmail());
             loginDTOBuilder.name(userDetails.getName());
             loginDTOBuilder.userName(userDetails.getUserName());
@@ -59,23 +54,23 @@ public class UserController {
             loginDTOBuilder.role(role);
             loginDTOBuilder.address(userDetails.getAddress());
             loginDTOBuilder.activeStates(userDetails.getActiveStates().stream().map(State::getTitle).collect(Collectors.toList()));
-            LoginDTO loginDTO = loginDTOBuilder
+            ReadableLogin readableLogin = loginDTOBuilder
                     .build();
-            return new ResponseEntity<>(loginDTO, HttpStatus.OK);
+            return ResponseEntity.ok(readableLogin);
         }
 
-        return new ResponseEntity<>("", HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>("Given username or password incorrect", HttpStatus.UNAUTHORIZED);
 
     }
 
     @PostMapping("/sign-up")
-    public ResponseEntity<?> signUp(@Valid @RequestBody RegisterDTO registerDTO){
-        User user = UserMapper.INSTANCE.registerDTOToUser(registerDTO);
-        Address address = addressService.create(UserMapper.INSTANCE.registerDTOToAddress(registerDTO));
+    public ResponseEntity<?> signUp(@Valid @RequestBody WritableRegister writableRegister){
+        User user = UserMapper.INSTANCE.writableRegisterToUser(writableRegister);
+        Address address = addressService.create(UserMapper.INSTANCE.registerDTOToAddress(writableRegister));
         user.setStatus(true);
         user.setAddress(address);
-        userService.create(user,registerDTO.getRoleType());
-        return new ResponseEntity<>(user, new HttpHeaders(), HttpStatus.OK);
+        ReadableRegister readableRegister =  UserMapper.INSTANCE.userToReadableRegister(userService.create(user, writableRegister.getRoleType()));
+        return ResponseEntity.ok(readableRegister);
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")

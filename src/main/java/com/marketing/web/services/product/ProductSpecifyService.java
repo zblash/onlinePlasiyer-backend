@@ -1,6 +1,7 @@
 package com.marketing.web.services.product;
 
 import com.marketing.web.dtos.product.ProductSpecifyDTO;
+import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.City;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
@@ -40,7 +41,7 @@ public class ProductSpecifyService implements IProductSpecifyService {
 
     @Override
     public ProductSpecify findById(Long id) {
-        return productSpecifyRepository.findById(id).orElseThrow(RuntimeException::new);
+        return productSpecifyRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("ProductSpecify not found with id:" + id));
     }
 
     @Override
@@ -49,7 +50,7 @@ public class ProductSpecifyService implements IProductSpecifyService {
         if (!productSpecifyDTO.getStateList().isEmpty() && productSpecifyDTO.getStateList() != null){
                 states.addAll(stateRepository.findAllByTitleIn(productSpecifyDTO.getStateList()));
         }else if(!productSpecifyDTO.getCity().isEmpty()){
-           City city = cityRepository.findByTitle(productSpecifyDTO.getCity().toUpperCase()).orElseThrow(RuntimeException::new);
+           City city = cityRepository.findByTitle(productSpecifyDTO.getCity().toUpperCase()).orElseThrow(() -> new ResourceNotFoundException("City not found with name:" + productSpecifyDTO.getCity().toUpperCase()));
            states.addAll(stateRepository.findAllByCity(city));
         }
 
