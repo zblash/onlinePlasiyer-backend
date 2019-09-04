@@ -31,7 +31,7 @@ public interface UserMapper {
         merchantUser.setName(user.getName());
         merchantUser.setStatus(user.isStatus());
         merchantUser.setTaxNumber(user.getTaxNumber());
-        merchantUser.setUserName(user.getUserName());
+        merchantUser.setUsername(user.getUsername());
         merchantUser.setActiveStates(user.getActiveStates().stream().map(State::getTitle).collect(Collectors.toList()));
         return merchantUser;
     }
@@ -43,7 +43,7 @@ public interface UserMapper {
         customerUser.setName(user.getName());
         customerUser.setStatus(user.isStatus());
         customerUser.setTaxNumber(user.getTaxNumber());
-        customerUser.setUserName(user.getUserName());
+        customerUser.setUsername(user.getUsername());
         customerUser.setAddress(user.getAddress());
         return customerUser;
     }

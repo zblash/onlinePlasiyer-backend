@@ -40,7 +40,7 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
 
         List<GrantedAuthority> grantedAuthorities = AuthorityUtils
                 .commaSeparatedStringToAuthorityList(user.getRole().getName());
-        return new CustomPrincipal(user.getUserName(), user.getId(), token, grantedAuthorities,user);
+        return new CustomPrincipal(user.getUsername(), user.getId(), token, grantedAuthorities,user);
     }
 
     @Override

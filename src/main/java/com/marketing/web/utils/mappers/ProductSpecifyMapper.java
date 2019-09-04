@@ -1,6 +1,6 @@
 package com.marketing.web.utils.mappers;
 
-import com.marketing.web.dtos.product.ProductSpecifyDTO;
+import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.models.ProductSpecify;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
@@ -12,5 +12,5 @@ public interface ProductSpecifyMapper {
     ProductSpecifyMapper INSTANCE = Mappers.getMapper( ProductSpecifyMapper.class );
 
     @InheritInverseConfiguration
-    ProductSpecify dtoToProductSpecify(ProductSpecifyDTO productSpecifyDTO);
+    ProductSpecify writableProductSpecifyToProductSpecify(WritableProductSpecify writableProductSpecify);
 }

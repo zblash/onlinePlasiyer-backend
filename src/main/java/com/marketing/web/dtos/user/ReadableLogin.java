@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ReadableLogin extends DTO {
 
-    private String userName;
+    private String username;
 
     private String name;
 
@@ -30,7 +30,7 @@ public class ReadableLogin extends DTO {
     private List<String> activeStates;
 
     private ReadableLogin(LoginDTOBuilder builder){
-        this.userName = builder.userName;
+        this.username = builder.username;
         this.name = builder.name;
         this.email = builder.email;
         this.role = builder.role;
@@ -41,7 +41,7 @@ public class ReadableLogin extends DTO {
 
     public static class LoginDTOBuilder {
 
-        private String userName;
+        private String username;
 
         private String name;
 
@@ -60,7 +60,7 @@ public class ReadableLogin extends DTO {
         }
 
         public LoginDTOBuilder userName(String userName){
-            this.userName = userName;
+            this.username = userName;
             return this;
         }
 

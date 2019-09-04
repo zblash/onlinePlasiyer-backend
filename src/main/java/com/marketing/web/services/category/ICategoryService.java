@@ -1,6 +1,6 @@
 package com.marketing.web.services.category;
 
-import com.marketing.web.dtos.category.CategoryDTO;
+import com.marketing.web.dtos.category.WritableCategory;
 import com.marketing.web.models.Category;
 import java.util.List;
 public interface ICategoryService {
@@ -11,9 +11,9 @@ public interface ICategoryService {
 
     Category findById(Long id);
 
-    Category create(CategoryDTO categoryDTO);
+    Category create(Category category);
 
-    Category update(Category category, CategoryDTO updatedCategoryDTO);
+    Category update(Long id, Category updatedCategory);
 
     void delete(Category category);
 

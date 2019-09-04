@@ -1,13 +1,12 @@
 package com.marketing.web.services.product;
 
-import com.marketing.web.dtos.product.ProductDTO;
+import com.marketing.web.dtos.product.WritableProduct;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Category;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.repositories.ProductRepository;
 import com.marketing.web.services.category.CategoryService;
-import com.marketing.web.services.product.IProductService;
 import com.marketing.web.utils.mappers.ProductMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,15 +53,13 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product create(ProductDTO productDTO) {
-        Product product = ProductMapper.INSTANCE.ProductDTOtoProduct(productDTO);
-        product.setCategory(categoryService.findById(productDTO.getCategoryId()));
-        product.setPhotoUrl(productDTO.getPhotoUrl());
+    public Product create(Product product) {
         return productRepository.save(product);
     }
 
     @Override
-    public Product update(Product product,Product updatedProduct) {
+    public Product update(Long id,Product updatedProduct) {
+        Product product = findById(id);
         product.setBarcode(updatedProduct.getBarcode());
         product.setName(updatedProduct.getName());
         product.setPhotoUrl(updatedProduct.getPhotoUrl());

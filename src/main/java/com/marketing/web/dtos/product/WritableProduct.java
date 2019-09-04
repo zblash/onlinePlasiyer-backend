@@ -1,4 +1,4 @@
-package com.marketing.web.dtos.category;
+package com.marketing.web.dtos.product;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.marketing.web.dtos.DTO;
@@ -9,24 +9,28 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryDTO extends DTO {
-
-    @NotBlank
-    private String name;
-
-    @JsonIgnore
-    private String photoUrl;
+public class WritableProduct extends DTO {
 
     @NotNull
-    private boolean subCategory;
+    private Long categoryId;
 
-    private Long parentId;
+    @NotBlank
+    @Size(min = 3,max = 20)
+    private String name;
 
+    @NotBlank
+    @Size(min = 10,max = 100)
+    private String barcode;
 
+    @NotNull
+    private double tax;
+
+    private boolean status;
 }

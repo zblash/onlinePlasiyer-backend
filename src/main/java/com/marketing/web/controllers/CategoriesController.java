@@ -1,9 +1,10 @@
 package com.marketing.web.controllers;
 
-import com.marketing.web.dtos.category.CategoryDTO;
+import com.marketing.web.dtos.category.WritableCategory;
 import com.marketing.web.models.Category;
 import com.marketing.web.services.category.CategoryService;
 import com.marketing.web.services.storage.StorageService;
+import com.marketing.web.utils.mappers.CategoryMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,12 +48,12 @@ public class CategoriesController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<Category> createCategory(@Valid CategoryDTO categoryDTO, @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
-        if (!uploadfile.isEmpty()) {
+    public ResponseEntity<Category> createCategory(@Valid WritableCategory writableCategory, @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
             String fileName = storageService.store(uploadfile);
-            categoryDTO.setPhotoUrl(fileName);
-        }
-        return ResponseEntity.ok(categoryService.create(categoryDTO));
+            Category category = CategoryMapper.INSTANCE.writableCategorytoCategory(writableCategory);
+            category.setPhotoUrl(fileName);
+            category.setParent(categoryService.findById(writableCategory.getParentId()));
+        return ResponseEntity.ok(categoryService.create(category));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -67,12 +68,13 @@ public class CategoriesController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<Category> updateCategory(@PathVariable(value = "id") Long id,@Valid CategoryDTO updatedCategory, @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
+    public ResponseEntity<Category> updateCategory(@PathVariable(value = "id") Long id, @Valid WritableCategory updatedCategory, @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
+        Category category = CategoryMapper.INSTANCE.writableCategorytoCategory(updatedCategory);
         if (uploadfile != null && !uploadfile.isEmpty()) {
             String fileName = storageService.store(uploadfile);
-            updatedCategory.setPhotoUrl(fileName);
+            category.setPhotoUrl(fileName);
         }
-        return ResponseEntity.ok(categoryService.update(categoryService.findById(id),updatedCategory));
+        return ResponseEntity.ok(categoryService.update(id,category));
     }
 
 }

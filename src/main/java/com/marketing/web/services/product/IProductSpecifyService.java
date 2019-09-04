@@ -1,6 +1,6 @@
 package com.marketing.web.services.product;
 
-import com.marketing.web.dtos.product.ProductSpecifyDTO;
+import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.models.User;
@@ -12,7 +12,7 @@ public interface IProductSpecifyService {
 
     ProductSpecify findById(Long id);
 
-    ProductSpecify create(ProductSpecifyDTO productSpecifyDTO, Product product, User user);
+    ProductSpecify create(WritableProductSpecify writableProductSpecify, Product product, User user);
 
     ProductSpecify update(ProductSpecify productSpecify);
 

@@ -37,7 +37,7 @@ public class User extends Model {
 
     @NotBlank
     @Size(min = 3,max = 20)
-    private String userName;
+    private String username;
 
     @NotBlank
     @Size(min = 3,max = 20)

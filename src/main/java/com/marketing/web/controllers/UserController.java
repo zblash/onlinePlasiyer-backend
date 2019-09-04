@@ -49,7 +49,7 @@ public class UserController {
             ReadableLogin.LoginDTOBuilder loginDTOBuilder = new ReadableLogin.LoginDTOBuilder(jwt);
             loginDTOBuilder.email(userDetails.getEmail());
             loginDTOBuilder.name(userDetails.getName());
-            loginDTOBuilder.userName(userDetails.getUserName());
+            loginDTOBuilder.userName(userDetails.getUsername());
             String role = userDetails.getRole().getName().split("_")[1];
             loginDTOBuilder.role(role);
             loginDTOBuilder.address(userDetails.getAddress());

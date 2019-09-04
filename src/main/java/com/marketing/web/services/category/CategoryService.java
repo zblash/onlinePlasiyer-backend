@@ -1,12 +1,11 @@
 package com.marketing.web.services.category;
 
-import com.marketing.web.dtos.category.CategoryDTO;
+import com.marketing.web.dtos.category.WritableCategory;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Category;
 import com.marketing.web.models.Product;
 import com.marketing.web.repositories.CategoryRepository;
 import com.marketing.web.repositories.ProductRepository;
-import com.marketing.web.services.category.ICategoryService;
 import com.marketing.web.utils.mappers.CategoryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,20 +38,18 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public Category create(CategoryDTO categoryDTO) {
-        Category category = CategoryMapper.INSTANCE.CategoryDTOtoCategory(categoryDTO);
-        if (category.isSubCategory() && categoryDTO.getParentId() != null){
-            category.setParent(categoryRepository.findById(categoryDTO.getParentId()).orElseThrow(() -> new ResourceNotFoundException("Base Category not found with given parentId: "+ categoryDTO.getParentId())));
+    public Category create(Category category) {
+        if (category.isSubCategory() && category.getParent() != null){
+            category.setParent(categoryRepository.findById(category.getParent().getId()).orElseThrow(() -> new ResourceNotFoundException("Parent Category not found with given parentId: "+ category.getParent().getId())));
         }
         return categoryRepository.save(category);
     }
 
     @Override
-    public Category update(Category category, CategoryDTO updatedCategoryDTO) {
-        Category updatedCategory = CategoryMapper.INSTANCE.CategoryDTOtoCategory(updatedCategoryDTO);
-        category.setName(updatedCategory.getName());
-        if (updatedCategory.isSubCategory() && updatedCategoryDTO.getParentId() != null){
-            category.setParent(categoryRepository.findById(updatedCategoryDTO.getParentId()).orElseThrow(() -> new ResourceNotFoundException("Base Category not found with given parentId: "+ updatedCategoryDTO.getParentId())));
+    public Category update(Long id, Category updatedCategory) {
+        Category category = findById(id);
+        if (updatedCategory.isSubCategory() && updatedCategory.getParent() != null){
+            category.setParent(categoryRepository.findById(updatedCategory.getParent().getId()).orElseThrow(() -> new ResourceNotFoundException("Parent Category not found with given parentId: "+ updatedCategory.getParent().getId())));
         }
         if (updatedCategory.getPhotoUrl() != null && !updatedCategory.getPhotoUrl().isEmpty()){
             category.setPhotoUrl(updatedCategory.getPhotoUrl());

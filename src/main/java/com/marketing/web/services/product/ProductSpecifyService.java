@@ -1,6 +1,6 @@
 package com.marketing.web.services.product;
 
-import com.marketing.web.dtos.product.ProductSpecifyDTO;
+import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.City;
 import com.marketing.web.models.Product;
@@ -45,21 +45,21 @@ public class ProductSpecifyService implements IProductSpecifyService {
     }
 
     @Override
-    public ProductSpecify create(ProductSpecifyDTO productSpecifyDTO, Product product, User user) {
+    public ProductSpecify create(WritableProductSpecify writableProductSpecify, Product product, User user) {
         List<State> states = new CopyOnWriteArrayList<>();
-        if (!productSpecifyDTO.getStateList().isEmpty() && productSpecifyDTO.getStateList() != null){
-                states.addAll(stateRepository.findAllByTitleIn(productSpecifyDTO.getStateList()));
-        }else if(!productSpecifyDTO.getCity().isEmpty()){
-           City city = cityRepository.findByTitle(productSpecifyDTO.getCity().toUpperCase()).orElseThrow(() -> new ResourceNotFoundException("City not found with name:" + productSpecifyDTO.getCity().toUpperCase()));
+        if (!writableProductSpecify.getStateList().isEmpty() && writableProductSpecify.getStateList() != null){
+                states.addAll(stateRepository.findAllByTitleIn(writableProductSpecify.getStateList()));
+        }else if(!writableProductSpecify.getCity().isEmpty()){
+           City city = cityRepository.findByTitle(writableProductSpecify.getCity().toUpperCase()).orElseThrow(() -> new ResourceNotFoundException("City not found with name:" + writableProductSpecify.getCity().toUpperCase()));
            states.addAll(stateRepository.findAllByCity(city));
         }
 
 
-        ProductSpecify productSpecify = ProductSpecifyMapper.INSTANCE.dtoToProductSpecify(productSpecifyDTO);
+        ProductSpecify productSpecify = ProductSpecifyMapper.INSTANCE.writableProductSpecifyToProductSpecify(writableProductSpecify);
         productSpecify.setProduct(product);
         productSpecify.setUser(user);
         productSpecify.setStates(allowedStates(user,states));
-        productSpecify.setUnitType(productSpecifyDTO.getUnitType());
+        productSpecify.setUnitType(writableProductSpecify.getUnitType());
 
         return productSpecifyRepository.save(productSpecify);
     }

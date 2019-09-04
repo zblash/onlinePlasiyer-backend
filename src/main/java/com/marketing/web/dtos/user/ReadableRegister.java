@@ -13,7 +13,7 @@ public class ReadableRegister {
 
     private Long id;
 
-    private String userName;
+    private String username;
 
     private String name;
 

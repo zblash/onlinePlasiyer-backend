@@ -17,7 +17,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductSpecifyDTO extends DTO {
+public class WritableProductSpecify extends DTO {
 
     @NotBlank
     @Size(min = 10,max = 100)

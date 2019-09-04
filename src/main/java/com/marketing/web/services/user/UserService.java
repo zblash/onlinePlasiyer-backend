@@ -38,7 +38,7 @@ public class UserService implements IUserService {
 
     @Override
     public User findByUserName(String userName) {
-        return userRepository.findByUserName(userName).orElseThrow(() -> new ResourceNotFoundException("User not found with username: "+ userName));
+        return userRepository.findByUsername(userName).orElseThrow(() -> new ResourceNotFoundException("User not found with username: "+ userName));
     }
 
     @Override
@@ -76,7 +76,7 @@ public class UserService implements IUserService {
     @Override
     public User update(Long id, User updatedUser) {
         User user = findById(id);
-        user.setUserName(updatedUser.getUserName());
+        user.setUsername(updatedUser.getUsername());
         user.setName(updatedUser.getName());
         user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
         user.setEmail(updatedUser.getEmail());

@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class CustomPrincipal implements UserDetails {
-    private String userName;
+    private String username;
     private String token;
     private Long id;
     private String password;
@@ -18,17 +18,17 @@ public class CustomPrincipal implements UserDetails {
     private Collection<GrantedAuthority> authorities;
 
 
-    public CustomPrincipal(String userName, long id, String token, List<GrantedAuthority> grantedAuthorities) {
+    public CustomPrincipal(String username, long id, String token, List<GrantedAuthority> grantedAuthorities) {
 
-        this.userName = userName;
+        this.username = username;
         this.id = id;
         this.token= token;
         this.authorities = grantedAuthorities;
     }
 
-    public CustomPrincipal(String userName, long id, String token, List<GrantedAuthority> grantedAuthorities,User user) {
+    public CustomPrincipal(String username, long id, String token, List<GrantedAuthority> grantedAuthorities,User user) {
 
-        this.userName = userName;
+        this.username = username;
         this.id = id;
         this.token= token;
         this.authorities = grantedAuthorities;
@@ -37,7 +37,7 @@ public class CustomPrincipal implements UserDetails {
 
     public CustomPrincipal(User user) {
         this.user = user;
-        this.userName = user.getUserName();
+        this.username = user.getUsername();
         this.id = user.getId();
         this.password = user.getPassword();
         authorities = new ArrayList<>();
@@ -56,7 +56,7 @@ public class CustomPrincipal implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userName;
+        return username;
     }
 
     @Override
@@ -77,11 +77,6 @@ public class CustomPrincipal implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-
-    public String getUserName() {
-        return userName;
     }
 
     public String getToken() {

@@ -1,6 +1,6 @@
 package com.marketing.web.services.product;
 
-import com.marketing.web.dtos.product.ProductDTO;
+import com.marketing.web.dtos.product.WritableProduct;
 import com.marketing.web.models.Product;
 
 import java.util.List;
@@ -17,9 +17,9 @@ public interface IProductService {
 
     Product findById(Long id);
 
-    Product create(ProductDTO productDTO);
+    Product create(Product product);
 
-    Product update(Product product,Product updatedProduct);
+    Product update(Long id,Product updatedProduct);
 
     void delete(Product product);
 

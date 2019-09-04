@@ -1,18 +1,21 @@
 package com.marketing.web.controllers;
 
-import com.marketing.web.dtos.product.ProductDTO;
-import com.marketing.web.dtos.product.ProductSpecifyDTO;
+import com.marketing.web.dtos.product.WritableProduct;
+import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.models.User;
 import com.marketing.web.pubsub.ProductProducer;
 import com.marketing.web.pubsub.ProductSubscriber;
+import com.marketing.web.services.category.CategoryService;
 import com.marketing.web.services.product.ProductService;
 import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.services.storage.StorageService;
 import com.marketing.web.services.user.UserService;
+import com.marketing.web.utils.mappers.ProductMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -44,6 +47,9 @@ public class ProductsController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CategoryService categoryService;
 
     @Autowired
     private ProductSpecifyService productSpecifyService;
@@ -89,33 +95,36 @@ public class ProductsController {
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<?> createProduct(@Valid ProductDTO productDTO, @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
+    public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct, @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
-        Product product = productService.findByBarcode(productDTO.getBarcode());
+        Product product = productService.findByBarcode(writableProduct.getBarcode());
+
         if (product == null){
+            product = ProductMapper.INSTANCE.writableProductToProduct(writableProduct);
             String fileName = storageService.store(uploadfile);
-            productDTO.setPhotoUrl(fileName);
+            product.setPhotoUrl(fileName);
+            product.setCategory(categoryService.findById(writableProduct.getCategoryId()));
             if (!user.getRole().getName().equals("ROLE_ADMIN")){
-                productDTO.setStatus(false);
+                product.setStatus(false);
             }
-            return ResponseEntity.ok(productService.create(productDTO));
+            return ResponseEntity.ok(productService.create(product));
         }
 
-        return ResponseEntity.ok("Product already added in system");
+        return new ResponseEntity<>("Product already added", HttpStatus.CONFLICT);
 
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping("/specify/create")
-    public ResponseEntity<?> createProductSpecify(@Valid @RequestBody ProductSpecifyDTO productSpecifyDTO){
+    public ResponseEntity<?> createProductSpecify(@Valid @RequestBody WritableProductSpecify writableProductSpecify){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
-        Product product = productService.findByBarcode(productSpecifyDTO.getBarcode());
+        Product product = productService.findByBarcode(writableProductSpecify.getBarcode());
         if (product == null){
-            return ResponseEntity.ok("There is no product with this barcode "+productSpecifyDTO.getBarcode());
+            return ResponseEntity.ok("There is no product with this barcode "+ writableProductSpecify.getBarcode());
         }
-        ProductSpecify productSpecify = productSpecifyService.create(productSpecifyDTO,product,user);
+        ProductSpecify productSpecify = productSpecifyService.create(writableProductSpecify,product,user);
 
         product.addProductSpecify(productSpecify);
         productProducer.sendProduct(product.getId());
@@ -135,7 +144,7 @@ public class ProductsController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
     public ResponseEntity<Product> updateProduct(@PathVariable(value = "id") Long id,@Valid @RequestBody Product updatedProduct){
-        return ResponseEntity.ok(productService.update(productService.findById(id),updatedProduct));
+        return ResponseEntity.ok(productService.update(id,updatedProduct));
     }
 
     @GetMapping("/live")
