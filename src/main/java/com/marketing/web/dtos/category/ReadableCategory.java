@@ -18,7 +18,7 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 public class ReadableCategory extends DTO {
 
-    private Long id;
+    private String id;
 
     private String name;
 

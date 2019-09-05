@@ -1,10 +1,8 @@
 package com.marketing.web.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Getter
@@ -12,22 +10,20 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@Table(name = "tickets")
-public class Ticket extends Model {
+@Table(name = "ticketreplies")
+public class TicketReply {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String title;
-
-    private boolean status;
+    private String message;
 
     @OneToOne
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "ticket",cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<TicketReply> ticketReplies;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ticket_id",referencedColumnName = "id")
+    private Ticket ticket;
 }

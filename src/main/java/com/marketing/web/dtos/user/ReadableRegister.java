@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReadableRegister {
 
-    private Long id;
+    private String id;
 
     private String username;
 

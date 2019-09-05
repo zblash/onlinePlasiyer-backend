@@ -75,7 +75,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
     @PostMapping("/api/users/addActiveState")
-    public ResponseEntity<?> addActiveState(@RequestBody List<String> states){
+    public ResponseEntity<String> addActiveState(@RequestBody List<String> states){
         User user = userService.getLoggedInUser();
         List<State> stateList = stateRepository.findAllByTitleIn(states);
         List<State> addedList = user.getActiveStates();
@@ -87,13 +87,13 @@ public class UserController {
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
     @GetMapping("/api/users/activeStates")
-    public ResponseEntity<?> getActiveStates(){
+    public ResponseEntity<List<String>> getActiveStates(){
         User user = userService.getLoggedInUser();
         return ResponseEntity.ok(user.getActiveStates().stream().map(State::getTitle).collect(Collectors.toList()));
     }
 
     @PostMapping("/api/users/getMyInfos")
-    public ResponseEntity<?> getUserInfos(){
+    public ResponseEntity<UserInfo> getUserInfos(){
         User user = userService.getLoggedInUser();
         UserInfo.Builder userInfoBuilder = new UserInfo.Builder(user.getUsername());
         userInfoBuilder.email(user.getEmail());
@@ -125,20 +125,41 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/api/users/passive")
-    public ResponseEntity<List<User>> getPassiveUsers(){
-        return ResponseEntity.ok(userService.findAllByStatus(false));
+    @GetMapping("/api/users/merchant/passive")
+    public ResponseEntity<List<MerchantUser>> getPassiveMerchantUsers(){
+        return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.MERCHANT,false).stream()
+                .map(UserMapper.INSTANCE::userToMerchant)
+                .collect(Collectors.toList()));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/api/users/active")
-    public ResponseEntity<List<User>> getActiveUsers(){
-        return ResponseEntity.ok(userService.findAllByStatus(true));
+    @GetMapping("/api/users/merchant/active")
+    public ResponseEntity<List<MerchantUser>> getActiveMerchantUsers(){
+        return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.MERCHANT,true).stream()
+                .map(UserMapper.INSTANCE::userToMerchant)
+                .collect(Collectors.toList()));
+    }
+
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/api/users/customers/passive")
+    public ResponseEntity<List<CustomerUser>> getPassiveCustomerUsers(){
+        return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.CUSTOMER,false).stream()
+                .map(UserMapper.INSTANCE::userToCustomer)
+                .collect(Collectors.toList()));
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/api/users/customers/active")
+    public ResponseEntity<List<CustomerUser>> getActiveCustomerUsers(){
+        return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.CUSTOMER,true).stream()
+                                .map(UserMapper.INSTANCE::userToCustomer)
+                                .collect(Collectors.toList()));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/api/users/setActive/{id}")
-    public ResponseEntity<?> setActiveUser(@PathVariable Long id){
+    public ResponseEntity<String> setActiveUser(@PathVariable Long id){
         User user = userService.findById(id);
         user.setStatus(true);
         userService.update(user.getId(),user);
@@ -147,7 +168,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/api/users/setPassive/{id}")
-    public ResponseEntity<?> setPassiveUser(@PathVariable Long id){
+    public ResponseEntity<String> setPassiveUser(@PathVariable Long id){
         User user = userService.findById(id);
         user.setStatus(false);
         userService.update(user.getId(),user);

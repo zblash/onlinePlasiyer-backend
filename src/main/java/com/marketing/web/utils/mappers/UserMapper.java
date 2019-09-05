@@ -18,15 +18,23 @@ public interface UserMapper {
     @InheritInverseConfiguration
     User writableRegisterToUser(WritableRegister writableRegister);
 
-    @InheritInverseConfiguration
-    ReadableRegister userToReadableRegister(User user);
+    default ReadableRegister userToReadableRegister(User user){
+        ReadableRegister readableRegister = new ReadableRegister();
+        readableRegister.setId("user_"+user.getId());
+        readableRegister.setEmail(user.getEmail());
+        readableRegister.setName(user.getName());
+        readableRegister.setStatus(user.isStatus());
+        readableRegister.setTaxNumber(user.getTaxNumber());
+        readableRegister.setUsername(user.getUsername());
+        return readableRegister;
+    }
 
     @InheritInverseConfiguration
     Address registerDTOToAddress(WritableRegister writableRegister);
 
     default MerchantUser userToMerchant(User user){
         MerchantUser merchantUser = new MerchantUser();
-        merchantUser.setId(user.getId());
+        merchantUser.setId("user_"+ user.getId());
         merchantUser.setEmail(user.getEmail());
         merchantUser.setName(user.getName());
         merchantUser.setStatus(user.isStatus());
@@ -38,7 +46,7 @@ public interface UserMapper {
 
     default CustomerUser userToCustomer(User user){
         CustomerUser customerUser = new CustomerUser();
-        customerUser.setId(user.getId());
+        customerUser.setId("user_"+ user.getId());
         customerUser.setEmail(user.getEmail());
         customerUser.setName(user.getName());
         customerUser.setStatus(user.isStatus());

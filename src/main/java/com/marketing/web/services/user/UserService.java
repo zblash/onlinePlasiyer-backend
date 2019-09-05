@@ -51,8 +51,14 @@ public class UserService implements IUserService {
 
     @Override
     public List<User> findAllByRole(RoleType roleType) {
-        Role role = roleService.createOrFind("ROLE_"+roleType.toString());
+        Role role = roleService.findByName("ROLE_"+roleType.toString());
         return userRepository.findAllByRole(role);
+    }
+
+    @Override
+    public List<User> findAllByRoleAndStatus(RoleType roleType,boolean status) {
+        Role role = roleService.findByName("ROLE_"+roleType.toString());
+        return userRepository.findAllByRoleAndStatus(role,status);
     }
 
     @Override

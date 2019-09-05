@@ -13,6 +13,8 @@ public interface IUserService {
 
     List<User> findAllByRole(RoleType roleType);
 
+    List<User> findAllByRoleAndStatus(RoleType roleType,boolean status);
+
     List<User> findAllByStatus(boolean status);
 
     User findById(Long id);
