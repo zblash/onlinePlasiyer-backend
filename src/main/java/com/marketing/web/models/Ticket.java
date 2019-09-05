@@ -5,6 +5,7 @@ import com.marketing.web.enums.TicketStatus;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -23,6 +24,9 @@ public class Ticket extends Model {
     private String title;
 
     private TicketStatus status;
+
+    @Temporal(TemporalType.DATE)
+    private Date addedTime;
 
     @OneToOne
     @JoinColumn(name = "user_id",referencedColumnName = "id")

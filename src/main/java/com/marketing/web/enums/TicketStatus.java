@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum TicketStatus {
     OPN("OPEN"),
+    ANS("ANSWERED"),
     CLSD("CLOSED"),
     SLVD("SOLVED");
 

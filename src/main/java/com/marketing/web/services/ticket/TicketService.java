@@ -52,6 +52,7 @@ public class TicketService implements ITicketService {
         Ticket ticket = findById(id);
         ticket.setStatus(updatedTicket.getStatus());
         ticket.setTitle(updatedTicket.getTitle());
+        ticket.setAddedTime(updatedTicket.getAddedTime());
         return ticketRepository.save(ticket);
     }
 

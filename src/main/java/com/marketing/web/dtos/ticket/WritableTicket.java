@@ -1,29 +1,21 @@
 package com.marketing.web.dtos.ticket;
 
 import com.marketing.web.dtos.DTO;
-import com.marketing.web.enums.TicketStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import java.util.Date;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReadableTicket extends DTO {
+public class WritableTicket extends DTO {
 
-    private String id;
-
+    @Size(min = 25)
+    @NotBlank
     private String title;
-
-    private TicketStatus status;
-
-    private String openerName;
-
-    private Date addedTime;
 }

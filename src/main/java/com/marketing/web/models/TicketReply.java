@@ -3,6 +3,7 @@ package com.marketing.web.models;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Getter
@@ -26,4 +27,7 @@ public class TicketReply {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ticket_id",referencedColumnName = "id")
     private Ticket ticket;
+
+    @Temporal(TemporalType.DATE)
+    private Date addedTime;
 }

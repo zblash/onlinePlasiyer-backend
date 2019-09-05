@@ -40,6 +40,7 @@ public class TicketReplyService implements ITicketReplyService {
         TicketReply ticketReply = findById(id);
         ticketReply.setMessage(updatedTicketReply.getMessage());
         ticketReply.setTicket(updatedTicketReply.getTicket());
+        ticketReply.setAddedTime(updatedTicketReply.getAddedTime());
         return ticketReplyRepository.save(ticketReply);
     }
 
