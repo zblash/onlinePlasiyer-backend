@@ -1,5 +1,6 @@
 package com.marketing.web.controllers;
 
+import com.marketing.web.dtos.category.ReadableCategory;
 import com.marketing.web.dtos.category.WritableCategory;
 import com.marketing.web.models.Category;
 import com.marketing.web.services.category.CategoryService;
@@ -24,6 +25,7 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -38,43 +40,49 @@ public class CategoriesController {
     private Logger logger = LoggerFactory.getLogger(CategoriesController.class);
 
     @GetMapping
-    public ResponseEntity<List<Category>> getAll(@RequestParam(required = false) boolean filter,
+    public ResponseEntity<List<ReadableCategory>> getAll(@RequestParam(required = false) boolean filter,
                                                  @RequestParam(required = false) boolean sub){
+        List<Category> categories;
         if (filter){
-           return ResponseEntity.ok(categoryService.findBySubCategory(sub));
+            categories = categoryService.findBySubCategory(sub);
+        }else{
+            categories = categoryService.findAll();
         }
-       return ResponseEntity.ok(categoryService.findAll());
+       return ResponseEntity.ok(categories.stream()
+               .map(CategoryMapper.INSTANCE::categoryToReadableCategory).collect(Collectors.toList()));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<Category> createCategory(@Valid WritableCategory writableCategory, @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
-            String fileName = storageService.store(uploadfile);
+    public ResponseEntity<ReadableCategory> createCategory(@Valid WritableCategory writableCategory, @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
             Category category = CategoryMapper.INSTANCE.writableCategorytoCategory(writableCategory);
+            String fileName = storageService.store(uploadfile);
             category.setPhotoUrl(fileName);
-            category.setParent(categoryService.findById(writableCategory.getParentId()));
-        return ResponseEntity.ok(categoryService.create(category));
+
+            Category savedCategory = categoryService.create(category);
+
+        return ResponseEntity.ok(CategoryMapper.INSTANCE.categoryToReadableCategory(savedCategory));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/delete/{id}")
-    public Map<String,Category> deleteCategory(@PathVariable(value = "id") Long id){
+    public Map<String,ReadableCategory> deleteCategory(@PathVariable(value = "id") Long id){
         Category category = categoryService.findById(id);
         categoryService.delete(category);
-        Map<String,Category> response = new HashMap<>();
-        response.put("deleted",category);
+        Map<String,ReadableCategory> response = new HashMap<>();
+        response.put("deleted",CategoryMapper.INSTANCE.categoryToReadableCategory(category));
         return response;
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<Category> updateCategory(@PathVariable(value = "id") Long id, @Valid WritableCategory updatedCategory, @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
+    public ResponseEntity<ReadableCategory> updateCategory(@PathVariable(value = "id") Long id, @Valid WritableCategory updatedCategory, @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
         Category category = CategoryMapper.INSTANCE.writableCategorytoCategory(updatedCategory);
         if (uploadfile != null && !uploadfile.isEmpty()) {
             String fileName = storageService.store(uploadfile);
             category.setPhotoUrl(fileName);
         }
-        return ResponseEntity.ok(categoryService.update(id,category));
+        return ResponseEntity.ok(CategoryMapper.INSTANCE.categoryToReadableCategory(categoryService.update(id,category)));
     }
 
 }

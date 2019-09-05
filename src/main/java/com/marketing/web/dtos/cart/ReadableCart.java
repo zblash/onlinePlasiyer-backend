@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartDTO extends DTO {
+public class ReadableCart extends DTO {
 
     private int quantity;
 

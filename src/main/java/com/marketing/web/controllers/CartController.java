@@ -1,12 +1,11 @@
 package com.marketing.web.controllers;
 
-import com.marketing.web.dtos.cart.CartDTO;
-import com.marketing.web.dtos.cart.CartItemDTO;
+import com.marketing.web.dtos.cart.ReadableCart;
+import com.marketing.web.dtos.cart.WritableCartItem;
 import com.marketing.web.dtos.order.ReadableOrder;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItem;
 import com.marketing.web.security.CustomPrincipal;
-import com.marketing.web.models.Order;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
 import com.marketing.web.services.cart.CartItemService;
@@ -54,22 +53,22 @@ public class CartController {
     private Logger logger = LoggerFactory.getLogger(CartController.class);
 
     @GetMapping
-    public ResponseEntity<CartDTO> getCart(){
+    public ResponseEntity<ReadableCart> getCart(){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
 
-        CartDTO cartDTO = CartMapper.INSTANCE.cartToCartDTO(user.getCart());
-        return ResponseEntity.ok(cartDTO);
+        ReadableCart readableCart = CartMapper.INSTANCE.cartToReadableCart(user.getCart());
+        return ResponseEntity.ok(readableCart);
     }
 
     @PostMapping("/addItem")
-    public ResponseEntity<?> addItem(@Valid @RequestBody CartItemDTO cartItemDTO){
+    public ResponseEntity<?> addItem(@Valid @RequestBody WritableCartItem writableCartItem){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
-        if (cartItemDTO.getQuantity() > 1) {
-            List<State> productStates = productSpecifyService.findById(cartItemDTO.getProductId()).getStates();
+        if (writableCartItem.getQuantity() > 1) {
+            List<State> productStates = productSpecifyService.findById(writableCartItem.getProductId()).getStates();
             if (user.getActiveStates().containsAll(productStates)) {
-                CartItem cartItem = cartItemService.createOrUpdate(user.getCart(), cartItemDTO);
+                CartItem cartItem = cartItemService.createOrUpdate(user.getCart(), writableCartItem);
                 return ResponseEntity.ok(cartItem);
             }
             return new ResponseEntity<>("You can't order this product", HttpStatus.BAD_REQUEST);

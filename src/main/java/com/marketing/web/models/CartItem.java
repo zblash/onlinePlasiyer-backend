@@ -32,6 +32,7 @@ public class CartItem extends Model {
     @JsonIgnore
     private Cart cart;
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "product_id",referencedColumnName = "id")
     private ProductSpecify product;

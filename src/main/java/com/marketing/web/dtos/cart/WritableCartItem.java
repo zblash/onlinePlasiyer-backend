@@ -14,7 +14,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartItemDTO extends DTO {
+public class WritableCartItem extends DTO {
 
     @NotNull
     private Long productId;

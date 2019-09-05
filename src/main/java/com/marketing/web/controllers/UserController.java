@@ -94,6 +94,22 @@ public class UserController {
         return ResponseEntity.ok(user.getActiveStates().stream().map(State::getTitle).collect(Collectors.toList()));
     }
 
+    @PostMapping("/api/users/getmyInfos")
+    public ResponseEntity<?> getUserInfos(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        UserInfo.Builder userInfoBuilder = new UserInfo.Builder(user.getUsername());
+        userInfoBuilder.email(user.getEmail());
+        userInfoBuilder.name(user.getName());
+        String role = user.getRole().getName().split("_")[1];
+        userInfoBuilder.role(role);
+        userInfoBuilder.address(user.getAddress());
+        userInfoBuilder.activeStates(user.getActiveStates().stream().map(State::getTitle).collect(Collectors.toList()));
+        UserInfo userInfo = userInfoBuilder
+                .build();
+        return ResponseEntity.ok(userInfo);
+    }
+
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/api/users/customers")
     public ResponseEntity<List<CustomerUser>> getAllCustomers(){
@@ -125,17 +141,19 @@ public class UserController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/api/users/setActive/{id}")
-    public ResponseEntity<User> setActiveUser(@PathVariable Long id){
+    public ResponseEntity<?> setActiveUser(@PathVariable Long id){
         User user = userService.findById(id);
         user.setStatus(true);
-        return ResponseEntity.ok(userService.update(user.getId(),user));
+        userService.update(user.getId(),user);
+        return ResponseEntity.ok("Changed user status");
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/api/users/setPassive/{id}")
-    public ResponseEntity<User> setPassiveUser(@PathVariable Long id){
+    public ResponseEntity<?> setPassiveUser(@PathVariable Long id){
         User user = userService.findById(id);
         user.setStatus(false);
-        return ResponseEntity.ok(userService.update(user.getId(),user));
+        userService.update(user.getId(),user);
+        return ResponseEntity.ok("Changed user status");
     }
 }

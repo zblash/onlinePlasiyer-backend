@@ -1,6 +1,6 @@
 package com.marketing.web.services.cart;
 
-import com.marketing.web.dtos.cart.CartItemDTO;
+import com.marketing.web.dtos.cart.WritableCartItem;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItem;
@@ -77,8 +77,8 @@ public class CartItemService implements ICartItemService {
         }
     }
 
-    public CartItem createOrUpdate(Cart cart, CartItemDTO cartItemDTO){
-        CartItem cartItem = cartItemDTOtoCartItem(cartItemDTO);
+    public CartItem createOrUpdate(Cart cart, WritableCartItem writableCartItem){
+        CartItem cartItem = cartItemDTOtoCartItem(writableCartItem);
 
         if (!cart.getItems().isEmpty() && cart.getItems() != null) {
             Optional<CartItem> optionalCartItem = cart.getItems().stream()
@@ -96,11 +96,11 @@ public class CartItemService implements ICartItemService {
         return create(cartItem);
     }
 
-    private CartItem cartItemDTOtoCartItem(CartItemDTO cartItemDTO){
+    private CartItem cartItemDTOtoCartItem(WritableCartItem writableCartItem){
         CartItem cartItem = new CartItem();
-        ProductSpecify product = productSpecifyService.findById(cartItemDTO.getProductId());
+        ProductSpecify product = productSpecifyService.findById(writableCartItem.getProductId());
         cartItem.setProduct(product);
-        cartItem.setQuantity(cartItemDTO.getQuantity());
+        cartItem.setQuantity(writableCartItem.getQuantity());
         cartItem.setTotalPrice(product.getTotalPrice() * cartItem.getQuantity());
         return cartItem;
     }

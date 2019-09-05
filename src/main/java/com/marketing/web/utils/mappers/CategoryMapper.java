@@ -1,5 +1,6 @@
 package com.marketing.web.utils.mappers;
 
+import com.marketing.web.dtos.category.ReadableCategory;
 import com.marketing.web.dtos.category.WritableCategory;
 import com.marketing.web.models.Category;
 import org.mapstruct.InheritInverseConfiguration;
@@ -14,4 +15,15 @@ public interface CategoryMapper {
     @InheritInverseConfiguration
     Category writableCategorytoCategory(WritableCategory writableCategory);
 
+    default ReadableCategory categoryToReadableCategory(Category category){
+        ReadableCategory readableCategory = new ReadableCategory();
+        readableCategory.setId(category.getId());
+        readableCategory.setName(category.getName());
+        readableCategory.setPhotoUrl(category.getPhotoUrl());
+        readableCategory.setSubCategory(category.isSubCategory());
+        if (category.isSubCategory()){
+            readableCategory.setParentId(category.getParent().getId());
+        }
+        return readableCategory;
+    }
 }
