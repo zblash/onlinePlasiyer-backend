@@ -92,7 +92,7 @@ public class UserController {
         return ResponseEntity.ok(user.getActiveStates().stream().map(State::getTitle).collect(Collectors.toList()));
     }
 
-    @PostMapping("/api/users/getmyInfos")
+    @PostMapping("/api/users/getMyInfos")
     public ResponseEntity<?> getUserInfos(){
         User user = userService.getLoggedInUser();
         UserInfo.Builder userInfoBuilder = new UserInfo.Builder(user.getUsername());
