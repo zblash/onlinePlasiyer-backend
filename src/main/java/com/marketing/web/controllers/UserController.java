@@ -96,6 +96,7 @@ public class UserController {
     public ResponseEntity<UserInfo> getUserInfos(){
         User user = userService.getLoggedInUser();
         UserInfo.Builder userInfoBuilder = new UserInfo.Builder(user.getUsername());
+        userInfoBuilder.id("user_"+user.getId());
         userInfoBuilder.email(user.getEmail());
         userInfoBuilder.name(user.getName());
         String role = user.getRole().getName().split("_")[1];

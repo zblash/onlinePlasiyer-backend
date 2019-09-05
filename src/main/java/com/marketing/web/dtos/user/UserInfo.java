@@ -15,6 +15,8 @@ import java.util.List;
 @NoArgsConstructor
 public class UserInfo extends DTO {
 
+    private String id;
+
     private String username;
 
     private String name;
@@ -28,6 +30,7 @@ public class UserInfo extends DTO {
     private List<String> activeStates;
 
     private UserInfo(Builder builder){
+        this.id = builder.id;
         this.username = builder.username;
         this.name = builder.name;
         this.email = builder.email;
@@ -37,6 +40,8 @@ public class UserInfo extends DTO {
     }
 
     public static class Builder {
+
+        private String id;
 
         private String username;
 
@@ -52,6 +57,11 @@ public class UserInfo extends DTO {
 
         public Builder(String username){
             this.username = username;
+        }
+
+        public Builder id(String id){
+            this.id = id;
+            return this;
         }
 
         public Builder name(String name){
