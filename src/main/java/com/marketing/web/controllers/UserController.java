@@ -76,8 +76,7 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
     @PostMapping("/api/users/addActiveState")
     public ResponseEntity<?> addActiveState(@RequestBody List<String> states){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        User user = userService.getLoggedInUser();
         List<State> stateList = stateRepository.findAllByTitleIn(states);
         List<State> addedList = user.getActiveStates();
         addedList.addAll(stateList);
@@ -89,15 +88,13 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
     @GetMapping("/api/users/activeStates")
     public ResponseEntity<?> getActiveStates(){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        User user = userService.getLoggedInUser();
         return ResponseEntity.ok(user.getActiveStates().stream().map(State::getTitle).collect(Collectors.toList()));
     }
 
     @PostMapping("/api/users/getmyInfos")
     public ResponseEntity<?> getUserInfos(){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        User user = userService.getLoggedInUser();
         UserInfo.Builder userInfoBuilder = new UserInfo.Builder(user.getUsername());
         userInfoBuilder.email(user.getEmail());
         userInfoBuilder.name(user.getName());

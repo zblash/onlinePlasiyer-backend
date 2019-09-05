@@ -6,6 +6,7 @@ import com.marketing.web.models.Invoice;
 import com.marketing.web.models.User;
 import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.services.invoice.InvoiceServiceImpl;
+import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.InvoiceMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +23,14 @@ import java.util.stream.Collectors;
 public class InvoiceController {
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private InvoiceServiceImpl invoiceService;
 
     @GetMapping
     public ResponseEntity<List<ReadableInvoice>> getAll(){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        User user = userService.getLoggedInUser();
         List<ReadableInvoice> readableInvoices = invoiceService.findAllByUser(user).stream()
                 .map(InvoiceMapper.INSTANCE::invoiceToReadableInvoice).collect(Collectors.toList());;
 

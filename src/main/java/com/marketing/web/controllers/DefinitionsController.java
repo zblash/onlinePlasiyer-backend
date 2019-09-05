@@ -13,9 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/definitions")
 public class DefinitionsController {
 
-    @Autowired
-    private RoleService roleService;
-
     @GetMapping("/roles")
     public ResponseEntity<?> getRoles(){
         return ResponseEntity.ok(RoleType.values());

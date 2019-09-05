@@ -39,8 +39,7 @@ public class OrderController {
     @PreAuthorize("hasRole('ROLE_CUSTOMER')")
     @GetMapping
     public ResponseEntity<List<ReadableOrder>> getUserBills(@RequestBody(required = false) SearchOrder searchOrder){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        User user = userService.getLoggedInUser();
         if (searchOrder != null){
             if (!searchOrder.getUserName().isEmpty() && searchOrder.getUserName() != null){
                 searchOrder.setBuyerId(user.getId());
@@ -56,8 +55,7 @@ public class OrderController {
     @PreAuthorize("hasRole('ROLE_CUSTOMER')")
     @PostMapping("/details/{id}")
     public ResponseEntity<List<ReadableOrder>> getUserBills(@PathVariable Long id){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        User user = userService.getLoggedInUser();
         return ResponseEntity.ok(orderService.findByBuyer(user.getId()).stream()
                 .map(OrderMapper.INSTANCE::orderToReadableOrder).collect(Collectors.toList()));
     }
@@ -65,8 +63,7 @@ public class OrderController {
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
     @GetMapping("/sales")
     public ResponseEntity<List<ReadableOrder>> getUserSales(@RequestBody(required = false) SearchOrder searchOrder){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        User user = userService.getLoggedInUser();
         if (searchOrder != null){
             if (!searchOrder.getUserName().isEmpty() && searchOrder.getUserName() != null){
                 searchOrder.setSellerId(user.getId());
@@ -83,8 +80,7 @@ public class OrderController {
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
     @PostMapping("/update/{id}")
     public ResponseEntity<ReadableOrder> updateOrder(@PathVariable Long id, @RequestBody WritableOrder order){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        User user = userService.getLoggedInUser();
         logger.info(Double.toString(order.getDiscount()));
         ReadableOrder readableOrder = orderFacade.saveOrder(order,id,user.getId());
         return ResponseEntity.ok(readableOrder);

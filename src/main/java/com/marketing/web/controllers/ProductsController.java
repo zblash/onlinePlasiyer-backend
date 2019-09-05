@@ -43,10 +43,10 @@ import java.util.stream.Collectors;
 public class ProductsController {
 
     @Autowired
-    private ProductService productService;
+    private UserService userService;
 
     @Autowired
-    private UserService userService;
+    private ProductService productService;
 
     @Autowired
     private CategoryService categoryService;
@@ -75,8 +75,7 @@ public class ProductsController {
 
     @GetMapping("/category/{id}")
     public ResponseEntity<List<Product>> getAllByCategory(@PathVariable Long id){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        User user = userService.getLoggedInUser();
         String userState = user.getAddress().getState();
         List<Product> products = productService.findByCategory(id).stream().filter(Product::isStatus).collect(Collectors.toList());
         return ResponseEntity.ok(productService.filterByState(products, userState));
@@ -96,8 +95,7 @@ public class ProductsController {
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct, @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        User user = userService.getLoggedInUser();
         Product product = productService.findByBarcode(writableProduct.getBarcode());
 
         if (product == null){
@@ -118,8 +116,7 @@ public class ProductsController {
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping("/specify/create")
     public ResponseEntity<?> createProductSpecify(@Valid @RequestBody WritableProductSpecify writableProductSpecify){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        User user = userService.getLoggedInUser();
         Product product = productService.findByBarcode(writableProductSpecify.getBarcode());
         if (product == null){
             return ResponseEntity.ok("There is no product with this barcode "+ writableProductSpecify.getBarcode());

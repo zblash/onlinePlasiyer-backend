@@ -9,8 +9,11 @@ import com.marketing.web.models.User;
 import com.marketing.web.repositories.CityRepository;
 import com.marketing.web.repositories.StateRepository;
 import com.marketing.web.repositories.UserRepository;
+import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.services.cart.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -91,5 +94,10 @@ public class UserService implements IUserService {
     @Override
     public void delete(User user) {
         userRepository.delete(user);
+    }
+
+    public User getLoggedInUser(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return ((CustomPrincipal) auth.getPrincipal()).getUser();
     }
 }

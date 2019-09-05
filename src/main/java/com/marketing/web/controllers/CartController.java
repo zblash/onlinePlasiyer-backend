@@ -12,6 +12,7 @@ import com.marketing.web.services.cart.CartItemService;
 import com.marketing.web.services.order.OrderItemService;
 import com.marketing.web.services.order.OrderService;
 import com.marketing.web.services.product.ProductSpecifyService;
+import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.facade.OrderFacade;
 import com.marketing.web.utils.mappers.CartMapper;
 import org.slf4j.Logger;
@@ -39,10 +40,7 @@ public class CartController {
     private CartItemService cartItemService;
 
     @Autowired
-    private OrderService orderService;
-
-    @Autowired
-    private OrderItemService orderItemService;
+    private UserService userService;
 
     @Autowired
     private ProductSpecifyService productSpecifyService;
@@ -54,8 +52,7 @@ public class CartController {
 
     @GetMapping
     public ResponseEntity<ReadableCart> getCart(){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        User user = userService.getLoggedInUser();
 
         ReadableCart readableCart = CartMapper.INSTANCE.cartToReadableCart(user.getCart());
         return ResponseEntity.ok(readableCart);
@@ -63,8 +60,8 @@ public class CartController {
 
     @PostMapping("/addItem")
     public ResponseEntity<?> addItem(@Valid @RequestBody WritableCartItem writableCartItem){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        User user = userService.getLoggedInUser();
+
         if (writableCartItem.getQuantity() > 1) {
             List<State> productStates = productSpecifyService.findById(writableCartItem.getProductId()).getStates();
             if (user.getActiveStates().containsAll(productStates)) {
@@ -78,8 +75,8 @@ public class CartController {
 
     @PostMapping("/removeItem/{id}")
     public ResponseEntity<String> removeItem(@PathVariable Long id){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        User user = userService.getLoggedInUser();
+
         cartItemService.delete(user.getCart(),cartItemService.findById(id));
         return ResponseEntity.ok("Removed Item from User's cart with id:"+id);
     }
@@ -87,16 +84,15 @@ public class CartController {
 
     @GetMapping("/clear")
     public ResponseEntity<?> clearCart(){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        User user = userService.getLoggedInUser();
+
         cartItemService.deleteAll(user.getCart());
         return ResponseEntity.ok("Cart cleared");
     }
 
     @PostMapping("/checkout")
     public ResponseEntity<?> checkout(){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomPrincipal) auth.getPrincipal()).getUser();
+        User user = userService.getLoggedInUser();
         Cart cart = user.getCart();
 
         if (!cart.getItems().isEmpty() && cart.getItems() != null) {
