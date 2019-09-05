@@ -1,5 +1,6 @@
 package com.marketing.web.services.ticket;
 
+import com.marketing.web.enums.TicketStatus;
 import com.marketing.web.models.Ticket;
 import com.marketing.web.models.User;
 
@@ -13,7 +14,7 @@ public interface ITicketService {
 
     List<Ticket> findAllByUser(User user);
 
-    List<Ticket> findAllByUserAndStatus(User user,boolean status);
+    List<Ticket> findAllByUserAndStatus(User user, TicketStatus status);
 
     Ticket findByUserAndId(User user,Long id);
 

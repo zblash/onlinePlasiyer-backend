@@ -1,6 +1,7 @@
 package com.marketing.web.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.marketing.web.enums.TicketStatus;
 import lombok.*;
 
 import javax.persistence.*;
@@ -21,7 +22,7 @@ public class Ticket extends Model {
 
     private String title;
 
-    private boolean status;
+    private TicketStatus status;
 
     @OneToOne
     @JoinColumn(name = "user_id",referencedColumnName = "id")

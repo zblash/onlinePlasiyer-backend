@@ -1,5 +1,6 @@
 package com.marketing.web.services.ticket;
 
+import com.marketing.web.enums.TicketStatus;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Ticket;
 import com.marketing.web.models.TicketReply;
@@ -32,7 +33,7 @@ public class TicketService implements ITicketService {
     }
 
     @Override
-    public List<Ticket> findAllByUserAndStatus(User user, boolean status) {
+    public List<Ticket> findAllByUserAndStatus(User user, TicketStatus status) {
         return ticketRepository.findAllByUser_IdAndStatus(user.getId(),status);
     }
 
@@ -49,7 +50,7 @@ public class TicketService implements ITicketService {
     @Override
     public Ticket update(Long id, Ticket updatedTicket) {
         Ticket ticket = findById(id);
-        ticket.setStatus(updatedTicket.isStatus());
+        ticket.setStatus(updatedTicket.getStatus());
         ticket.setTitle(updatedTicket.getTitle());
         return ticketRepository.save(ticket);
     }
