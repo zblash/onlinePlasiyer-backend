@@ -56,7 +56,7 @@ public class Runner implements CommandLineRunner {
             product.setCategory(category);
             product.setName("Example-Product"+i);
             product.setStatus(true);
-            product.setPhotoUrl("https://picsum.photos/200");
+            product.setPhotoUrl(randomPhoto());
             product.setTax(18);
             productRepository.save(product);
         }
@@ -172,6 +172,11 @@ public class Runner implements CommandLineRunner {
         return savedCategories;
     }
 
+
+    private String randomPhoto(){
+        Random rand = new Random();
+        return "https://picsum.photos/id/" + rand.nextInt(800) + "/200/200";
+    }
 
     private String generateBarcode() {
         int length = 13;
