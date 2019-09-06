@@ -24,7 +24,7 @@ public class ReadableCategory extends DTO {
 
     private String photoUrl;
 
-    private boolean subCategory;
+    private boolean isSubCategory;
 
-    private Long parentId;
+    private String parentId;
 }

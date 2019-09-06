@@ -22,7 +22,7 @@ public interface CategoryMapper {
         readableCategory.setPhotoUrl(category.getPhotoUrl());
         readableCategory.setSubCategory(category.isSubCategory());
         if (category.isSubCategory()){
-            readableCategory.setParentId(category.getParent().getId());
+            readableCategory.setParentId("category_"+category.getParent().getId());
         }
         return readableCategory;
     }

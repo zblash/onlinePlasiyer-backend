@@ -56,6 +56,7 @@ public class Runner implements CommandLineRunner {
             product.setCategory(category);
             product.setName("Example-Product"+i);
             product.setStatus(true);
+            product.setPhotoUrl("https://picsum.photos/200");
             product.setTax(18);
             productRepository.save(product);
         }
@@ -111,42 +112,64 @@ public class Runner implements CommandLineRunner {
         List<Category> categories = new ArrayList<>();
         Category category = new Category();
         category.setName("Kagit Urunleri");
+        category.setPhotoUrl("https://picsum.photos/200");
         category.setSubCategory(false);
         categories.add(category);
         Category category1 = new Category();
         category1.setName("Temizlik Urunleri");
         category1.setSubCategory(false);
+        category1.setPhotoUrl("https://picsum.photos/200");
         categories.add(category1);
         Category category2 = new Category();
         category2.setName("Kisisel Bakim Urunleri");
         category2.setSubCategory(false);
+        category2.setPhotoUrl("https://picsum.photos/200");
         categories.add(category2);
         Category category3 = new Category();
         category3.setName("Icecek Urunleri");
         category3.setSubCategory(false);
+        category3.setPhotoUrl("https://picsum.photos/200");
         categories.add(category3);
         Category category4 = new Category();
         category4.setName("Atistirmalik Urunler");
         category4.setSubCategory(false);
+        category4.setPhotoUrl("https://picsum.photos/200");
         categories.add(category4);
         Category category5 = new Category();
         category5.setName("Kuru Gida Urunleri");
         category5.setSubCategory(false);
+        category5.setPhotoUrl("https://picsum.photos/200");
         categories.add(category5);
         Category category6 = new Category();
         category6.setName("Sut Urunleri");
         category6.setSubCategory(false);
+        category6.setPhotoUrl("https://picsum.photos/200");
         categories.add(category6);
         Category category7 = new Category();
         category7.setName("Sarkuteri Urunleri");
         category7.setSubCategory(false);
+        category7.setPhotoUrl("https://picsum.photos/200");
         categories.add(category7);
         Category category8 = new Category();
         category8.setName("Tutun Urunleri");
         category8.setSubCategory(false);
+        category8.setPhotoUrl("https://picsum.photos/200");
         categories.add(category8);
 
-        return categoryRepository.saveAll(categories);
+        List<Category> savedCategories = categoryRepository.saveAll(categories);
+        List<Category> subCats = new ArrayList<>();
+        int i = 0;
+        for (Category baseCategory : savedCategories){
+            i++;
+            Category subCat = new Category();
+            subCat.setName("Example Sub Category"+i);
+            subCat.setSubCategory(true);
+            subCat.setParent(baseCategory);
+            subCat.setPhotoUrl("https://picsum.photos/200");
+            subCats.add(subCat);
+        }
+        savedCategories.addAll(categoryRepository.saveAll(subCats));
+        return savedCategories;
     }
 
 
