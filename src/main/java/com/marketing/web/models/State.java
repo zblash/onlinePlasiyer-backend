@@ -1,5 +1,6 @@
 package com.marketing.web.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.Entity;
@@ -27,6 +28,7 @@ public class State extends Model {
 
     private int code;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "city_id",referencedColumnName = "id")
     private City city;
