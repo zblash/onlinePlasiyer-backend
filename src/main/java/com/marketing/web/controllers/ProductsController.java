@@ -1,5 +1,6 @@
 package com.marketing.web.controllers;
 
+import com.marketing.web.dtos.product.ReadableProduct;
 import com.marketing.web.dtos.product.WritableProduct;
 import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.security.CustomPrincipal;
@@ -64,32 +65,35 @@ public class ProductsController {
     private StorageService storageService;
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAll(){
-        return ResponseEntity.ok(productService.findAll());
+    public ResponseEntity<List<ReadableProduct>> getAll(){
+        return ResponseEntity.ok(productService.findAll().stream()
+                .map(ProductMapper.INSTANCE::productToReadableProduct).collect(Collectors.toList()));
     }
 
     @GetMapping("/actives")
-    public ResponseEntity<List<Product>> getAllActives(){
-        return ResponseEntity.ok(productService.findAllByStatus(true));
+    public ResponseEntity<List<ReadableProduct>> getAllActives(){
+        return ResponseEntity.ok(productService.findAllByStatus(true).stream()
+                .map(ProductMapper.INSTANCE::productToReadableProduct).collect(Collectors.toList()));
     }
 
     @GetMapping("/category/{id}")
-    public ResponseEntity<List<Product>> getAllByCategory(@PathVariable Long id){
+    public ResponseEntity<List<ReadableProduct>> getAllByCategory(@PathVariable Long id){
         User user = userService.getLoggedInUser();
         String userState = user.getAddress().getState();
         List<Product> products = productService.findByCategory(id).stream().filter(Product::isStatus).collect(Collectors.toList());
-        return ResponseEntity.ok(productService.filterByState(products, userState));
+        return ResponseEntity.ok(productService.filterByState(products, userState).stream()
+                .map(ProductMapper.INSTANCE::productToReadableProduct).collect(Collectors.toList()));
 
     }
 
     @GetMapping("/barcode/{barcode}")
-    public ResponseEntity<Product> getByBarcode(@PathVariable String barcode){
-        return ResponseEntity.ok(productService.findByBarcode(barcode));
+    public ResponseEntity<ReadableProduct> getByBarcode(@PathVariable String barcode){
+        return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.findByBarcode(barcode)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getById(@PathVariable Long id){
-        return ResponseEntity.ok(productService.findById(id));
+    public ResponseEntity<ReadableProduct> getById(@PathVariable Long id){
+        return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.findById(id)));
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
@@ -106,7 +110,7 @@ public class ProductsController {
             if (!user.getRole().getName().equals("ROLE_ADMIN")){
                 product.setStatus(false);
             }
-            return ResponseEntity.ok(productService.create(product));
+            return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.create(product)));
         }
 
         return new ResponseEntity<>("Product already added", HttpStatus.CONFLICT);
@@ -125,23 +129,23 @@ public class ProductsController {
 
         product.addProductSpecify(productSpecify);
         productProducer.sendProduct(product.getId());
-        return ResponseEntity.ok(product);
+        return ResponseEntity.ok(ProductMapper.INSTANCE.productSpecifyToReadableProductSpecify(productSpecify));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/delete/{id}")
-    public Map<String,Product> deleteProduct(@PathVariable(value = "id") Long id){
+    public Map<String,ReadableProduct> deleteProduct(@PathVariable(value = "id") Long id){
         Product product = productService.findById(id);
         productService.delete(product);
-        Map<String,Product> response = new HashMap<>();
-        response.put("deleted",product);
+        Map<String,ReadableProduct> response = new HashMap<>();
+        response.put("deleted",ProductMapper.INSTANCE.productToReadableProduct(product));
         return response;
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable(value = "id") Long id,@Valid @RequestBody Product updatedProduct){
-        return ResponseEntity.ok(productService.update(id,updatedProduct));
+    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable(value = "id") Long id,@Valid @RequestBody Product updatedProduct){
+        return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.update(id,updatedProduct)));
     }
 
     @GetMapping("/live")

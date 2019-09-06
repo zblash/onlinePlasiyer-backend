@@ -23,6 +23,7 @@ public class Ticket extends Model {
 
     private String title;
 
+    @Enumerated(EnumType.STRING)
     private TicketStatus status;
 
     @Temporal(TemporalType.DATE)

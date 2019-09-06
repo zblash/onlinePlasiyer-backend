@@ -42,7 +42,6 @@ public class ProductSpecify extends Model {
 
     private double recommendedRetailPrice;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "product_id",referencedColumnName = "id")
     private Product product;

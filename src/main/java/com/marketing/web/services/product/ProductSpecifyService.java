@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
@@ -47,7 +48,7 @@ public class ProductSpecifyService implements IProductSpecifyService {
     @Override
     public ProductSpecify create(WritableProductSpecify writableProductSpecify, Product product, User user) {
         List<State> states = new CopyOnWriteArrayList<>();
-        if (!writableProductSpecify.getStateList().isEmpty() && writableProductSpecify.getStateList() != null){
+        if (Optional.ofNullable(writableProductSpecify.getStateList()).isPresent()){
                 states.addAll(stateRepository.findAllByTitleIn(writableProductSpecify.getStateList()));
         }else if(!writableProductSpecify.getCity().isEmpty()){
            City city = cityRepository.findByTitle(writableProductSpecify.getCity().toUpperCase()).orElseThrow(() -> new ResourceNotFoundException("City not found with name:" + writableProductSpecify.getCity().toUpperCase()));

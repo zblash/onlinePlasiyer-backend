@@ -1,10 +1,16 @@
 package com.marketing.web.utils.mappers;
 
+import com.marketing.web.dtos.product.ReadableProduct;
+import com.marketing.web.dtos.product.ReadableProductSpecify;
 import com.marketing.web.dtos.product.WritableProduct;
+import com.marketing.web.dtos.ticket.ReadableTicket;
 import com.marketing.web.models.Product;
+import com.marketing.web.models.ProductSpecify;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
+
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
@@ -14,4 +20,30 @@ public interface ProductMapper {
     @InheritInverseConfiguration
     Product writableProductToProduct(WritableProduct dto);
 
+    default ReadableProduct productToReadableProduct(Product product){
+        ReadableProduct readableProduct = new ReadableProduct();
+        readableProduct.setId("product_"+product.getId());
+        readableProduct.setActive(product.isStatus());
+        readableProduct.setBarcode(product.getBarcode());
+        readableProduct.setCategoryName(product.getCategory().getName());
+        readableProduct.setName(product.getName());
+        readableProduct.setPhotoUrl(product.getPhotoUrl());
+        readableProduct.setTax(product.getTax());
+        readableProduct.setProductSpecifies(product.getProductSpecifies().stream()
+                .map(ProductMapper.INSTANCE::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
+        return readableProduct;
+    }
+
+    default ReadableProductSpecify productSpecifyToReadableProductSpecify(ProductSpecify productSpecify){
+        ReadableProductSpecify readableProductSpecify = new ReadableProductSpecify();
+        readableProductSpecify.setId("productSpecify_"+productSpecify.getId());
+        readableProductSpecify.setContents(productSpecify.getContents());
+        readableProductSpecify.setQuantity(productSpecify.getQuantity());
+        readableProductSpecify.setRecommendedRetailPrice(productSpecify.getRecommendedRetailPrice());
+        readableProductSpecify.setTotalPrice(productSpecify.getTotalPrice());
+        readableProductSpecify.setUnitPrice(productSpecify.getUnitPrice());
+        readableProductSpecify.setUnitType(productSpecify.getUnitType());
+        readableProductSpecify.setProductName(productSpecify.getProduct().getName());
+        return readableProductSpecify;
+    }
 }
