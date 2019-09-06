@@ -2,17 +2,22 @@ package com.marketing.web;
 
 import com.marketing.web.models.Category;
 import com.marketing.web.models.City;
+import com.marketing.web.models.Product;
 import com.marketing.web.models.State;
+import com.marketing.web.repositories.CategoryRepository;
 import com.marketing.web.repositories.CityRepository;
+import com.marketing.web.repositories.ProductRepository;
 import com.marketing.web.repositories.StateRepository;
-import com.marketing.web.services.category.CategoryService;
 import com.marketing.web.services.storage.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
+@Component
 public class Runner implements CommandLineRunner {
 
     @Autowired
@@ -25,13 +30,38 @@ public class Runner implements CommandLineRunner {
     StorageService storageService;
 
     @Autowired
-    CategoryService categoryService;
+    CategoryRepository categoryRepository;
+
+    @Autowired
+    ProductRepository productRepository;
 
     @Override
     public void run(String... args) throws Exception {
         storageService.init();
 
-        if (cityRepository.findAll().isEmpty()) {
+        statePopulator();
+
+        List<Category> categories = categoryPopulator();
+
+        productPopulator(categories);
+
+    }
+
+    private void productPopulator(List<Category> categories) {
+        int i = 0;
+        for (Category category : categories){
+            i++;
+            Product product = new Product();
+            product.setBarcode(generateBarcode());
+            product.setCategory(category);
+            product.setName("Example-Product"+i);
+            product.setStatus(true);
+            product.setTax(18);
+            productRepository.save(product);
+        }
+    }
+
+    private void statePopulator(){
             List<City> cities = new ArrayList<>();
             City city = new City();
             city.setCode(6);
@@ -74,9 +104,60 @@ public class Runner implements CommandLineRunner {
             state4.setTitle("Beykoz");
             states.add(state4);
             stateRepository.saveAll(states);
-        }
 
+    }
+
+    private List<Category> categoryPopulator(){
+        List<Category> categories = new ArrayList<>();
         Category category = new Category();
         category.setName("Kagit Urunleri");
+        category.setSubCategory(false);
+        categories.add(category);
+        Category category1 = new Category();
+        category1.setName("Temizlik Urunleri");
+        category1.setSubCategory(false);
+        categories.add(category1);
+        Category category2 = new Category();
+        category2.setName("Kisisel Bakim Urunleri");
+        category2.setSubCategory(false);
+        categories.add(category2);
+        Category category3 = new Category();
+        category3.setName("Icecek Urunleri");
+        category3.setSubCategory(false);
+        categories.add(category3);
+        Category category4 = new Category();
+        category4.setName("Atistirmalik Urunler");
+        category4.setSubCategory(false);
+        categories.add(category4);
+        Category category5 = new Category();
+        category5.setName("Kuru Gida Urunleri");
+        category5.setSubCategory(false);
+        categories.add(category5);
+        Category category6 = new Category();
+        category6.setName("Sut Urunleri");
+        category6.setSubCategory(false);
+        categories.add(category6);
+        Category category7 = new Category();
+        category7.setName("Sarkuteri Urunleri");
+        category7.setSubCategory(false);
+        categories.add(category7);
+        Category category8 = new Category();
+        category8.setName("Tutun Urunleri");
+        category8.setSubCategory(false);
+        categories.add(category8);
+
+        return categoryRepository.saveAll(categories);
+    }
+
+
+    private String generateBarcode() {
+        int length = 13;
+        Random random = new Random();
+        char[] digits = new char[length];
+        digits[0] = (char) (random.nextInt(9) + '1');
+        for (int i = 1; i < length; i++) {
+            digits[i] = (char) (random.nextInt(10) + '0');
+        }
+        return new String(digits);
     }
 }
