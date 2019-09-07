@@ -64,6 +64,10 @@ public class CategoriesController {
             String fileName = storageService.store(uploadfile);
             category.setPhotoUrl(fileName);
 
+            if (category.isSubCategory()){
+                category.setParent(categoryService.findByUUID(writableCategory.getParentId()));
+            }
+
             Category savedCategory = categoryService.create(category);
 
         return ResponseEntity.ok(CategoryMapper.INSTANCE.categoryToReadableCategory(savedCategory));
@@ -86,6 +90,9 @@ public class CategoriesController {
         if (uploadfile != null && !uploadfile.isEmpty()) {
             String fileName = storageService.store(uploadfile);
             category.setPhotoUrl(fileName);
+        }
+        if (category.isSubCategory()){
+            category.setParent(categoryService.findByUUID(updatedCategory.getParentId()));
         }
         return ResponseEntity.ok(CategoryMapper.INSTANCE.categoryToReadableCategory(categoryService.update(uuid,category)));
     }

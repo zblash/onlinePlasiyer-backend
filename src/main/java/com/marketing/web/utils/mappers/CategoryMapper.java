@@ -6,14 +6,19 @@ import com.marketing.web.models.Category;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = "spring")
 public interface CategoryMapper {
 
     CategoryMapper INSTANCE = Mappers.getMapper( CategoryMapper.class );
 
-    @InheritInverseConfiguration
-    Category writableCategorytoCategory(WritableCategory writableCategory);
+    default Category writableCategorytoCategory(WritableCategory writableCategory){
+        Category category = new Category();
+        category.setSubCategory(writableCategory.isSubCategory());
+        category.setName(writableCategory.getName());
+        return category;
+    }
 
     default ReadableCategory categoryToReadableCategory(Category category){
         ReadableCategory readableCategory = new ReadableCategory();

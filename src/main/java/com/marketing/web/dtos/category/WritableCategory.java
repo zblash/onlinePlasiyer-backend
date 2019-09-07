@@ -23,7 +23,7 @@ public class WritableCategory extends DTO {
     @NotNull
     private boolean subCategory;
 
-    private Long parentId;
+    private String parentId;
 
 
 }

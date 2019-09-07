@@ -42,9 +42,6 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public Category create(Category category) {
-        if (category.isSubCategory() && category.getParent() != null){
-            category.setParent(categoryRepository.findById(category.getParent().getId()).orElseThrow(() -> new ResourceNotFoundException("Parent Category not found with given parentId: "+ category.getParent().getId())));
-        }
         return categoryRepository.save(category);
     }
 
