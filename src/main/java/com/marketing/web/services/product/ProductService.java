@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class ProductService implements IProductService {
@@ -30,8 +31,8 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public List<Product> findByCategory(Long categoryId){
-        Category category = categoryService.findById(categoryId);
+    public List<Product> findByCategory(String categoryId){
+        Category category = categoryService.findByUUID(categoryId);
         List<Category> categories = category.collectLeafChildren();
         return productRepository.findByCategoryIn(categories);
 
@@ -48,8 +49,12 @@ public class ProductService implements IProductService {
 
     @Override
     public Product findById(Long id) {
-
         return productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product not found with id: "+id));
+    }
+
+    @Override
+    public Product findByUUID(String uuid) {
+        return productRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Product not found with id: "+uuid));
     }
 
     @Override
@@ -58,8 +63,8 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product update(Long id,Product updatedProduct) {
-        Product product = findById(id);
+    public Product update(String uuid,Product updatedProduct) {
+        Product product = findByUUID(uuid);
         product.setBarcode(updatedProduct.getBarcode());
         product.setName(updatedProduct.getName());
         product.setPhotoUrl(updatedProduct.getPhotoUrl());

@@ -11,9 +11,11 @@ public interface ICategoryService {
 
     Category findById(Long id);
 
+    Category findByUUID(String uuid);
+
     Category create(Category category);
 
-    Category update(Long id, Category updatedCategory);
+    Category update(String id, Category updatedCategory);
 
     void delete(Category category);
 

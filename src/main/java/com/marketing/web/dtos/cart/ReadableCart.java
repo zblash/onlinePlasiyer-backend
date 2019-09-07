@@ -15,6 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 public class ReadableCart extends DTO {
 
+    private String id;
+
     private int quantity;
 
     private double totalPrice;

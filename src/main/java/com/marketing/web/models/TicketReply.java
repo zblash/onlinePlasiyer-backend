@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -18,6 +19,8 @@ public class TicketReply {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    private UUID uuid;
+
     private String message;
 
     @OneToOne
@@ -30,4 +33,9 @@ public class TicketReply {
 
     @Temporal(TemporalType.DATE)
     private Date addedTime;
+
+    @PrePersist
+    public void autofill() {
+        this.setUuid(UUID.randomUUID());
+    }
 }

@@ -53,8 +53,8 @@ public class OrderController {
     }
 
     @PreAuthorize("hasRole('ROLE_CUSTOMER')")
-    @PostMapping("/details/{id}")
-    public ResponseEntity<List<ReadableOrder>> getUserBills(@PathVariable Long id){
+    @PostMapping("/details/{uuid}")
+    public ResponseEntity<List<ReadableOrder>> getUserBills(@PathVariable String uuid){
         User user = userService.getLoggedInUser();
         return ResponseEntity.ok(orderService.findByBuyer(user.getId()).stream()
                 .map(OrderMapper.INSTANCE::orderToReadableOrder).collect(Collectors.toList()));
@@ -78,11 +78,11 @@ public class OrderController {
 
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
-    @PostMapping("/update/{id}")
-    public ResponseEntity<ReadableOrder> updateOrder(@PathVariable Long id, @RequestBody WritableOrder order){
+    @PostMapping("/update/{uuid}")
+    public ResponseEntity<ReadableOrder> updateOrder(@PathVariable String uuid, @RequestBody WritableOrder order){
         User user = userService.getLoggedInUser();
         logger.info(Double.toString(order.getDiscount()));
-        ReadableOrder readableOrder = orderFacade.saveOrder(order,id,user.getId());
+        ReadableOrder readableOrder = orderFacade.saveOrder(order,uuid,user.getId());
         return ResponseEntity.ok(readableOrder);
     }
 }

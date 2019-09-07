@@ -11,7 +11,9 @@ public interface InvoiceService {
 
     Invoice findById(Long id);
 
-    Invoice findByOrder(Long orderId);
+    Invoice findByUUID(String uuid);
+
+    Invoice findByOrder(String orderId);
 
     List<Invoice> findAllByUser(User user);
 

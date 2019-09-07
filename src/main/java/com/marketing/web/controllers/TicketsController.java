@@ -41,15 +41,15 @@ public class TicketsController {
                 .collect(Collectors.toList()));
     }
 
-    @GetMapping("/{id}/replies")
-    public ResponseEntity<List<ReadableTicketReply>> getTicketReplies(@PathVariable Long id){
+    @GetMapping("/{uuid}/replies")
+    public ResponseEntity<List<ReadableTicketReply>> getTicketReplies(@PathVariable String uuid){
         User loggedInUser = userService.getLoggedInUser();
         Ticket ticket;
 
         if (loggedInUser.getRole().getName().equals("ROLE_ADMIN")){
-            ticket = ticketService.findById(id);
+            ticket = ticketService.findByUUID(uuid);
         }else{
-            ticket = ticketService.findByUserAndId(loggedInUser,id);
+            ticket = ticketService.findByUserAndUUid(loggedInUser,uuid);
         }
 
         return ResponseEntity.ok(ticketReplyService.findAllByTicket(ticket).stream()
@@ -65,20 +65,20 @@ public class TicketsController {
         return ResponseEntity.ok(TicketMapper.INSTANCE.ticketToReadableTicket(ticketService.create(ticket)));
     }
 
-    @PostMapping("/{id}/createReply")
-    public ResponseEntity<ReadableTicketReply> createTicketReply(@PathVariable Long id,
+    @PostMapping("/{uuid}/createReply")
+    public ResponseEntity<ReadableTicketReply> createTicketReply(@PathVariable String uuid,
                                                                  @RequestBody WritableTicketReply writableTicketReply){
         User loggedInUser = userService.getLoggedInUser();
         Ticket ticket;
 
         if (loggedInUser.getRole().getName().equals("ROLE_ADMIN")){
-            ticket = ticketService.findById(id);
+            ticket = ticketService.findByUUID(uuid);
             if (ticket.getTicketReplies().size() <= 1){
                 ticket.setStatus(TicketStatus.ANS);
-                ticketService.update(ticket.getId(),ticket);
+                ticketService.update(ticket.getUuid().toString(),ticket);
             }
         }else{
-            ticket = ticketService.findByUserAndId(loggedInUser,id);
+            ticket = ticketService.findByUserAndUUid(loggedInUser,uuid);
         }
         TicketReply ticketReply =TicketMapper.INSTANCE.writableTicketReplyToTicketReply(writableTicketReply);
         ticketReply.setUser(loggedInUser);
@@ -88,25 +88,25 @@ public class TicketsController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/changeStatus/{id}")
-    public ResponseEntity<ReadableTicket> changeTicketStatus(@PathVariable Long id, @RequestBody TicketStatus ticketStatus){
-        Ticket ticket = ticketService.findById(id);
+    @PostMapping("/changeStatus/{uuid}")
+    public ResponseEntity<ReadableTicket> changeTicketStatus(@PathVariable String uuid, @RequestBody TicketStatus ticketStatus){
+        Ticket ticket = ticketService.findByUUID(uuid);
         ticket.setStatus(ticketStatus);
-        return ResponseEntity.ok(TicketMapper.INSTANCE.ticketToReadableTicket(ticketService.update(id,ticket)));
+        return ResponseEntity.ok(TicketMapper.INSTANCE.ticketToReadableTicket(ticketService.update(uuid,ticket)));
     }
 
-    @PostMapping("/update/{id}")
-    public ResponseEntity<ReadableTicket> updateTicket(@PathVariable Long id,@RequestBody WritableTicket writableTicket){
+    @PostMapping("/update/{uuid}")
+    public ResponseEntity<ReadableTicket> updateTicket(@PathVariable String uuid,@RequestBody WritableTicket writableTicket){
         User loggedInUser = userService.getLoggedInUser();
         Ticket ticket;
 
         if (loggedInUser.getRole().getName().equals("ROLE_ADMIN")){
-            ticket = ticketService.findById(id);
+            ticket = ticketService.findByUUID(uuid);
         }else{
-            ticket = ticketService.findByUserAndId(loggedInUser,id);
+            ticket = ticketService.findByUserAndUUid(loggedInUser,uuid);
         }
         Ticket updatedTicket = TicketMapper.INSTANCE.writableTicketToTicket(writableTicket);
-        return ResponseEntity.ok(TicketMapper.INSTANCE.ticketToReadableTicket(ticketService.update(id,updatedTicket)));
+        return ResponseEntity.ok(TicketMapper.INSTANCE.ticketToReadableTicket(ticketService.update(uuid,updatedTicket)));
     }
 
 }

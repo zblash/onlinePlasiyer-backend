@@ -3,13 +3,16 @@ package com.marketing.web.services.invoice;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Invoice;
+import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.InvoiceRepository;
+import com.marketing.web.services.order.OrderService;
 import com.marketing.web.utils.mappers.InvoiceMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,6 +21,8 @@ public class InvoiceServiceImpl implements InvoiceService{
     @Autowired
     private InvoiceRepository invoiceRepository;
 
+    @Autowired
+    private OrderService orderService;
 
     @Override
     public List<Invoice> findAll() {
@@ -30,8 +35,14 @@ public class InvoiceServiceImpl implements InvoiceService{
     }
 
     @Override
-    public Invoice findByOrder(Long orderId) {
-        return invoiceRepository.findByOrder_Id(orderId).orElseThrow(() -> new ResourceNotFoundException("Invoice not found with given orderId: "+ orderId));
+    public Invoice findByUUID(String uuid) {
+        return invoiceRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: "+ uuid));
+    }
+
+    @Override
+    public Invoice findByOrder(String orderId) {
+        Order order = orderService.findByUUID(orderId);
+        return invoiceRepository.findByOrder(order).orElseThrow(() -> new ResourceNotFoundException("Invoice not found with given orderId: "+ orderId));
     }
 
     @Override

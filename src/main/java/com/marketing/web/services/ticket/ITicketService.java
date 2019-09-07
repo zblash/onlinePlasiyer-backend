@@ -12,15 +12,17 @@ public interface ITicketService {
 
     Ticket findById(Long id);
 
+    Ticket findByUUID(String uuid);
+
     List<Ticket> findAllByUser(User user);
 
     List<Ticket> findAllByUserAndStatus(User user, TicketStatus status);
 
-    Ticket findByUserAndId(User user,Long id);
+    Ticket findByUserAndUUid(User user,String uuid);
 
     Ticket create(Ticket ticket);
 
-    Ticket update(Long id, Ticket updatedTicket);
+    Ticket update(String uuid, Ticket updatedTicket);
 
     void delete(Ticket ticket);
 }

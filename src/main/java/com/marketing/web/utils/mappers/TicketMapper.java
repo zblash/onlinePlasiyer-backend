@@ -19,7 +19,7 @@ public interface TicketMapper {
     default ReadableTicket ticketToReadableTicket(Ticket ticket){
         ReadableTicket readableTicket = new ReadableTicket();
 
-        readableTicket.setId("ticket_"+ticket.getId());
+        readableTicket.setId(ticket.getUuid().toString());
         readableTicket.setOpenerName(ticket.getUser().getName());
         readableTicket.setStatus(ticket.getStatus());
         readableTicket.setTitle(ticket.getTitle());
@@ -35,7 +35,7 @@ public interface TicketMapper {
 
     default ReadableTicketReply ticketReplyToReadableTicketReply(TicketReply ticketReply){
         ReadableTicketReply readableTicketReply = new ReadableTicketReply();
-        readableTicketReply.setId("ticketReply_"+ticketReply.getId());
+        readableTicketReply.setId(ticketReply.getUuid().toString());
         readableTicketReply.setAddedTime(ticketReply.getAddedTime());
         readableTicketReply.setMessage(ticketReply.getMessage());
         readableTicketReply.setUsername(ticketReply.getUser().getUsername());

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class AddressService implements IAddressService {
@@ -23,6 +24,11 @@ public class AddressService implements IAddressService {
     @Override
     public Address findById(Long id) {
         return addressRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Address not found with id: "+ id));
+    }
+
+    @Override
+    public Address findByUUID(String uuid) {
+        return addressRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Address not found with id: "+ uuid));
     }
 
     @Override

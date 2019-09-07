@@ -17,7 +17,7 @@ public interface CategoryMapper {
 
     default ReadableCategory categoryToReadableCategory(Category category){
         ReadableCategory readableCategory = new ReadableCategory();
-        readableCategory.setId("category_"+category.getId());
+        readableCategory.setId(category.getUuid().toString());
         readableCategory.setName(category.getName());
         readableCategory.setPhotoUrl(category.getPhotoUrl());
         readableCategory.setSubCategory(category.isSubCategory());

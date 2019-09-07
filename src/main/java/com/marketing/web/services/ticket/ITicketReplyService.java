@@ -11,6 +11,8 @@ public interface ITicketReplyService {
 
     TicketReply findById(Long id);
 
+    TicketReply findByUUID(String uuid);
+
     List<TicketReply> findAllByTicket(Ticket ticket);
 
     TicketReply create(TicketReply ticketReply);

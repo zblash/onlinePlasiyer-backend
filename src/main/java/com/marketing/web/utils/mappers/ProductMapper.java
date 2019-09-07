@@ -3,6 +3,7 @@ package com.marketing.web.utils.mappers;
 import com.marketing.web.dtos.product.ReadableProduct;
 import com.marketing.web.dtos.product.ReadableProductSpecify;
 import com.marketing.web.dtos.product.WritableProduct;
+import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.dtos.ticket.ReadableTicket;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
@@ -18,11 +19,14 @@ public interface ProductMapper {
     ProductMapper INSTANCE = Mappers.getMapper( ProductMapper.class );
 
     @InheritInverseConfiguration
-    Product writableProductToProduct(WritableProduct dto);
+    Product writableProductToProduct(WritableProduct writableProduct);
+
+    @InheritInverseConfiguration
+    ProductSpecify writableProductSpecifyToProductSpecify(WritableProductSpecify writableProductSpecify);
 
     default ReadableProduct productToReadableProduct(Product product){
         ReadableProduct readableProduct = new ReadableProduct();
-        readableProduct.setId("product_"+product.getId());
+        readableProduct.setId(product.getUuid().toString());
         readableProduct.setActive(product.isStatus());
         readableProduct.setBarcode(product.getBarcode());
         readableProduct.setCategoryName(product.getCategory().getName());
@@ -36,7 +40,7 @@ public interface ProductMapper {
 
     default ReadableProductSpecify productSpecifyToReadableProductSpecify(ProductSpecify productSpecify){
         ReadableProductSpecify readableProductSpecify = new ReadableProductSpecify();
-        readableProductSpecify.setId("productSpecify_"+productSpecify.getId());
+        readableProductSpecify.setId(productSpecify.getUuid().toString());
         readableProductSpecify.setContents(productSpecify.getContents());
         readableProductSpecify.setQuantity(productSpecify.getQuantity());
         readableProductSpecify.setRecommendedRetailPrice(productSpecify.getRecommendedRetailPrice());

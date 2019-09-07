@@ -37,9 +37,9 @@ public class InvoiceController {
         return ResponseEntity.ok(readableInvoices);
     }
 
-    @PostMapping("/byOrder/{id}")
-    public ResponseEntity<ReadableInvoice> getByOrder(@PathVariable Long id){
-        Invoice invoice = invoiceService.findByOrder(id);
+    @PostMapping("/byOrder/{uuid}")
+    public ResponseEntity<ReadableInvoice> getByOrder(@PathVariable String uuid){
+        Invoice invoice = invoiceService.findByOrder(uuid);
         return ResponseEntity.ok(InvoiceMapper.INSTANCE.invoiceToReadableInvoice(invoice));
     }
 

@@ -4,18 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.marketing.web.enums.UnitType;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -28,6 +19,8 @@ public class ProductSpecify extends Model {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    private UUID uuid;
 
     private double totalPrice;
 
@@ -52,4 +45,9 @@ public class ProductSpecify extends Model {
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<State> states;
+
+    @PrePersist
+    public void autofill() {
+        this.setUuid(UUID.randomUUID());
+    }
 }

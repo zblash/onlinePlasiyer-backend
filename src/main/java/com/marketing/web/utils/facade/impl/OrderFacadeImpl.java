@@ -38,8 +38,8 @@ public class OrderFacadeImpl implements OrderFacade {
     private InvoiceServiceImpl invoiceService;
 
     @Override
-    public ReadableOrder saveOrder(WritableOrder writableOrder, Long id, Long sellerId) {
-        Order order = orderService.findBySellerAndId(sellerId,id);
+    public ReadableOrder saveOrder(WritableOrder writableOrder, String uuid, Long sellerId) {
+        Order order = orderService.findBySellerAndUUid(sellerId,uuid);
         order.setStatus(writableOrder.getStatus());
         order.setWaybillDate(writableOrder.getWaybillDate());
 

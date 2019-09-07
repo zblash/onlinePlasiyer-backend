@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TicketService implements ITicketService {
@@ -28,6 +29,11 @@ public class TicketService implements ITicketService {
     }
 
     @Override
+    public Ticket findByUUID(String uuid) {
+        return ticketRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: "+uuid));
+    }
+
+    @Override
     public List<Ticket> findAllByUser(User user) {
         return ticketRepository.findAllByUser_Id(user.getId());
     }
@@ -38,8 +44,8 @@ public class TicketService implements ITicketService {
     }
 
     @Override
-    public Ticket findByUserAndId(User user,Long id) {
-        return ticketRepository.findByIdAndUser_Id(id,user.getId()).orElseThrow(() -> new ResourceNotFoundException("You have not ticket with id: "+id));
+    public Ticket findByUserAndUUid(User user,String uuid) {
+        return ticketRepository.findByUuidAndUser_Id(UUID.fromString(uuid),user.getId()).orElseThrow(() -> new ResourceNotFoundException("You have not ticket with id: "+uuid));
     }
 
     @Override
@@ -48,8 +54,8 @@ public class TicketService implements ITicketService {
     }
 
     @Override
-    public Ticket update(Long id, Ticket updatedTicket) {
-        Ticket ticket = findById(id);
+    public Ticket update(String uuid, Ticket updatedTicket) {
+        Ticket ticket = findByUUID(uuid);
         ticket.setStatus(updatedTicket.getStatus());
         ticket.setTitle(updatedTicket.getTitle());
         ticket.setAddedTime(updatedTicket.getAddedTime());

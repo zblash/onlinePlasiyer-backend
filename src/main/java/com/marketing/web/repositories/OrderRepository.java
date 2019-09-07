@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface OrderRepository extends JpaRepository<Order,Long> {
 
@@ -26,4 +27,10 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     Optional<Order> findByBuyer_IdAndId(Long buyerId, Long id);
 
     Optional<Order> findBySeller_IdAndId(Long sellerId, Long id);
+
+    Optional<Order> findByBuyer_IdAndUuid(Long buyerId, UUID uuid);
+
+    Optional<Order> findBySeller_IdAndUuid(Long sellerId, UUID uuid);
+
+    Optional<Order> findByUuid(UUID uuid);
 }

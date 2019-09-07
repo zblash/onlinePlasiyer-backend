@@ -13,6 +13,8 @@ public interface IOrderService {
 
     Order findById(Long id);
 
+    Order findByUUID(String uuid);
+
     List<Order> createAll(List<Order> orders);
 
     List<Order> findByBuyer(Long id);
@@ -20,6 +22,10 @@ public interface IOrderService {
     Order findByBuyerAndId(Long buyerId, Long id);
 
     Order findBySellerAndId(Long selerId, Long id);
+
+    Order findByBuyerAndUUid(Long buyerId, String uuid);
+
+    Order findBySellerAndUUid(Long selerId, String uuid);
 
     List<Order> findBySeller(Long id);
 

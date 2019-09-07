@@ -9,6 +9,7 @@ import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
 import com.marketing.web.services.cart.CartItemService;
+import com.marketing.web.services.cart.CartService;
 import com.marketing.web.services.order.OrderItemService;
 import com.marketing.web.services.order.OrderService;
 import com.marketing.web.services.product.ProductSpecifyService;
@@ -40,6 +41,9 @@ public class CartController {
     private CartItemService cartItemService;
 
     @Autowired
+    private CartService cartService;
+
+    @Autowired
     private UserService userService;
 
     @Autowired
@@ -66,19 +70,19 @@ public class CartController {
             List<State> productStates = productSpecifyService.findById(writableCartItem.getProductId()).getStates();
             if (user.getActiveStates().containsAll(productStates)) {
                 CartItem cartItem = cartItemService.createOrUpdate(user.getCart(), writableCartItem);
-                return ResponseEntity.ok(cartItem);
+                return ResponseEntity.ok(CartMapper.INSTANCE.cartToReadableCart(cartService.findById(user.getCart().getId())));
             }
             return new ResponseEntity<>("You can't order this product", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>("Quantity must bigger than 0", HttpStatus.BAD_REQUEST);
     }
 
-    @PostMapping("/removeItem/{id}")
-    public ResponseEntity<String> removeItem(@PathVariable Long id){
+    @PostMapping("/removeItem/{uuid}")
+    public ResponseEntity<String> removeItem(@PathVariable String uuid){
         User user = userService.getLoggedInUser();
 
-        cartItemService.delete(user.getCart(),cartItemService.findById(id));
-        return ResponseEntity.ok("Removed Item from User's cart with id:"+id);
+        cartItemService.delete(user.getCart(),cartItemService.findByUUID(uuid));
+        return ResponseEntity.ok("Removed Item from User's cart with id: "+uuid);
     }
 
 

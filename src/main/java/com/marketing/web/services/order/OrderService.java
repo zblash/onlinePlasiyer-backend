@@ -11,10 +11,7 @@ import com.marketing.web.services.order.IOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 
 import static java.util.Comparator.comparingLong;
 import static java.util.stream.Collectors.collectingAndThen;
@@ -45,6 +42,11 @@ public class OrderService implements IOrderService {
     }
 
     @Override
+    public Order findByUUID(String uuid) {
+        return orderRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Order not found with id:" + uuid));
+    }
+
+    @Override
     public List<Order> createAll(List<Order> orders) {
         return orderRepository.saveAll(orders);
     }
@@ -63,6 +65,17 @@ public class OrderService implements IOrderService {
     public Order findBySellerAndId(Long selerId, Long id) {
         return orderRepository.findBySeller_IdAndId(selerId,id).orElseThrow(() -> new ResourceNotFoundException("You have no order with id: "+ id));
     }
+
+    @Override
+    public Order findByBuyerAndUUid(Long buyerId, String uuid) {
+        return orderRepository.findByBuyer_IdAndUuid(buyerId,UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("You have no order with id: "+ uuid));
+    }
+
+    @Override
+    public Order findBySellerAndUUid(Long selerId, String uuid) {
+        return orderRepository.findBySeller_IdAndUuid(selerId,UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("You have no order with id: "+ uuid));
+    }
+
     @Override
     public List<Order> findBySeller(Long id) {
         return orderRepository.findAllBySeller_Id(id);

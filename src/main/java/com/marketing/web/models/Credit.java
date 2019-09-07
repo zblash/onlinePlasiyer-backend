@@ -3,6 +3,7 @@ package com.marketing.web.models;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -17,6 +18,8 @@ public class Credit extends Model {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    private UUID uuid;
+
     private User payer;
 
     private User creditor;
@@ -29,4 +32,8 @@ public class Credit extends Model {
 
     private double creditLimit;
 
+    @PrePersist
+    public void autofill() {
+        this.setUuid(UUID.randomUUID());
+    }
 }

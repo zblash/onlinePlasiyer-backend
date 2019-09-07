@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -16,6 +17,8 @@ public class Invoice extends Model {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    private UUID uuid;
 
     @NotNull
     private double totalPrice;
@@ -38,4 +41,9 @@ public class Invoice extends Model {
     @OneToOne
     @JoinColumn(name = "order_id",referencedColumnName = "id")
     private Order order;
+
+    @PrePersist
+    public void autofill() {
+        this.setUuid(UUID.randomUUID());
+    }
 }

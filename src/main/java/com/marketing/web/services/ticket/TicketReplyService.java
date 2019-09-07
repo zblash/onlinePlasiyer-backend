@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TicketReplyService implements ITicketReplyService {
@@ -23,6 +24,11 @@ public class TicketReplyService implements ITicketReplyService {
     @Override
     public TicketReply findById(Long id) {
         return ticketReplyRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Ticket Reply not found with id: "+id));
+    }
+
+    @Override
+    public TicketReply findByUUID(String uuid) {
+        return ticketReplyRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Ticket Reply not found with id: "+uuid));
     }
 
     @Override

@@ -1,17 +1,16 @@
 package com.marketing.web.services.category;
 
-import com.marketing.web.dtos.category.WritableCategory;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Category;
 import com.marketing.web.models.Product;
 import com.marketing.web.repositories.CategoryRepository;
 import com.marketing.web.repositories.ProductRepository;
-import com.marketing.web.utils.mappers.CategoryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class CategoryService implements ICategoryService {
@@ -37,6 +36,10 @@ public class CategoryService implements ICategoryService {
         return categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category not found with id: "+ id));
     }
 
+    public Category findByUUID(String uuid) {
+        return categoryRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Category not found with id: "+ uuid));
+    }
+
     @Override
     public Category create(Category category) {
         if (category.isSubCategory() && category.getParent() != null){
@@ -46,8 +49,8 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public Category update(Long id, Category updatedCategory) {
-        Category category = findById(id);
+    public Category update(String id, Category updatedCategory) {
+        Category category = findByUUID(id);
         if (updatedCategory.isSubCategory() && updatedCategory.getParent() != null){
             category.setParent(categoryRepository.findById(updatedCategory.getParent().getId()).orElseThrow(() -> new ResourceNotFoundException("Parent Category not found with given parentId: "+ updatedCategory.getParent().getId())));
         }

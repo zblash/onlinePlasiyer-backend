@@ -10,7 +10,7 @@ import com.marketing.web.models.User;
 import com.marketing.web.repositories.CityRepository;
 import com.marketing.web.repositories.ProductSpecifyRepository;
 import com.marketing.web.repositories.StateRepository;
-import com.marketing.web.utils.mappers.ProductSpecifyMapper;
+import com.marketing.web.utils.mappers.ProductMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
@@ -46,6 +47,11 @@ public class ProductSpecifyService implements IProductSpecifyService {
     }
 
     @Override
+    public ProductSpecify findByUUID(String uuid) {
+        return productSpecifyRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("ProductSpecify not found with id:" + uuid));
+    }
+
+    @Override
     public ProductSpecify create(WritableProductSpecify writableProductSpecify, Product product, User user) {
         List<State> states = new CopyOnWriteArrayList<>();
         if (Optional.ofNullable(writableProductSpecify.getStateList()).isPresent()){
@@ -56,7 +62,7 @@ public class ProductSpecifyService implements IProductSpecifyService {
         }
 
 
-        ProductSpecify productSpecify = ProductSpecifyMapper.INSTANCE.writableProductSpecifyToProductSpecify(writableProductSpecify);
+        ProductSpecify productSpecify = ProductMapper.INSTANCE.writableProductSpecifyToProductSpecify(writableProductSpecify);
         productSpecify.setProduct(product);
         productSpecify.setUser(user);
         productSpecify.setStates(allowedStates(user,states));

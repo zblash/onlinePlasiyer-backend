@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class CartItemService implements ICartItemService {
@@ -34,6 +35,11 @@ public class CartItemService implements ICartItemService {
     @Override
     public CartItem findById(Long id) {
         return cartItemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("CartItem not found with id: "+ id));
+    }
+
+    @Override
+    public CartItem findByUUID(String uuid) {
+        return cartItemRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("CartItem not found with id: "+ uuid));
     }
 
     @Override

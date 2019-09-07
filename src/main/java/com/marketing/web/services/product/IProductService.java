@@ -9,7 +9,7 @@ public interface IProductService {
 
     List<Product> findAllByStatus(boolean status);
 
-    List<Product> findByCategory(Long categoryId);
+    List<Product> findByCategory(String categoryId);
 
     Product findByBarcode(String barcode);
 
@@ -17,9 +17,11 @@ public interface IProductService {
 
     Product findById(Long id);
 
+    Product findByUUID(String uuid);
+
     Product create(Product product);
 
-    Product update(Long id,Product updatedProduct);
+    Product update(String uuid,Product updatedProduct);
 
     void delete(Product product);
 

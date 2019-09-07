@@ -13,6 +13,7 @@ public interface InvoiceMapper {
 
     default ReadableInvoice invoiceToReadableInvoice(Invoice invoice){
         ReadableInvoice readableInvoice = new ReadableInvoice();
+        readableInvoice.setId(invoice.getUuid().toString());
         readableInvoice.setBuyer(invoice.getBuyer().getName());
         readableInvoice.setSeller(invoice.getSeller().getName());
         readableInvoice.setDiscount(invoice.getDiscount());

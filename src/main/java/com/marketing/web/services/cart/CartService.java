@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class CartService implements ICartService {
@@ -24,6 +25,11 @@ public class CartService implements ICartService {
     @Override
     public Cart findById(Long id) {
         return cartRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: "+ id));
+    }
+
+    @Override
+    public Cart findByUUID(String uuid) {
+        return cartRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: "+ uuid));
     }
 
     @Override

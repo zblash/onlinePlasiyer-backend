@@ -9,4 +9,6 @@ public interface IOrderItemService {
 
     List<OrderItem> createAll(List<OrderItem> orderItems);
 
+    OrderItem findByUUID(String uuid);
+
 }

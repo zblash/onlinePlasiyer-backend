@@ -12,6 +12,8 @@ public interface ICartService {
 
     Cart findById(Long id);
 
+    Cart findByUUID(String uuid);
+
     Cart create(User user);
 
     Cart update(Cart cart,Cart updatedCart);

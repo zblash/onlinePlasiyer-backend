@@ -19,6 +19,8 @@ public interface IUserService {
 
     User findById(Long id);
 
+    User findByUUID(String uuid);
+
     User create(User user, RoleType roleType);
 
     User update(Long id, User updatedUser);

@@ -9,6 +9,8 @@ public interface IAddressService {
 
     Address findById(Long id);
 
+    Address findByUUID(String uuid);
+
     Address create(Address address);
 
     Address update(Address address,Address updatedAddress);

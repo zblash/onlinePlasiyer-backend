@@ -12,6 +12,8 @@ public interface IProductSpecifyService {
 
     ProductSpecify findById(Long id);
 
+    ProductSpecify findByUUID(String uuid);
+
     ProductSpecify create(WritableProductSpecify writableProductSpecify, Product product, User user);
 
     ProductSpecify update(ProductSpecify productSpecify);

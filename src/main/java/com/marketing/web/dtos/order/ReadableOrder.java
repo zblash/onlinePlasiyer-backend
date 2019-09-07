@@ -18,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ReadableOrder extends DTO {
 
-    private Long id;
+    private String id;
 
     private double totalPrice;
 

@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ReadableInvoice extends DTO {
 
+    private String id;
+
     private double totalPrice;
 
     private double paidPrice;

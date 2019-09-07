@@ -7,6 +7,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -23,6 +24,8 @@ public class Ticket extends Model {
 
     private String title;
 
+    private UUID uuid;
+
     @Enumerated(EnumType.STRING)
     private TicketStatus status;
 
@@ -36,4 +39,9 @@ public class Ticket extends Model {
     @JsonIgnore
     @OneToMany(mappedBy = "ticket",cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<TicketReply> ticketReplies;
+
+    @PrePersist
+    public void autofill() {
+        this.setUuid(UUID.randomUUID());
+    }
 }
