@@ -160,8 +160,8 @@ public class UserController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/api/users/setActive/{id}")
-    public ResponseEntity<String> setActiveUser(@PathVariable Long id){
-        User user = userService.findById(id);
+    public ResponseEntity<String> setActiveUser(@PathVariable String id){
+        User user = userService.findByUUID(id);
         user.setStatus(true);
         userService.update(user.getId(),user);
         return ResponseEntity.ok("Changed user status");
@@ -169,8 +169,8 @@ public class UserController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/api/users/setPassive/{id}")
-    public ResponseEntity<String> setPassiveUser(@PathVariable Long id){
-        User user = userService.findById(id);
+    public ResponseEntity<String> setPassiveUser(@PathVariable String id){
+        User user = userService.findByUUID(id);
         user.setStatus(false);
         userService.update(user.getId(),user);
         return ResponseEntity.ok("Changed user status");

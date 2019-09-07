@@ -77,12 +77,12 @@ public class CartController {
         return new ResponseEntity<>("Quantity must bigger than 0", HttpStatus.BAD_REQUEST);
     }
 
-    @PostMapping("/removeItem/{uuid}")
-    public ResponseEntity<String> removeItem(@PathVariable String uuid){
+    @PostMapping("/removeItem/{id}")
+    public ResponseEntity<String> removeItem(@PathVariable String id){
         User user = userService.getLoggedInUser();
 
-        cartItemService.delete(user.getCart(),cartItemService.findByUUID(uuid));
-        return ResponseEntity.ok("Removed Item from User's cart with id: "+uuid);
+        cartItemService.delete(user.getCart(),cartItemService.findByUUID(id));
+        return ResponseEntity.ok("Removed Item from User's cart with id: "+id);
     }
 
 

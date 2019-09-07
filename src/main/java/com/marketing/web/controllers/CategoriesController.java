@@ -52,9 +52,9 @@ public class CategoriesController {
                .map(CategoryMapper.INSTANCE::categoryToReadableCategory).collect(Collectors.toList()));
     }
 
-    @GetMapping("/{uuid}")
-    public ResponseEntity<ReadableCategory> findByUUID(@PathVariable String uuid){
-        return ResponseEntity.ok(CategoryMapper.INSTANCE.categoryToReadableCategory(categoryService.findByUUID(uuid)));
+    @GetMapping("/{id}")
+    public ResponseEntity<ReadableCategory> findByUUID(@PathVariable String id){
+        return ResponseEntity.ok(CategoryMapper.INSTANCE.categoryToReadableCategory(categoryService.findByUUID(id)));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -74,9 +74,9 @@ public class CategoriesController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/delete/{uuid}")
-    public Map<String,ReadableCategory> deleteCategory(@PathVariable String uuid){
-        Category category = categoryService.findByUUID(uuid);
+    @DeleteMapping("/delete/{id}")
+    public Map<String,ReadableCategory> deleteCategory(@PathVariable String id){
+        Category category = categoryService.findByUUID(id);
         categoryService.delete(category);
         Map<String,ReadableCategory> response = new HashMap<>();
         response.put("deleted",CategoryMapper.INSTANCE.categoryToReadableCategory(category));
@@ -84,8 +84,8 @@ public class CategoriesController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("/update/{uuid}")
-    public ResponseEntity<ReadableCategory> updateCategory(@PathVariable String uuid, @Valid WritableCategory updatedCategory, @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
+    @PutMapping("/update/{id}")
+    public ResponseEntity<ReadableCategory> updateCategory(@PathVariable String id, @Valid WritableCategory updatedCategory, @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
         Category category = CategoryMapper.INSTANCE.writableCategorytoCategory(updatedCategory);
         if (uploadfile != null && !uploadfile.isEmpty()) {
             String fileName = storageService.store(uploadfile);
@@ -94,7 +94,7 @@ public class CategoriesController {
         if (category.isSubCategory()){
             category.setParent(categoryService.findByUUID(updatedCategory.getParentId()));
         }
-        return ResponseEntity.ok(CategoryMapper.INSTANCE.categoryToReadableCategory(categoryService.update(uuid,category)));
+        return ResponseEntity.ok(CategoryMapper.INSTANCE.categoryToReadableCategory(categoryService.update(id,category)));
     }
 
 }

@@ -76,11 +76,11 @@ public class ProductsController {
                 .map(ProductMapper.INSTANCE::productToReadableProduct).collect(Collectors.toList()));
     }
 
-    @GetMapping("/category/{uuid}")
-    public ResponseEntity<List<ReadableProduct>> getAllByCategory(@PathVariable String uuid){
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<ReadableProduct>> getAllByCategory(@PathVariable String categoryId){
         User user = userService.getLoggedInUser();
         String userState = user.getAddress().getState();
-        List<Product> products = productService.findByCategory(uuid).stream().filter(Product::isStatus).collect(Collectors.toList());
+        List<Product> products = productService.findByCategory(categoryId).stream().filter(Product::isStatus).collect(Collectors.toList());
         return ResponseEntity.ok(productService.filterByState(products, userState).stream()
                 .map(ProductMapper.INSTANCE::productToReadableProduct).collect(Collectors.toList()));
 
@@ -91,9 +91,9 @@ public class ProductsController {
         return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.findByBarcode(barcode)));
     }
 
-    @GetMapping("/{uuid}")
-    public ResponseEntity<ReadableProduct> getById(@PathVariable String uuid){
-        return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.findByUUID(uuid)));
+    @GetMapping("/{id}")
+    public ResponseEntity<ReadableProduct> getById(@PathVariable String id){
+        return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.findByUUID(id)));
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
@@ -133,9 +133,9 @@ public class ProductsController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/delete/{uuid}")
-    public Map<String,ReadableProduct> deleteProduct(@PathVariable String uuid){
-        Product product = productService.findByUUID(uuid);
+    @DeleteMapping("/delete/{id}")
+    public Map<String,ReadableProduct> deleteProduct(@PathVariable String id){
+        Product product = productService.findByUUID(id);
         productService.delete(product);
         Map<String,ReadableProduct> response = new HashMap<>();
         response.put("deleted",ProductMapper.INSTANCE.productToReadableProduct(product));
@@ -143,9 +143,9 @@ public class ProductsController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("/update/{uuid}")
-    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String uuid,@Valid @RequestBody Product updatedProduct){
-        return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.update(uuid,updatedProduct)));
+    @PutMapping("/update/{id}")
+    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id,@Valid @RequestBody Product updatedProduct){
+        return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.update(id,updatedProduct)));
     }
 
     @GetMapping("/live")
