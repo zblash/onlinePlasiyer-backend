@@ -54,6 +54,7 @@ public class CategoryService implements ICategoryService {
         if (updatedCategory.getPhotoUrl() != null && !updatedCategory.getPhotoUrl().isEmpty()){
             category.setPhotoUrl(updatedCategory.getPhotoUrl());
         }
+        category.setName(updatedCategory.getName());
         return categoryRepository.save(category);
     }
 
