@@ -3,6 +3,7 @@ package com.marketing.web.controllers;
 import com.marketing.web.dtos.cart.ReadableCart;
 import com.marketing.web.dtos.cart.WritableCartItem;
 import com.marketing.web.dtos.order.ReadableOrder;
+import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItem;
 import com.marketing.web.security.CustomPrincipal;
@@ -95,14 +96,13 @@ public class CartController {
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<?> checkout(){
+    public ResponseEntity<List<ReadableOrder>> checkout(){
         User user = userService.getLoggedInUser();
         Cart cart = user.getCart();
 
         if (!cart.getItems().isEmpty() && cart.getItems() != null) {
-            List<ReadableOrder> readableOrders = orderFacade.checkoutCart(user,cart,cart.getItems());
-            return ResponseEntity.ok(readableOrders);
+            return ResponseEntity.ok(orderFacade.checkoutCart(user,cart,cart.getItems()));
         }
-        return new ResponseEntity<>("Cart is empty", HttpStatus.BAD_REQUEST);
+        throw new ResourceNotFoundException("There are no cart items in your cart");
     }
 }

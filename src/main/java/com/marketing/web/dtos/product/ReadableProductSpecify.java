@@ -32,4 +32,6 @@ public class ReadableProductSpecify extends DTO {
 
     private String productName;
 
+    private String sellerName;
+
 }

@@ -48,6 +48,7 @@ public interface ProductMapper {
         readableProductSpecify.setUnitPrice(productSpecify.getUnitPrice());
         readableProductSpecify.setUnitType(productSpecify.getUnitType());
         readableProductSpecify.setProductName(productSpecify.getProduct().getName());
+        readableProductSpecify.setSellerName(productSpecify.getUser().getName());
         return readableProductSpecify;
     }
 }
