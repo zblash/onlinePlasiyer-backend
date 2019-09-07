@@ -45,6 +45,10 @@ public class UserService implements IUserService {
         return userRepository.findByUsername(userName).orElseThrow(() -> new ResourceNotFoundException("User not found with username: "+ userName));
     }
 
+    public boolean canRegister(User user){
+        return !userRepository.findByUsernameOrEmail(user.getUsername(),user.getEmail()).isPresent();
+    }
+
     @Override
     public List<User> findAll() {
         return userRepository.findAll();

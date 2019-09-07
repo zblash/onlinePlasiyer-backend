@@ -2,6 +2,7 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.user.*;
 import com.marketing.web.enums.RoleType;
+import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.Address;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
@@ -66,11 +67,14 @@ public class UserController {
     @PostMapping("/sign-up")
     public ResponseEntity<ReadableRegister> signUp(@Valid @RequestBody WritableRegister writableRegister){
         User user = UserMapper.INSTANCE.writableRegisterToUser(writableRegister);
-        Address address = addressService.create(UserMapper.INSTANCE.registerDTOToAddress(writableRegister));
-        user.setStatus(true);
-        user.setAddress(address);
-        ReadableRegister readableRegister =  UserMapper.INSTANCE.userToReadableRegister(userService.create(user, writableRegister.getRoleType()));
-        return ResponseEntity.ok(readableRegister);
+        if(userService.canRegister(user)) {
+            Address address = addressService.create(UserMapper.INSTANCE.registerDTOToAddress(writableRegister));
+            user.setStatus(true);
+            user.setAddress(address);
+            ReadableRegister readableRegister = UserMapper.INSTANCE.userToReadableRegister(userService.create(user, writableRegister.getRoleType()));
+            return ResponseEntity.ok(readableRegister);
+        }
+        throw new BadRequestException("Username or email already registered");
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
