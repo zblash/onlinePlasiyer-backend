@@ -75,12 +75,10 @@ public class CategoriesController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/delete/{id}")
-    public Map<String,ReadableCategory> deleteCategory(@PathVariable String id){
+    public ResponseEntity<ReadableCategory> deleteCategory(@PathVariable String id){
         Category category = categoryService.findByUUID(id);
         categoryService.delete(category);
-        Map<String,ReadableCategory> response = new HashMap<>();
-        response.put("deleted",CategoryMapper.INSTANCE.categoryToReadableCategory(category));
-        return response;
+        return ResponseEntity.ok(CategoryMapper.INSTANCE.categoryToReadableCategory(category));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

@@ -134,12 +134,10 @@ public class ProductsController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/delete/{id}")
-    public Map<String,ReadableProduct> deleteProduct(@PathVariable String id){
+    public ResponseEntity<ReadableProduct> deleteProduct(@PathVariable String id){
         Product product = productService.findByUUID(id);
         productService.delete(product);
-        Map<String,ReadableProduct> response = new HashMap<>();
-        response.put("deleted",ProductMapper.INSTANCE.productToReadableProduct(product));
-        return response;
+        return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(product));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
