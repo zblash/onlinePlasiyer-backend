@@ -64,7 +64,7 @@ public class UserController {
     }
 
     @PostMapping("/sign-up")
-    public ResponseEntity<?> signUp(@Valid @RequestBody WritableRegister writableRegister){
+    public ResponseEntity<ReadableRegister> signUp(@Valid @RequestBody WritableRegister writableRegister){
         User user = UserMapper.INSTANCE.writableRegisterToUser(writableRegister);
         Address address = addressService.create(UserMapper.INSTANCE.registerDTOToAddress(writableRegister));
         user.setStatus(true);

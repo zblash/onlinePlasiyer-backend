@@ -1,18 +1,26 @@
 package com.marketing.web;
 
-import com.marketing.web.models.Category;
-import com.marketing.web.models.City;
-import com.marketing.web.models.Product;
-import com.marketing.web.models.State;
+import com.marketing.web.controllers.UserController;
+import com.marketing.web.dtos.user.ReadableRegister;
+import com.marketing.web.dtos.user.WritableRegister;
+import com.marketing.web.enums.RoleType;
+import com.marketing.web.models.*;
 import com.marketing.web.repositories.CategoryRepository;
 import com.marketing.web.repositories.CityRepository;
 import com.marketing.web.repositories.ProductRepository;
 import com.marketing.web.repositories.StateRepository;
 import com.marketing.web.services.storage.StorageService;
+import com.marketing.web.services.user.AddressService;
+import com.marketing.web.services.user.UserService;
+import com.marketing.web.utils.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -35,6 +43,12 @@ public class Runner implements CommandLineRunner {
     @Autowired
     ProductRepository productRepository;
 
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    AddressService addressService;
+
     @Override
     public void run(String... args) throws Exception {
         storageService.init();
@@ -45,6 +59,57 @@ public class Runner implements CommandLineRunner {
 
         productPopulator(categories);
 
+        userPopulator();
+
+    }
+
+    public void userPopulator() throws URISyntaxException {
+
+        WritableRegister writableRegister = new WritableRegister();
+        writableRegister.setUsername("admin");
+        writableRegister.setName("Admin Account");
+        writableRegister.setPassword("12345");
+        writableRegister.setTaxNumber("TR23123123");
+        writableRegister.setEmail("admin@admin.com");
+        writableRegister.setCity("ANTALYA");
+        writableRegister.setState("MANAVGAT");
+        writableRegister.setDetails("falan");
+        writableRegister.setRoleType(RoleType.ADMIN);
+
+
+        WritableRegister writableRegister1 = new WritableRegister();
+        writableRegister1.setUsername("merchant");
+        writableRegister1.setName("Merchant Account");
+        writableRegister1.setPassword("12345");
+        writableRegister1.setTaxNumber("TR31313131");
+        writableRegister1.setEmail("merchant@merchant.com");
+        writableRegister1.setCity("ANTALYA");
+        writableRegister1.setState("MANAVGAT");
+        writableRegister1.setDetails("falan");
+        writableRegister1.setRoleType(RoleType.MERCHANT);
+
+        WritableRegister writableRegister2 = new WritableRegister();
+        writableRegister2.setUsername("customer");
+        writableRegister2.setName("Customer Account");
+        writableRegister2.setPassword("12345");
+        writableRegister2.setTaxNumber("TR4234234234");
+        writableRegister2.setEmail("customer@customer.com");
+        writableRegister2.setCity("ANTALYA");
+        writableRegister2.setState("MANAVGAT");
+        writableRegister2.setDetails("falan");
+        writableRegister2.setRoleType(RoleType.CUSTOMER);
+
+        User user = UserMapper.INSTANCE.writableRegisterToUser(writableRegister);
+        user.setStatus(true);
+        userService.create(user,writableRegister.getRoleType());
+
+        User user1 = UserMapper.INSTANCE.writableRegisterToUser(writableRegister1);
+        user1.setStatus(true);
+        userService.create(user1,writableRegister1.getRoleType());
+
+        User user2 = UserMapper.INSTANCE.writableRegisterToUser(writableRegister2);
+        user2.setStatus(true);
+        userService.create(user2,writableRegister2.getRoleType());
     }
 
     private void productPopulator(List<Category> categories) {
