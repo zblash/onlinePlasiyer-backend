@@ -32,5 +32,5 @@ public class ReadableOrder extends DTO {
 
     private Date waybillDate;
 
-    private List<OrderItem> orderItems;
+    private List<ReadableOrderItem> orderItems;
 }

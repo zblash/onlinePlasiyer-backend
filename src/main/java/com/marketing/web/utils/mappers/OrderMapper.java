@@ -1,6 +1,7 @@
 package com.marketing.web.utils.mappers;
 
 import com.marketing.web.dtos.order.ReadableOrder;
+import com.marketing.web.dtos.order.ReadableOrderItem;
 import com.marketing.web.dtos.order.WritableOrder;
 import com.marketing.web.models.CartItem;
 import com.marketing.web.models.Order;
@@ -8,6 +9,8 @@ import com.marketing.web.models.OrderItem;
 import org.aspectj.weaver.ast.Or;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
+
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
@@ -40,8 +43,25 @@ public interface OrderMapper {
         readableOrder.setWaybillDate(order.getWaybillDate());
         readableOrder.setTotalPrice(order.getTotalPrice());
         readableOrder.setStatus(order.getStatus());
-        readableOrder.setOrderItems(order.getOrderItems());
+        readableOrder.setOrderItems(order.getOrderItems().stream()
+                .map(OrderMapper.INSTANCE::orderItemToReadableOrderItem).collect(Collectors.toList()));
         return readableOrder;
     }
 
+    default ReadableOrderItem orderItemToReadableOrderItem(OrderItem orderItem){
+        ReadableOrderItem readableOrderItem = new ReadableOrderItem();
+        readableOrderItem.setId(orderItem.getUuid().toString());
+        readableOrderItem.setPrice(orderItem.getPrice());
+        readableOrderItem.setUnitPrice(orderItem.getUnitPrice());
+        readableOrderItem.setUnitType(orderItem.getUnitType());
+        readableOrderItem.setRecommendedRetailPrice(orderItem.getRecommendedRetailPrice());
+        readableOrderItem.setProductName(orderItem.getProductName());
+        readableOrderItem.setProductBarcode(orderItem.getProductBarcode());
+        readableOrderItem.setProductPhotoUrl("http://localhost:8080/photos/"+orderItem.getProductPhotoUrl());
+        readableOrderItem.setProductTax(orderItem.getProductTax());
+        readableOrderItem.setSellerName(orderItem.getSeller().getName());
+        readableOrderItem.setQuantity(orderItem.getQuantity());
+        readableOrderItem.setTotalPrice(orderItem.getTotalPrice());
+        return readableOrderItem;
+    }
 }
