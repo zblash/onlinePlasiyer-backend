@@ -9,6 +9,8 @@ public interface IUserService {
 
     User findByUserName(String userName);
 
+    boolean canRegister(User user);
+
     List<User> findAll();
 
     List<User> findAllByRole(RoleType roleType);
