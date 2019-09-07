@@ -13,7 +13,15 @@ import java.util.Date;
 @AllArgsConstructor
 public class ErrorMessage {
 
-    private String message;
 
     private Date timestamp;
+
+    private int status;
+
+    private String error;
+
+    private String message;
+
+    private String path;
+
 }

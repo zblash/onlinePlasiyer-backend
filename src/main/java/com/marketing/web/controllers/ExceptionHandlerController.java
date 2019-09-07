@@ -10,6 +10,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.context.request.WebRequest;
 
 import java.util.Date;
 import java.util.Locale;
@@ -18,14 +20,15 @@ import java.util.Locale;
 public class ExceptionHandlerController {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<?> handleResourceNotFoundException(RuntimeException ex){
-        ErrorMessage errorMessage = new ErrorMessage(ex.getMessage(),new Date());
+    public ResponseEntity<?> handleResourceNotFoundException(RuntimeException ex, WebRequest request){
+
+        ErrorMessage errorMessage = new ErrorMessage(new Date(),HttpStatus.NOT_FOUND.value(),"Not Found",ex.getMessage(),((ServletWebRequest)request).getRequest().getRequestURL().toString());
         return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        ErrorMessage errorMessage = new ErrorMessage("Required request body is missing",new Date());
+    public ResponseEntity<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, WebRequest request) {
+        ErrorMessage errorMessage = new ErrorMessage(new Date(),HttpStatus.BAD_REQUEST.value(),"Bad Request","Required request body is missing",((ServletWebRequest)request).getRequest().getRequestURL().toString());
         return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
     }
 }
