@@ -38,6 +38,7 @@ public class ProductService implements IProductService {
 
     }
 
+    @Override
     public Product findByBarcode(String barcode){
         return productRepository.findByBarcode(barcode).orElse(null);
     }

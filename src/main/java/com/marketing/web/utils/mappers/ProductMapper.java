@@ -7,6 +7,7 @@ import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.dtos.ticket.ReadableTicket;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
+import com.marketing.web.models.State;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -49,6 +50,7 @@ public interface ProductMapper {
         readableProductSpecify.setUnitType(productSpecify.getUnitType());
         readableProductSpecify.setProductName(productSpecify.getProduct().getName());
         readableProductSpecify.setSellerName(productSpecify.getUser().getName());
+        readableProductSpecify.setStates(productSpecify.getStates().stream().map(State::getTitle).collect(Collectors.toList()));
         return readableProductSpecify;
     }
 }

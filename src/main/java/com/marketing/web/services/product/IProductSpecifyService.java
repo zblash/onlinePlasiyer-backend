@@ -14,9 +14,11 @@ public interface IProductSpecifyService {
 
     ProductSpecify findByUUID(String uuid);
 
-    ProductSpecify create(WritableProductSpecify writableProductSpecify, Product product, User user);
+    ProductSpecify findByUUIDAndUser(String uuid,User user);
 
-    ProductSpecify update(ProductSpecify productSpecify);
+    ProductSpecify create(ProductSpecify productSpecify);
+
+    ProductSpecify update(String uuid,ProductSpecify updatedProductSpecify);
 
     void delete(ProductSpecify productSpecify);
 }

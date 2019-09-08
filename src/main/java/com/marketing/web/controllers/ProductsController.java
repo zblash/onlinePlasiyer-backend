@@ -3,6 +3,9 @@ package com.marketing.web.controllers;
 import com.marketing.web.dtos.product.ReadableProduct;
 import com.marketing.web.dtos.product.WritableProduct;
 import com.marketing.web.dtos.product.WritableProductSpecify;
+import com.marketing.web.enums.RoleType;
+import com.marketing.web.errors.BadRequestException;
+import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
@@ -115,21 +118,6 @@ public class ProductsController {
 
         return new ResponseEntity<>("Product already added", HttpStatus.CONFLICT);
 
-    }
-
-    @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
-    @PostMapping("/specify/create")
-    public ResponseEntity<?> createProductSpecify(@Valid @RequestBody WritableProductSpecify writableProductSpecify){
-        User user = userService.getLoggedInUser();
-        Product product = productService.findByBarcode(writableProductSpecify.getBarcode());
-        if (product == null){
-            return ResponseEntity.ok("There is no product with this barcode "+ writableProductSpecify.getBarcode());
-        }
-        ProductSpecify productSpecify = productSpecifyService.create(writableProductSpecify,product,user);
-
-        product.addProductSpecify(productSpecify);
-        productProducer.sendProduct(product.getId());
-        return ResponseEntity.ok(ProductMapper.INSTANCE.productSpecifyToReadableProductSpecify(productSpecify));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

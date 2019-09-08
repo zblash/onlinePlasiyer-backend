@@ -52,36 +52,36 @@ public class ProductSpecifyService implements IProductSpecifyService {
     }
 
     @Override
-    public ProductSpecify create(WritableProductSpecify writableProductSpecify, Product product, User user) {
-        List<State> states = new CopyOnWriteArrayList<>();
-        if (Optional.ofNullable(writableProductSpecify.getStateList()).isPresent()){
-                states.addAll(stateRepository.findAllByTitleIn(writableProductSpecify.getStateList()));
-        }else if(!writableProductSpecify.getCity().isEmpty()){
-           City city = cityRepository.findByTitle(writableProductSpecify.getCity().toUpperCase()).orElseThrow(() -> new ResourceNotFoundException("City not found with name:" + writableProductSpecify.getCity().toUpperCase()));
-           states.addAll(stateRepository.findAllByCity(city));
-        }
+    public ProductSpecify findByUUIDAndUser(String uuid,User user) {
+        return productSpecifyRepository.findByUuidAndUser_Id(UUID.fromString(uuid),user.getId()).orElseThrow(() -> new ResourceNotFoundException("ProductSpecify not found with id:" + uuid));
+    }
 
-
-        ProductSpecify productSpecify = ProductMapper.INSTANCE.writableProductSpecifyToProductSpecify(writableProductSpecify);
-        productSpecify.setProduct(product);
-        productSpecify.setUser(user);
-        productSpecify.setStates(allowedStates(user,states));
-        productSpecify.setUnitType(writableProductSpecify.getUnitType());
-
+    @Override
+    public ProductSpecify create(ProductSpecify productSpecify) {
         return productSpecifyRepository.save(productSpecify);
     }
 
     @Override
-    public ProductSpecify update(ProductSpecify productSpecify) {
-        return null;
+    public ProductSpecify update(String uuid,ProductSpecify updatedProductSpecify) {
+        ProductSpecify productSpecify = findByUUID(uuid);
+        productSpecify.setUnitType(updatedProductSpecify.getUnitType());
+        productSpecify.setContents(updatedProductSpecify.getContents());
+        productSpecify.setQuantity(updatedProductSpecify.getQuantity());
+        productSpecify.setRecommendedRetailPrice(updatedProductSpecify.getRecommendedRetailPrice());
+        productSpecify.setTotalPrice(updatedProductSpecify.getTotalPrice());
+        productSpecify.setUnitPrice(updatedProductSpecify.getUnitPrice());
+        productSpecify.setProduct(updatedProductSpecify.getProduct());
+        productSpecify.setStates(updatedProductSpecify.getStates());
+        productSpecify.setProduct(updatedProductSpecify.getProduct());
+        return productSpecifyRepository.save(productSpecify);
     }
 
     @Override
     public void delete(ProductSpecify productSpecify) {
-
+        productSpecifyRepository.delete(productSpecify);
     }
 
-    private List<State> allowedStates(User user, List<State> states){
+    public List<State> allowedStates(User user, List<State> states){
         boolean isAllowed = user.getActiveStates().containsAll(states);
         if (isAllowed){
             return states;

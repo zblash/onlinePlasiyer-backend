@@ -17,6 +17,8 @@ public interface InvoiceService {
 
     List<Invoice> findAllByUser(User user);
 
+    Invoice findByOrderAndUser(String orderId, User user);
+
     Invoice create(Invoice invoice);
 
     Invoice update(Long id, Invoice updatedInvoice);

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -47,12 +48,29 @@ public class InvoiceServiceImpl implements InvoiceService{
 
     @Override
     public List<Invoice> findAllByUser(User user) {
-        if (user.getRole().getName().equals(RoleType.CUSTOMER.toString())){
+        if (user.getRole().getName().equals("ROLE_"+RoleType.CUSTOMER.toString())){
             return invoiceRepository.findAllByBuyer_Id(user.getId());
-        }else if (user.getRole().getName().equals(RoleType.MERCHANT.toString())){
+        }else if (user.getRole().getName().equals("ROLE_"+RoleType.MERCHANT.toString())){
             return invoiceRepository.findAllBySeller_Id(user.getId());
+        }else if (user.getRole().getName().equals("ROLE_"+RoleType.ADMIN)){
+            return invoiceRepository.findAll();
         }
         throw new ResourceNotFoundException("You have no invoice(s)");
+    }
+
+    @Override
+    public Invoice findByOrderAndUser(String orderId, User user) {
+        Order order = orderService.findByUUID(orderId);
+        Optional<Invoice> optionalInvoice = Optional.empty();
+        if (user.getRole().getName().equals("ROLE_"+RoleType.CUSTOMER.toString())){
+            optionalInvoice = invoiceRepository.findByOrderAndBuyer_Id(order,user.getId());
+        }else if (user.getRole().getName().equals("ROLE_"+RoleType.MERCHANT.toString())){
+            optionalInvoice =  invoiceRepository.findByOrderAndSeller_Id(order,user.getId());
+        }else if (user.getRole().getName().equals("ROLE_"+RoleType.ADMIN)){
+            optionalInvoice =  invoiceRepository.findByOrder(order);
+        }
+
+        return optionalInvoice.orElseThrow(() -> new ResourceNotFoundException("Invoice not found with given orderId: "+ orderId));
     }
 
 

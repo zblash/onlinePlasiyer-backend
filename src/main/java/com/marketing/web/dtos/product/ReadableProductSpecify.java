@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -33,5 +34,7 @@ public class ReadableProductSpecify extends DTO {
     private String productName;
 
     private String sellerName;
+
+    private List<String> states;
 
 }

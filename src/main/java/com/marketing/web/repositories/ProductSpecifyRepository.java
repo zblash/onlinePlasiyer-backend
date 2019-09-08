@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface ProductSpecifyRepository extends JpaRepository<ProductSpecify,Long> {
 
     Optional<ProductSpecify> findByUuid(UUID uuid);
+
+    Optional<ProductSpecify> findByUuidAndUser_Id(UUID uuid, Long userId);
 }

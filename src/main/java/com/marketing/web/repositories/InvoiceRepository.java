@@ -13,6 +13,10 @@ public interface InvoiceRepository extends JpaRepository<Invoice,Long> {
 
     Optional<Invoice> findByOrder(Order order);
 
+    Optional<Invoice> findByOrderAndBuyer_Id(Order order,Long buyerId);
+
+    Optional<Invoice> findByOrderAndSeller_Id(Order order,Long sellerId);
+
     List<Invoice> findAllByBuyer_Id(Long id);
 
     List<Invoice> findAllBySeller_Id(Long id);

@@ -32,14 +32,14 @@ public class InvoiceController {
     public ResponseEntity<List<ReadableInvoice>> getAll(){
         User user = userService.getLoggedInUser();
         List<ReadableInvoice> readableInvoices = invoiceService.findAllByUser(user).stream()
-                .map(InvoiceMapper.INSTANCE::invoiceToReadableInvoice).collect(Collectors.toList());;
-
+                    .map(InvoiceMapper.INSTANCE::invoiceToReadableInvoice).collect(Collectors.toList());
         return ResponseEntity.ok(readableInvoices);
     }
 
     @PostMapping("/byOrder/{orderId}")
     public ResponseEntity<ReadableInvoice> getByOrder(@PathVariable String orderId){
-        Invoice invoice = invoiceService.findByOrder(orderId);
+        User user = userService.getLoggedInUser();
+        Invoice invoice = invoiceService.findByOrderAndUser(orderId,user);
         return ResponseEntity.ok(InvoiceMapper.INSTANCE.invoiceToReadableInvoice(invoice));
     }
 
