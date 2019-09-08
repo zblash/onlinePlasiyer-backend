@@ -32,7 +32,7 @@ public interface ProductMapper {
         readableProduct.setBarcode(product.getBarcode());
         readableProduct.setCategoryName(product.getCategory().getName());
         readableProduct.setName(product.getName());
-        readableProduct.setPhotoUrl("http://localhost:8080/photos/"+product.getPhotoUrl());
+        readableProduct.setPhotoUrl(product.getPhotoUrl());
         readableProduct.setTax(product.getTax());
         readableProduct.setProductSpecifies(product.getProductSpecifies().stream()
                 .map(ProductMapper.INSTANCE::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));

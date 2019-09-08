@@ -24,7 +24,7 @@ public interface CategoryMapper {
         ReadableCategory readableCategory = new ReadableCategory();
         readableCategory.setId(category.getUuid().toString());
         readableCategory.setName(category.getName());
-        readableCategory.setPhotoUrl("http://localhost:8080/photos/"+category.getPhotoUrl());
+        readableCategory.setPhotoUrl(category.getPhotoUrl());
         readableCategory.setSubCategory(category.isSubCategory());
         if (category.isSubCategory()){
             readableCategory.setParentId("category_"+category.getParent().getId());

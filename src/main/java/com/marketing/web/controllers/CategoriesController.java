@@ -62,7 +62,7 @@ public class CategoriesController {
     public ResponseEntity<ReadableCategory> createCategory(@Valid WritableCategory writableCategory, @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
             Category category = CategoryMapper.INSTANCE.writableCategorytoCategory(writableCategory);
             String fileName = storageService.store(uploadfile);
-            category.setPhotoUrl(fileName);
+            category.setPhotoUrl("http://localhost:8080/photos/"+fileName);
 
             if (category.isSubCategory()){
                 category.setParent(categoryService.findByUUID(writableCategory.getParentId()));
@@ -87,7 +87,7 @@ public class CategoriesController {
         Category category = CategoryMapper.INSTANCE.writableCategorytoCategory(updatedCategory);
         if (uploadfile != null && !uploadfile.isEmpty()) {
             String fileName = storageService.store(uploadfile);
-            category.setPhotoUrl(fileName);
+            category.setPhotoUrl("http://localhost:8080/photos/"+fileName);
         }
         if (category.isSubCategory()){
             category.setParent(categoryService.findByUUID(updatedCategory.getParentId()));
