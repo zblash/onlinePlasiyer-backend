@@ -90,8 +90,11 @@ public class ProductsController {
     }
 
     @GetMapping("/barcode/{barcode}")
-    public ResponseEntity<ReadableProduct> getByBarcode(@PathVariable String barcode){
-        return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.findByBarcode(barcode)));
+    public ResponseEntity<ReadableProduct> getByBarcode(@PathVariable String barcode) {
+        if (productService.findByBarcode(barcode) != null) {
+            return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.findByBarcode(barcode)));
+        }
+        throw new ResourceNotFoundException("Product not found with barcode: "+barcode);
     }
 
     @GetMapping("/{id}")
