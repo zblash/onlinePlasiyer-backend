@@ -18,6 +18,7 @@ public interface CartMapper {
         double totalPrice = items.stream().mapToDouble(CartItem::getTotalPrice).sum();
         int quantity = items.stream().mapToInt(CartItem::getQuantity).sum();
         ReadableCart readableCart = new ReadableCart();
+        readableCart.setId(cart.getUuid().toString());
         readableCart.setItems(cart.getItems());
         readableCart.setTotalPrice(totalPrice);
         readableCart.setQuantity(quantity);
