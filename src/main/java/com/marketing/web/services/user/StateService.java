@@ -22,7 +22,7 @@ public class StateService implements IStateService {
     }
 
     @Override
-    public List<State> findByCity(City city) {
+    public List<State> findAllByCity(City city) {
         return stateRepository.findAllByCity(city);
     }
 

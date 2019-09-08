@@ -97,12 +97,13 @@ public class ProductsController {
         throw new ResourceNotFoundException("Product not found with barcode: "+barcode);
     }
 
+    //TODO degistirilecek
     @PostMapping("/checkProduct/{barcode}")
     public ResponseEntity<?> checkProductByBarcode(@PathVariable String barcode) {
         if (productService.findByBarcode(barcode) != null) {
             return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.findByBarcode(barcode)));
         }
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        throw new ResourceNotFoundException("Product not found with barcode: "+barcode);
     }
 
     @GetMapping("/{id}")

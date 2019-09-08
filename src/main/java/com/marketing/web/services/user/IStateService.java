@@ -9,7 +9,7 @@ public interface IStateService {
 
     List<State> findAll();
 
-    List<State> findByCity(City city);
+    List<State> findAllByCity(City city);
 
     State findById(Long id);
 

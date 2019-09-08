@@ -18,6 +18,6 @@ public class ReadableState extends DTO {
 
     private int code;
 
-    private String cityName;
+    private String cityTitle;
 
 }
