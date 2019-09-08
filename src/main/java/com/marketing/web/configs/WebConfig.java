@@ -1,4 +1,4 @@
-package com.marketing.web.web;
+package com.marketing.web.configs;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.AntPathMatcher;
