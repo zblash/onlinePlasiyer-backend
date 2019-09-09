@@ -139,11 +139,20 @@ public class ProductsController {
         productService.delete(product);
         return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(product));
     }
-
+    //TODO Duzenlenecek
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id,@Valid @RequestBody Product updatedProduct){
-        return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.update(id,updatedProduct)));
+    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
+        Product product = ProductMapper.INSTANCE.writableProductToProduct(writableProduct);
+        if (uploadfile != null && !uploadfile.isEmpty()) {
+            String fileName = storageService.store(uploadfile);
+            product.setPhotoUrl("http://localhost:8080/photos/"+fileName);
+        }
+
+        product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
+
+
+        return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.update(id,product)));
     }
 
     @GetMapping("/live")

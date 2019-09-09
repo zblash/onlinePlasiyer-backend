@@ -16,7 +16,7 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 public class WritableProduct extends DTO {
 
-    @NotNull
+    @NotBlank
     private String categoryId;
 
     @NotBlank

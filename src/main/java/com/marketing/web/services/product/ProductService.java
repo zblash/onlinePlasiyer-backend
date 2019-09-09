@@ -68,7 +68,9 @@ public class ProductService implements IProductService {
         Product product = findByUUID(uuid);
         product.setBarcode(updatedProduct.getBarcode());
         product.setName(updatedProduct.getName());
-        product.setPhotoUrl(updatedProduct.getPhotoUrl());
+        if (updatedProduct.getPhotoUrl() != null && !updatedProduct.getPhotoUrl().isEmpty()) {
+            product.setPhotoUrl(updatedProduct.getPhotoUrl());
+        }
         product.setCategory(updatedProduct.getCategory());
         return productRepository.save(product);
     }
