@@ -17,7 +17,7 @@ import javax.validation.constraints.Size;
 public class WritableProduct extends DTO {
 
     @NotNull
-    private Long categoryId;
+    private String categoryId;
 
     @NotBlank
     @Size(min = 3,max = 20)

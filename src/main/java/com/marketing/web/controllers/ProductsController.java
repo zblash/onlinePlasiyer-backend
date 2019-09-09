@@ -121,7 +121,7 @@ public class ProductsController {
             product = ProductMapper.INSTANCE.writableProductToProduct(writableProduct);
             String fileName = storageService.store(uploadfile);
             product.setPhotoUrl("http://localhost:8080/photos/"+fileName);
-            product.setCategory(categoryService.findById(writableProduct.getCategoryId()));
+            product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
             if (!user.getRole().getName().equals("ROLE_ADMIN")){
                 product.setStatus(false);
             }
