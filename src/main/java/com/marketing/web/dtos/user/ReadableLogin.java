@@ -27,7 +27,7 @@ public class ReadableLogin extends DTO {
 
     private Address address;
 
-    private List<String> activeStates;
+    private List<ReadableState> activeStates;
 
     private ReadableLogin(LoginDTOBuilder builder){
         this.username = builder.username;
@@ -53,7 +53,7 @@ public class ReadableLogin extends DTO {
 
         private Address address;
 
-        private List<String> activeStates;
+        private List<ReadableState> activeStates;
 
         public LoginDTOBuilder(String token){
             this.token = token;
@@ -84,7 +84,7 @@ public class ReadableLogin extends DTO {
             return this;
         }
 
-        public LoginDTOBuilder activeStates(List<String> activeStates){
+        public LoginDTOBuilder activeStates(List<ReadableState> activeStates){
             this.activeStates = activeStates;
             return this;
         }

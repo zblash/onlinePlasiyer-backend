@@ -27,7 +27,7 @@ public class UserInfo extends DTO {
 
     private Address address;
 
-    private List<String> activeStates;
+    private List<ReadableState> activeStates;
 
     private UserInfo(Builder builder){
         this.id = builder.id;
@@ -53,7 +53,7 @@ public class UserInfo extends DTO {
 
         private Address address;
 
-        private List<String> activeStates;
+        private List<ReadableState> activeStates;
 
         public Builder(String username){
             this.username = username;
@@ -84,7 +84,7 @@ public class UserInfo extends DTO {
             return this;
         }
 
-        public Builder activeStates(List<String> activeStates){
+        public Builder activeStates(List<ReadableState> activeStates){
             this.activeStates = activeStates;
             return this;
         }

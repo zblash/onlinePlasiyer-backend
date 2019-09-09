@@ -56,7 +56,7 @@ public class UserController {
             String role = userDetails.getRole().getName().split("_")[1];
             loginDTOBuilder.role(role);
             loginDTOBuilder.address(userDetails.getAddress());
-            loginDTOBuilder.activeStates(userDetails.getActiveStates().stream().map(State::getTitle).collect(Collectors.toList()));
+            loginDTOBuilder.activeStates(userDetails.getActiveStates().stream().map(CityMapper.INSTANCE::stateToReadableState).collect(Collectors.toList()));
             ReadableLogin readableLogin = loginDTOBuilder
                     .build();
             return ResponseEntity.ok(readableLogin);
@@ -102,13 +102,13 @@ public class UserController {
     public ResponseEntity<UserInfo> getUserInfos(){
         User user = userService.getLoggedInUser();
         UserInfo.Builder userInfoBuilder = new UserInfo.Builder(user.getUsername());
-        userInfoBuilder.id("user_"+user.getId());
+        userInfoBuilder.id(user.getUuid().toString());
         userInfoBuilder.email(user.getEmail());
         userInfoBuilder.name(user.getName());
         String role = user.getRole().getName().split("_")[1];
         userInfoBuilder.role(role);
         userInfoBuilder.address(user.getAddress());
-        userInfoBuilder.activeStates(user.getActiveStates().stream().map(State::getTitle).collect(Collectors.toList()));
+        userInfoBuilder.activeStates(user.getActiveStates().stream().map(CityMapper.INSTANCE::stateToReadableState).collect(Collectors.toList()));
         UserInfo userInfo = userInfoBuilder
                 .build();
         return ResponseEntity.ok(userInfo);
