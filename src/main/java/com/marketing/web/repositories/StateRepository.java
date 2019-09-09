@@ -10,7 +10,10 @@ import java.util.UUID;
 public interface StateRepository extends JpaRepository<State,Long> {
 
     List<State> findAllByTitleIn(List<String> titles);
+
     List<State> findAllByCity(City city);
 
     Optional<State> findByUuid(UUID uuid);
+
+    List<State> findAllByUuidIn(List<UUID> uuids);
 }

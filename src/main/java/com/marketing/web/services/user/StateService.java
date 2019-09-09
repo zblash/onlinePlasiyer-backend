@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class StateService implements IStateService {
@@ -19,6 +20,11 @@ public class StateService implements IStateService {
     @Override
     public List<State> findAll() {
         return stateRepository.findAll();
+    }
+
+    @Override
+    public List<State> findAllByUuids(List<String> uuids) {
+        return stateRepository.findAllByUuidIn(uuids.stream().map(UUID::fromString).collect(Collectors.toList()));
     }
 
     @Override

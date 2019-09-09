@@ -10,7 +10,9 @@ import com.marketing.web.repositories.StateRepository;
 import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.security.JWTAuthToken.JWTGenerator;
 import com.marketing.web.services.user.AddressService;
+import com.marketing.web.services.user.StateService;
 import com.marketing.web.services.user.UserService;
+import com.marketing.web.utils.mappers.CityMapper;
 import com.marketing.web.utils.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -36,7 +38,7 @@ public class UserController {
     private AddressService addressService;
 
     @Autowired
-    private StateRepository stateRepository;
+    private StateService stateService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -79,21 +81,21 @@ public class UserController {
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
     @PostMapping("/api/users/addActiveState")
-    public ResponseEntity<String> addActiveState(@RequestBody List<String> states){
+    public ResponseEntity<List<ReadableState>> addActiveState(@RequestBody List<String> states){
         User user = userService.getLoggedInUser();
-        List<State> stateList = stateRepository.findAllByTitleIn(states);
+        List<State> stateList = stateService.findAllByUuids(states);
         List<State> addedList = user.getActiveStates();
         addedList.addAll(stateList);
         user.setActiveStates(addedList.stream().distinct().collect(Collectors.toList()));
         userService.update(user.getId(),user);
-        return ResponseEntity.ok("Added active states");
+        return ResponseEntity.ok(addedList.stream().map(CityMapper.INSTANCE::stateToReadableState).collect(Collectors.toList()));
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
     @GetMapping("/api/users/activeStates")
-    public ResponseEntity<List<String>> getActiveStates(){
+    public ResponseEntity<List<ReadableState>> getActiveStates(){
         User user = userService.getLoggedInUser();
-        return ResponseEntity.ok(user.getActiveStates().stream().map(State::getTitle).collect(Collectors.toList()));
+        return ResponseEntity.ok(user.getActiveStates().stream().map(CityMapper.INSTANCE::stateToReadableState).collect(Collectors.toList()));
     }
 
     @PostMapping("/api/users/getMyInfos")

@@ -41,7 +41,6 @@ public class WritableProductSpecify extends DTO {
     @NotNull
     private double recommendedRetailPrice;
 
-    private String city;
-
+    @NotNull
     private List<String> stateList;
 }

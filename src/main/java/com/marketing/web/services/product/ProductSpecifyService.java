@@ -1,6 +1,7 @@
 package com.marketing.web.services.product;
 
 import com.marketing.web.dtos.product.WritableProductSpecify;
+import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.City;
 import com.marketing.web.models.Product;
@@ -86,13 +87,7 @@ public class ProductSpecifyService implements IProductSpecifyService {
         if (isAllowed){
             return states;
         }
-        List<State> allowedStates = new ArrayList<>();
-        for (State state : states){
-            if (user.getActiveStates().contains(state)){
-                allowedStates.add(state);
-            }
-        }
-        return allowedStates.isEmpty() ? user.getActiveStates() : allowedStates;
+        throw new BadRequestException("You can only add your active states for product");
     }
 }
 

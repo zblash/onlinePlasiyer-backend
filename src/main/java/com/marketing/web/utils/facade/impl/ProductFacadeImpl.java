@@ -11,6 +11,7 @@ import com.marketing.web.repositories.CityRepository;
 import com.marketing.web.repositories.StateRepository;
 import com.marketing.web.services.product.ProductService;
 import com.marketing.web.services.product.ProductSpecifyService;
+import com.marketing.web.services.user.StateService;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.facade.ProductFacade;
 import com.marketing.web.utils.mappers.ProductMapper;
@@ -35,11 +36,7 @@ public class ProductFacadeImpl implements ProductFacade {
     private ProductSpecifyService productSpecifyService;
 
     @Autowired
-    private CityRepository cityRepository;
-
-
-    @Autowired
-    private StateRepository stateRepository;
+    private StateService stateService;
 
     @Override
     public ReadableProductSpecify createProductSpecify(WritableProductSpecify writableProductSpecify, User user){
@@ -49,13 +46,8 @@ public class ProductFacadeImpl implements ProductFacade {
         }
         ProductSpecify productSpecify = ProductMapper.INSTANCE.writableProductSpecifyToProductSpecify(writableProductSpecify);
 
-        List<State> states = new ArrayList<>();
-        if (Optional.ofNullable(writableProductSpecify.getStateList()).isPresent()){
-            states.addAll(stateRepository.findAllByTitleIn(writableProductSpecify.getStateList()));
-        }else if(!writableProductSpecify.getCity().isEmpty()){
-            City city = cityRepository.findByTitle(writableProductSpecify.getCity().toUpperCase()).orElseThrow(() -> new ResourceNotFoundException("City not found with name:" + writableProductSpecify.getCity().toUpperCase()));
-            states.addAll(stateRepository.findAllByCity(city));
-        }
+        List<State> states = stateService.findAllByUuids(writableProductSpecify.getStateList());
+
 
         productSpecify.setProduct(product);
         productSpecify.setUser(user);
@@ -72,13 +64,8 @@ public class ProductFacadeImpl implements ProductFacade {
         ProductSpecify productSpecify = ProductMapper.INSTANCE.writableProductSpecifyToProductSpecify(writableProductSpecify);
 
 
-        List<State> states = new ArrayList<>();
-        if (Optional.ofNullable(writableProductSpecify.getStateList()).isPresent()){
-            states.addAll(stateRepository.findAllByTitleIn(writableProductSpecify.getStateList()));
-        }else if(!writableProductSpecify.getCity().isEmpty()){
-            City city = cityRepository.findByTitle(writableProductSpecify.getCity().toUpperCase()).orElseThrow(() -> new ResourceNotFoundException("City not found with name:" + writableProductSpecify.getCity().toUpperCase()));
-            states.addAll(stateRepository.findAllByCity(city));
-        }
+        List<State> states = stateService.findAllByUuids(writableProductSpecify.getStateList());
+
 
         productSpecify.setStates(productSpecifyService.allowedStates(user,states));
         productSpecify.setProduct(product);

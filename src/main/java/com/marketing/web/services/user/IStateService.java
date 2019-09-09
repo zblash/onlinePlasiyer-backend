@@ -9,6 +9,8 @@ public interface IStateService {
 
     List<State> findAll();
 
+    List<State> findAllByUuids(List<String> uuids);
+
     List<State> findAllByCity(City city);
 
     State findById(Long id);
