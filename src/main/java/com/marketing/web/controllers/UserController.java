@@ -14,6 +14,8 @@ import com.marketing.web.services.user.StateService;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.CityMapper;
 import com.marketing.web.utils.mappers.UserMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -42,6 +44,8 @@ public class UserController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    private Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @PostMapping("/signin")
     public ResponseEntity<?> login(@RequestBody WritableLogin writableLogin){
@@ -162,6 +166,34 @@ public class UserController {
         return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.CUSTOMER,true).stream()
                                 .map(UserMapper.INSTANCE::userToCustomer)
                                 .collect(Collectors.toList()));
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/api/users/{roleType}")
+    public ResponseEntity<?> getUsersByRole(@PathVariable String roleType, @RequestParam(required = false) Boolean status) {
+        RoleType role = RoleType.valueOf(roleType.toUpperCase());
+        List<User> users;
+
+        if (status != null) {
+            users = userService.findAllByRoleAndStatus(role, status);
+        }else {
+            users = userService.findAllByRole(role);
+        }
+
+        switch (role) {
+            case CUSTOMER:
+                return ResponseEntity.ok(users.stream()
+                        .map(UserMapper.INSTANCE::userToCustomer)
+                        .collect(Collectors.toList()));
+            case MERCHANT:
+                return ResponseEntity.ok(users.stream()
+                        .map(UserMapper.INSTANCE::userToMerchant)
+                        .collect(Collectors.toList()));
+            default:
+                return ResponseEntity.ok(users.stream()
+                        .map(UserMapper.INSTANCE::userToAdmin)
+                        .collect(Collectors.toList()));
+        }
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

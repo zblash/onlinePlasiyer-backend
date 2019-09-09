@@ -56,4 +56,13 @@ public interface UserMapper {
         return customerUser;
     }
 
+    default AdminUser userToAdmin(User user){
+        AdminUser adminUser = new AdminUser();
+        adminUser.setId(user.getUuid().toString());
+        adminUser.setEmail(user.getEmail());
+        adminUser.setName(user.getName());
+        adminUser.setStatus(user.isStatus());
+        adminUser.setUsername(user.getUsername());
+        return adminUser;
+    }
 }

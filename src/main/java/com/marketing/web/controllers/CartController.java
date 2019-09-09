@@ -103,6 +103,6 @@ public class CartController {
         if (!cart.getItems().isEmpty() && cart.getItems() != null) {
             return ResponseEntity.ok(orderFacade.checkoutCart(user,cart,cart.getItems()));
         }
-        throw new ResourceNotFoundException("There are no cart items in your cart");
+        throw new ResourceNotFoundException("There are no items in your cart");
     }
 }
