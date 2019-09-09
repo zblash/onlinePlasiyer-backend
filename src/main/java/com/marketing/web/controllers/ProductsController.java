@@ -125,6 +125,7 @@ public class ProductsController {
             if (!user.getRole().getName().equals("ROLE_ADMIN")){
                 product.setStatus(false);
             }
+
             return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.create(product)));
         }
 
@@ -139,7 +140,7 @@ public class ProductsController {
         productService.delete(product);
         return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(product));
     }
-    //TODO Duzenlenecek
+
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
     public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
