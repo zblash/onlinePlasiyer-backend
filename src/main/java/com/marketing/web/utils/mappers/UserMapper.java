@@ -1,7 +1,9 @@
 package com.marketing.web.utils.mappers;
 
 import com.marketing.web.dtos.user.*;
+import com.marketing.web.enums.RoleType;
 import com.marketing.web.models.Address;
+import com.marketing.web.models.Role;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
 import org.mapstruct.InheritInverseConfiguration;
@@ -64,5 +66,9 @@ public interface UserMapper {
         adminUser.setStatus(user.isStatus());
         adminUser.setUsername(user.getUsername());
         return adminUser;
+    }
+
+    default RoleType roleToRoleType(Role role){
+        return RoleType.fromValue(role.getName().split("_")[1]);
     }
 }

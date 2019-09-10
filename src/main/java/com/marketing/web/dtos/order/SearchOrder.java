@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @EqualsAndHashCode(callSuper = false)
@@ -15,15 +17,9 @@ import java.util.Date;
 @AllArgsConstructor
 public class SearchOrder extends DTO {
 
+    @NotNull
     private Date startDate;
 
     private Date endDate;
 
-    private String userName;
-
-    @JsonIgnore
-    private Long sellerId;
-
-    @JsonIgnore
-    private Long buyerId;
 }

@@ -49,7 +49,8 @@ public class CategoryService implements ICategoryService {
     public Category update(String id, Category updatedCategory) {
         Category category = findByUUID(id);
         if (updatedCategory.isSubCategory() && updatedCategory.getParent() != null){
-            category.setParent(categoryRepository.findById(updatedCategory.getParent().getId()).orElseThrow(() -> new ResourceNotFoundException("Parent Category not found with given parentId: "+ updatedCategory.getParent().getId())));
+            category.setParent(updatedCategory.getParent());
+            category.setSubCategory(updatedCategory.isSubCategory());
         }
         if (updatedCategory.getPhotoUrl() != null && !updatedCategory.getPhotoUrl().isEmpty()){
             category.setPhotoUrl(updatedCategory.getPhotoUrl());

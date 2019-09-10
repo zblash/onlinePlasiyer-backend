@@ -1,6 +1,8 @@
 package com.marketing.web.repositories;
 
 import com.marketing.web.models.Order;
+import com.marketing.web.models.User;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -33,4 +35,6 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     Optional<Order> findBySeller_IdAndUuid(Long sellerId, UUID uuid);
 
     Optional<Order> findByUuid(UUID uuid);
+
+    List<Order> findAllBySellerOrBuyer(User seller,User buyer);
 }

@@ -23,17 +23,13 @@ public class OrderService implements IOrderService {
     @Autowired
     private OrderRepository orderRepository;
 
+    public List<Order> findAll(){
+        return orderRepository.findAll();
+    }
+
     @Override
     public List<Order> findAllByFilter(SearchOrder searchOrder) {
-        List<Order> orders = new ArrayList<>();
-        if (searchOrder.getStartDate() != null && searchOrder.getEndDate() != null && searchOrder.getBuyerId() != null && searchOrder.getSellerId() != null){
-           orders = orderRepository.findAllByOrderDateRangeAndUsers(searchOrder.getStartDate(),searchOrder.getEndDate(),searchOrder.getSellerId(),searchOrder.getBuyerId());
-        }else if ((searchOrder.getStartDate() == null || searchOrder.getEndDate() == null) && searchOrder.getBuyerId() != null && searchOrder.getSellerId() != null){
-            orders = orderRepository.findAllByUsers(searchOrder.getSellerId(),searchOrder.getBuyerId());
-        }else if (searchOrder.getStartDate() != null && searchOrder.getEndDate() != null && (searchOrder.getBuyerId() == null || searchOrder.getSellerId() == null)){
-            orders = orderRepository.findAllByOrderDateRange(searchOrder.getStartDate(),searchOrder.getEndDate());
-        }
-        return orders;
+        return orderRepository.findAllByOrderDateRange(searchOrder.getStartDate(),searchOrder.getEndDate());
     }
 
     @Override
@@ -88,5 +84,9 @@ public class OrderService implements IOrderService {
         order.setStatus(updatedOrder.getStatus());
         order.setTotalPrice(updatedOrder.getTotalPrice());
         return orderRepository.save(order);
+    }
+
+    public List<Order> findAllByUser(User user){
+        return orderRepository.findAllBySellerOrBuyer(user,user);
     }
 }
