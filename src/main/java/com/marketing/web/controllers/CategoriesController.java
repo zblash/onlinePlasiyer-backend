@@ -90,9 +90,7 @@ public class CategoriesController {
             category.setPhotoUrl("http://localhost:8080/photos/"+fileName);
         }
         if (category.isSubCategory()){
-            logger.info("ben bir alt kategoriyim xd");
             category.setParent(categoryService.findByUUID(updatedCategory.getParentId()));
-            logger.info(category.getParent().getUuid().toString());
         }
         return ResponseEntity.ok(CategoryMapper.INSTANCE.categoryToReadableCategory(categoryService.update(id,category)));
     }
