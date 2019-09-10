@@ -58,7 +58,13 @@ public class OrderController {
         RoleType userRole = UserMapper.INSTANCE.roleToRoleType(user.getRole());
 
         searchOrder.setEndDate((searchOrder.getEndDate() == null) ? new Date() : searchOrder.getEndDate());
-        return ResponseEntity.ok(orderService.findAllByFilter(searchOrder).stream()
+
+        if (UserMapper.INSTANCE.roleToRoleType(user.getRole()).equals(RoleType.ADMIN)){
+            return ResponseEntity.ok(orderService.findAllByFilter(searchOrder).stream()
+                    .map(OrderMapper.INSTANCE::orderToReadableOrder).collect(Collectors.toList()));
+        }
+
+        return ResponseEntity.ok(orderService.findAllByFilterAndUser(searchOrder, user).stream()
                 .map(OrderMapper.INSTANCE::orderToReadableOrder).collect(Collectors.toList()));
     }
 

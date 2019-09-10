@@ -9,7 +9,13 @@ import java.util.List;
 
 public interface IOrderService {
 
+    List<Order> findAll();
+
     List<Order> findAllByFilter(SearchOrder searchOrder);
+
+    List<Order> findAllByFilterAndUser(SearchOrder searchOrder, User user);
+
+    List<Order> findAllByUser(User user);
 
     Order findById(Long id);
 
@@ -19,15 +25,7 @@ public interface IOrderService {
 
     List<Order> findByBuyer(Long id);
 
-    Order findByBuyerAndId(Long buyerId, Long id);
-
-    Order findBySellerAndId(Long selerId, Long id);
-
-    Order findByBuyerAndUUid(Long buyerId, String uuid);
-
     Order findBySellerAndUUid(Long selerId, String uuid);
-
-    List<Order> findBySeller(Long id);
 
     Order update(Long id, Order updatedOrder);
 }

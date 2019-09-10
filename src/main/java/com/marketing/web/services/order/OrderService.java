@@ -33,6 +33,16 @@ public class OrderService implements IOrderService {
     }
 
     @Override
+    public List<Order> findAllByFilterAndUser(SearchOrder searchOrder, User user) {
+        return orderRepository.findAllByOrderDateRangeAndUsers(searchOrder.getStartDate(),searchOrder.getEndDate(),user.getId(),user.getId());
+    }
+
+    @Override
+    public List<Order> findAllByUser(User user){
+        return orderRepository.findAllBySellerOrBuyer(user,user);
+    }
+
+    @Override
     public Order findById(Long id) {
         return orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order not found with id:" + id));
     }
@@ -53,28 +63,8 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public Order findByBuyerAndId(Long buyerId, Long id) {
-        return orderRepository.findByBuyer_IdAndId(buyerId,id).orElseThrow(() -> new ResourceNotFoundException("You have no order with id: "+ id));
-    }
-
-    @Override
-    public Order findBySellerAndId(Long selerId, Long id) {
-        return orderRepository.findBySeller_IdAndId(selerId,id).orElseThrow(() -> new ResourceNotFoundException("You have no order with id: "+ id));
-    }
-
-    @Override
-    public Order findByBuyerAndUUid(Long buyerId, String uuid) {
-        return orderRepository.findByBuyer_IdAndUuid(buyerId,UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("You have no order with id: "+ uuid));
-    }
-
-    @Override
     public Order findBySellerAndUUid(Long selerId, String uuid) {
         return orderRepository.findBySeller_IdAndUuid(selerId,UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("You have no order with id: "+ uuid));
-    }
-
-    @Override
-    public List<Order> findBySeller(Long id) {
-        return orderRepository.findAllBySeller_Id(id);
     }
 
     @Override
@@ -86,7 +76,4 @@ public class OrderService implements IOrderService {
         return orderRepository.save(order);
     }
 
-    public List<Order> findAllByUser(User user){
-        return orderRepository.findAllBySellerOrBuyer(user,user);
-    }
 }

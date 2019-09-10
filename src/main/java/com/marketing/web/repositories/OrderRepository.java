@@ -20,7 +20,7 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     @Query("SELECT o FROM Order o WHERE o.orderDate BETWEEN ?1 AND ?2")
     List<Order> findAllByOrderDateRange(Date startDate, Date endDate);
 
-    @Query("SELECT o FROM Order o WHERE o.orderDate BETWEEN ?1 AND ?2 and o.seller = ?3 and o.buyer = ?4")
+    @Query("SELECT o FROM Order o WHERE o.orderDate BETWEEN ?1 AND ?2 and o.seller = ?3 or o.buyer = ?4")
     List<Order> findAllByOrderDateRangeAndUsers(Date startDate, Date endDate, Long sellerId, Long buyerId);
 
     @Query("SELECT o FROM Order o WHERE o.seller = ?1 and o.buyer = ?2")
