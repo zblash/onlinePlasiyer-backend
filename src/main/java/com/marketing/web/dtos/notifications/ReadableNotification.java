@@ -1,5 +1,4 @@
-package com.marketing.web.dtos.cart;
-
+package com.marketing.web.dtos.notifications;
 
 import com.marketing.web.dtos.DTO;
 import lombok.AllArgsConstructor;
@@ -7,19 +6,15 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-
 @EqualsAndHashCode(callSuper = false)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WritableCartItem extends DTO {
+public class ReadableNotification extends DTO {
 
-    @NotNull
-    private String productId;
+    private String id;
 
-    @NotNull
-    private int quantity;
+    private String title;
 
+    private String message;
 }

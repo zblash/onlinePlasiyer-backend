@@ -104,7 +104,7 @@ public class CartItemService implements ICartItemService {
 
     private CartItem cartItemDTOtoCartItem(WritableCartItem writableCartItem){
         CartItem cartItem = new CartItem();
-        ProductSpecify product = productSpecifyService.findById(writableCartItem.getProductId());
+        ProductSpecify product = productSpecifyService.findByUUID(writableCartItem.getProductId());
         cartItem.setProduct(product);
         cartItem.setQuantity(writableCartItem.getQuantity());
         cartItem.setTotalPrice(product.getTotalPrice() * cartItem.getQuantity());

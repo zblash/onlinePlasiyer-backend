@@ -63,8 +63,8 @@ public class CartController {
         User user = userService.getLoggedInUser();
 
         if (writableCartItem.getQuantity() > 1) {
-            List<State> productStates = productSpecifyService.findById(writableCartItem.getProductId()).getStates();
-            if (user.getActiveStates().containsAll(productStates)) {
+            List<State> productStates = productSpecifyService.findByUUID(writableCartItem.getProductId()).getStates();
+            if (productStates.contains(user.getAddress().getState())) {
                 CartItem cartItem = cartItemService.createOrUpdate(user.getCart(), writableCartItem);
                 return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.findById(user.getCart().getId())));
             }

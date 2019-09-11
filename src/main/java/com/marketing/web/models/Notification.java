@@ -20,6 +20,14 @@ public class Notification {
 
     private UUID uuid;
 
+    private String title;
+
+    private String message;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id",referencedColumnName = "id")
+    private User user;
+
     @PrePersist
     public void autofill() {
         this.setUuid(UUID.randomUUID());
