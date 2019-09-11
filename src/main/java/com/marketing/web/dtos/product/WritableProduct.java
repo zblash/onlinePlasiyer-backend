@@ -24,7 +24,7 @@ public class WritableProduct extends DTO {
     private String name;
 
     @NotBlank
-    @Size(min = 10,max = 100)
+    @Size(min = 13,max = 100)
     private String barcode;
 
     @NotNull

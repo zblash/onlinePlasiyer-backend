@@ -46,9 +46,10 @@ public interface ProductMapper {
         readableProductSpecify.setTotalPrice(productSpecify.getTotalPrice());
         readableProductSpecify.setUnitPrice(productSpecify.getUnitPrice());
         readableProductSpecify.setUnitType(productSpecify.getUnitType());
+        readableProductSpecify.setProductId(productSpecify.getProduct().getUuid().toString());
         readableProductSpecify.setProductName(productSpecify.getProduct().getName());
         readableProductSpecify.setSellerName(productSpecify.getUser().getName());
-        readableProductSpecify.setStates(productSpecify.getStates().stream().map(State::getTitle).collect(Collectors.toList()));
+        readableProductSpecify.setStates(productSpecify.getStates().stream().map((state) -> state.getUuid().toString()).collect(Collectors.toList()));
         return readableProductSpecify;
     }
 }
