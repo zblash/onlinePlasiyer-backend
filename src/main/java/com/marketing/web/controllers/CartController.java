@@ -3,6 +3,7 @@ package com.marketing.web.controllers;
 import com.marketing.web.dtos.cart.ReadableCart;
 import com.marketing.web.dtos.cart.WritableCartItem;
 import com.marketing.web.dtos.order.ReadableOrder;
+import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItem;
@@ -58,7 +59,7 @@ public class CartController {
     }
 
     @PostMapping("/addItem")
-    public ResponseEntity<?> addItem(@Valid @RequestBody WritableCartItem writableCartItem){
+    public ResponseEntity<ReadableCart> addItem(@Valid @RequestBody WritableCartItem writableCartItem){
         User user = userService.getLoggedInUser();
 
         if (writableCartItem.getQuantity() > 1) {
@@ -67,9 +68,9 @@ public class CartController {
                 CartItem cartItem = cartItemService.createOrUpdate(user.getCart(), writableCartItem);
                 return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.findById(user.getCart().getId())));
             }
-            return new ResponseEntity<>("You can't order this product", HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("You can't order this product");
         }
-        return new ResponseEntity<>("Quantity must bigger than 0", HttpStatus.BAD_REQUEST);
+        throw new BadRequestException("Quantity must bigger than 0");
     }
 
     @PostMapping("/removeItem/{id}")
