@@ -22,9 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -49,18 +47,18 @@ public class CategoriesController {
             categories = categoryService.findAll();
         }
        return ResponseEntity.ok(categories.stream()
-               .map(CategoryMapper.INSTANCE::categoryToReadableCategory).collect(Collectors.toList()));
+               .map(CategoryMapper::categoryToReadableCategory).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ReadableCategory> findByUUID(@PathVariable String id){
-        return ResponseEntity.ok(CategoryMapper.INSTANCE.categoryToReadableCategory(categoryService.findByUUID(id)));
+        return ResponseEntity.ok(CategoryMapper.categoryToReadableCategory(categoryService.findByUUID(id)));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<ReadableCategory> createCategory(@Valid WritableCategory writableCategory, @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
-            Category category = CategoryMapper.INSTANCE.writableCategorytoCategory(writableCategory);
+            Category category = CategoryMapper.writableCategorytoCategory(writableCategory);
             String fileName = storageService.store(uploadfile);
             category.setPhotoUrl("http://localhost:8080/photos/"+fileName);
 
@@ -70,7 +68,7 @@ public class CategoriesController {
 
             Category savedCategory = categoryService.create(category);
 
-        return ResponseEntity.ok(CategoryMapper.INSTANCE.categoryToReadableCategory(savedCategory));
+        return ResponseEntity.ok(CategoryMapper.categoryToReadableCategory(savedCategory));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -78,13 +76,13 @@ public class CategoriesController {
     public ResponseEntity<ReadableCategory> deleteCategory(@PathVariable String id){
         Category category = categoryService.findByUUID(id);
         categoryService.delete(category);
-        return ResponseEntity.ok(CategoryMapper.INSTANCE.categoryToReadableCategory(category));
+        return ResponseEntity.ok(CategoryMapper.categoryToReadableCategory(category));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
     public ResponseEntity<ReadableCategory> updateCategory(@PathVariable String id, @Valid WritableCategory updatedCategory, @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
-        Category category = CategoryMapper.INSTANCE.writableCategorytoCategory(updatedCategory);
+        Category category = CategoryMapper.writableCategorytoCategory(updatedCategory);
         if (uploadfile != null && !uploadfile.isEmpty()) {
             String fileName = storageService.store(uploadfile);
             category.setPhotoUrl("http://localhost:8080/photos/"+fileName);
@@ -92,7 +90,7 @@ public class CategoriesController {
         if (category.isSubCategory()){
             category.setParent(categoryService.findByUUID(updatedCategory.getParentId()));
         }
-        return ResponseEntity.ok(CategoryMapper.INSTANCE.categoryToReadableCategory(categoryService.update(id,category)));
+        return ResponseEntity.ok(CategoryMapper.categoryToReadableCategory(categoryService.update(id,category)));
     }
 
 }

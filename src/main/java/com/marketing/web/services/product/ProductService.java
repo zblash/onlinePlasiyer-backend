@@ -1,13 +1,11 @@
 package com.marketing.web.services.product;
 
-import com.marketing.web.dtos.product.WritableProduct;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Category;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.repositories.ProductRepository;
 import com.marketing.web.services.category.CategoryService;
-import com.marketing.web.utils.mappers.ProductMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

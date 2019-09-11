@@ -6,13 +6,10 @@ import com.marketing.web.dtos.order.ReadableOrder;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItem;
-import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
 import com.marketing.web.services.cart.CartItemService;
 import com.marketing.web.services.cart.CartService;
-import com.marketing.web.services.order.OrderItemService;
-import com.marketing.web.services.order.OrderService;
 import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.facade.OrderFacade;
@@ -22,8 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,8 +53,7 @@ public class CartController {
     @GetMapping
     public ResponseEntity<ReadableCart> getCart(){
         User user = userService.getLoggedInUser();
-
-        ReadableCart readableCart = CartMapper.INSTANCE.cartToReadableCart(user.getCart());
+        ReadableCart readableCart = CartMapper.cartToReadableCart(user.getCart());
         return ResponseEntity.ok(readableCart);
     }
 
@@ -71,7 +65,7 @@ public class CartController {
             List<State> productStates = productSpecifyService.findById(writableCartItem.getProductId()).getStates();
             if (user.getActiveStates().containsAll(productStates)) {
                 CartItem cartItem = cartItemService.createOrUpdate(user.getCart(), writableCartItem);
-                return ResponseEntity.ok(CartMapper.INSTANCE.cartToReadableCart(cartService.findById(user.getCart().getId())));
+                return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.findById(user.getCart().getId())));
             }
             return new ResponseEntity<>("You can't order this product", HttpStatus.BAD_REQUEST);
         }

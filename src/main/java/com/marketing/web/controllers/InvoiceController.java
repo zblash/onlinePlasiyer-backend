@@ -1,20 +1,15 @@
 package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.invoice.ReadableInvoice;
-import com.marketing.web.enums.RoleType;
 import com.marketing.web.models.Invoice;
 import com.marketing.web.models.User;
-import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.services.invoice.InvoiceServiceImpl;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.InvoiceMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +27,7 @@ public class InvoiceController {
     public ResponseEntity<List<ReadableInvoice>> getAll(){
         User user = userService.getLoggedInUser();
         List<ReadableInvoice> readableInvoices = invoiceService.findAllByUser(user).stream()
-                    .map(InvoiceMapper.INSTANCE::invoiceToReadableInvoice).collect(Collectors.toList());
+                    .map(InvoiceMapper::invoiceToReadableInvoice).collect(Collectors.toList());
         return ResponseEntity.ok(readableInvoices);
     }
 
@@ -40,7 +35,7 @@ public class InvoiceController {
     public ResponseEntity<ReadableInvoice> getByOrder(@PathVariable String orderId){
         User user = userService.getLoggedInUser();
         Invoice invoice = invoiceService.findByOrderAndUser(orderId,user);
-        return ResponseEntity.ok(InvoiceMapper.INSTANCE.invoiceToReadableInvoice(invoice));
+        return ResponseEntity.ok(InvoiceMapper.invoiceToReadableInvoice(invoice));
     }
 
 

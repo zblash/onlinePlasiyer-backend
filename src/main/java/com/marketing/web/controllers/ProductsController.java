@@ -2,14 +2,10 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.product.ReadableProduct;
 import com.marketing.web.dtos.product.WritableProduct;
-import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.enums.RoleType;
-import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Category;
-import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.models.Product;
-import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.models.User;
 import com.marketing.web.pubsub.ProductProducer;
 import com.marketing.web.pubsub.ProductSubscriber;
@@ -24,14 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,9 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -72,34 +63,34 @@ public class ProductsController {
     @GetMapping
     public ResponseEntity<List<ReadableProduct>> getAll(){
         return ResponseEntity.ok(productService.findAll().stream()
-                .map(ProductMapper.INSTANCE::productToReadableProduct).collect(Collectors.toList()));
+                .map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
     }
 
     @GetMapping("/actives")
     public ResponseEntity<List<ReadableProduct>> getAllActives(){
         return ResponseEntity.ok(productService.findAllByStatus(true).stream()
-                .map(ProductMapper.INSTANCE::productToReadableProduct).collect(Collectors.toList()));
+                .map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
     }
 
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<List<ReadableProduct>> getAllByCategory(@PathVariable String categoryId){
         User user = userService.getLoggedInUser();
-        RoleType role = UserMapper.INSTANCE.roleToRoleType(user.getRole());
+        RoleType role = UserMapper.roleToRoleType(user.getRole());
         Category category = categoryService.findByUUID(categoryId);
         if (role.equals(RoleType.ADMIN)){
             return ResponseEntity.ok(productService.findAllByCategory(category).stream()
-                    .map(ProductMapper.INSTANCE::productToReadableProduct).collect(Collectors.toList()));
+                    .map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
         }
 
         return ResponseEntity.ok(productService.findAllByCategoryAndStatus(category,true).stream()
-                .map(ProductMapper.INSTANCE::productToReadableProduct).collect(Collectors.toList()));
+                .map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
 
     }
 
     @GetMapping("/barcode/{barcode}")
     public ResponseEntity<ReadableProduct> getByBarcode(@PathVariable String barcode) {
         if (productService.findByBarcode(barcode) != null) {
-            return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.findByBarcode(barcode)));
+            return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.findByBarcode(barcode)));
         }
         throw new ResourceNotFoundException("Product not found with barcode: "+barcode);
     }
@@ -108,14 +99,14 @@ public class ProductsController {
     @PostMapping("/checkProduct/{barcode}")
     public ResponseEntity<?> checkProductByBarcode(@PathVariable String barcode) {
         if (productService.findByBarcode(barcode) != null) {
-            return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.findByBarcode(barcode)));
+            return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.findByBarcode(barcode)));
         }
         throw new ResourceNotFoundException("Product not found with barcode: "+barcode);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ReadableProduct> getById(@PathVariable String id){
-        return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.findByUUID(id)));
+        return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.findByUUID(id)));
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
@@ -125,7 +116,7 @@ public class ProductsController {
         Product product = productService.findByBarcode(writableProduct.getBarcode());
 
         if (product == null){
-            product = ProductMapper.INSTANCE.writableProductToProduct(writableProduct);
+            product = ProductMapper.writableProductToProduct(writableProduct);
             String fileName = storageService.store(uploadfile);
             product.setPhotoUrl("http://localhost:8080/photos/"+fileName);
             product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
@@ -133,7 +124,7 @@ public class ProductsController {
                 product.setStatus(false);
             }
 
-            return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.create(product)));
+            return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.create(product)));
         }
 
         return new ResponseEntity<>("Product already added", HttpStatus.CONFLICT);
@@ -145,13 +136,13 @@ public class ProductsController {
     public ResponseEntity<ReadableProduct> deleteProduct(@PathVariable String id){
         Product product = productService.findByUUID(id);
         productService.delete(product);
-        return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(product));
+        return ResponseEntity.ok(ProductMapper.productToReadableProduct(product));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
     public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
-        Product product = ProductMapper.INSTANCE.writableProductToProduct(writableProduct);
+        Product product = ProductMapper.writableProductToProduct(writableProduct);
         if (uploadfile != null && !uploadfile.isEmpty()) {
             String fileName = storageService.store(uploadfile);
             product.setPhotoUrl("http://localhost:8080/photos/"+fileName);
@@ -160,7 +151,7 @@ public class ProductsController {
         product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
 
 
-        return ResponseEntity.ok(ProductMapper.INSTANCE.productToReadableProduct(productService.update(id,product)));
+        return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.update(id,product)));
     }
 
     @GetMapping("/live")

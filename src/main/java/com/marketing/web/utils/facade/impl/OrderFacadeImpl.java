@@ -1,12 +1,10 @@
 package com.marketing.web.utils.facade.impl;
 
 import com.marketing.web.dtos.order.ReadableOrder;
-import com.marketing.web.dtos.order.SearchOrder;
 import com.marketing.web.dtos.order.WritableOrder;
 import com.marketing.web.enums.OrderStatus;
 import com.marketing.web.models.*;
 import com.marketing.web.services.cart.CartItemService;
-import com.marketing.web.services.cart.CartService;
 import com.marketing.web.services.invoice.InvoiceServiceImpl;
 import com.marketing.web.services.order.OrderItemService;
 import com.marketing.web.services.order.OrderService;
@@ -61,7 +59,7 @@ public class OrderFacadeImpl implements OrderFacade {
             invoiceService.create(invoice);
         }
         orderService.update(order.getId(),order);
-        return OrderMapper.INSTANCE.orderToReadableOrder(orderService.update(order.getId(),order));
+        return OrderMapper.orderToReadableOrder(orderService.update(order.getId(),order));
 
 
     }
@@ -89,7 +87,7 @@ public class OrderFacadeImpl implements OrderFacade {
 
             List<OrderItem> orderItems = new ArrayList<>();
             for (CartItem cartItem : cartItems){
-                OrderItem orderItem = OrderMapper.INSTANCE.cartItemToOrderItem(cartItem);
+                OrderItem orderItem = OrderMapper.cartItemToOrderItem(cartItem);
                 Optional<Order> optionalOrder = orders.stream().filter(order -> order.getSeller().getId().equals(orderItem.getSeller().getId())).findFirst();
                 optionalOrder.ifPresent(order -> {
                     orderItem.setOrder(order);
@@ -99,7 +97,7 @@ public class OrderFacadeImpl implements OrderFacade {
             }
             orderItemService.createAll(orderItems);
 
-            return orderService.findAllByUser(user).stream().map(OrderMapper.INSTANCE::orderToReadableOrder).collect(Collectors.toList());
+            return orderService.findAllByUser(user).stream().map(OrderMapper::orderToReadableOrder).collect(Collectors.toList());
         }
     }
 

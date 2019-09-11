@@ -1,7 +1,5 @@
 package com.marketing.web;
 
-import com.marketing.web.controllers.UserController;
-import com.marketing.web.dtos.user.ReadableRegister;
 import com.marketing.web.dtos.user.WritableRegister;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.models.*;
@@ -15,11 +13,8 @@ import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -93,15 +88,15 @@ public class Runner implements CommandLineRunner {
         writableRegister2.setDetails("falan");
         writableRegister2.setRoleType(RoleType.CUSTOMER);
 
-        User user = UserMapper.INSTANCE.writableRegisterToUser(writableRegister);
+        User user = UserMapper.writableRegisterToUser(writableRegister);
         user.setStatus(true);
         userService.create(user,writableRegister.getRoleType());
 
-        User user1 = UserMapper.INSTANCE.writableRegisterToUser(writableRegister1);
+        User user1 = UserMapper.writableRegisterToUser(writableRegister1);
         user1.setStatus(true);
         userService.create(user1,writableRegister1.getRoleType());
 
-        User user2 = UserMapper.INSTANCE.writableRegisterToUser(writableRegister2);
+        User user2 = UserMapper.writableRegisterToUser(writableRegister2);
         user2.setStatus(true);
         userService.create(user2,writableRegister2.getRoleType());
     }

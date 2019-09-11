@@ -4,16 +4,12 @@ import com.marketing.web.dtos.product.ReadableProductSpecify;
 import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
-import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.*;
 import com.marketing.web.pubsub.ProductProducer;
-import com.marketing.web.pubsub.ProductSubscriber;
 import com.marketing.web.repositories.CityRepository;
 import com.marketing.web.repositories.StateRepository;
-import com.marketing.web.services.category.CategoryService;
 import com.marketing.web.services.product.ProductService;
 import com.marketing.web.services.product.ProductSpecifyService;
-import com.marketing.web.services.storage.StorageService;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.facade.ProductFacade;
 import com.marketing.web.utils.mappers.ProductMapper;
@@ -57,31 +53,31 @@ public class ProductSpecifiesController {
     @GetMapping
     public ResponseEntity<List<ReadableProductSpecify>> getAll(){
         User user = userService.getLoggedInUser();
-        RoleType role = UserMapper.INSTANCE.roleToRoleType(user.getRole());
+        RoleType role = UserMapper.roleToRoleType(user.getRole());
         if (role.equals(RoleType.MERCHANT)){
             return ResponseEntity.ok(productSpecifyService.findAllByUser(user).stream()
-                    .map(ProductMapper.INSTANCE::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
+                    .map(ProductMapper::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
         }
         return ResponseEntity.ok(productSpecifyService.findAll().stream()
-                .map(ProductMapper.INSTANCE::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
+                .map(ProductMapper::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
     }
 
     @GetMapping("/product/{id}")
     public ResponseEntity<List<ReadableProductSpecify>> getAllByProduct(@PathVariable String id){
         User user = userService.getLoggedInUser();
-        RoleType role = UserMapper.INSTANCE.roleToRoleType(user.getRole());
+        RoleType role = UserMapper.roleToRoleType(user.getRole());
         Product product = productService.findByUUID(id);
 
         switch (role){
             case MERCHANT:
                return ResponseEntity.ok(productSpecifyService.findAllByProductAndStates(product,user.getActiveStates()).stream()
-                        .map(ProductMapper.INSTANCE::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
+                        .map(ProductMapper::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
             case CUSTOMER:
                return ResponseEntity.ok(productSpecifyService.findAllByProductAndStates(product, Collections.singletonList(user.getAddress().getState())).stream()
-                        .map(ProductMapper.INSTANCE::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
+                        .map(ProductMapper::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
             default:
                 return ResponseEntity.ok(productSpecifyService.findAllByProduct(product).stream()
-                        .map(ProductMapper.INSTANCE::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
+                        .map(ProductMapper::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
         }
 
     }
@@ -115,7 +111,7 @@ public class ProductSpecifiesController {
             productSpecify = productSpecifyService.findByUUIDAndUser(id,user);
         }
         productSpecifyService.delete(productSpecify);
-        return ResponseEntity.ok(ProductMapper.INSTANCE.productSpecifyToReadableProductSpecify(productSpecify));
+        return ResponseEntity.ok(ProductMapper.productSpecifyToReadableProductSpecify(productSpecify));
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")

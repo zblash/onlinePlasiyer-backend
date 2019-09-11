@@ -1,27 +1,19 @@
 package com.marketing.web.services.product;
 
-import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.ResourceNotFoundException;
-import com.marketing.web.models.City;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
-import com.marketing.web.repositories.CityRepository;
 import com.marketing.web.repositories.ProductSpecifyRepository;
-import com.marketing.web.repositories.StateRepository;
-import com.marketing.web.utils.mappers.ProductMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
 public class ProductSpecifyService implements IProductSpecifyService {

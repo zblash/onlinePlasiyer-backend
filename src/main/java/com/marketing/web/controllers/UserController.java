@@ -7,8 +7,6 @@ import com.marketing.web.models.Address;
 import com.marketing.web.models.City;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
-import com.marketing.web.repositories.StateRepository;
-import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.security.JWTAuthToken.JWTGenerator;
 import com.marketing.web.services.user.AddressService;
 import com.marketing.web.services.user.CityService;
@@ -19,12 +17,9 @@ import com.marketing.web.utils.mappers.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -65,7 +60,7 @@ public class UserController {
             String role = userDetails.getRole().getName().split("_")[1];
             loginDTOBuilder.role(role);
             loginDTOBuilder.address(userDetails.getAddress());
-            loginDTOBuilder.activeStates(userDetails.getActiveStates().stream().map(CityMapper.INSTANCE::stateToReadableState).collect(Collectors.toList()));
+            loginDTOBuilder.activeStates(userDetails.getActiveStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
             ReadableLogin readableLogin = loginDTOBuilder
                     .build();
             return ResponseEntity.ok(readableLogin);
@@ -77,7 +72,7 @@ public class UserController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<ReadableRegister> signUp(@Valid @RequestBody WritableRegister writableRegister){
-        User user = UserMapper.INSTANCE.writableRegisterToUser(writableRegister);
+        User user = UserMapper.writableRegisterToUser(writableRegister);
         if(userService.canRegister(user)) {
 
             Address address = new Address();
@@ -88,7 +83,7 @@ public class UserController {
 
             user.setStatus(true);
             user.setAddress(addressService.create(address));
-            ReadableRegister readableRegister = UserMapper.INSTANCE.userToReadableRegister(userService.create(user, writableRegister.getRoleType()));
+            ReadableRegister readableRegister = UserMapper.userToReadableRegister(userService.create(user, writableRegister.getRoleType()));
             return ResponseEntity.ok(readableRegister);
         }
         throw new BadRequestException("Username or email already registered");
@@ -103,14 +98,14 @@ public class UserController {
         addedList.addAll(stateList);
         user.setActiveStates(addedList.stream().distinct().collect(Collectors.toList()));
         userService.update(user.getId(),user);
-        return ResponseEntity.ok(addedList.stream().map(CityMapper.INSTANCE::stateToReadableState).collect(Collectors.toList()));
+        return ResponseEntity.ok(addedList.stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
     @GetMapping("/api/users/activeStates")
     public ResponseEntity<List<ReadableState>> getActiveStates(){
         User user = userService.getLoggedInUser();
-        return ResponseEntity.ok(user.getActiveStates().stream().map(CityMapper.INSTANCE::stateToReadableState).collect(Collectors.toList()));
+        return ResponseEntity.ok(user.getActiveStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
     }
 
     @GetMapping("/api/users/getMyInfos")
@@ -123,7 +118,7 @@ public class UserController {
         String role = user.getRole().getName().split("_")[1];
         userInfoBuilder.role(role);
         userInfoBuilder.address(user.getAddress());
-        userInfoBuilder.activeStates(user.getActiveStates().stream().map(CityMapper.INSTANCE::stateToReadableState).collect(Collectors.toList()));
+        userInfoBuilder.activeStates(user.getActiveStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
         UserInfo userInfo = userInfoBuilder
                 .build();
         return ResponseEntity.ok(userInfo);
@@ -134,7 +129,7 @@ public class UserController {
     public ResponseEntity<List<CustomerUser>> getAllCustomers(){
 
         return ResponseEntity.ok(userService.findAllByRole(RoleType.CUSTOMER).stream()
-                .map(UserMapper.INSTANCE::userToCustomer)
+                .map(UserMapper::userToCustomer)
                 .collect(Collectors.toList()));
     }
 
@@ -142,7 +137,7 @@ public class UserController {
     @GetMapping("/api/users/merchant")
     public ResponseEntity<List<MerchantUser>> getAllMerchants(){
         return ResponseEntity.ok(userService.findAllByRole(RoleType.MERCHANT).stream()
-                .map(UserMapper.INSTANCE::userToMerchant)
+                .map(UserMapper::userToMerchant)
                 .collect(Collectors.toList()));
     }
 
@@ -150,7 +145,7 @@ public class UserController {
     @GetMapping("/api/users/merchant/passive")
     public ResponseEntity<List<MerchantUser>> getPassiveMerchantUsers(){
         return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.MERCHANT,false).stream()
-                .map(UserMapper.INSTANCE::userToMerchant)
+                .map(UserMapper::userToMerchant)
                 .collect(Collectors.toList()));
     }
 
@@ -158,7 +153,7 @@ public class UserController {
     @GetMapping("/api/users/merchant/active")
     public ResponseEntity<List<MerchantUser>> getActiveMerchantUsers(){
         return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.MERCHANT,true).stream()
-                .map(UserMapper.INSTANCE::userToMerchant)
+                .map(UserMapper::userToMerchant)
                 .collect(Collectors.toList()));
     }
 
@@ -167,7 +162,7 @@ public class UserController {
     @GetMapping("/api/users/customers/passive")
     public ResponseEntity<List<CustomerUser>> getPassiveCustomerUsers(){
         return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.CUSTOMER,false).stream()
-                .map(UserMapper.INSTANCE::userToCustomer)
+                .map(UserMapper::userToCustomer)
                 .collect(Collectors.toList()));
     }
 
@@ -175,7 +170,7 @@ public class UserController {
     @GetMapping("/api/users/customers/active")
     public ResponseEntity<List<CustomerUser>> getActiveCustomerUsers(){
         return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.CUSTOMER,true).stream()
-                                .map(UserMapper.INSTANCE::userToCustomer)
+                                .map(UserMapper::userToCustomer)
                                 .collect(Collectors.toList()));
     }
 
@@ -194,15 +189,15 @@ public class UserController {
         switch (role) {
             case CUSTOMER:
                 return ResponseEntity.ok(users.stream()
-                        .map(UserMapper.INSTANCE::userToCustomer)
+                        .map(UserMapper::userToCustomer)
                         .collect(Collectors.toList()));
             case MERCHANT:
                 return ResponseEntity.ok(users.stream()
-                        .map(UserMapper.INSTANCE::userToMerchant)
+                        .map(UserMapper::userToMerchant)
                         .collect(Collectors.toList()));
             default:
                 return ResponseEntity.ok(users.stream()
-                        .map(UserMapper.INSTANCE::userToAdmin)
+                        .map(UserMapper::userToAdmin)
                         .collect(Collectors.toList()));
         }
     }

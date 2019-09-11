@@ -7,14 +7,12 @@ import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.InvoiceRepository;
 import com.marketing.web.services.order.OrderService;
-import com.marketing.web.utils.mappers.InvoiceMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class InvoiceServiceImpl implements InvoiceService{

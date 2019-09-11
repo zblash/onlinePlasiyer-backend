@@ -2,13 +2,8 @@ package com.marketing.web.utils.facade.impl;
 
 import com.marketing.web.dtos.product.ReadableProductSpecify;
 import com.marketing.web.dtos.product.WritableProductSpecify;
-import com.marketing.web.enums.RoleType;
-import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.*;
-import com.marketing.web.pubsub.ProductProducer;
-import com.marketing.web.repositories.CityRepository;
-import com.marketing.web.repositories.StateRepository;
 import com.marketing.web.services.product.ProductService;
 import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.services.user.StateService;
@@ -18,10 +13,7 @@ import com.marketing.web.utils.mappers.ProductMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service(value = "productFacade")
 public class ProductFacadeImpl implements ProductFacade {
@@ -44,7 +36,7 @@ public class ProductFacadeImpl implements ProductFacade {
         if (product == null){
             throw new ResourceNotFoundException("Product not found with barcode: "+writableProductSpecify.getBarcode());
         }
-        ProductSpecify productSpecify = ProductMapper.INSTANCE.writableProductSpecifyToProductSpecify(writableProductSpecify);
+        ProductSpecify productSpecify = ProductMapper.writableProductSpecifyToProductSpecify(writableProductSpecify);
 
         List<State> states = stateService.findAllByUuids(writableProductSpecify.getStateList());
 
@@ -52,7 +44,7 @@ public class ProductFacadeImpl implements ProductFacade {
         productSpecify.setProduct(product);
         productSpecify.setUser(user);
         productSpecify.setStates(productSpecifyService.allowedStates(user,states));
-        return ProductMapper.INSTANCE.productSpecifyToReadableProductSpecify(productSpecifyService.create(productSpecify));
+        return ProductMapper.productSpecifyToReadableProductSpecify(productSpecifyService.create(productSpecify));
     }
 
     @Override
@@ -61,7 +53,7 @@ public class ProductFacadeImpl implements ProductFacade {
         if (product == null){
             throw new ResourceNotFoundException("Product not found with barcode: "+writableProductSpecify.getBarcode());
         }
-        ProductSpecify productSpecify = ProductMapper.INSTANCE.writableProductSpecifyToProductSpecify(writableProductSpecify);
+        ProductSpecify productSpecify = ProductMapper.writableProductSpecifyToProductSpecify(writableProductSpecify);
 
 
         List<State> states = stateService.findAllByUuids(writableProductSpecify.getStateList());
@@ -69,6 +61,6 @@ public class ProductFacadeImpl implements ProductFacade {
 
         productSpecify.setStates(productSpecifyService.allowedStates(user,states));
         productSpecify.setProduct(product);
-        return ProductMapper.INSTANCE.productSpecifyToReadableProductSpecify(productSpecifyService.update(uuid,productSpecify));
+        return ProductMapper.productSpecifyToReadableProductSpecify(productSpecifyService.update(uuid,productSpecify));
     }
 }

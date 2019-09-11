@@ -37,7 +37,7 @@ public class TicketsController {
     @GetMapping
     public ResponseEntity<List<ReadableTicket>> getAllTickets(){
         return ResponseEntity.ok(ticketService.findAll().stream()
-                .map(TicketMapper.INSTANCE::ticketToReadableTicket)
+                .map(TicketMapper::ticketToReadableTicket)
                 .collect(Collectors.toList()));
     }
 
@@ -53,16 +53,16 @@ public class TicketsController {
         }
 
         return ResponseEntity.ok(ticketReplyService.findAllByTicket(ticket).stream()
-                .map(TicketMapper.INSTANCE::ticketReplyToReadableTicketReply)
+                .map(TicketMapper::ticketReplyToReadableTicketReply)
                 .collect(Collectors.toList()));
     }
 
     @PostMapping("/create")
     public ResponseEntity<ReadableTicket> createTicket(@RequestBody WritableTicket writableTicket){
-        Ticket ticket = TicketMapper.INSTANCE.writableTicketToTicket(writableTicket);
+        Ticket ticket = TicketMapper.writableTicketToTicket(writableTicket);
         ticket.setStatus(TicketStatus.OPN);
         ticket.setUser(userService.getLoggedInUser());
-        return ResponseEntity.ok(TicketMapper.INSTANCE.ticketToReadableTicket(ticketService.create(ticket)));
+        return ResponseEntity.ok(TicketMapper.ticketToReadableTicket(ticketService.create(ticket)));
     }
 
     @PostMapping("/{id}/createReply")
@@ -80,11 +80,11 @@ public class TicketsController {
         }else{
             ticket = ticketService.findByUserAndUUid(loggedInUser,id);
         }
-        TicketReply ticketReply =TicketMapper.INSTANCE.writableTicketReplyToTicketReply(writableTicketReply);
+        TicketReply ticketReply =TicketMapper.writableTicketReplyToTicketReply(writableTicketReply);
         ticketReply.setUser(loggedInUser);
         ticketReply.setTicket(ticket);
         return ResponseEntity.ok(
-                TicketMapper.INSTANCE.ticketReplyToReadableTicketReply(ticketReplyService.create(ticketReply)));
+                TicketMapper.ticketReplyToReadableTicketReply(ticketReplyService.create(ticketReply)));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -92,7 +92,7 @@ public class TicketsController {
     public ResponseEntity<ReadableTicket> changeTicketStatus(@PathVariable String id, @RequestBody TicketStatus ticketStatus){
         Ticket ticket = ticketService.findByUUID(id);
         ticket.setStatus(ticketStatus);
-        return ResponseEntity.ok(TicketMapper.INSTANCE.ticketToReadableTicket(ticketService.update(id,ticket)));
+        return ResponseEntity.ok(TicketMapper.ticketToReadableTicket(ticketService.update(id,ticket)));
     }
 
     @PostMapping("/update/{id}")
@@ -105,8 +105,8 @@ public class TicketsController {
         }else{
             ticket = ticketService.findByUserAndUUid(loggedInUser,id);
         }
-        Ticket updatedTicket = TicketMapper.INSTANCE.writableTicketToTicket(writableTicket);
-        return ResponseEntity.ok(TicketMapper.INSTANCE.ticketToReadableTicket(ticketService.update(id,updatedTicket)));
+        Ticket updatedTicket = TicketMapper.writableTicketToTicket(writableTicket);
+        return ResponseEntity.ok(TicketMapper.ticketToReadableTicket(ticketService.update(id,updatedTicket)));
     }
 
 }
