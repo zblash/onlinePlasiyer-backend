@@ -71,8 +71,6 @@ public class Runner implements CommandLineRunner {
         writableRegister.setPassword("12345");
         writableRegister.setTaxNumber("TR23123123");
         writableRegister.setEmail("admin@admin.com");
-        writableRegister.setCity("ANTALYA");
-        writableRegister.setState("MANAVGAT");
         writableRegister.setDetails("falan");
         writableRegister.setRoleType(RoleType.ADMIN);
 
@@ -83,8 +81,6 @@ public class Runner implements CommandLineRunner {
         writableRegister1.setPassword("12345");
         writableRegister1.setTaxNumber("TR31313131");
         writableRegister1.setEmail("merchant@merchant.com");
-        writableRegister1.setCity("ANTALYA");
-        writableRegister1.setState("MANAVGAT");
         writableRegister1.setDetails("falan");
         writableRegister1.setRoleType(RoleType.MERCHANT);
 
@@ -94,8 +90,6 @@ public class Runner implements CommandLineRunner {
         writableRegister2.setPassword("12345");
         writableRegister2.setTaxNumber("TR4234234234");
         writableRegister2.setEmail("customer@customer.com");
-        writableRegister2.setCity("ANTALYA");
-        writableRegister2.setState("MANAVGAT");
         writableRegister2.setDetails("falan");
         writableRegister2.setRoleType(RoleType.CUSTOMER);
 

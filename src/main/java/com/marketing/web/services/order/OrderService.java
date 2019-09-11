@@ -23,6 +23,7 @@ public class OrderService implements IOrderService {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Override
     public List<Order> findAll(){
         return orderRepository.findAll();
     }
@@ -57,14 +58,10 @@ public class OrderService implements IOrderService {
         return orderRepository.saveAll(orders);
     }
 
-    @Override
-    public List<Order> findByBuyer(Long id) {
-        return orderRepository.findAllByBuyer_Id(id);
-    }
 
     @Override
-    public Order findBySellerAndUUid(Long selerId, String uuid) {
-        return orderRepository.findBySeller_IdAndUuid(selerId,UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("You have no order with id: "+ uuid));
+    public Order findByUuidAndUser(String uuid,User user) {
+        return orderRepository.findByUuidAndAndBuyerOrSeller(UUID.fromString(uuid),user,user).orElseThrow(() -> new ResourceNotFoundException("Order not found with id: "+ uuid));
     }
 
     @Override

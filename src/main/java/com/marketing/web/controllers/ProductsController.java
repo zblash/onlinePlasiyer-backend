@@ -6,6 +6,7 @@ import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.ResourceNotFoundException;
+import com.marketing.web.models.Category;
 import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
@@ -18,6 +19,7 @@ import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.services.storage.StorageService;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.ProductMapper;
+import com.marketing.web.utils.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -82,9 +84,14 @@ public class ProductsController {
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<List<ReadableProduct>> getAllByCategory(@PathVariable String categoryId){
         User user = userService.getLoggedInUser();
-        String userState = user.getAddress().getState();
-        List<Product> products = productService.findByCategory(categoryId).stream().filter(Product::isStatus).collect(Collectors.toList());
-        return ResponseEntity.ok(productService.filterByState(products, userState).stream()
+        RoleType role = UserMapper.INSTANCE.roleToRoleType(user.getRole());
+        Category category = categoryService.findByUUID(categoryId);
+        if (role.equals(RoleType.ADMIN)){
+            return ResponseEntity.ok(productService.findAllByCategory(category).stream()
+                    .map(ProductMapper.INSTANCE::productToReadableProduct).collect(Collectors.toList()));
+        }
+
+        return ResponseEntity.ok(productService.findAllByCategoryAndStatus(category,true).stream()
                 .map(ProductMapper.INSTANCE::productToReadableProduct).collect(Collectors.toList()));
 
     }

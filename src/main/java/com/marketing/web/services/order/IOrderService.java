@@ -5,6 +5,7 @@ import com.marketing.web.models.CartItem;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 
+import java.util.BitSet;
 import java.util.List;
 
 public interface IOrderService {
@@ -23,9 +24,8 @@ public interface IOrderService {
 
     List<Order> createAll(List<Order> orders);
 
-    List<Order> findByBuyer(Long id);
-
-    Order findBySellerAndUUid(Long selerId, String uuid);
+    Order findByUuidAndUser(String uuid, User user);
 
     Order update(Long id, Order updatedOrder);
+
 }

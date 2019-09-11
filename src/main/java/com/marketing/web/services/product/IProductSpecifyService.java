@@ -3,12 +3,21 @@ package com.marketing.web.services.product;
 import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
+import com.marketing.web.models.State;
 import com.marketing.web.models.User;
+
+import java.util.BitSet;
 import java.util.List;
 
 public interface IProductSpecifyService {
 
     List<ProductSpecify> findAll();
+
+    List<ProductSpecify> findAllByUser(User user);
+
+    List<ProductSpecify> findAllByProduct(Product product);
+
+    List<ProductSpecify> findAllByProductAndStates(Product product,List<State> states);
 
     ProductSpecify findById(Long id);
 
@@ -21,4 +30,5 @@ public interface IProductSpecifyService {
     ProductSpecify update(String uuid,ProductSpecify updatedProductSpecify);
 
     void delete(ProductSpecify productSpecify);
+
 }

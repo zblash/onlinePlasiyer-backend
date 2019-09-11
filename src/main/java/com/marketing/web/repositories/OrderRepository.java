@@ -23,18 +23,14 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     @Query("SELECT o FROM Order o WHERE o.orderDate BETWEEN ?1 AND ?2 and o.seller = ?3 or o.buyer = ?4")
     List<Order> findAllByOrderDateRangeAndUsers(Date startDate, Date endDate, Long sellerId, Long buyerId);
 
-    @Query("SELECT o FROM Order o WHERE o.seller = ?1 and o.buyer = ?2")
-    List<Order> findAllByUsers(Long sellerId, Long buyerId);
-
-    Optional<Order> findByBuyer_IdAndId(Long buyerId, Long id);
-
-    Optional<Order> findBySeller_IdAndId(Long sellerId, Long id);
-
-    Optional<Order> findByBuyer_IdAndUuid(Long buyerId, UUID uuid);
+    @Query("SELECT o FROM Order o WHERE o.uuid = ?1 and o.seller = ?2 or o.buyer = ?3")
+    List<Order> findAllByUuidAndUsers(Long sellerId, Long buyerId);
 
     Optional<Order> findBySeller_IdAndUuid(Long sellerId, UUID uuid);
 
     Optional<Order> findByUuid(UUID uuid);
 
     List<Order> findAllBySellerOrBuyer(User seller,User buyer);
+
+    Optional<Order> findByUuidAndAndBuyerOrSeller(UUID uuid,User buyer,User seller);
 }

@@ -30,4 +30,9 @@ public class OrderItemService implements IOrderItemService {
     public OrderItem findByUUID(String uuid) {
         return orderItemRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("OrderItem not found with id: "+uuid));
     }
+
+    @Override
+    public List<OrderItem> findByOrder(Order order) {
+        return orderItemRepository.findByOrOrder(order);
+    }
 }

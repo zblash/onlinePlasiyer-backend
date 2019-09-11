@@ -31,10 +31,16 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public List<Product> findByCategory(String categoryId){
-        Category category = categoryService.findByUUID(categoryId);
+    public List<Product> findAllByCategory(Category category){
         List<Category> categories = category.collectLeafChildren();
         return productRepository.findByCategoryIn(categories);
+
+    }
+
+    @Override
+    public List<Product> findAllByCategoryAndStatus(Category category, boolean status){
+        List<Category> categories = category.collectLeafChildren();
+        return productRepository.findByCategoryInAndStatus(categories, status);
 
     }
 

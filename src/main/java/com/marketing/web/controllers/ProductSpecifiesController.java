@@ -17,15 +17,15 @@ import com.marketing.web.services.storage.StorageService;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.facade.ProductFacade;
 import com.marketing.web.utils.mappers.ProductMapper;
+import com.marketing.web.utils.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/products/specify")
@@ -52,6 +52,39 @@ public class ProductSpecifiesController {
 
     @Autowired
     private ProductFacade productFacade;
+
+    @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
+    @GetMapping
+    public ResponseEntity<List<ReadableProductSpecify>> getAll(){
+        User user = userService.getLoggedInUser();
+        RoleType role = UserMapper.INSTANCE.roleToRoleType(user.getRole());
+        if (role.equals(RoleType.MERCHANT)){
+            return ResponseEntity.ok(productSpecifyService.findAllByUser(user).stream()
+                    .map(ProductMapper.INSTANCE::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
+        }
+        return ResponseEntity.ok(productSpecifyService.findAll().stream()
+                .map(ProductMapper.INSTANCE::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
+    }
+
+    @GetMapping("/product/{id}")
+    public ResponseEntity<List<ReadableProductSpecify>> getAllByProduct(@PathVariable String id){
+        User user = userService.getLoggedInUser();
+        RoleType role = UserMapper.INSTANCE.roleToRoleType(user.getRole());
+        Product product = productService.findByUUID(id);
+
+        switch (role){
+            case MERCHANT:
+               return ResponseEntity.ok(productSpecifyService.findAllByProductAndStates(product,user.getActiveStates()).stream()
+                        .map(ProductMapper.INSTANCE::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
+            case CUSTOMER:
+               return ResponseEntity.ok(productSpecifyService.findAllByProductAndStates(product, Collections.singletonList(user.getAddress().getState())).stream()
+                        .map(ProductMapper.INSTANCE::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
+            default:
+                return ResponseEntity.ok(productSpecifyService.findAllByProduct(product).stream()
+                        .map(ProductMapper.INSTANCE::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
+        }
+
+    }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping("/create")

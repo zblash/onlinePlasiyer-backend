@@ -16,4 +16,6 @@ public interface StateRepository extends JpaRepository<State,Long> {
     Optional<State> findByUuid(UUID uuid);
 
     List<State> findAllByUuidIn(List<UUID> uuids);
+
+    Optional<State> findByUuidAndCity(UUID uuid, City city);
 }

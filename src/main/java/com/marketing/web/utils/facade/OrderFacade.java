@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface OrderFacade {
 
-    ReadableOrder saveOrder(WritableOrder writableOrder, String uuid, Long sellerId);
+    public ReadableOrder saveOrder(WritableOrder writableOrder, String uuid, User seller);
 
     List<ReadableOrder> checkoutCart(User user, Cart cart, List<CartItem> cartItems);
 

@@ -23,9 +23,13 @@ public class Address extends Model {
 
     private UUID uuid;
 
-    private String city;
+    @OneToOne
+    @JoinColumn(name = "city_id",referencedColumnName = "id")
+    private City city;
 
-    private String state;
+    @OneToOne
+    @JoinColumn(name = "state_id",referencedColumnName = "id")
+    private State state;
 
     private String details;
 

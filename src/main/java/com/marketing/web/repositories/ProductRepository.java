@@ -16,4 +16,6 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     List<Product> findAllByStatus(boolean status);
 
     Optional<Product> findByUuid(UUID uuid);
+
+    List<Product> findByCategoryInAndStatus(List<Category> categories, boolean status);
 }

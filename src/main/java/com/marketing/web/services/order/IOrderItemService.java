@@ -11,4 +11,6 @@ public interface IOrderItemService {
 
     OrderItem findByUUID(String uuid);
 
+    List<OrderItem> findByOrder(Order order);
+
 }

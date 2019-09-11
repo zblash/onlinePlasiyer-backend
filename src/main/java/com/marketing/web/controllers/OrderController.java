@@ -1,11 +1,16 @@
 package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.order.ReadableOrder;
+import com.marketing.web.dtos.order.ReadableOrderItem;
 import com.marketing.web.dtos.order.SearchOrder;
 import com.marketing.web.dtos.order.WritableOrder;
 import com.marketing.web.enums.RoleType;
+import com.marketing.web.errors.ResourceNotFoundException;
+import com.marketing.web.models.Order;
+import com.marketing.web.models.OrderItem;
 import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.models.User;
+import com.marketing.web.services.order.OrderItemService;
 import com.marketing.web.services.order.OrderService;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.facade.OrderFacade;
@@ -32,6 +37,9 @@ public class OrderController {
     private OrderService orderService;
 
     @Autowired
+    private OrderItemService orderItemService;
+
+    @Autowired
     private UserService userService;
 
     @Autowired
@@ -52,7 +60,7 @@ public class OrderController {
                 .map(OrderMapper.INSTANCE::orderToReadableOrder).collect(Collectors.toList()));
     }
 
-    @PostMapping
+    @PostMapping("/filter")
     public ResponseEntity<List<ReadableOrder>> getOrdersByFilter(@RequestBody SearchOrder searchOrder){
         User user = userService.getLoggedInUser();
         RoleType userRole = UserMapper.INSTANCE.roleToRoleType(user.getRole());
@@ -68,12 +76,20 @@ public class OrderController {
                 .map(OrderMapper.INSTANCE::orderToReadableOrder).collect(Collectors.toList()));
     }
 
-    @PreAuthorize("hasRole('ROLE_CUSTOMER')")
-    @PostMapping("/details/{id}")
-    public ResponseEntity<List<ReadableOrder>> getUserBills(@PathVariable String id){
+    @PostMapping("/items/{id}")
+    public ResponseEntity<List<ReadableOrderItem>> getUserOrderDetails(@PathVariable String id, @RequestParam(required = false) String userId){
         User user = userService.getLoggedInUser();
-        return ResponseEntity.ok(orderService.findByBuyer(user.getId()).stream()
-                .map(OrderMapper.INSTANCE::orderToReadableOrder).collect(Collectors.toList()));
+        Order order;
+        if (UserMapper.INSTANCE.roleToRoleType(user.getRole()).equals(RoleType.ADMIN)){
+            if (userId.isEmpty()){
+                throw new ResourceNotFoundException("User not found with userId: "+userId);
+            }
+            order = orderService.findByUuidAndUser(id,userService.findByUUID(userId));
+        }
+        order = orderService.findByUuidAndUser(id,user);
+
+        return ResponseEntity.ok(orderItemService.findByOrder(order).stream()
+                .map(OrderMapper.INSTANCE::orderItemToReadableOrderItem).collect(Collectors.toList()));
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
@@ -81,7 +97,7 @@ public class OrderController {
     public ResponseEntity<ReadableOrder> updateOrder(@PathVariable String id, @RequestBody WritableOrder order){
         User user = userService.getLoggedInUser();
         logger.info(Double.toString(order.getDiscount()));
-        ReadableOrder readableOrder = orderFacade.saveOrder(order,id,user.getId());
+        ReadableOrder readableOrder = orderFacade.saveOrder(order,id,user);
         return ResponseEntity.ok(readableOrder);
     }
 }

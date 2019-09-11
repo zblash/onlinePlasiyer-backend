@@ -32,14 +32,24 @@ public class ProductSpecifyService implements IProductSpecifyService {
     @Autowired
     private ProductSpecifyRepository productSpecifyRepository;
 
-    @Autowired
-    private StateRepository stateRepository;
-
-    @Autowired
-    private CityRepository cityRepository;
     @Override
     public List<ProductSpecify> findAll() {
         return productSpecifyRepository.findAll();
+    }
+
+    @Override
+    public List<ProductSpecify> findAllByUser(User user) {
+        return productSpecifyRepository.findAllByUser(user);
+    }
+
+    @Override
+    public List<ProductSpecify> findAllByProduct(Product product) {
+        return productSpecifyRepository.findAllByProduct(product);
+    }
+
+    @Override
+    public List<ProductSpecify> findAllByProductAndStates(Product product, List<State> states) {
+        return productSpecifyRepository.findAllByProductAndStatesIn(product,states);
     }
 
     @Override

@@ -43,6 +43,11 @@ public class StateService implements IStateService {
     }
 
     @Override
+    public State findByUuidAndCity(String uuid, City city) {
+        return stateRepository.findByUuidAndCity(UUID.fromString(uuid), city).orElseThrow(() -> new ResourceNotFoundException("State not found with id: "+uuid));
+    }
+
+    @Override
     public State create(State state) {
         return stateRepository.save(state);
     }

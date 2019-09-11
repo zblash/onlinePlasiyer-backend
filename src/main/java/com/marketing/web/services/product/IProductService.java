@@ -1,6 +1,7 @@
 package com.marketing.web.services.product;
 
 import com.marketing.web.dtos.product.WritableProduct;
+import com.marketing.web.models.Category;
 import com.marketing.web.models.Product;
 
 import java.util.List;
@@ -9,7 +10,9 @@ public interface IProductService {
 
     List<Product> findAllByStatus(boolean status);
 
-    List<Product> findByCategory(String categoryId);
+    List<Product> findAllByCategory(Category category);
+
+    List<Product> findAllByCategoryAndStatus(Category category, boolean status);
 
     Product findByBarcode(String barcode);
 

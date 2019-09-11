@@ -31,8 +31,6 @@ public interface UserMapper {
         return readableRegister;
     }
 
-    @InheritInverseConfiguration
-    Address registerDTOToAddress(WritableRegister writableRegister);
 
     default MerchantUser userToMerchant(User user){
         MerchantUser merchantUser = new MerchantUser();

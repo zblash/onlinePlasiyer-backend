@@ -4,12 +4,14 @@ import com.marketing.web.dtos.user.*;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.Address;
+import com.marketing.web.models.City;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.StateRepository;
 import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.security.JWTAuthToken.JWTGenerator;
 import com.marketing.web.services.user.AddressService;
+import com.marketing.web.services.user.CityService;
 import com.marketing.web.services.user.StateService;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.CityMapper;
@@ -43,6 +45,9 @@ public class UserController {
     private StateService stateService;
 
     @Autowired
+    private CityService cityService;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     private Logger logger = LoggerFactory.getLogger(UserController.class);
@@ -74,9 +79,15 @@ public class UserController {
     public ResponseEntity<ReadableRegister> signUp(@Valid @RequestBody WritableRegister writableRegister){
         User user = UserMapper.INSTANCE.writableRegisterToUser(writableRegister);
         if(userService.canRegister(user)) {
-            Address address = addressService.create(UserMapper.INSTANCE.registerDTOToAddress(writableRegister));
+
+            Address address = new Address();
+            City city = cityService.findByUuid(writableRegister.getCityId());
+            address.setCity(city);
+            address.setState(stateService.findByUuidAndCity(writableRegister.getStateId(),city));
+            address.setDetails(writableRegister.getDetails());
+
             user.setStatus(true);
-            user.setAddress(address);
+            user.setAddress(addressService.create(address));
             ReadableRegister readableRegister = UserMapper.INSTANCE.userToReadableRegister(userService.create(user, writableRegister.getRoleType()));
             return ResponseEntity.ok(readableRegister);
         }

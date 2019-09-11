@@ -39,10 +39,10 @@ public class WritableRegister extends DTO {
     private String taxNumber;
 
     @NotBlank
-    private String city;
+    private String cityId;
 
     @NotBlank
-    private String state;
+    private String stateId;
 
     @NotBlank
     private String details;

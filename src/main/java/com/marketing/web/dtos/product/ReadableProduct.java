@@ -27,6 +27,4 @@ public class ReadableProduct extends DTO {
     private boolean isActive;
 
     private double tax;
-
-    private List<ReadableProductSpecify> productSpecifies;
 }

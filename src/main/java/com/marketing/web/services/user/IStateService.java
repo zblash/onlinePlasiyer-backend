@@ -17,6 +17,8 @@ public interface IStateService {
 
     State findByUuid(String uuid);
 
+    State findByUuidAndCity(String uuid, City city);
+
     State create(State state);
 
     State update(String uuid, State updatedState);
