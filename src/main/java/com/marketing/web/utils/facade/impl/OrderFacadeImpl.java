@@ -5,9 +5,13 @@ import com.marketing.web.dtos.order.WritableOrder;
 import com.marketing.web.enums.OrderStatus;
 import com.marketing.web.models.*;
 import com.marketing.web.services.cart.CartItemService;
+import com.marketing.web.services.cart.CartItemServiceImpl;
+import com.marketing.web.services.invoice.InvoiceService;
 import com.marketing.web.services.invoice.InvoiceServiceImpl;
 import com.marketing.web.services.order.OrderItemService;
+import com.marketing.web.services.order.OrderItemServiceImpl;
 import com.marketing.web.services.order.OrderService;
+import com.marketing.web.services.order.OrderServiceImpl;
 import com.marketing.web.utils.facade.OrderFacade;
 import com.marketing.web.utils.mappers.OrderMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +37,7 @@ public class OrderFacadeImpl implements OrderFacade {
     private OrderItemService orderItemService;
 
     @Autowired
-    private InvoiceServiceImpl invoiceService;
+    private InvoiceService invoiceService;
 
     @Override
     public ReadableOrder saveOrder(WritableOrder writableOrder, String uuid, User seller) {

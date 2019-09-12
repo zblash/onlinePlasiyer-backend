@@ -6,7 +6,7 @@ import com.marketing.web.models.Invoice;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.InvoiceRepository;
-import com.marketing.web.services.order.OrderService;
+import com.marketing.web.services.order.OrderServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,7 @@ public class InvoiceServiceImpl implements InvoiceService{
     private InvoiceRepository invoiceRepository;
 
     @Autowired
-    private OrderService orderService;
+    private OrderServiceImpl orderService;
 
     @Override
     public List<Invoice> findAll() {

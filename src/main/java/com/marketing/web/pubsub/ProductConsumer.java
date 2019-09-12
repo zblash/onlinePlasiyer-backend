@@ -1,6 +1,7 @@
 package com.marketing.web.pubsub;
 
 import com.marketing.web.services.product.ProductService;
+import com.marketing.web.services.product.ProductServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;

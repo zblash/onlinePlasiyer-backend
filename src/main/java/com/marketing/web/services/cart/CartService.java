@@ -1,52 +1,22 @@
 package com.marketing.web.services.cart;
 
-import com.marketing.web.errors.ResourceNotFoundException;
+
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.User;
-import com.marketing.web.repositories.CartRepository;
-import com.marketing.web.services.cart.ICartService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
-@Service
-public class CartService implements ICartService {
+public interface CartService {
 
-    @Autowired
-    private CartRepository cartRepository;
+    List<Cart> findAll();
 
-    @Override
-    public List<Cart> findAll() {
-        return cartRepository.findAll();
-    }
+    Cart findById(Long id);
 
-    @Override
-    public Cart findById(Long id) {
-        return cartRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: "+ id));
-    }
+    Cart findByUUID(String uuid);
 
-    @Override
-    public Cart findByUUID(String uuid) {
-        return cartRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: "+ uuid));
-    }
+    Cart create(User user);
 
-    @Override
-    public Cart create(User user) {
-        Cart cart = new Cart();
-        cart.setUser(user);
-        return cartRepository.save(cart);
-    }
+    Cart update(Cart cart,Cart updatedCart);
 
-    @Override
-    public Cart update(Cart cart, Cart updatedCart) {
-        cart.setUser(updatedCart.getUser());
-        return cartRepository.save(cart);
-    }
-
-    @Override
-    public void delete(Cart cart) {
-        cartRepository.delete(cart);
-    }
+    void delete(Cart cart);
 }

@@ -10,12 +10,17 @@ import com.marketing.web.models.User;
 import com.marketing.web.pubsub.ProductProducer;
 import com.marketing.web.pubsub.ProductSubscriber;
 import com.marketing.web.services.category.CategoryService;
+import com.marketing.web.services.category.CategoryServiceImpl;
 import com.marketing.web.services.product.ProductService;
+import com.marketing.web.services.product.ProductServiceImpl;
 import com.marketing.web.services.product.ProductSpecifyService;
+import com.marketing.web.services.product.ProductSpecifyServiceImpl;
 import com.marketing.web.services.storage.StorageService;
 import com.marketing.web.services.user.UserService;
+import com.marketing.web.services.user.UserServiceImpl;
 import com.marketing.web.utils.mappers.ProductMapper;
 import com.marketing.web.utils.mappers.UserMapper;
+import com.marketing.web.validations.ValidImg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -111,7 +116,7 @@ public class ProductsController {
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct, @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
+    public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct,@ValidImg @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
         User user = userService.getLoggedInUser();
         Product product = productService.findByBarcode(writableProduct.getBarcode());
 
@@ -141,7 +146,7 @@ public class ProductsController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
+    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
         Product product = ProductMapper.writableProductToProduct(writableProduct);
         if (uploadfile != null && !uploadfile.isEmpty()) {
             String fileName = storageService.store(uploadfile);

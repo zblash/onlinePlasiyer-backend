@@ -1,16 +1,11 @@
 package com.marketing.web;
 
-import com.marketing.web.models.City;
-import com.marketing.web.models.State;
 import com.marketing.web.pubsub.ProductConsumer;
-import com.marketing.web.repositories.CityRepository;
-import com.marketing.web.repositories.StateRepository;
-import com.marketing.web.services.storage.StorageService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -19,17 +14,31 @@ import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.http.HttpHeaders;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import java.util.ArrayList;
+import javax.validation.Validator;
 import java.util.Arrays;
-import java.util.List;
 
-@SpringBootApplication
 @Configuration
+@ComponentScan
+@EnableAutoConfiguration
 public class WebApplication {
+
+    @Bean
+    public Validator validator() {
+        return new LocalValidatorFactoryBean();
+    }
+
+    @Bean
+    public MethodValidationPostProcessor methodValidationPostProcessor() {
+        MethodValidationPostProcessor methodValidationPostProcessor = new MethodValidationPostProcessor();
+        methodValidationPostProcessor.setValidator(validator());
+        return methodValidationPostProcessor;
+    }
 
 	@Bean
 	RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,

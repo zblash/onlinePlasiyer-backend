@@ -1,87 +1,29 @@
 package com.marketing.web.services.storage;
 
-import com.marketing.web.services.storage.IStorageService;
+import com.marketing.web.validations.ValidImg;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StreamUtils;
-import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Date;
 import java.util.stream.Stream;
 
-@Service
-public class StorageService implements IStorageService {
+public interface StorageService {
 
-    private final Path rootLocation = Paths.get("upload-dir");
+    String store(@ValidImg MultipartFile file);
 
-    @Override
-    public String store(MultipartFile file) {
-        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-        fileName = String.valueOf(new Date().getTime()).concat(fileName);
-        fileName = fileName.toLowerCase().replaceAll(" ", "-");
-        try {
-            Files.copy(file.getInputStream(), this.rootLocation.resolve(fileName));
-        }catch (IOException e){
-            throw new RuntimeException();
-        }
-        return fileName;
-    }
+    Stream<Path> loadAll();
 
-    @Override
-    public Stream<Path> loadAll() {
-        return null;
-    }
+    Path load(String filename);
 
-    @Override
-    public Path load(String filename) {
-        return null;
-    }
+    Resource loadAsResource(String filename);
 
-    @Override
-    public Resource loadAsResource(String filename) {
-        try {
-            Path file = rootLocation.resolve(filename);
-            Resource resource = new UrlResource(file.toUri());
-            if (resource.exists() || resource.isReadable()) {
-                return resource;
-            } else {
-                throw new RuntimeException("FAIL!");
-            }
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("FAIL!");
-        }
-    }
+    byte[] loadAsByteArray(String filename) throws IOException;
 
-    @Override
-    public byte[] loadAsByteArray(String filename) throws IOException {
-        Path file = rootLocation.resolve(filename);
-        InputStream targetStream = new FileInputStream(file.toFile());
-        return StreamUtils.copyToByteArray(targetStream);
-    }
+    void deleteAll();
 
-    @Override
-    public void deleteAll() {
+    void init();
 
-    }
-
-    @Override
-    public void init() {
-        if (!Files.exists(rootLocation))
-        {
-            try {
-                Files.createDirectory(rootLocation);
-            } catch (IOException e) {
-                throw new RuntimeException("Could not initialize storage!");
-            }
-        }
-    }
 }

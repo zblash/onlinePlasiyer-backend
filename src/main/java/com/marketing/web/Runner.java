@@ -8,8 +8,8 @@ import com.marketing.web.repositories.CityRepository;
 import com.marketing.web.repositories.ProductRepository;
 import com.marketing.web.repositories.StateRepository;
 import com.marketing.web.services.storage.StorageService;
-import com.marketing.web.services.user.AddressService;
-import com.marketing.web.services.user.UserService;
+import com.marketing.web.services.user.AddressServiceImpl;
+import com.marketing.web.services.user.UserServiceImpl;
 import com.marketing.web.utils.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -39,10 +39,10 @@ public class Runner implements CommandLineRunner {
     ProductRepository productRepository;
 
     @Autowired
-    UserService userService;
+    UserServiceImpl userService;
 
     @Autowired
-    AddressService addressService;
+    AddressServiceImpl addressService;
 
     @Override
     public void run(String... args) throws Exception {

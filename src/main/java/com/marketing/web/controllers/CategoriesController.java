@@ -4,6 +4,7 @@ import com.marketing.web.dtos.category.ReadableCategory;
 import com.marketing.web.dtos.category.WritableCategory;
 import com.marketing.web.models.Category;
 import com.marketing.web.services.category.CategoryService;
+import com.marketing.web.services.category.CategoryServiceImpl;
 import com.marketing.web.services.storage.StorageService;
 import com.marketing.web.utils.mappers.CategoryMapper;
 import org.slf4j.Logger;
@@ -11,14 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
@@ -36,6 +30,7 @@ public class CategoriesController {
     private StorageService storageService;
 
     private Logger logger = LoggerFactory.getLogger(CategoriesController.class);
+
 
     @GetMapping
     public ResponseEntity<List<ReadableCategory>> getAll(@RequestParam(required = false) boolean filter,
@@ -57,7 +52,7 @@ public class CategoriesController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<ReadableCategory> createCategory(@Valid WritableCategory writableCategory, @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
+    public ResponseEntity<ReadableCategory> createCategory(@Valid WritableCategory writableCategory, @RequestParam MultipartFile uploadfile){
             Category category = CategoryMapper.writableCategorytoCategory(writableCategory);
             String fileName = storageService.store(uploadfile);
             category.setPhotoUrl("http://localhost:8080/photos/"+fileName);

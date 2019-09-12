@@ -1,4 +1,4 @@
-package com.marketing.web.dtos.notifications;
+package com.marketing.web.dtos.notification;
 
 import com.marketing.web.dtos.DTO;
 import lombok.AllArgsConstructor;

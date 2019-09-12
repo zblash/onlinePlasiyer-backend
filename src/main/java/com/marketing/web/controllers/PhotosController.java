@@ -1,6 +1,7 @@
 package com.marketing.web.controllers;
 
 import com.marketing.web.services.storage.StorageService;
+import com.marketing.web.services.storage.StorageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

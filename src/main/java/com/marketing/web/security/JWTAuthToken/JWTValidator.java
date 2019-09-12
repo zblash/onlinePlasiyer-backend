@@ -2,6 +2,7 @@ package com.marketing.web.security.JWTAuthToken;
 
 import com.marketing.web.models.User;
 import com.marketing.web.services.user.UserService;
+import com.marketing.web.services.user.UserServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

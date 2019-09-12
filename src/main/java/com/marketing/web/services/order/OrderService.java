@@ -1,76 +1,31 @@
 package com.marketing.web.services.order;
 
 import com.marketing.web.dtos.order.SearchOrder;
-import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.CartItem;
 import com.marketing.web.models.Order;
-import com.marketing.web.enums.OrderStatus;
 import com.marketing.web.models.User;
-import com.marketing.web.repositories.OrderRepository;
-import com.marketing.web.services.order.IOrderService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.BitSet;
+import java.util.List;
 
-import static java.util.Comparator.comparingLong;
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toCollection;
+public interface OrderService {
 
-@Service
-public class OrderService implements IOrderService {
+    List<Order> findAll();
 
-    @Autowired
-    private OrderRepository orderRepository;
+    List<Order> findAllByFilter(SearchOrder searchOrder);
 
-    @Override
-    public List<Order> findAll(){
-        return orderRepository.findAll();
-    }
+    List<Order> findAllByFilterAndUser(SearchOrder searchOrder, User user);
 
-    @Override
-    public List<Order> findAllByFilter(SearchOrder searchOrder) {
-        return orderRepository.findAllByOrderDateRange(searchOrder.getStartDate(),searchOrder.getEndDate());
-    }
+    List<Order> findAllByUser(User user);
 
-    @Override
-    public List<Order> findAllByFilterAndUser(SearchOrder searchOrder, User user) {
-        return orderRepository.findAllByOrderDateRangeAndUsers(searchOrder.getStartDate(),searchOrder.getEndDate(),user.getId(),user.getId());
-    }
+    Order findById(Long id);
 
-    @Override
-    public List<Order> findAllByUser(User user){
-        return orderRepository.findAllBySellerOrBuyer(user,user);
-    }
+    Order findByUUID(String uuid);
 
-    @Override
-    public Order findById(Long id) {
-        return orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order not found with id:" + id));
-    }
+    List<Order> createAll(List<Order> orders);
 
-    @Override
-    public Order findByUUID(String uuid) {
-        return orderRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Order not found with id:" + uuid));
-    }
+    Order findByUuidAndUser(String uuid, User user);
 
-    @Override
-    public List<Order> createAll(List<Order> orders) {
-        return orderRepository.saveAll(orders);
-    }
-
-
-    @Override
-    public Order findByUuidAndUser(String uuid,User user) {
-        return orderRepository.findByUuidAndAndBuyerOrSeller(UUID.fromString(uuid),user,user).orElseThrow(() -> new ResourceNotFoundException("Order not found with id: "+ uuid));
-    }
-
-    @Override
-    public Order update(Long id, Order updatedOrder) {
-        Order order = findById(id);
-        order.setWaybillDate(updatedOrder.getWaybillDate());
-        order.setStatus(updatedOrder.getStatus());
-        order.setTotalPrice(updatedOrder.getTotalPrice());
-        return orderRepository.save(order);
-    }
+    Order update(Long id, Order updatedOrder);
 
 }

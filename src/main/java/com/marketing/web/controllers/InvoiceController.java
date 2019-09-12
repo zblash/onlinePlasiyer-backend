@@ -3,8 +3,10 @@ package com.marketing.web.controllers;
 import com.marketing.web.dtos.invoice.ReadableInvoice;
 import com.marketing.web.models.Invoice;
 import com.marketing.web.models.User;
+import com.marketing.web.services.invoice.InvoiceService;
 import com.marketing.web.services.invoice.InvoiceServiceImpl;
 import com.marketing.web.services.user.UserService;
+import com.marketing.web.services.user.UserServiceImpl;
 import com.marketing.web.utils.mappers.InvoiceMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +23,7 @@ public class InvoiceController {
     private UserService userService;
 
     @Autowired
-    private InvoiceServiceImpl invoiceService;
+    private InvoiceService invoiceService;
 
     @GetMapping
     public ResponseEntity<List<ReadableInvoice>> getAll(){
