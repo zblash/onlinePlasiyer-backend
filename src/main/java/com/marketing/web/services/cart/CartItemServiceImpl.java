@@ -66,7 +66,7 @@ public class CartItemServiceImpl implements CartItemService {
     public void delete(Cart cart, CartItem cartItem) {
 
         Optional<CartItem> optionalCartItem = cart.getItems().stream()
-                .filter(c -> c.getProduct().getId().equals(cartItem.getId()))
+                .filter(c -> c.getUuid().toString().equals(cartItem.getUuid().toString()))
                 .findFirst();
         if (optionalCartItem.isPresent()) {
             cartItemRepository.delete(optionalCartItem.get());
