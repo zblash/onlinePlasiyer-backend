@@ -35,6 +35,15 @@ public final class CartMapper {
         } else {
             ReadableCartItem readableCartItem = new ReadableCartItem();
             readableCartItem.setId(cartItem.getUuid().toString());
+            readableCartItem.setProductPrice(cartItem.getProduct().getTotalPrice());
+            readableCartItem.setUnitPrice(cartItem.getProduct().getUnitPrice());
+            readableCartItem.setUnitType(cartItem.getProduct().getUnitType());
+            readableCartItem.setRecommendedRetailPrice(cartItem.getProduct().getRecommendedRetailPrice());
+            readableCartItem.setProductName(cartItem.getProduct().getProduct().getName());
+            readableCartItem.setProductBarcode(cartItem.getProduct().getProduct().getBarcode());
+            readableCartItem.setProductPhotoUrl("http://localhost:8080/photos/" + cartItem.getProduct().getProduct().getPhotoUrl());
+            readableCartItem.setProductTax(cartItem.getProduct().getProduct().getTax());
+            readableCartItem.setSellerName(cartItem.getProduct().getUser().getName());
             readableCartItem.setQuantity(cartItem.getQuantity());
             readableCartItem.setTotalPrice(cartItem.getTotalPrice());
             return readableCartItem;
