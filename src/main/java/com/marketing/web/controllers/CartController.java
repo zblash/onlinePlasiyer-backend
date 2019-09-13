@@ -1,6 +1,5 @@
 package com.marketing.web.controllers;
 
-import com.marketing.web.dtos.cart.ReadableAddItem;
 import com.marketing.web.dtos.cart.ReadableCart;
 import com.marketing.web.dtos.cart.WritableCartItem;
 import com.marketing.web.dtos.order.ReadableOrder;
@@ -61,14 +60,14 @@ public class CartController {
     }
 
     @PostMapping("/addItem")
-    public ResponseEntity<ReadableAddItem> addItem(@Valid @RequestBody WritableCartItem writableCartItem){
+    public ResponseEntity<ReadableCart> addItem(@Valid @RequestBody WritableCartItem writableCartItem){
         User user = userService.getLoggedInUser();
 
         if (writableCartItem.getQuantity() > 1) {
             List<State> productStates = productSpecifyService.findByUUID(writableCartItem.getProductId()).getStates();
             if (productStates.contains(user.getAddress().getState())) {
                 CartItem cartItem = cartItemService.createOrUpdate(user.getCart(), writableCartItem);
-                return ResponseEntity.ok(CartMapper.cartToReadableAddItem(cartService.findById(user.getCart().getId())));
+                return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.findById(user.getCart().getId())));
             }
             throw new BadRequestException("You can't order this product");
         }
