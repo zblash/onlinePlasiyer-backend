@@ -63,7 +63,7 @@ public class CartController {
     public ResponseEntity<ReadableCart> addItem(@Valid @RequestBody WritableCartItem writableCartItem){
         User user = userService.getLoggedInUser();
 
-        if (writableCartItem.getQuantity() > 1) {
+        if (writableCartItem.getQuantity() > 0) {
             List<State> productStates = productSpecifyService.findByUUID(writableCartItem.getProductId()).getStates();
             if (productStates.contains(user.getAddress().getState())) {
                 CartItem cartItem = cartItemService.createOrUpdate(user.getCart(), writableCartItem);
