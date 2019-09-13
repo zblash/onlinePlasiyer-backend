@@ -41,7 +41,7 @@ public final class CartMapper {
             readableCartItem.setRecommendedRetailPrice(cartItem.getProduct().getRecommendedRetailPrice());
             readableCartItem.setProductName(cartItem.getProduct().getProduct().getName());
             readableCartItem.setProductBarcode(cartItem.getProduct().getProduct().getBarcode());
-            readableCartItem.setProductPhotoUrl("http://localhost:8080/photos/" + cartItem.getProduct().getProduct().getPhotoUrl());
+            readableCartItem.setProductPhotoUrl(cartItem.getProduct().getProduct().getPhotoUrl());
             readableCartItem.setProductTax(cartItem.getProduct().getProduct().getTax());
             readableCartItem.setSellerName(cartItem.getProduct().getUser().getName());
             readableCartItem.setQuantity(cartItem.getQuantity());
