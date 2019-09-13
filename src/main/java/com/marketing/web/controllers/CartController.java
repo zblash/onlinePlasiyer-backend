@@ -75,20 +75,20 @@ public class CartController {
     }
 
     @PostMapping("/removeItem/{id}")
-    public ResponseEntity<String> removeItem(@PathVariable String id){
+    public ResponseEntity<ReadableCart> removeItem(@PathVariable String id){
         User user = userService.getLoggedInUser();
 
         cartItemService.delete(user.getCart(),cartItemService.findByUUID(id));
-        return ResponseEntity.ok("Removed Item from User's cart with id: "+id);
+        return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.findByUser(user)));
     }
 
 
-    @GetMapping("/clear")
-    public ResponseEntity<?> clearCart(){
+    @PostMapping("/clear")
+    public ResponseEntity<ReadableCart> clearCart(){
         User user = userService.getLoggedInUser();
 
         cartItemService.deleteAll(user.getCart());
-        return ResponseEntity.ok("Cart cleared");
+        return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.findByUser(user)));
     }
 
     @PostMapping("/checkout")

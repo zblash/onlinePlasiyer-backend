@@ -10,6 +10,8 @@ public interface CartService {
 
     List<Cart> findAll();
 
+    Cart findByUser(User user);
+
     Cart findById(Long id);
 
     Cart findByUUID(String uuid);
