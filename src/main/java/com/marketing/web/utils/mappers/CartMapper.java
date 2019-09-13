@@ -1,5 +1,6 @@
 package com.marketing.web.utils.mappers;
 
+import com.marketing.web.dtos.cart.ReadableAddItem;
 import com.marketing.web.dtos.cart.ReadableCart;
 import com.marketing.web.dtos.cart.ReadableCartItem;
 import com.marketing.web.models.Cart;
@@ -26,6 +27,21 @@ public final class CartMapper {
             readableCart.setTotalPrice(totalPrice);
             readableCart.setQuantity(quantity);
             return readableCart;
+        }
+    }
+
+    public static ReadableAddItem cartToReadableAddItem(Cart cart){
+        if (cart == null) {
+            return null;
+        } else {
+            List<CartItem> items = cart.getItems();
+            double totalPrice = items.stream().mapToDouble(CartItem::getTotalPrice).sum();
+            int quantity = items.stream().mapToInt(CartItem::getQuantity).sum();
+            ReadableAddItem readableAddItem = new ReadableAddItem();
+            readableAddItem.setId(cart.getUuid().toString());
+            readableAddItem.setTotalPrice(totalPrice);
+            readableAddItem.setQuantity(quantity);
+            return readableAddItem;
         }
     }
 
