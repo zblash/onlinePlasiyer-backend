@@ -23,12 +23,12 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<Category> findAll() {
-        return categoryRepository.findAll();
+        return categoryRepository.findAllByOrderByIdDesc();
     }
 
     @Override
     public List<Category> findBySubCategory(boolean isSub) {
-        return categoryRepository.findBySubCategory(isSub);
+        return categoryRepository.findAllBySubCategoryOrderByIdDesc(isSub);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void delete(Category category) {
-        List<Product> products = productRepository.findByCategoryIn(Arrays.asList(category));
+        List<Product> products = productRepository.findAllByCategoryInOrderByIdDesc(Arrays.asList(category));
         for (Product product:products){
             product.setCategory(null);
         }

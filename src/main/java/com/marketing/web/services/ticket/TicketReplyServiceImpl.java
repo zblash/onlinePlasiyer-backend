@@ -18,7 +18,7 @@ public class TicketReplyServiceImpl implements TicketReplyService {
 
     @Override
     public List<TicketReply> findAll() {
-        return ticketReplyRepository.findAll();
+        return ticketReplyRepository.findAllByOrderByIdDesc();
     }
 
     @Override
@@ -33,7 +33,7 @@ public class TicketReplyServiceImpl implements TicketReplyService {
 
     @Override
     public List<TicketReply> findAllByTicket(Ticket ticket) {
-        return ticketReplyRepository.findAllByTicket_Id(ticket.getId());
+        return ticketReplyRepository.findAllByTicket_IdOrderByIdDesc(ticket.getId());
     }
 
     @Override

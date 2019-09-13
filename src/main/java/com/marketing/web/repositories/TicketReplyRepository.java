@@ -9,7 +9,9 @@ import java.util.UUID;
 
 public interface TicketReplyRepository extends JpaRepository<TicketReply,Long> {
 
-    List<TicketReply> findAllByTicket_Id(Long ticketId);
+    List<TicketReply> findAllByOrderByIdDesc();
+
+    List<TicketReply> findAllByTicket_IdOrderByIdDesc(Long ticketId);
 
     Optional<TicketReply> findByUuid(UUID uuid);
 

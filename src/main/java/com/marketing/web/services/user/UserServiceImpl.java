@@ -51,24 +51,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> findAll() {
-        return userRepository.findAll();
+        return userRepository.findAllByOrderByIdDesc();
     }
 
     @Override
     public List<User> findAllByRole(RoleType roleType) {
         Role role = roleService.findByName("ROLE_"+roleType.toString());
-        return userRepository.findAllByRole(role);
+        return userRepository.findAllByRoleOrderByIdDesc(role);
     }
 
     @Override
     public List<User> findAllByRoleAndStatus(RoleType roleType,boolean status) {
         Role role = roleService.findByName("ROLE_"+roleType.toString());
-        return userRepository.findAllByRoleAndStatus(role,status);
+        return userRepository.findAllByRoleAndStatusOrderByIdDesc(role,status);
     }
 
     @Override
     public List<User> findAllByStatus(boolean status) {
-        return userRepository.findAllByStatus(status);
+        return userRepository.findAllByStatusOrderByIdDesc(status);
     }
 
     @Override

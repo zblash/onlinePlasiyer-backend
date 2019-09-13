@@ -10,13 +10,15 @@ import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User,Long> {
 
+    List<User> findAllByOrderByIdDesc();
+
     Optional<User> findByUsername(String username);
 
-    List<User> findAllByStatus(boolean status);
+    List<User> findAllByStatusOrderByIdDesc(boolean status);
 
-    List<User> findAllByRole(Role role);
+    List<User> findAllByRoleOrderByIdDesc(Role role);
 
-    List<User> findAllByRoleAndStatus(Role role,boolean status);
+    List<User> findAllByRoleAndStatusOrderByIdDesc(Role role,boolean status);
 
     Optional<User> findByUuid(UUID uuid);
 

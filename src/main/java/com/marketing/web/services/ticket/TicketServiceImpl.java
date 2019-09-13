@@ -19,7 +19,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public List<Ticket> findAll() {
-        return ticketRepository.findAll();
+        return ticketRepository.findAllByOrderByIdDesc();
     }
 
     @Override
@@ -34,12 +34,12 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public List<Ticket> findAllByUser(User user) {
-        return ticketRepository.findAllByUser_Id(user.getId());
+        return ticketRepository.findAllByUser_IdOrderByIdDesc(user.getId());
     }
 
     @Override
     public List<Ticket> findAllByUserAndStatus(User user, TicketStatus status) {
-        return ticketRepository.findAllByUser_IdAndStatus(user.getId(),status);
+        return ticketRepository.findAllByUser_IdAndStatusOrderByIdDesc(user.getId(),status);
     }
 
     @Override

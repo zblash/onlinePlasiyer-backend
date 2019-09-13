@@ -9,13 +9,15 @@ import java.util.UUID;
 
 public interface ProductRepository extends JpaRepository<Product,Long> {
 
+    List<Product> findAllByOrderByIdDesc();
+
     Optional<Product> findByBarcode(String barcode);
 
-    List<Product> findByCategoryIn(List<Category> categories);
+    List<Product> findAllByCategoryInOrderByIdDesc(List<Category> categories);
 
-    List<Product> findAllByStatus(boolean status);
+    List<Product> findAllByStatusOrderByIdDesc(boolean status);
 
     Optional<Product> findByUuid(UUID uuid);
 
-    List<Product> findByCategoryInAndStatus(List<Category> categories, boolean status);
+    List<Product> findAllByCategoryInAndStatusOrderByIdDesc(List<Category> categories, boolean status);
 }

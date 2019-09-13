@@ -25,20 +25,20 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> findAllByStatus(boolean status){
-        return productRepository.findAllByStatus(status);
+        return productRepository.findAllByStatusOrderByIdDesc(status);
     }
 
     @Override
     public List<Product> findAllByCategory(Category category){
         List<Category> categories = category.collectLeafChildren();
-        return productRepository.findByCategoryIn(categories);
+        return productRepository.findAllByCategoryInOrderByIdDesc(categories);
 
     }
 
     @Override
     public List<Product> findAllByCategoryAndStatus(Category category, boolean status){
         List<Category> categories = category.collectLeafChildren();
-        return productRepository.findByCategoryInAndStatus(categories, status);
+        return productRepository.findAllByCategoryInAndStatusOrderByIdDesc(categories, status);
 
     }
 
@@ -49,7 +49,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> findAll() {
-        return productRepository.findAll();
+        return productRepository.findAllByOrderByIdDesc();
     }
 
     @Override

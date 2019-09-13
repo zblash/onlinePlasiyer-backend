@@ -16,10 +16,10 @@ public interface ProductSpecifyRepository extends JpaRepository<ProductSpecify,L
 
     Optional<ProductSpecify> findByUuidAndUser_Id(UUID uuid, Long userId);
 
-    List<ProductSpecify> findAllByProductAndStatesIn(Product product, List<State> states);
+    List<ProductSpecify> findAllByProductAndStatesInOrderByIdDesc(Product product, List<State> states);
 
-    List<ProductSpecify> findAllByProduct(Product product);
+    List<ProductSpecify> findAllByProductOrderByIdDesc(Product product);
 
-    List<ProductSpecify> findAllByUser(User user);
+    List<ProductSpecify> findAllByUserOrderByIdDesc(User user);
 
 }

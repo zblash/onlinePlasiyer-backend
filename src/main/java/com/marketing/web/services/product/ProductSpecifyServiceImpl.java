@@ -31,17 +31,17 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
 
     @Override
     public List<ProductSpecify> findAllByUser(User user) {
-        return productSpecifyRepository.findAllByUser(user);
+        return productSpecifyRepository.findAllByUserOrderByIdDesc(user);
     }
 
     @Override
     public List<ProductSpecify> findAllByProduct(Product product) {
-        return productSpecifyRepository.findAllByProduct(product);
+        return productSpecifyRepository.findAllByProductOrderByIdDesc(product);
     }
 
     @Override
     public List<ProductSpecify> findAllByProductAndStates(Product product, List<State> states) {
-        return productSpecifyRepository.findAllByProductAndStatesIn(product,states);
+        return productSpecifyRepository.findAllByProductAndStatesInOrderByIdDesc(product,states);
     }
 
     @Override
