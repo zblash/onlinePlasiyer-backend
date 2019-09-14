@@ -60,7 +60,7 @@ public final class OrderMapper {
             readableOrderItem.setRecommendedRetailPrice(orderItem.getRecommendedRetailPrice());
             readableOrderItem.setProductName(orderItem.getProductName());
             readableOrderItem.setProductBarcode(orderItem.getProductBarcode());
-            readableOrderItem.setProductPhotoUrl("http://localhost:8080/photos/" + orderItem.getProductPhotoUrl());
+            readableOrderItem.setProductPhotoUrl(orderItem.getProductPhotoUrl());
             readableOrderItem.setProductTax(orderItem.getProductTax());
             readableOrderItem.setSellerName(orderItem.getSeller().getName());
             readableOrderItem.setQuantity(orderItem.getQuantity());
