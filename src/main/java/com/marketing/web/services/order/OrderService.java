@@ -26,6 +26,6 @@ public interface OrderService {
 
     Order findByUuidAndUser(String uuid, User user);
 
-    Order update(Long id, Order updatedOrder);
+    Order update(String uuid, Order updatedOrder);
 
 }

@@ -1,6 +1,7 @@
 package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.product.ReadableProduct;
+import com.marketing.web.dtos.product.WrapperReadableProduct;
 import com.marketing.web.dtos.product.WritableProduct;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.ResourceNotFoundException;
@@ -68,9 +69,11 @@ public class ProductsController {
     private StorageService storageService;
 
     @GetMapping
-    public ResponseEntity<List<ReadableProduct>> getAll(){
-        return ResponseEntity.ok(productService.findAll().stream()
-                .map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
+    public ResponseEntity<WrapperReadableProduct> getAll(@RequestParam(required = false) Integer pageNumber){
+        if (pageNumber == null){
+            pageNumber=1;
+        }
+        return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAll(pageNumber)));
     }
 
     @GetMapping("/actives")

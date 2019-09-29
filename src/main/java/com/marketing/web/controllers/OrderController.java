@@ -4,6 +4,7 @@ import com.marketing.web.dtos.order.ReadableOrder;
 import com.marketing.web.dtos.order.ReadableOrderItem;
 import com.marketing.web.dtos.order.SearchOrder;
 import com.marketing.web.dtos.order.WritableOrder;
+import com.marketing.web.enums.OrderStatus;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Order;
@@ -98,5 +99,17 @@ public class OrderController {
         logger.info(Double.toString(order.getDiscount()));
         ReadableOrder readableOrder = orderFacade.saveOrder(order,id,user);
         return ResponseEntity.ok(readableOrder);
+    }
+
+    @PreAuthorize("hasRole('ROLE_MERCHANT')")
+    @PostMapping("changeStatus/{id}/{status}")
+    public ResponseEntity<ReadableOrder> changeOrderStatus(@PathVariable String id,@PathVariable String status){
+        User user = userService.getLoggedInUser();
+        OrderStatus orderStatus = OrderStatus.fromValue(status.toUpperCase());
+        Order order = orderService.findByUuidAndUser(id,user);
+        order.setStatus(orderStatus);
+        return ResponseEntity.ok(OrderMapper.orderToReadableOrder(
+                orderService.update(order.getUuid().toString(),order)));
+
     }
 }

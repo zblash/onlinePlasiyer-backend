@@ -62,8 +62,7 @@ public class OrderFacadeImpl implements OrderFacade {
             invoice.setSeller(order.getSeller());
             invoiceService.create(invoice);
         }
-        orderService.update(order.getId(),order);
-        return OrderMapper.orderToReadableOrder(orderService.update(order.getId(),order));
+        return OrderMapper.orderToReadableOrder(orderService.update(order.getUuid().toString(),order));
 
 
     }

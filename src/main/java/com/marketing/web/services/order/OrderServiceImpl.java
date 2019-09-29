@@ -58,8 +58,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order update(Long id, Order updatedOrder) {
-        Order order = findById(id);
+    public Order update(String uuid, Order updatedOrder) {
+        Order order = findByUUID(uuid);
         order.setWaybillDate(updatedOrder.getWaybillDate());
         order.setStatus(updatedOrder.getStatus());
         order.setTotalPrice(updatedOrder.getTotalPrice());

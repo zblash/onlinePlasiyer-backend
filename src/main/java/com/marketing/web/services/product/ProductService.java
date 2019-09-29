@@ -3,6 +3,7 @@ package com.marketing.web.services.product;
 import com.marketing.web.dtos.product.WritableProduct;
 import com.marketing.web.models.Category;
 import com.marketing.web.models.Product;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ public interface ProductService {
 
     Product findByBarcode(String barcode);
 
-    List<Product> findAll();
+    Page<Product> findAll(int pageNumber);
 
     Product findById(Long id);
 

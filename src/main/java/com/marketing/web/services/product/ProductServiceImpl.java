@@ -7,6 +7,8 @@ import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.repositories.ProductRepository;
 import com.marketing.web.services.category.CategoryServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -48,8 +50,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> findAll() {
-        return productRepository.findAllByOrderByIdDesc();
+    public Page<Product> findAll(int pageNumber) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
+        Page<Product> resultPage = productRepository.findAllByOrderByIdDesc(pageRequest);
+        if (pageNumber > resultPage.getTotalPages()) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+        return resultPage;
     }
 
     @Override

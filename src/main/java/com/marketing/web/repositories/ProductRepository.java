@@ -2,14 +2,17 @@ package com.marketing.web.repositories;
 
 import com.marketing.web.models.Category;
 import com.marketing.web.models.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface ProductRepository extends JpaRepository<Product,Long> {
 
-    List<Product> findAllByOrderByIdDesc();
+    Page<Product> findAllByOrderByIdDesc(Pageable pageable);
 
     Optional<Product> findByBarcode(String barcode);
 

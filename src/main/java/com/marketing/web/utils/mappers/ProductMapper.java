@@ -1,11 +1,10 @@
 package com.marketing.web.utils.mappers;
 
-import com.marketing.web.dtos.product.ReadableProduct;
-import com.marketing.web.dtos.product.ReadableProductSpecify;
-import com.marketing.web.dtos.product.WritableProduct;
-import com.marketing.web.dtos.product.WritableProductSpecify;
+import com.marketing.web.dtos.product.*;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
+import org.springframework.data.domain.Page;
+
 import java.util.stream.Collectors;
 
 public final class ProductMapper {
@@ -71,6 +70,30 @@ public final class ProductMapper {
             readableProductSpecify.setSellerName(productSpecify.getUser().getName());
             readableProductSpecify.setStates(productSpecify.getStates().stream().map((state) -> state.getUuid().toString()).collect(Collectors.toList()));
             return readableProductSpecify;
+        }
+    }
+
+    public static WrapperReadableProduct pagedProductListToWrapperReadableProduct(Page<Product> pagedProduct){
+        if (pagedProduct == null) {
+            return null;
+        } else {
+            WrapperReadableProduct wrapperReadableProduct = new WrapperReadableProduct();
+            wrapperReadableProduct.setKey("products");
+            wrapperReadableProduct.setTotalPage(pagedProduct.getTotalPages());
+            wrapperReadableProduct.setPageNumber(pagedProduct.getNumber()+1);
+            if (pagedProduct.hasPrevious()) {
+                wrapperReadableProduct.setPreviousPage(pagedProduct.getNumber());
+            }
+            if (pagedProduct.hasNext()) {
+                wrapperReadableProduct.setNextPage(pagedProduct.getNumber()+2);
+            }
+            wrapperReadableProduct.setFirst(pagedProduct.isFirst());
+            wrapperReadableProduct.setLast(pagedProduct.isLast());
+            wrapperReadableProduct.setNumberOfElements(pagedProduct.getNumberOfElements());
+            wrapperReadableProduct.setTotalElements(pagedProduct.getNumberOfElements());
+            wrapperReadableProduct.setProducts(pagedProduct.getContent().stream()
+                    .map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
+            return wrapperReadableProduct;
         }
     }
 }
