@@ -1,5 +1,8 @@
 package com.marketing.web.pubsub;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.marketing.web.dtos.product.ReadableProductSpecify;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,13 +14,14 @@ import org.springframework.stereotype.Component;
 public class ProductProducer {
 
     @Autowired
-    private RedisTemplate< String, Object > template;
+    private RedisTemplate<String, String > template;
 
     private Logger logger = LoggerFactory.getLogger(ProductProducer.class);
 
-    public void sendProductSpecify(ReadableProductSpecify readableProductSpecify){
-        logger.info("ProductSpecify produced");
-        template.convertAndSend("products", readableProductSpecify);
+    public void sendProductSpecify(ReadableProductSpecify readableProductSpecify) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonInString = mapper.writeValueAsString(readableProductSpecify);
+        template.convertAndSend("products", jsonInString);
     }
 
 }

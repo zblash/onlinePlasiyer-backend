@@ -57,13 +57,8 @@ public class WebApplication {
 	}
 
 	@Bean
-	StringRedisTemplate template(RedisConnectionFactory connectionFactory) {
-		return new StringRedisTemplate(connectionFactory);
-	}
-
-	@Bean
-	RedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory){
-		RedisTemplate redisTemplate = new RedisTemplate();
+	RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory){
+		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
 		redisTemplate.setConnectionFactory(redisConnectionFactory);
 		return redisTemplate;
 	}

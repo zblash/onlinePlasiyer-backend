@@ -46,15 +46,15 @@ public class Runner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-//        storageService.init();
-//
-//        statePopulator();
-//
-//        List<Category> categories = categoryPopulator();
-//
-//        productPopulator(categories);
-//
-//        userPopulator();
+        storageService.init();
+
+        statePopulator();
+
+        List<Category> categories = categoryPopulator();
+
+        productPopulator(categories);
+
+        userPopulator();
 
     }
 

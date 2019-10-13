@@ -18,7 +18,7 @@ function connect() {
     stompClient.connect({}, function (frame) {
         setConnected(true);
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/channel/b57c41a4-a5da-406c-8cda-53d593fcbaff', function (greeting) {
+        stompClient.subscribe('/channel/'+$("#name").val(), function (greeting) {
             showGreeting(JSON.parse(greeting.body).content);
         });
     });

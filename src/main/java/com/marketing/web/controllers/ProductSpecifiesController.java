@@ -1,6 +1,8 @@
 package com.marketing.web.controllers;
 
 import static java.lang.String.format;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.marketing.web.dtos.product.ReadableProductSpecify;
 import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.enums.RoleType;
@@ -81,7 +83,7 @@ public class ProductSpecifiesController {
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<ReadableProductSpecify> createProductSpecify(@Valid @RequestBody WritableProductSpecify writableProductSpecify, @RequestParam(required = false) String userId){
+    public ResponseEntity<ReadableProductSpecify> createProductSpecify(@Valid @RequestBody WritableProductSpecify writableProductSpecify, @RequestParam(required = false) String userId) throws JsonProcessingException {
         User user = userService.getLoggedInUser();
 
         ReadableProductSpecify readableProductSpecify;
