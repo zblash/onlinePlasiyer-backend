@@ -1,32 +1,29 @@
 package com.marketing.web.pubsub;
 
-import com.marketing.web.services.product.ProductService;
-import com.marketing.web.services.product.ProductServiceImpl;
+import com.marketing.web.dtos.product.ReadableProductSpecify;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.io.IOException;
+import static java.lang.String.format;
 
 @Component
 public class ProductConsumer {
 
     @Autowired
-    private ProductSubscriber productSubscriber;
+    private SimpMessagingTemplate webSocket;
 
-    @Autowired
-    private ProductService productService;
+    private Logger logger = LoggerFactory.getLogger(ProductConsumer.class);
 
-    public void onReceiveProduct(String productId){
-        productSubscriber.forEach( sseEmitter -> sendProduct(sseEmitter,productId));
+    public void onReceiveProduct(ReadableProductSpecify readableProductSpecify){
+        readableProductSpecify.getStates().stream().forEach(state -> {
+            logger.info("State : "+state);
+            logger.info("Sended to clients "+ state);
+            webSocket.convertAndSend(format("/channel/%s", state), readableProductSpecify);
+        });
     }
 
-    private void sendProduct(SseEmitter sseEmitter, String productId ){
-        try{
-            sseEmitter.send(productService.findById(Long.parseLong(productId)));
-        }catch( IOException ex ){
-            throw new RuntimeException( ex );
-        }
-    }
 
 }

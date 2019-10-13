@@ -1,24 +1,23 @@
 package com.marketing.web.controllers;
 
+import static java.lang.String.format;
 import com.marketing.web.dtos.product.ReadableProductSpecify;
 import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.*;
 import com.marketing.web.pubsub.ProductProducer;
-import com.marketing.web.repositories.CityRepository;
-import com.marketing.web.repositories.StateRepository;
 import com.marketing.web.services.product.ProductService;
-import com.marketing.web.services.product.ProductServiceImpl;
 import com.marketing.web.services.product.ProductSpecifyService;
-import com.marketing.web.services.product.ProductSpecifyServiceImpl;
 import com.marketing.web.services.user.UserService;
-import com.marketing.web.services.user.UserServiceImpl;
 import com.marketing.web.utils.facade.ProductFacade;
 import com.marketing.web.utils.mappers.ProductMapper;
 import com.marketing.web.utils.mappers.UserMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +29,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/products/specify")
 public class ProductSpecifiesController {
 
+    private Logger logger = LoggerFactory.getLogger(ProductSpecifiesController.class);
+
     @Autowired
     private UserService userService;
 
@@ -40,17 +41,10 @@ public class ProductSpecifiesController {
     private ProductSpecifyService productSpecifyService;
 
     @Autowired
-    private ProductProducer productProducer;
-
-    @Autowired
-    private CityRepository cityRepository;
-
-    @Autowired
-    private StateRepository stateRepository;
-
-
-    @Autowired
     private ProductFacade productFacade;
+
+    @Autowired
+    private ProductProducer productProducer;
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @GetMapping
@@ -98,8 +92,11 @@ public class ProductSpecifiesController {
         }else{
             throw new BadRequestException("userId request parameter must not blank");
         }
-//        product.addProductSpecify(productSpecify);
-//        productProducer.sendProduct(product.getId());
+//       product.addProductSpecify(productSpecify);
+       productProducer.sendProductSpecify(readableProductSpecify);
+
+
+
         return ResponseEntity.ok(readableProductSpecify);
     }
 

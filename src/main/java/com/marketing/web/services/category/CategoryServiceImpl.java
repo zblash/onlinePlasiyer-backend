@@ -61,7 +61,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void delete(Category category) {
-        List<Product> products = productRepository.findAllByCategoryInOrderByIdDesc(Arrays.asList(category));
+        category.collectLeafChildren();
+        List<Product> products = productRepository.findAllByCategoryIn(Arrays.asList(category));
         for (Product product:products){
             product.setCategory(null);
         }

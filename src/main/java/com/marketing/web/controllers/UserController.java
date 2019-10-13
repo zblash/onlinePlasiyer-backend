@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +45,16 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     private Logger logger = LoggerFactory.getLogger(UserController.class);
+
+    @Autowired
+    private SimpMessagingTemplate webSocket;
+
+
+    @GetMapping("/den")
+    public ResponseEntity<?> den(){
+        webSocket.convertAndSend("/channel/states", "Abab");
+        return ResponseEntity.ok("OK");
+    }
 
     @PostMapping("/signin")
     public ResponseEntity<?> login(@RequestBody WritableLogin writableLogin){

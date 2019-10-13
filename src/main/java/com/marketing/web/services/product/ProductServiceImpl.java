@@ -26,21 +26,35 @@ public class ProductServiceImpl implements ProductService {
     private CategoryServiceImpl categoryService;
 
     @Override
-    public List<Product> findAllByStatus(boolean status){
-        return productRepository.findAllByStatusOrderByIdDesc(status);
+    public Page<Product> findAllByStatus(boolean status, int pageNumber){
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
+        Page<Product> resultPage = productRepository.findAllByStatusOrderByIdDesc(status,pageRequest);
+        if (pageNumber > resultPage.getTotalPages()) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+        return resultPage;
     }
 
     @Override
-    public List<Product> findAllByCategory(Category category){
+    public Page<Product> findAllByCategory(Category category, int pageNumber){
         List<Category> categories = category.collectLeafChildren();
-        return productRepository.findAllByCategoryInOrderByIdDesc(categories);
-
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
+        Page<Product> resultPage = productRepository.findAllByCategoryInOrderByIdDesc(categories,pageRequest);
+        if (pageNumber > resultPage.getTotalPages()) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+        return resultPage;
     }
 
     @Override
-    public List<Product> findAllByCategoryAndStatus(Category category, boolean status){
+    public Page<Product> findAllByCategoryAndStatus(Category category, boolean status, int pageNumber){
         List<Category> categories = category.collectLeafChildren();
-        return productRepository.findAllByCategoryInAndStatusOrderByIdDesc(categories, status);
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
+        Page<Product> resultPage = productRepository.findAllByCategoryInAndStatusOrderByIdDesc(categories, status,pageRequest);
+        if (pageNumber > resultPage.getTotalPages()) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+        return resultPage;
 
     }
 

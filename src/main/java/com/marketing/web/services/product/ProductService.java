@@ -1,6 +1,5 @@
 package com.marketing.web.services.product;
 
-import com.marketing.web.dtos.product.WritableProduct;
 import com.marketing.web.models.Category;
 import com.marketing.web.models.Product;
 import org.springframework.data.domain.Page;
@@ -9,11 +8,11 @@ import java.util.List;
 
 public interface ProductService {
 
-    List<Product> findAllByStatus(boolean status);
+    Page<Product> findAllByStatus(boolean status, int pageNumber);
 
-    List<Product> findAllByCategory(Category category);
+    Page<Product> findAllByCategory(Category category, int pageNumber);
 
-    List<Product> findAllByCategoryAndStatus(Category category, boolean status);
+    Page<Product> findAllByCategoryAndStatus(Category category, boolean status, int pageNumber);
 
     Product findByBarcode(String barcode);
 

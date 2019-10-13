@@ -16,11 +16,13 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
 
     Optional<Product> findByBarcode(String barcode);
 
-    List<Product> findAllByCategoryInOrderByIdDesc(List<Category> categories);
+    Page<Product> findAllByCategoryInOrderByIdDesc(List<Category> categories, Pageable pageable);
 
-    List<Product> findAllByStatusOrderByIdDesc(boolean status);
+    List<Product> findAllByCategoryIn(List<Category> categories);
+
+    Page<Product> findAllByStatusOrderByIdDesc(boolean status, Pageable pageable);
 
     Optional<Product> findByUuid(UUID uuid);
 
-    List<Product> findAllByCategoryInAndStatusOrderByIdDesc(List<Category> categories, boolean status);
+    Page<Product> findAllByCategoryInAndStatusOrderByIdDesc(List<Category> categories, boolean status, Pageable pageable);
 }

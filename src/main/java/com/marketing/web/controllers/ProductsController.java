@@ -9,21 +9,14 @@ import com.marketing.web.models.Category;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.User;
 import com.marketing.web.pubsub.ProductProducer;
-import com.marketing.web.pubsub.ProductSubscriber;
 import com.marketing.web.services.category.CategoryService;
-import com.marketing.web.services.category.CategoryServiceImpl;
 import com.marketing.web.services.product.ProductService;
-import com.marketing.web.services.product.ProductServiceImpl;
 import com.marketing.web.services.product.ProductSpecifyService;
-import com.marketing.web.services.product.ProductSpecifyServiceImpl;
 import com.marketing.web.services.storage.StorageService;
 import com.marketing.web.services.user.UserService;
-import com.marketing.web.services.user.UserServiceImpl;
 import com.marketing.web.utils.mappers.ProductMapper;
 import com.marketing.web.utils.mappers.UserMapper;
 import com.marketing.web.validations.ValidImg;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,11 +30,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.validation.Valid;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/products")
@@ -60,9 +50,6 @@ public class ProductsController {
     private ProductSpecifyService productSpecifyService;
 
     @Autowired
-    private ProductSubscriber productSubscriber;
-
-    @Autowired
     private ProductProducer productProducer;
 
     @Autowired
@@ -77,24 +64,26 @@ public class ProductsController {
     }
 
     @GetMapping("/actives")
-    public ResponseEntity<List<ReadableProduct>> getAllActives(){
-        return ResponseEntity.ok(productService.findAllByStatus(true).stream()
-                .map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
+    public ResponseEntity<WrapperReadableProduct> getAllActives(@RequestParam(required = false) Integer pageNumber){
+        if (pageNumber == null){
+            pageNumber=1;
+        }
+        return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByStatus(true,pageNumber)));
     }
 
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<List<ReadableProduct>> getAllByCategory(@PathVariable String categoryId){
+    public ResponseEntity<WrapperReadableProduct> getAllByCategory(@PathVariable String categoryId,@RequestParam(required = false) Integer pageNumber){
+        if (pageNumber == null){
+            pageNumber=1;
+        }
         User user = userService.getLoggedInUser();
         RoleType role = UserMapper.roleToRoleType(user.getRole());
         Category category = categoryService.findByUUID(categoryId);
         if (role.equals(RoleType.ADMIN)){
-            return ResponseEntity.ok(productService.findAllByCategory(category).stream()
-                    .map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
+            return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByCategory(category,pageNumber)));
+
         }
-
-        return ResponseEntity.ok(productService.findAllByCategoryAndStatus(category,true).stream()
-                .map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
-
+        return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByCategoryAndStatus(category,true,pageNumber)));
     }
 
     @GetMapping("/barcode/{barcode}")
@@ -164,8 +153,4 @@ public class ProductsController {
         return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.update(id,product)));
     }
 
-    @GetMapping("/live")
-    public SseEmitter subscribe(){
-        return productSubscriber.subscribe();
-    }
 }
