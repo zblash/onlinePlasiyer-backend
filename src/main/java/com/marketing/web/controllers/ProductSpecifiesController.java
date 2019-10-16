@@ -5,7 +5,9 @@ import static java.lang.String.format;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.marketing.web.dtos.product.ReadableProductSpecify;
 import com.marketing.web.dtos.product.WritableProductSpecify;
+import com.marketing.web.dtos.websockets.WrapperWsProductSpecify;
 import com.marketing.web.enums.RoleType;
+import com.marketing.web.enums.WsStatus;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.*;
 import com.marketing.web.pubsub.ProductProducer;
@@ -94,8 +96,11 @@ public class ProductSpecifiesController {
         }else{
             throw new BadRequestException("userId request parameter must not blank");
         }
-//       product.addProductSpecify(productSpecify);
-       productProducer.sendProductSpecify(readableProductSpecify);
+
+        WrapperWsProductSpecify wrapperWsProductSpecify = new WrapperWsProductSpecify();
+        wrapperWsProductSpecify.setStatus(WsStatus.CR);
+        wrapperWsProductSpecify.setProductSpecify(readableProductSpecify);
+       productProducer.sendProductSpecify(wrapperWsProductSpecify);
 
 
 
@@ -118,7 +123,7 @@ public class ProductSpecifiesController {
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<ReadableProductSpecify> updateProductSpecify(@PathVariable String id, @Valid @RequestBody WritableProductSpecify writableProductSpecify, @RequestParam(required = false) String userId){
+    public ResponseEntity<ReadableProductSpecify> updateProductSpecify(@PathVariable String id, @Valid @RequestBody WritableProductSpecify writableProductSpecify, @RequestParam(required = false) String userId) throws JsonProcessingException {
         User user = userService.getLoggedInUser();
         ReadableProductSpecify readableProductSpecify;
 
@@ -129,8 +134,11 @@ public class ProductSpecifiesController {
         }else{
             throw new BadRequestException("userId request parameter must not blank");
         }
-//        product.addProductSpecify(productSpecify);
-//        productProducer.sendProduct(product.getId());
+
+        WrapperWsProductSpecify wrapperWsProductSpecify = new WrapperWsProductSpecify();
+        wrapperWsProductSpecify.setStatus(WsStatus.UP);
+        wrapperWsProductSpecify.setProductSpecify(readableProductSpecify);
+        productProducer.sendProductSpecify(wrapperWsProductSpecify);
         return ResponseEntity.ok(readableProductSpecify);
     }
 }

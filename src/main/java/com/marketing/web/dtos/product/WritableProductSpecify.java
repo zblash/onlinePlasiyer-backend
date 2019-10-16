@@ -1,6 +1,5 @@
 package com.marketing.web.dtos.product;
 
-import com.marketing.web.dtos.DTO;
 import com.marketing.web.enums.UnitType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,11 +12,10 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = false)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WritableProductSpecify extends DTO {
+public class WritableProductSpecify implements Serializable {
 
     @NotBlank
     @Size(min = 13,max = 100)

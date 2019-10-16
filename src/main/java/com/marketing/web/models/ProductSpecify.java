@@ -5,6 +5,7 @@ import com.marketing.web.enums.UnitType;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "product_specifies")
-public class ProductSpecify extends Model {
+public class ProductSpecify implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

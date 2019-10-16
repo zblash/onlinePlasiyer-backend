@@ -1,21 +1,17 @@
 package com.marketing.web.dtos.order;
 
-import com.marketing.web.dtos.DTO;
 import com.marketing.web.enums.UnitType;
-import com.marketing.web.models.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
-@EqualsAndHashCode(callSuper = false)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReadableOrderItem extends DTO {
+public class ReadableOrderItem implements Serializable {
 
     private String id;
 

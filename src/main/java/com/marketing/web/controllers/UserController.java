@@ -49,13 +49,6 @@ public class UserController {
     @Autowired
     private SimpMessagingTemplate webSocket;
 
-
-    @GetMapping("/den")
-    public ResponseEntity<?> den(){
-        webSocket.convertAndSend("/channel/states", "Abab");
-        return ResponseEntity.ok("OK");
-    }
-
     @PostMapping("/signin")
     public ResponseEntity<?> login(@RequestBody WritableLogin writableLogin){
         User userDetails = userService.findByUserName(writableLogin.getUsername());

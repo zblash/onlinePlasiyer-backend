@@ -1,19 +1,18 @@
 package com.marketing.web.dtos.user;
 
-import com.marketing.web.dtos.DTO;
 import com.marketing.web.models.Address;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = false)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReadableLogin extends DTO {
+public class ReadableLogin implements Serializable {
 
     private String username;
 

@@ -1,17 +1,17 @@
 package com.marketing.web.dtos.cart;
 
-import com.marketing.web.dtos.DTO;
 import com.marketing.web.enums.UnitType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode(callSuper = false)
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReadableCartItem extends DTO {
+public class ReadableCartItem implements Serializable {
 
     private String id;
 

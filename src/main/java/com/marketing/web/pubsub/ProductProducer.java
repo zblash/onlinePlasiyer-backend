@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.marketing.web.dtos.product.ReadableProductSpecify;
+import com.marketing.web.dtos.websockets.WrapperWsProductSpecify;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +19,9 @@ public class ProductProducer {
 
     private Logger logger = LoggerFactory.getLogger(ProductProducer.class);
 
-    public void sendProductSpecify(ReadableProductSpecify readableProductSpecify) throws JsonProcessingException {
+    public void sendProductSpecify(WrapperWsProductSpecify wrapperWsProductSpecify) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        String jsonInString = mapper.writeValueAsString(readableProductSpecify);
+        String jsonInString = mapper.writeValueAsString(wrapperWsProductSpecify);
         template.convertAndSend("products", jsonInString);
     }
 

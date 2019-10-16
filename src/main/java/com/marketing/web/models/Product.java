@@ -18,7 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "products")
-public class Product extends Model {
+public class Product implements Serializable  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -1,16 +1,16 @@
 package com.marketing.web.dtos.user;
 
-import com.marketing.web.dtos.DTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode(callSuper = false)
+import java.io.Serializable;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReadableCity extends DTO {
+public class ReadableCity implements Serializable {
 
     private String id;
 

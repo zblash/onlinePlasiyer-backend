@@ -1,18 +1,17 @@
 package com.marketing.web.dtos.user;
 
-import com.marketing.web.dtos.DTO;
 import com.marketing.web.models.Address;
-import com.marketing.web.models.Cart;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode(callSuper = false)
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomerUser extends DTO {
+public class CustomerUser implements Serializable {
 
     private String id;
 

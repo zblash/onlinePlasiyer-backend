@@ -1,16 +1,16 @@
 package com.marketing.web.dtos.notification;
 
-import com.marketing.web.dtos.DTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode(callSuper = false)
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReadableNotification extends DTO {
+public class ReadableNotification implements Serializable {
 
     private String id;
 

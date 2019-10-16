@@ -2,6 +2,7 @@ package com.marketing.web.pubsub;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marketing.web.dtos.product.ReadableProductSpecify;
+import com.marketing.web.dtos.websockets.WrapperWsProductSpecify;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,10 @@ public class ProductConsumer {
 
     public void onReceiveProduct(String object) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        ReadableProductSpecify readableProductSpecify= objectMapper.readValue(object,ReadableProductSpecify.class);
-        readableProductSpecify.getStates().stream().forEach(state -> {
+        WrapperWsProductSpecify wrapperWsProductSpecify= objectMapper.readValue(object, WrapperWsProductSpecify.class);
+        wrapperWsProductSpecify.getProductSpecify().getStates().forEach(state -> {
             logger.info("Sended to clients "+ state);
-            webSocket.convertAndSend(format("/channel/%s", state), readableProductSpecify);
+            webSocket.convertAndSend(format("/channel/%s", state), wrapperWsProductSpecify);
         });
     }
 

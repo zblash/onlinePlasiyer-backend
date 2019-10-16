@@ -16,9 +16,8 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
 @Table(name = "orders")
-public class Order extends Model {
+public class Order implements Serializable  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

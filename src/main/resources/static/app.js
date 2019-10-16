@@ -13,8 +13,11 @@ function setConnected(connected) {
 }
 
 function connect() {
-    stompClient = Stomp.client("ws://localhost:8080/api/ws");
-    stompClient.connect({}, function (frame) {
+    stompClient = Stomp.client("ws://localhost:8080/ws");
+    var headers = {
+        'Authorization': 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtZXJjaGFudCIsInJvbGUiOiJST0xFX01FUkNIQU5UIiwidXNlcklkIjo0OSwiZXhwIjoxNTcxMjc3NTMyfQ.H-6KYy3C1MTfVSf2LnU3yQo5A69rtZo7mDGHse6L5k5zxgNnlzFyK7Z6j71WqCn4aai98CSutMN_YA_V74Tm5A'
+    };
+    stompClient.connect({Authorization: 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtZXJjaGFudCIsInJvbGUiOiJST0xFX01FUkNIQU5UIiwidXNlcklkIjo0OSwiZXhwIjoxNTcxMjc3NTMyfQ.H-6KYy3C1MTfVSf2LnU3yQo5A69rtZo7mDGHse6L5k5zxgNnlzFyK7Z6j71WqCn4aai98CSutMN_YA_V74Tm5A'}, function (frame) {
         setConnected(true);
         console.log('Connected: ' + frame);
         stompClient.subscribe('/channel/'+$("#name").val(), function (greeting) {

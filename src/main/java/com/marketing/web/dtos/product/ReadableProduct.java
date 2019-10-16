@@ -1,18 +1,16 @@
 package com.marketing.web.dtos.product;
 
-import com.marketing.web.dtos.DTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.io.Serializable;
 
-@EqualsAndHashCode(callSuper = false)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReadableProduct extends DTO {
+public class ReadableProduct implements Serializable {
 
     private String id;
 

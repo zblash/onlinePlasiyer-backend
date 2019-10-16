@@ -1,6 +1,5 @@
 package com.marketing.web.dtos.user;
 
-import com.marketing.web.dtos.DTO;
 import com.marketing.web.enums.RoleType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,11 +12,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 
-@EqualsAndHashCode(callSuper = false)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WritableRegister extends DTO {
+public class WritableRegister implements Serializable {
 
     @NotBlank
     @Size(min = 3,max = 20)

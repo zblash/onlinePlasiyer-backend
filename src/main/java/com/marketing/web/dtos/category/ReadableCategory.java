@@ -1,22 +1,16 @@
 package com.marketing.web.dtos.category;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.marketing.web.dtos.DTO;
-import com.marketing.web.models.Category;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotBlank;
+import java.io.Serializable;
 
-@EqualsAndHashCode(callSuper = false)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReadableCategory extends DTO {
+public class ReadableCategory implements Serializable {
 
     private String id;
 

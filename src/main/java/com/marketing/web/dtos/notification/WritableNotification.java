@@ -1,6 +1,5 @@
 package com.marketing.web.dtos.notification;
 
-import com.marketing.web.dtos.DTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -8,12 +7,12 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 
-@EqualsAndHashCode(callSuper = false)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WritableNotification extends DTO {
+public class WritableNotification implements Serializable {
 
     @NotBlank
     @Size(min = 5)

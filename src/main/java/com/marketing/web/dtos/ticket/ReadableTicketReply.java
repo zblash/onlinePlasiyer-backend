@@ -1,18 +1,17 @@
 package com.marketing.web.dtos.ticket;
 
-import com.marketing.web.dtos.DTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.Date;
 
-@EqualsAndHashCode(callSuper = false)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReadableTicketReply extends DTO {
+public class ReadableTicketReply implements Serializable {
 
     private String id;
 

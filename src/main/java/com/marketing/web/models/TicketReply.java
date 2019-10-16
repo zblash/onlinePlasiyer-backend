@@ -3,6 +3,7 @@ package com.marketing.web.models;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
@@ -11,9 +12,8 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
 @Table(name = "ticketreplies")
-public class TicketReply {
+public class TicketReply implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
