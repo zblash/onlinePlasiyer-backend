@@ -100,6 +100,9 @@ public class ProductSpecifiesController {
         WrapperWsProductSpecify wrapperWsProductSpecify = new WrapperWsProductSpecify();
         wrapperWsProductSpecify.setStatus(WsStatus.CR);
         wrapperWsProductSpecify.setProductSpecify(readableProductSpecify);
+        wrapperWsProductSpecify.setProductBarcode(writableProductSpecify.getBarcode());
+        wrapperWsProductSpecify.setProductName(readableProductSpecify.getProductName());
+        wrapperWsProductSpecify.setProductId(readableProductSpecify.getProductId());
        productProducer.sendProductSpecify(wrapperWsProductSpecify);
 
 
@@ -138,6 +141,9 @@ public class ProductSpecifiesController {
         WrapperWsProductSpecify wrapperWsProductSpecify = new WrapperWsProductSpecify();
         wrapperWsProductSpecify.setStatus(WsStatus.UP);
         wrapperWsProductSpecify.setProductSpecify(readableProductSpecify);
+        wrapperWsProductSpecify.setProductBarcode(writableProductSpecify.getBarcode());
+        wrapperWsProductSpecify.setProductName(readableProductSpecify.getProductName());
+        wrapperWsProductSpecify.setProductId(readableProductSpecify.getProductId());
         productProducer.sendProductSpecify(wrapperWsProductSpecify);
         return ResponseEntity.ok(readableProductSpecify);
     }

@@ -1,6 +1,8 @@
 package com.marketing.web;
 
+import com.marketing.web.pubsub.NotificationConsumer;
 import com.marketing.web.pubsub.ProductConsumer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -42,18 +44,25 @@ public class WebApplication {
 
 	@Bean
 	RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
-											MessageListenerAdapter listenerAdapter) {
+											@Qualifier("productListenerAdapter") MessageListenerAdapter productListenerAdapter,
+											@Qualifier("notificationListenerAdapter") MessageListenerAdapter notificationListenerAdapter) {
 
 		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
 		container.setConnectionFactory(connectionFactory);
-		container.addMessageListener(listenerAdapter, new PatternTopic("products"));
+		container.addMessageListener(productListenerAdapter, new PatternTopic("products"));
+		container.addMessageListener(notificationListenerAdapter,  new PatternTopic("notification"));
 
 		return container;
 	}
 
-	@Bean
-	MessageListenerAdapter listenerAdapter(ProductConsumer consumer) {
+	@Bean("productListenerAdapter")
+	MessageListenerAdapter productListenerAdapter(ProductConsumer consumer) {
 		return new MessageListenerAdapter(consumer, "onReceiveProduct");
+	}
+
+	@Bean("notificationListenerAdapter")
+	MessageListenerAdapter notificationListenerAdapter(NotificationConsumer consumer) {
+		return new MessageListenerAdapter(consumer, "onReceiveNotification");
 	}
 
 	@Bean
