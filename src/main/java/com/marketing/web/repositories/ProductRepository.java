@@ -14,13 +14,13 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
 
     Page<Product> findAllByOrderByIdDesc(Pageable pageable);
 
-    Optional<Product> findByBarcode(String barcode);
-
     Page<Product> findAllByCategoryInOrderByIdDesc(List<Category> categories, Pageable pageable);
 
     List<Product> findAllByCategoryIn(List<Category> categories);
 
     Page<Product> findAllByStatusOrderByIdDesc(boolean status, Pageable pageable);
+
+    Optional<Product> findByName(String name);
 
     Optional<Product> findByUuid(UUID uuid);
 

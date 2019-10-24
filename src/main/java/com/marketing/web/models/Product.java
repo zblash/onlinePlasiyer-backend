@@ -2,6 +2,8 @@ package com.marketing.web.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -9,6 +11,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,12 +31,8 @@ public class Product implements Serializable  {
 
     @NotBlank
     @Size(min = 3,max = 20)
-    private String name;
-
-    @NotBlank
-    @Size(min = 10,max = 100)
     @Column(unique = true)
-    private String barcode;
+    private String name;
 
     @NotNull
     private double tax;
@@ -46,8 +45,11 @@ public class Product implements Serializable  {
 
     private boolean status;
 
-    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<ProductSpecify> productSpecifies;
+
+    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
+    private Set<Barcode> barcodes;
 
     public void addProductSpecify(ProductSpecify productSpecify){
         if (productSpecifies == null){
@@ -59,6 +61,20 @@ public class Product implements Serializable  {
     public void removeProductSpecify(ProductSpecify productSpecify){
         if (productSpecifies != null){
             productSpecifies.remove(productSpecify);
+        }
+
+    }
+
+    public void addBarcode(Barcode barcode){
+        if (barcodes == null){
+            barcodes = new HashSet<>();
+        }
+        barcodes.add(barcode);
+    }
+
+    public void removeBarcode(Barcode barcode){
+        if (barcodes != null){
+            barcodes.remove(barcode);
         }
 
     }

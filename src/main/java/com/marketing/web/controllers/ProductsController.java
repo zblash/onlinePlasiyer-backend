@@ -5,11 +5,13 @@ import com.marketing.web.dtos.product.WrapperReadableProduct;
 import com.marketing.web.dtos.product.WritableProduct;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.ResourceNotFoundException;
+import com.marketing.web.models.Barcode;
 import com.marketing.web.models.Category;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.User;
 import com.marketing.web.pubsub.ProductProducer;
 import com.marketing.web.services.category.CategoryService;
+import com.marketing.web.services.product.BarcodeService;
 import com.marketing.web.services.product.ProductService;
 import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.services.storage.StorageService;
@@ -17,6 +19,8 @@ import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.ProductMapper;
 import com.marketing.web.utils.mappers.UserMapper;
 import com.marketing.web.validations.ValidImg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,13 +51,12 @@ public class ProductsController {
     private CategoryService categoryService;
 
     @Autowired
-    private ProductSpecifyService productSpecifyService;
-
-    @Autowired
-    private ProductProducer productProducer;
+    private BarcodeService barcodeService;
 
     @Autowired
     private StorageService storageService;
+
+    private Logger logger = LoggerFactory.getLogger(ProductsController.class);
 
     @GetMapping
     public ResponseEntity<WrapperReadableProduct> getAll(@RequestParam(required = false) Integer pageNumber){
@@ -88,8 +91,10 @@ public class ProductsController {
 
     @GetMapping("/barcode/{barcode}")
     public ResponseEntity<ReadableProduct> getByBarcode(@PathVariable String barcode) {
-        if (productService.findByBarcode(barcode) != null) {
-            return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.findByBarcode(barcode)));
+        Barcode productBarcode = barcodeService.findByBarcodeNo(barcode);
+        Product product = productBarcode.getProduct();
+        if (productBarcode.getProduct() != null) {
+            return ResponseEntity.ok(ProductMapper.productToReadableProduct(productBarcode.getProduct()));
         }
         throw new ResourceNotFoundException("Product not found with barcode: "+barcode);
     }
@@ -97,8 +102,10 @@ public class ProductsController {
     //TODO degistirilecek
     @PostMapping("/checkProduct/{barcode}")
     public ResponseEntity<?> checkProductByBarcode(@PathVariable String barcode) {
-        if (productService.findByBarcode(barcode) != null) {
-            return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.findByBarcode(barcode)));
+        Barcode productBarcode = barcodeService.findByBarcodeNo(barcode);
+        Product product = productBarcode.getProduct();
+        if (productBarcode.getProduct() != null) {
+            return ResponseEntity.ok(ProductMapper.productToReadableProduct(productBarcode.getProduct()));
         }
         throw new ResourceNotFoundException("Product not found with barcode: "+barcode);
     }
@@ -112,20 +119,27 @@ public class ProductsController {
     @PostMapping("/create")
     public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct,@ValidImg @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
         User user = userService.getLoggedInUser();
-        Product product = productService.findByBarcode(writableProduct.getBarcode());
 
-        if (product == null){
-            product = ProductMapper.writableProductToProduct(writableProduct);
-            String fileName = storageService.store(uploadfile);
-            product.setPhotoUrl("http://localhost:8080/photos/"+fileName);
-            product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
-            if (!user.getRole().getName().equals("ROLE_ADMIN")){
-                product.setStatus(false);
+        Barcode barcode = barcodeService.findByBarcodeNo(writableProduct.getBarcode());
+        if (barcode == null) {
+            Product product = productService.findByName(writableProduct.getName());
+            if (product == null) {
+                product = ProductMapper.writableProductToProduct(writableProduct);
+                String fileName = storageService.store(uploadfile);
+                product.setPhotoUrl("http://localhost:8080/photos/" + fileName);
+                product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
+                if (!user.getRole().getName().equals("ROLE_ADMIN")) {
+                    product.setStatus(false);
+                }
+                product = productService.create(product);
+                barcode = new Barcode();
+                barcode.setBarcodeNo(writableProduct.getBarcode());
+                barcode.setProduct(product);
+                product.addBarcode(barcodeService.create(barcode));
+                return ResponseEntity.ok(ProductMapper.productToReadableProduct(product));
+
             }
-
-            return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.create(product)));
         }
-
         return new ResponseEntity<>("Product already added", HttpStatus.CONFLICT);
 
     }
@@ -141,7 +155,7 @@ public class ProductsController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
     public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
-        Product product = ProductMapper.writableProductToProduct(writableProduct);
+        Product product = barcodeService.findByBarcodeNo(writableProduct.getBarcode()).getProduct();
         if (uploadfile != null && !uploadfile.isEmpty()) {
             String fileName = storageService.store(uploadfile);
             product.setPhotoUrl("http://localhost:8080/photos/"+fileName);

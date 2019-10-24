@@ -17,10 +17,10 @@ function connect() {
     var headers = {
         'Authorization': 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtZXJjaGFudCIsInJvbGUiOiJST0xFX01FUkNIQU5UIiwidXNlcklkIjo0OSwiZXhwIjoxNTcxMjc3NTMyfQ.H-6KYy3C1MTfVSf2LnU3yQo5A69rtZo7mDGHse6L5k5zxgNnlzFyK7Z6j71WqCn4aai98CSutMN_YA_V74Tm5A'
     };
-    stompClient.connect({Authorization: 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtZXJjaGFudCIsInJvbGUiOiJST0xFX01FUkNIQU5UIiwidXNlcklkIjo0OSwiZXhwIjoxNTcxMjc3NTMyfQ.H-6KYy3C1MTfVSf2LnU3yQo5A69rtZo7mDGHse6L5k5zxgNnlzFyK7Z6j71WqCn4aai98CSutMN_YA_V74Tm5A'}, function (frame) {
+    stompClient.connect({Authorization: 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtZXJjaGFudCIsInJvbGUiOiJST0xFX01FUkNIQU5UIiwidXNlcklkIjo0OSwiZXhwIjoxNTcxNjkwMjA3fQ.w9kcQ3SmQGZP9Rto8eqsKYkRpwyhxf5E7KWUB7rRFm020zHZFJYiFhs7oeWMjCK5kCBhpJj1lKLA1xOonSkw1A'}, function (frame) {
         setConnected(true);
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/channel/'+$("#name").val(), function (greeting) {
+        stompClient.subscribe('/user/merchant/queue/notify', function (greeting) {
             showGreeting(JSON.parse(greeting.body).content);
         });
     });

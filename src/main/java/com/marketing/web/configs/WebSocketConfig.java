@@ -47,8 +47,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app");
-        registry.enableSimpleBroker("/channel");
+        registry.enableSimpleBroker("/channel" , "/queue","/user");
     }
+
+
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -75,9 +77,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         User user = jwtValidator.validate(authenticationToken);
                         List<GrantedAuthority> grantedAuthorities = AuthorityUtils
                                 .commaSeparatedStringToAuthorityList(user.getRole().getName());
+                        user.setName(user.getUsername());
                         Principal principal = new UsernamePasswordAuthenticationToken(user, null, grantedAuthorities);
 
                         accessor.setUser(principal);
+                        log.info("Logged in user "+user.getName());
                     } else if (StompCommand.DISCONNECT.equals(accessor.getCommand())) {
                         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -90,7 +94,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
                 return message;
             }
-
 
 
         });

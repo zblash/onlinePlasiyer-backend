@@ -1,10 +1,12 @@
 package com.marketing.web.utils.mappers;
 
 import com.marketing.web.dtos.product.*;
+import com.marketing.web.models.Barcode;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 public final class ProductMapper {
@@ -17,7 +19,6 @@ public final class ProductMapper {
             product.setTax(writableProduct.getTax());
             product.setStatus(writableProduct.isStatus());
             product.setName(writableProduct.getName());
-            product.setBarcode(writableProduct.getBarcode());
             return product;
         }
     }
@@ -44,7 +45,7 @@ public final class ProductMapper {
             ReadableProduct readableProduct = new ReadableProduct();
             readableProduct.setId(product.getUuid().toString());
             readableProduct.setActive(product.isStatus());
-            readableProduct.setBarcode(product.getBarcode());
+            readableProduct.setBarcodeList(product.getBarcodes().stream().map(Barcode::getBarcodeNo).collect(Collectors.toList()));
             readableProduct.setCategoryName(product.getCategory().getName());
             readableProduct.setName(product.getName());
             readableProduct.setPhotoUrl(product.getPhotoUrl());

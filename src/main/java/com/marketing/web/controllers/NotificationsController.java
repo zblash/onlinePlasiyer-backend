@@ -1,9 +1,12 @@
 package com.marketing.web.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.marketing.web.dtos.notification.ReadableNotification;
 import com.marketing.web.dtos.notification.WritableNotification;
+import com.marketing.web.dtos.websockets.WrapperWsNotification;
 import com.marketing.web.models.Notification;
 import com.marketing.web.models.User;
+import com.marketing.web.pubsub.NotificationProducer;
 import com.marketing.web.services.notification.NotificationService;
 import com.marketing.web.services.notification.NotificationServiceImpl;
 import com.marketing.web.services.user.UserService;
@@ -28,6 +31,9 @@ public class NotificationsController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private NotificationProducer notificationProducer;
+
     @GetMapping
     public ResponseEntity<List<ReadableNotification>> getAllNotifications(){
         User user = userService.getLoggedInUser();
@@ -38,12 +44,17 @@ public class NotificationsController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<ReadableNotification> createNotification(@Valid @RequestBody WritableNotification writableNotification){
+    public ResponseEntity<ReadableNotification> createNotification(@Valid @RequestBody WritableNotification writableNotification) throws JsonProcessingException {
         Notification notification = new Notification();
         notification.setMessage(writableNotification.getMessage());
         notification.setTitle(writableNotification.getTitle());
         notification.setUser(userService.findByUUID(writableNotification.getUserId()));
-        return ResponseEntity.ok(
-                NotificationMapper.notificationToReadableNotification(notificationService.create(notification)));
+        ReadableNotification readableNotification = NotificationMapper.notificationToReadableNotification(notificationService.create(notification));
+
+        WrapperWsNotification wrapperWsNotification = new WrapperWsNotification();
+        wrapperWsNotification.setNotification(readableNotification);
+        wrapperWsNotification.setUser(notification.getUser());
+        notificationProducer.sendNotification(wrapperWsNotification);
+        return ResponseEntity.ok(readableNotification);
     }
 }

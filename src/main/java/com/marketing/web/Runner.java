@@ -3,10 +3,7 @@ package com.marketing.web;
 import com.marketing.web.dtos.user.WritableRegister;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.models.*;
-import com.marketing.web.repositories.CategoryRepository;
-import com.marketing.web.repositories.CityRepository;
-import com.marketing.web.repositories.ProductRepository;
-import com.marketing.web.repositories.StateRepository;
+import com.marketing.web.repositories.*;
 import com.marketing.web.services.storage.StorageService;
 import com.marketing.web.services.user.AddressServiceImpl;
 import com.marketing.web.services.user.UserServiceImpl;
@@ -39,6 +36,9 @@ public class Runner implements CommandLineRunner {
     ProductRepository productRepository;
 
     @Autowired
+    BarcodeRepository barcodeRepository;
+
+    @Autowired
     UserServiceImpl userService;
 
     @Autowired
@@ -52,7 +52,9 @@ public class Runner implements CommandLineRunner {
 
         List<Category> categories = categoryPopulator();
 
-        productPopulator(categories);
+        List<Product> products = productPopulator(categories);
+
+        barcodePopulator(products);
 
         userPopulator();
 
@@ -101,19 +103,36 @@ public class Runner implements CommandLineRunner {
         userService.create(user2,writableRegister2.getRoleType());
     }
 
-    private void productPopulator(List<Category> categories) {
+    private List<Barcode> barcodePopulator(List<Product> products){
+        List<Barcode> barcodes = new ArrayList<>();
+
+        for (Product product : products){
+            for (int i=0;i<4;i++){
+                Barcode barcode = new Barcode();
+                barcode.setProduct(product);
+                barcode.setBarcodeNo(generateBarcode());
+                barcodeRepository.save(barcode);
+                barcodes.add(barcode);
+            }
+        }
+        return barcodes;
+    }
+
+    private List<Product> productPopulator(List<Category> categories) {
         int i = 0;
+        List<Product> productList = new ArrayList<>();
         for (Category category : categories){
             i++;
             Product product = new Product();
-            product.setBarcode(generateBarcode());
             product.setCategory(category);
             product.setName("Example-Product"+i);
             product.setStatus(true);
             product.setPhotoUrl(randomPhoto());
             product.setTax(18);
             productRepository.save(product);
+            productList.add(product);
         }
+        return productList;
     }
 
     private void statePopulator(){

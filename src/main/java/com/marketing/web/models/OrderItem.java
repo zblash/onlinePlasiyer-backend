@@ -37,17 +37,13 @@ public class OrderItem implements Serializable {
 
     private double recommendedRetailPrice;
 
-    private String productName;
-
-    private String productBarcode;
-
-    private double productTax;
-
-    private String productPhotoUrl;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User seller;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "product_id",referencedColumnName = "id")
+    private Product product;
 
     @NotNull
     private int quantity;

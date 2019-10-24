@@ -14,11 +14,11 @@ public interface ProductService {
 
     Page<Product> findAllByCategoryAndStatus(Category category, boolean status, int pageNumber);
 
-    Product findByBarcode(String barcode);
-
     Page<Product> findAll(int pageNumber);
 
     Product findById(Long id);
+
+    Product findByName(String name);
 
     Product findByUUID(String uuid);
 

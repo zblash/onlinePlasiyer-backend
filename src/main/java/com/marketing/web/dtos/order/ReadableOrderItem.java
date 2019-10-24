@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -25,7 +26,7 @@ public class ReadableOrderItem implements Serializable {
 
     private String productName;
 
-    private String productBarcode;
+    private List<String> productBarcodeList;
 
     private double productTax;
 

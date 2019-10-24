@@ -59,11 +59,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product findByBarcode(String barcode){
-        return productRepository.findByBarcode(barcode).orElse(null);
-    }
-
-    @Override
     public Page<Product> findAll(int pageNumber) {
         PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
         Page<Product> resultPage = productRepository.findAllByOrderByIdDesc(pageRequest);
@@ -79,6 +74,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Product findByName(String name) {
+        return productRepository.findByName(name).orElse(null);
+    }
+
+    @Override
     public Product findByUUID(String uuid) {
         return productRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Product not found with id: "+uuid));
     }
@@ -91,7 +91,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product update(String uuid,Product updatedProduct) {
         Product product = findByUUID(uuid);
-        product.setBarcode(updatedProduct.getBarcode());
+        product.setBarcodes(updatedProduct.getBarcodes());
         product.setName(updatedProduct.getName());
         if (updatedProduct.getPhotoUrl() != null && !updatedProduct.getPhotoUrl().isEmpty()) {
             product.setPhotoUrl(updatedProduct.getPhotoUrl());

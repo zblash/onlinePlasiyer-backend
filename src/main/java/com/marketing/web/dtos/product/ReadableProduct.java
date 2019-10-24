@@ -2,10 +2,10 @@ package com.marketing.web.dtos.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -14,7 +14,7 @@ public class ReadableProduct implements Serializable {
 
     private String id;
 
-    private String barcode;
+    private List<String> barcodeList;
 
     private String categoryName;
 

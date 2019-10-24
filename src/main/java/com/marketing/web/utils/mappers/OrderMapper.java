@@ -2,6 +2,7 @@ package com.marketing.web.utils.mappers;
 
 import com.marketing.web.dtos.order.ReadableOrder;
 import com.marketing.web.dtos.order.ReadableOrderItem;
+import com.marketing.web.models.Barcode;
 import com.marketing.web.models.CartItem;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.OrderItem;
@@ -19,10 +20,7 @@ public final class OrderMapper {
             orderItem.setUnitPrice(cartItem.getProduct().getUnitPrice());
             orderItem.setUnitType(cartItem.getProduct().getUnitType());
             orderItem.setRecommendedRetailPrice(cartItem.getProduct().getRecommendedRetailPrice());
-            orderItem.setProductBarcode(cartItem.getProduct().getProduct().getBarcode());
-            orderItem.setProductName(cartItem.getProduct().getProduct().getName());
-            orderItem.setProductTax(cartItem.getProduct().getProduct().getTax());
-            orderItem.setProductPhotoUrl(cartItem.getProduct().getProduct().getPhotoUrl());
+            orderItem.setProduct(cartItem.getProduct().getProduct());
             orderItem.setSeller(cartItem.getProduct().getUser());
             orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setTotalPrice(cartItem.getTotalPrice());
@@ -58,10 +56,10 @@ public final class OrderMapper {
             readableOrderItem.setUnitPrice(orderItem.getUnitPrice());
             readableOrderItem.setUnitType(orderItem.getUnitType());
             readableOrderItem.setRecommendedRetailPrice(orderItem.getRecommendedRetailPrice());
-            readableOrderItem.setProductName(orderItem.getProductName());
-            readableOrderItem.setProductBarcode(orderItem.getProductBarcode());
-            readableOrderItem.setProductPhotoUrl(orderItem.getProductPhotoUrl());
-            readableOrderItem.setProductTax(orderItem.getProductTax());
+            readableOrderItem.setProductName(orderItem.getProduct().getName());
+            readableOrderItem.setProductBarcodeList(orderItem.getProduct().getBarcodes().stream().map(Barcode::getBarcodeNo).collect(Collectors.toList()));
+            readableOrderItem.setProductPhotoUrl(orderItem.getProduct().getPhotoUrl());
+            readableOrderItem.setProductTax(orderItem.getProduct().getTax());
             readableOrderItem.setSellerName(orderItem.getSeller().getName());
             readableOrderItem.setQuantity(orderItem.getQuantity());
             readableOrderItem.setTotalPrice(orderItem.getTotalPrice());

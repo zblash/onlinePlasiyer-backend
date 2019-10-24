@@ -2,6 +2,7 @@ package com.marketing.web.utils.mappers;
 
 import com.marketing.web.dtos.cart.ReadableCart;
 import com.marketing.web.dtos.cart.ReadableCartItem;
+import com.marketing.web.models.Barcode;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItem;
 
@@ -40,7 +41,7 @@ public final class CartMapper {
             readableCartItem.setUnitType(cartItem.getProduct().getUnitType());
             readableCartItem.setRecommendedRetailPrice(cartItem.getProduct().getRecommendedRetailPrice());
             readableCartItem.setProductName(cartItem.getProduct().getProduct().getName());
-            readableCartItem.setProductBarcode(cartItem.getProduct().getProduct().getBarcode());
+            readableCartItem.setProductBarcodeList(cartItem.getProduct().getProduct().getBarcodes().stream().map(Barcode::getBarcodeNo).collect(Collectors.toList()));
             readableCartItem.setProductPhotoUrl(cartItem.getProduct().getProduct().getPhotoUrl());
             readableCartItem.setProductTax(cartItem.getProduct().getProduct().getTax());
             readableCartItem.setSellerName(cartItem.getProduct().getUser().getName());
