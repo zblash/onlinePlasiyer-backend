@@ -2,8 +2,10 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.product.ReadableProduct;
 import com.marketing.web.dtos.product.WrapperReadableProduct;
+import com.marketing.web.dtos.product.WritableBarcode;
 import com.marketing.web.dtos.product.WritableProduct;
 import com.marketing.web.enums.RoleType;
+import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Barcode;
 import com.marketing.web.models.Category;
@@ -165,6 +167,20 @@ public class ProductsController {
 
 
         return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.update(id,product)));
+    }
+
+    @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
+    @PostMapping("/addBarcode/{id}")
+    public ResponseEntity<ReadableProduct> addBarcode(@PathVariable String id, @Valid WritableBarcode writableBarcode){
+        Product product = productService.findByUUID(id);
+        if (barcodeService.findByBarcodeNo(writableBarcode.getBarcode()) == null){
+            Barcode barcode = new Barcode();
+            barcode.setBarcodeNo(writableBarcode.getBarcode());
+            barcode.setProduct(product);
+            product.addBarcode(barcodeService.create(barcode));
+            return ResponseEntity.ok(ProductMapper.productToReadableProduct(product));
+        }
+        throw new BadRequestException("This barcode already added : "+writableBarcode.getBarcode());
     }
 
 }
