@@ -95,10 +95,7 @@ public class ProductsController {
     public ResponseEntity<ReadableProduct> getByBarcode(@PathVariable String barcode) {
         Barcode productBarcode = barcodeService.findByBarcodeNo(barcode);
         Product product = productBarcode.getProduct();
-        if (productBarcode.getProduct() != null) {
-            return ResponseEntity.ok(ProductMapper.productToReadableProduct(productBarcode.getProduct()));
-        }
-        throw new ResourceNotFoundException("Product not found with barcode: "+barcode);
+        return ResponseEntity.ok(ProductMapper.productToReadableProduct(productBarcode.getProduct()));
     }
 
     //TODO degistirilecek
@@ -106,10 +103,7 @@ public class ProductsController {
     public ResponseEntity<?> checkProductByBarcode(@PathVariable String barcode) {
         Barcode productBarcode = barcodeService.findByBarcodeNo(barcode);
         Product product = productBarcode.getProduct();
-        if (productBarcode.getProduct() != null) {
-            return ResponseEntity.ok(ProductMapper.productToReadableProduct(productBarcode.getProduct()));
-        }
-        throw new ResourceNotFoundException("Product not found with barcode: "+barcode);
+        return ResponseEntity.ok(ProductMapper.productToReadableProduct(productBarcode.getProduct()));
     }
 
     @GetMapping("/{id}")
@@ -122,7 +116,7 @@ public class ProductsController {
     public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct,@ValidImg @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
         User user = userService.getLoggedInUser();
 
-        Barcode barcode = barcodeService.findByBarcodeNo(writableProduct.getBarcode());
+        Barcode barcode = barcodeService.checkByBarcodeNo(writableProduct.getBarcode());
         if (barcode == null) {
             Product product = productService.findByName(writableProduct.getName());
             if (product == null) {
@@ -138,10 +132,16 @@ public class ProductsController {
                 barcode.setBarcodeNo(writableProduct.getBarcode());
                 barcode.setProduct(product);
                 product.addBarcode(barcodeService.create(barcode));
-                return ResponseEntity.ok(ProductMapper.productToReadableProduct(product));
-
+            }else{
+                barcode = new Barcode();
+                barcode.setBarcodeNo(writableProduct.getBarcode());
+                barcode.setProduct(product);
+                product.addBarcode(barcodeService.create(barcode));
             }
+
+            return ResponseEntity.ok(ProductMapper.productToReadableProduct(product));
         }
+
         return new ResponseEntity<>("Product already added", HttpStatus.CONFLICT);
 
     }
@@ -173,7 +173,7 @@ public class ProductsController {
     @PostMapping("/addBarcode/{id}")
     public ResponseEntity<ReadableProduct> addBarcode(@PathVariable String id, @Valid WritableBarcode writableBarcode){
         Product product = productService.findByUUID(id);
-        if (barcodeService.findByBarcodeNo(writableBarcode.getBarcode()) == null){
+        if (barcodeService.checkByBarcodeNo(writableBarcode.getBarcode()) == null){
             Barcode barcode = new Barcode();
             barcode.setBarcodeNo(writableBarcode.getBarcode());
             barcode.setProduct(product);

@@ -13,6 +13,8 @@ public interface BarcodeService {
 
     Barcode findByBarcodeNo(String barcodeNo);
 
+    Barcode checkByBarcodeNo(String barcodeNo);
+
     Barcode findById(Long id);
 
     Barcode findByUuid(String uuid);
