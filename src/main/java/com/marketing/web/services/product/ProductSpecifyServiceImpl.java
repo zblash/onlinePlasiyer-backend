@@ -86,22 +86,7 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
 
     @Override
     public List<State> allowedStates(User user, List<State> states){
-        for (State state : user.getActiveStates()){
-            logger.info("User state title " +state.getUuid());
-            logger.info("User state title " +state.getTitle());
-            logger.info("User state title " +state.getCode());
-            logger.info("User state title " +state.getId());
-        }
-
-        for (State state : states){
-            logger.info("request state title " +state.getUuid());
-            logger.info("request state title " +state.getTitle());
-            logger.info("request state title " +state.getCode());
-            logger.info("request state title " +state.getId());
-        }
-
         boolean isAllowed = user.getActiveStates().containsAll(states);
-        logger.info("isAllowed "+isAllowed);
         if (isAllowed){
             return states;
         }
