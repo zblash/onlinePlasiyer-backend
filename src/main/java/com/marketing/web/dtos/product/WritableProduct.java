@@ -24,7 +24,7 @@ public class WritableProduct implements Serializable {
     private String name;
 
     @NotBlank
-    @Size(min = 13,max = 100)
+    @Size(min = 8,max = 13)
     private String barcode;
 
     @NotNull

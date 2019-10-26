@@ -1,9 +1,8 @@
 package com.marketing.web.models;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -12,10 +11,9 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 @Table(name = "barcodes")
 public class Barcode implements Serializable {
 
@@ -26,7 +24,7 @@ public class Barcode implements Serializable {
     private UUID uuid;
 
     @NotBlank
-    @Size(min = 13,max = 13)
+    @Size(min = 8,max = 13)
     @Column(unique = true)
     private String barcodeNo;
 

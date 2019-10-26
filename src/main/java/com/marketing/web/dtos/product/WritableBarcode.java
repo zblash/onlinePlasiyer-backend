@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class WritableBarcode implements Serializable {
 
     @NotBlank
-    @Size(min = 13,max = 100)
+    @Size(min = 8,max = 13)
     private String barcode;
 
 }

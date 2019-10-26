@@ -2,7 +2,9 @@ package com.marketing.web.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.marketing.web.enums.TicketStatus;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -11,10 +13,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 @Table(name = "tickets")
 public class Ticket implements Serializable {
 
