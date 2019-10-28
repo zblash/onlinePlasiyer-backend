@@ -27,14 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
@@ -113,7 +106,7 @@ public class ProductsController {
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct,@ValidImg @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
+    public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct,@ValidImg @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile, @RequestHeader String host){
         User user = userService.getLoggedInUser();
 
         Barcode barcode = barcodeService.checkByBarcodeNo(writableProduct.getBarcode());
@@ -122,7 +115,7 @@ public class ProductsController {
             if (product == null) {
                 product = ProductMapper.writableProductToProduct(writableProduct);
                 String fileName = storageService.store(uploadfile);
-                product.setPhotoUrl("http://localhost:8080/photos/" + fileName);
+                product.setPhotoUrl(host+"/"+fileName);
                 product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
                 if (!user.getRole().getName().equals("ROLE_ADMIN")) {
                     product.setStatus(false);
@@ -156,13 +149,13 @@ public class ProductsController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
+    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile, @RequestHeader String host){
         Product product = barcodeService.findByBarcodeNo(writableProduct.getBarcode()).getProduct();
         if (uploadfile != null && !uploadfile.isEmpty()) {
             String fileName = storageService.store(uploadfile);
-            product.setPhotoUrl("http://localhost:8080/photos/"+fileName);
-        }
+            product.setPhotoUrl(host+"/"+fileName);
 
+        }
         product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
 
 

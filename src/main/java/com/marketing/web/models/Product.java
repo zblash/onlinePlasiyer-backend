@@ -1,8 +1,6 @@
 package com.marketing.web.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -46,6 +44,7 @@ public class Product implements Serializable  {
     private Set<ProductSpecify> productSpecifies;
 
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
     private Set<Barcode> barcodes;
 
     public void addProductSpecify(ProductSpecify productSpecify){

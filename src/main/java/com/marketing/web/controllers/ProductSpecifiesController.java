@@ -4,6 +4,7 @@ import static java.lang.String.format;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.marketing.web.dtos.product.ReadableProductSpecify;
+import com.marketing.web.dtos.product.WrapperReadableProductSpecify;
 import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.dtos.websockets.WrapperWsProductSpecify;
 import com.marketing.web.enums.RoleType;
@@ -52,33 +53,47 @@ public class ProductSpecifiesController {
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @GetMapping
-    public ResponseEntity<List<ReadableProductSpecify>> getAll(){
+    public ResponseEntity<WrapperReadableProductSpecify> getAll(@RequestParam(required = false) Integer pageNumber){
+        if (pageNumber == null){
+            pageNumber=1;
+        }
         User user = userService.getLoggedInUser();
         RoleType role = UserMapper.roleToRoleType(user.getRole());
         if (role.equals(RoleType.MERCHANT)){
-            return ResponseEntity.ok(productSpecifyService.findAllByUser(user).stream()
-                    .map(ProductMapper::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
+            return ResponseEntity.ok(
+                    ProductMapper
+                            .pagedProductSpecifyListToWrapperReadableProductSpecify(productSpecifyService.findAllByUser(user, pageNumber)));
         }
-        return ResponseEntity.ok(productSpecifyService.findAll().stream()
-                .map(ProductMapper::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
+
+        return ResponseEntity.ok(
+                ProductMapper
+                        .pagedProductSpecifyListToWrapperReadableProductSpecify(productSpecifyService.findAll(pageNumber)));
     }
 
     @GetMapping("/product/{id}")
-    public ResponseEntity<List<ReadableProductSpecify>> getAllByProduct(@PathVariable String id){
+    public ResponseEntity<WrapperReadableProductSpecify> getAllByProduct(@PathVariable String id, @RequestParam(required = false) Integer pageNumber){
+        if (pageNumber == null){
+            pageNumber=1;
+        }
         User user = userService.getLoggedInUser();
         RoleType role = UserMapper.roleToRoleType(user.getRole());
         Product product = productService.findByUUID(id);
 
         switch (role){
             case MERCHANT:
-               return ResponseEntity.ok(productSpecifyService.findAllByProductAndStates(product,user.getActiveStates()).stream()
-                        .map(ProductMapper::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
+                return ResponseEntity.ok(
+                        ProductMapper
+                                .pagedProductSpecifyListToWrapperReadableProductSpecify(
+                                        productSpecifyService.findAllByProductAndStates(product, user.getActiveStates(), pageNumber)));
             case CUSTOMER:
-               return ResponseEntity.ok(productSpecifyService.findAllByProductAndStates(product, Collections.singletonList(user.getAddress().getState())).stream()
-                        .map(ProductMapper::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
+                return ResponseEntity.ok(
+                        ProductMapper
+                                .pagedProductSpecifyListToWrapperReadableProductSpecify(
+                                        productSpecifyService.findAllByProductAndStates(product, Collections.singletonList(user.getAddress().getState()), pageNumber)));
             default:
-                return ResponseEntity.ok(productSpecifyService.findAllByProduct(product).stream()
-                        .map(ProductMapper::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
+                return ResponseEntity.ok(ProductMapper
+                        .pagedProductSpecifyListToWrapperReadableProductSpecify(
+                                productSpecifyService.findAllByProduct(product, pageNumber)));
         }
 
     }

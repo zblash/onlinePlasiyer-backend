@@ -10,6 +10,8 @@ import com.marketing.web.repositories.ProductSpecifyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,23 +27,43 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     private ProductSpecifyRepository productSpecifyRepository;
 
     @Override
-    public List<ProductSpecify> findAll() {
-        return productSpecifyRepository.findAll();
+    public Page<ProductSpecify> findAll(int pageNumber) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,20);
+        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByOrderByIdDesc(pageRequest);
+        if (pageNumber > resultPage.getTotalPages()) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+        return resultPage;
     }
 
     @Override
-    public List<ProductSpecify> findAllByUser(User user) {
-        return productSpecifyRepository.findAllByUserOrderByIdDesc(user);
+    public Page<ProductSpecify> findAllByUser(User user, int pageNumber) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,20);
+        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByUserOrderByIdDesc(user, pageRequest);
+        if (pageNumber > resultPage.getTotalPages()) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+        return resultPage;
     }
 
     @Override
-    public List<ProductSpecify> findAllByProduct(Product product) {
-        return productSpecifyRepository.findAllByProductOrderByIdDesc(product);
+    public Page<ProductSpecify> findAllByProduct(Product product, int pageNumber) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,20);
+        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByProductOrderByIdDesc(product, pageRequest);
+        if (pageNumber > resultPage.getTotalPages()) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+        return resultPage;
     }
 
     @Override
-    public List<ProductSpecify> findAllByProductAndStates(Product product, List<State> states) {
-        return productSpecifyRepository.findAllByProductAndStatesInOrderByIdDesc(product,states);
+    public Page<ProductSpecify> findAllByProductAndStates(Product product, List<State> states, int pageNumber) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,20);
+        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByProductAndStatesInOrderByIdDesc(product,states, pageRequest);
+        if (pageNumber > resultPage.getTotalPages()) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+        return resultPage;
     }
 
     @Override

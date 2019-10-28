@@ -4,6 +4,8 @@ import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -12,14 +14,16 @@ import java.util.UUID;
 
 public interface ProductSpecifyRepository extends JpaRepository<ProductSpecify,Long> {
 
+    Page<ProductSpecify> findAllByOrderByIdDesc(Pageable pageable);
+
     Optional<ProductSpecify> findByUuid(UUID uuid);
 
     Optional<ProductSpecify> findByUuidAndUser_Id(UUID uuid, Long userId);
 
-    List<ProductSpecify> findAllByProductAndStatesInOrderByIdDesc(Product product, List<State> states);
+    Page<ProductSpecify> findAllByProductAndStatesInOrderByIdDesc(Product product, List<State> states, Pageable pageable);
 
-    List<ProductSpecify> findAllByProductOrderByIdDesc(Product product);
+    Page<ProductSpecify> findAllByProductOrderByIdDesc(Product product, Pageable pageable);
 
-    List<ProductSpecify> findAllByUserOrderByIdDesc(User user);
+    Page<ProductSpecify> findAllByUserOrderByIdDesc(User user, Pageable pageable);
 
 }

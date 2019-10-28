@@ -1,23 +1,22 @@
 package com.marketing.web.services.product;
 
-import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
+import org.springframework.data.domain.Page;
 
-import java.util.BitSet;
 import java.util.List;
 
 public interface ProductSpecifyService {
 
-    List<ProductSpecify> findAll();
+    Page<ProductSpecify> findAll(int pageNumber);
 
-    List<ProductSpecify> findAllByUser(User user);
+    Page<ProductSpecify> findAllByUser(User user, int pageNumber);
 
-    List<ProductSpecify> findAllByProduct(Product product);
+    Page<ProductSpecify> findAllByProduct(Product product, int pageNumber);
 
-    List<ProductSpecify> findAllByProductAndStates(Product product,List<State> states);
+    Page<ProductSpecify> findAllByProductAndStates(Product product, List<State> states, int pageNumber);
 
     ProductSpecify findById(Long id);
 

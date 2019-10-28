@@ -36,4 +36,6 @@ public class Barcode implements Serializable {
     public void autofill() {
         this.setUuid(UUID.randomUUID());
     }
+
+
 }

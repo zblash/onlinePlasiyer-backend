@@ -126,55 +126,6 @@ public class UserController {
         return ResponseEntity.ok(userInfo);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/api/users/customers")
-    public ResponseEntity<List<CustomerUser>> getAllCustomers(){
-
-        return ResponseEntity.ok(userService.findAllByRole(RoleType.CUSTOMER).stream()
-                .map(UserMapper::userToCustomer)
-                .collect(Collectors.toList()));
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/api/users/merchant")
-    public ResponseEntity<List<MerchantUser>> getAllMerchants(){
-        return ResponseEntity.ok(userService.findAllByRole(RoleType.MERCHANT).stream()
-                .map(UserMapper::userToMerchant)
-                .collect(Collectors.toList()));
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/api/users/merchant/passive")
-    public ResponseEntity<List<MerchantUser>> getPassiveMerchantUsers(){
-        return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.MERCHANT,false).stream()
-                .map(UserMapper::userToMerchant)
-                .collect(Collectors.toList()));
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/api/users/merchant/active")
-    public ResponseEntity<List<MerchantUser>> getActiveMerchantUsers(){
-        return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.MERCHANT,true).stream()
-                .map(UserMapper::userToMerchant)
-                .collect(Collectors.toList()));
-    }
-
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/api/users/customers/passive")
-    public ResponseEntity<List<CustomerUser>> getPassiveCustomerUsers(){
-        return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.CUSTOMER,false).stream()
-                .map(UserMapper::userToCustomer)
-                .collect(Collectors.toList()));
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/api/users/customers/active")
-    public ResponseEntity<List<CustomerUser>> getActiveCustomerUsers(){
-        return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.CUSTOMER,true).stream()
-                                .map(UserMapper::userToCustomer)
-                                .collect(Collectors.toList()));
-    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/api/users/{roleType}")
@@ -205,20 +156,110 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/api/users/setActive/{id}")
-    public ResponseEntity<String> setActiveUser(@PathVariable String id){
+    @PostMapping("/api/users/changeStatus/{id}/{status}")
+    public ResponseEntity<?> changeUserStatus(@PathVariable String id,@PathVariable boolean status){
         User user = userService.findByUUID(id);
-        user.setStatus(true);
-        userService.update(user.getId(),user);
-        return ResponseEntity.ok("Changed user status");
+        user.setStatus(status);
+        user = userService.update(user.getId(),user);
+        RoleType role = RoleType.valueOf(user.getRole().getName().split("_")[1].toUpperCase());
+        switch (role) {
+            case CUSTOMER:
+                return ResponseEntity.ok(UserMapper.userToCustomer(user));
+            case MERCHANT:
+                return ResponseEntity.ok(UserMapper.userToMerchant(user));
+            default:
+                return ResponseEntity.ok(UserMapper.userToAdmin(user));
+        }
     }
 
+    // TODO Kaldirilacak
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping("/api/users/setActive/{id}")
+    public ResponseEntity<?> setActiveUser(@PathVariable String id){
+        User user = userService.findByUUID(id);
+        user.setStatus(true);
+        user = userService.update(user.getId(),user);
+        RoleType role = RoleType.valueOf(user.getRole().getName().split("_")[1].toUpperCase());
+        switch (role) {
+            case CUSTOMER:
+                return ResponseEntity.ok(UserMapper.userToCustomer(user));
+            case MERCHANT:
+                return ResponseEntity.ok(UserMapper.userToMerchant(user));
+            default:
+                return ResponseEntity.ok(UserMapper.userToAdmin(user));
+        }
+    }
+
+    // TODO Kaldirilacak
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/api/users/setPassive/{id}")
-    public ResponseEntity<String> setPassiveUser(@PathVariable String id){
+    public ResponseEntity<?> setPassiveUser(@PathVariable String id){
         User user = userService.findByUUID(id);
         user.setStatus(false);
-        userService.update(user.getId(),user);
-        return ResponseEntity.ok("Changed user status");
+        user = userService.update(user.getId(),user);
+        RoleType role = RoleType.valueOf(user.getRole().getName().split("_")[1].toUpperCase());
+        switch (role) {
+            case CUSTOMER:
+                return ResponseEntity.ok(UserMapper.userToCustomer(user));
+            case MERCHANT:
+                return ResponseEntity.ok(UserMapper.userToMerchant(user));
+            default:
+                return ResponseEntity.ok(UserMapper.userToAdmin(user));
+        }
+    }
+
+    // TODO Kaldirilacak
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/api/users/customers")
+    public ResponseEntity<List<CustomerUser>> getAllCustomers(){
+
+        return ResponseEntity.ok(userService.findAllByRole(RoleType.CUSTOMER).stream()
+                .map(UserMapper::userToCustomer)
+                .collect(Collectors.toList()));
+    }
+
+    // TODO Kaldirilacak
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/api/users/merchant")
+    public ResponseEntity<List<MerchantUser>> getAllMerchants(){
+        return ResponseEntity.ok(userService.findAllByRole(RoleType.MERCHANT).stream()
+                .map(UserMapper::userToMerchant)
+                .collect(Collectors.toList()));
+    }
+
+    // TODO Kaldirilacak
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/api/users/merchant/passive")
+    public ResponseEntity<List<MerchantUser>> getPassiveMerchantUsers(){
+        return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.MERCHANT,false).stream()
+                .map(UserMapper::userToMerchant)
+                .collect(Collectors.toList()));
+    }
+
+    // TODO Kaldirilacak
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/api/users/merchant/active")
+    public ResponseEntity<List<MerchantUser>> getActiveMerchantUsers(){
+        return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.MERCHANT,true).stream()
+                .map(UserMapper::userToMerchant)
+                .collect(Collectors.toList()));
+    }
+
+    // TODO Kaldirilacak
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/api/users/customers/passive")
+    public ResponseEntity<List<CustomerUser>> getPassiveCustomerUsers(){
+        return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.CUSTOMER,false).stream()
+                .map(UserMapper::userToCustomer)
+                .collect(Collectors.toList()));
+    }
+
+    // TODO Kaldirilacak
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/api/users/customers/active")
+    public ResponseEntity<List<CustomerUser>> getActiveCustomerUsers(){
+        return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.CUSTOMER,true).stream()
+                .map(UserMapper::userToCustomer)
+                .collect(Collectors.toList()));
     }
 }

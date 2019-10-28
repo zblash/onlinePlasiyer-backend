@@ -97,4 +97,28 @@ public final class ProductMapper {
             return wrapperReadableProduct;
         }
     }
+
+    public static WrapperReadableProductSpecify pagedProductSpecifyListToWrapperReadableProductSpecify(Page<ProductSpecify> pagedProductSpecify){
+        if (pagedProductSpecify == null) {
+            return null;
+        } else {
+            WrapperReadableProductSpecify wrapperReadableProductSpecify = new WrapperReadableProductSpecify();
+            wrapperReadableProductSpecify.setKey("productSpecifies");
+            wrapperReadableProductSpecify.setTotalPage(pagedProductSpecify.getTotalPages());
+            wrapperReadableProductSpecify.setPageNumber(pagedProductSpecify.getNumber()+1);
+            if (pagedProductSpecify.hasPrevious()) {
+                wrapperReadableProductSpecify.setPreviousPage(pagedProductSpecify.getNumber());
+            }
+            if (pagedProductSpecify.hasNext()) {
+                wrapperReadableProductSpecify.setNextPage(pagedProductSpecify.getNumber()+2);
+            }
+            wrapperReadableProductSpecify.setFirst(pagedProductSpecify.isFirst());
+            wrapperReadableProductSpecify.setLast(pagedProductSpecify.isLast());
+            wrapperReadableProductSpecify.setNumberOfElements(pagedProductSpecify.getNumberOfElements());
+            wrapperReadableProductSpecify.setTotalElements(pagedProductSpecify.getNumberOfElements());
+            wrapperReadableProductSpecify.setProductSpecifies(pagedProductSpecify.getContent().stream()
+                    .map(ProductMapper::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
+            return wrapperReadableProductSpecify;
+        }
+    }
 }

@@ -101,6 +101,7 @@ public class Runner implements CommandLineRunner {
         User user2 = UserMapper.writableRegisterToUser(writableRegister2);
         user2.setStatus(true);
         userService.create(user2,writableRegister2.getRoleType());
+
     }
 
     private List<Barcode> barcodePopulator(List<Product> products){
