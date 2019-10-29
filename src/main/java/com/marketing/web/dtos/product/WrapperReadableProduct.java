@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class WrapperReadableProduct implements Serializable {
 
-    private List<ReadableProduct> products;
+    private List<ReadableProduct> values;
 
     private String key;
 
@@ -25,7 +25,7 @@ public class WrapperReadableProduct implements Serializable {
 
     private int totalPage;
 
-    private int totalElements;
+    private long totalElements;
 
     private int numberOfElements;
 

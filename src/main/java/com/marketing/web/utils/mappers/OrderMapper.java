@@ -86,8 +86,8 @@ public final class OrderMapper {
             wrapperReadableOrder.setFirst(pagedOrder.isFirst());
             wrapperReadableOrder.setLast(pagedOrder.isLast());
             wrapperReadableOrder.setNumberOfElements(pagedOrder.getNumberOfElements());
-            wrapperReadableOrder.setTotalElements(pagedOrder.getNumberOfElements());
-            wrapperReadableOrder.setOrders(pagedOrder.getContent().stream()
+            wrapperReadableOrder.setTotalElements(pagedOrder.getTotalElements());
+            wrapperReadableOrder.setValues(pagedOrder.getContent().stream()
                     .map(OrderMapper::orderToReadableOrder).collect(Collectors.toList()));
             return wrapperReadableOrder;
         }

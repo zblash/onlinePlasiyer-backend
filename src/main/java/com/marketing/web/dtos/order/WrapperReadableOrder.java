@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class WrapperReadableOrder implements Serializable {
 
-    private List<ReadableOrder> orders;
+    private List<ReadableOrder> values;
 
     private String key;
 
@@ -24,7 +24,7 @@ public class WrapperReadableOrder implements Serializable {
 
     private int totalPage;
 
-    private int totalElements;
+    private long totalElements;
 
     private int numberOfElements;
 

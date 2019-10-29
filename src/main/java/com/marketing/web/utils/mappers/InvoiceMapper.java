@@ -42,8 +42,8 @@ public final class InvoiceMapper {
             wrapperReadableInvoice.setFirst(pagedInvoice.isFirst());
             wrapperReadableInvoice.setLast(pagedInvoice.isLast());
             wrapperReadableInvoice.setNumberOfElements(pagedInvoice.getNumberOfElements());
-            wrapperReadableInvoice.setTotalElements(pagedInvoice.getNumberOfElements());
-            wrapperReadableInvoice.setInvoices(pagedInvoice.getContent().stream()
+            wrapperReadableInvoice.setTotalElements(pagedInvoice.getTotalElements());
+            wrapperReadableInvoice.setValues(pagedInvoice.getContent().stream()
                     .map(InvoiceMapper::invoiceToReadableInvoice).collect(Collectors.toList()));
             return wrapperReadableInvoice;
         }

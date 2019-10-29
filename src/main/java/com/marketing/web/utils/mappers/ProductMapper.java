@@ -91,8 +91,8 @@ public final class ProductMapper {
             wrapperReadableProduct.setFirst(pagedProduct.isFirst());
             wrapperReadableProduct.setLast(pagedProduct.isLast());
             wrapperReadableProduct.setNumberOfElements(pagedProduct.getNumberOfElements());
-            wrapperReadableProduct.setTotalElements(pagedProduct.getNumberOfElements());
-            wrapperReadableProduct.setProducts(pagedProduct.getContent().stream()
+            wrapperReadableProduct.setTotalElements(pagedProduct.getTotalElements());
+            wrapperReadableProduct.setValues(pagedProduct.getContent().stream()
                     .map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
             return wrapperReadableProduct;
         }
@@ -115,8 +115,8 @@ public final class ProductMapper {
             wrapperReadableProductSpecify.setFirst(pagedProductSpecify.isFirst());
             wrapperReadableProductSpecify.setLast(pagedProductSpecify.isLast());
             wrapperReadableProductSpecify.setNumberOfElements(pagedProductSpecify.getNumberOfElements());
-            wrapperReadableProductSpecify.setTotalElements(pagedProductSpecify.getNumberOfElements());
-            wrapperReadableProductSpecify.setProductSpecifies(pagedProductSpecify.getContent().stream()
+            wrapperReadableProductSpecify.setTotalElements(pagedProductSpecify.getTotalElements());
+            wrapperReadableProductSpecify.setValues(pagedProductSpecify.getContent().stream()
                     .map(ProductMapper::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
             return wrapperReadableProductSpecify;
         }

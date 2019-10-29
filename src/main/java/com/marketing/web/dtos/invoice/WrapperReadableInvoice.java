@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class WrapperReadableInvoice implements Serializable {
 
-    private List<ReadableInvoice> invoices;
+    private List<ReadableInvoice> values;
 
     private String key;
 
@@ -24,7 +24,7 @@ public class WrapperReadableInvoice implements Serializable {
 
     private int totalPage;
 
-    private int totalElements;
+    private long totalElements;
 
     private int numberOfElements;
 
