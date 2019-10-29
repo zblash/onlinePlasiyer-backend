@@ -4,10 +4,13 @@ import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Invoice;
 import com.marketing.web.models.Order;
+import com.marketing.web.models.Product;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.InvoiceRepository;
 import com.marketing.web.services.order.OrderServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,7 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class InvoiceServiceImpl implements InvoiceService{
+public class InvoiceServiceImpl implements InvoiceService {
 
     @Autowired
     private InvoiceRepository invoiceRepository;
@@ -24,8 +27,13 @@ public class InvoiceServiceImpl implements InvoiceService{
     private OrderServiceImpl orderService;
 
     @Override
-    public List<Invoice> findAll() {
-        return invoiceRepository.findAll();
+    public Page<Invoice> findAll(int pageNumber) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
+        Page<Invoice> resultPage = invoiceRepository.findAllByOrderByIdDesc(pageRequest);
+        if (pageNumber > resultPage.getTotalPages()) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+        return resultPage;
     }
 
     @Override
@@ -45,15 +53,22 @@ public class InvoiceServiceImpl implements InvoiceService{
     }
 
     @Override
-    public List<Invoice> findAllByUser(User user) {
+    public Page<Invoice> findAllByUser(User user, int pageNumber) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
+        Page<Invoice> resultPage = null;
         if (user.getRole().getName().equals("ROLE_"+RoleType.CUSTOMER.toString())){
-            return invoiceRepository.findAllByBuyer_Id(user.getId());
+            resultPage = invoiceRepository.findAllByBuyer_IdOrderByIdDesc(user.getId(), pageRequest);
         }else if (user.getRole().getName().equals("ROLE_"+RoleType.MERCHANT.toString())){
-            return invoiceRepository.findAllBySeller_Id(user.getId());
-        }else if (user.getRole().getName().equals("ROLE_"+RoleType.ADMIN)){
-            return invoiceRepository.findAll();
+            resultPage = invoiceRepository.findAllBySeller_IdOrderByIdDesc(user.getId(), pageRequest);
+        }else{
+            resultPage = invoiceRepository.findAllByOrderByIdDesc(pageRequest);
         }
-        throw new ResourceNotFoundException("You have no invoice(s)");
+
+        if (pageNumber > resultPage.getTotalPages()) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+
+        return resultPage;
     }
 
     @Override
@@ -69,6 +84,21 @@ public class InvoiceServiceImpl implements InvoiceService{
         }
 
         return optionalInvoice.orElseThrow(() -> new ResourceNotFoundException("Invoice not found with given orderId: "+ orderId));
+    }
+
+    @Override
+    public Invoice findByUUIDAndUser(String uuid, User user) {
+        Optional<Invoice> optionalInvoice = Optional.empty();
+        if (user.getRole().getName().equals("ROLE_"+RoleType.CUSTOMER.toString())){
+            optionalInvoice = invoiceRepository.findByUuidAndBuyer_Id(UUID.fromString(uuid),user.getId());
+        }else if (user.getRole().getName().equals("ROLE_"+RoleType.MERCHANT.toString())){
+            optionalInvoice =  invoiceRepository.findByUuidAndSeller_Id(UUID.fromString(uuid),user.getId());
+        }else {
+            optionalInvoice =  invoiceRepository.findByUuid(UUID.fromString(uuid));
+        }
+
+        return optionalInvoice.orElseThrow(() -> new ResourceNotFoundException("Invoice not found with given id: "+ uuid));
+
     }
 
 

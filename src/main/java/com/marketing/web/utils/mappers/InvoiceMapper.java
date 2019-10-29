@@ -1,7 +1,11 @@
 package com.marketing.web.utils.mappers;
 
 import com.marketing.web.dtos.invoice.ReadableInvoice;
+import com.marketing.web.dtos.invoice.WrapperReadableInvoice;
 import com.marketing.web.models.Invoice;
+import org.springframework.data.domain.Page;
+
+import java.util.stream.Collectors;
 
 public final class InvoiceMapper {
 
@@ -18,6 +22,30 @@ public final class InvoiceMapper {
             readableInvoice.setTotalPrice(invoice.getTotalPrice());
             readableInvoice.setUnPaidPrice(invoice.getUnPaidPrice());
             return readableInvoice;
+        }
+    }
+
+    public static WrapperReadableInvoice pagedInvoiceListToWrapperReadableInvoice(Page<Invoice> pagedInvoice){
+        if (pagedInvoice == null) {
+            return null;
+        } else {
+            WrapperReadableInvoice wrapperReadableInvoice = new WrapperReadableInvoice();
+            wrapperReadableInvoice.setKey("invoices");
+            wrapperReadableInvoice.setTotalPage(pagedInvoice.getTotalPages());
+            wrapperReadableInvoice.setPageNumber(pagedInvoice.getNumber()+1);
+            if (pagedInvoice.hasPrevious()) {
+                wrapperReadableInvoice.setPreviousPage(pagedInvoice.getNumber());
+            }
+            if (pagedInvoice.hasNext()) {
+                wrapperReadableInvoice.setNextPage(pagedInvoice.getNumber()+2);
+            }
+            wrapperReadableInvoice.setFirst(pagedInvoice.isFirst());
+            wrapperReadableInvoice.setLast(pagedInvoice.isLast());
+            wrapperReadableInvoice.setNumberOfElements(pagedInvoice.getNumberOfElements());
+            wrapperReadableInvoice.setTotalElements(pagedInvoice.getNumberOfElements());
+            wrapperReadableInvoice.setInvoices(pagedInvoice.getContent().stream()
+                    .map(InvoiceMapper::invoiceToReadableInvoice).collect(Collectors.toList()));
+            return wrapperReadableInvoice;
         }
     }
 }

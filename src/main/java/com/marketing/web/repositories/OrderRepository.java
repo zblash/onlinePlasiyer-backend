@@ -3,6 +3,8 @@ package com.marketing.web.repositories;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 import org.aspectj.weaver.ast.Or;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -12,6 +14,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface OrderRepository extends JpaRepository<Order,Long> {
+
+    Page<Order> findAllByOrderByIdDesc(Pageable pageable);
 
     List<Order> findAllByBuyer_Id(Long id);
 
@@ -30,7 +34,7 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
 
     Optional<Order> findByUuid(UUID uuid);
 
-    List<Order> findAllBySellerOrBuyer(User seller,User buyer);
+    Page<Order> findAllBySellerOrBuyerOrderByIdDesc(User seller, User buyer, Pageable pageable);
 
     Optional<Order> findByUuidAndAndBuyerOrSeller(UUID uuid,User buyer,User seller);
 }

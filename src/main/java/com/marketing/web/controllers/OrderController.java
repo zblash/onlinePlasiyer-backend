@@ -1,20 +1,14 @@
 package com.marketing.web.controllers;
 
-import com.marketing.web.dtos.order.ReadableOrder;
-import com.marketing.web.dtos.order.ReadableOrderItem;
-import com.marketing.web.dtos.order.SearchOrder;
-import com.marketing.web.dtos.order.WritableOrder;
+import com.marketing.web.dtos.order.*;
 import com.marketing.web.enums.OrderStatus;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 import com.marketing.web.services.order.OrderItemService;
-import com.marketing.web.services.order.OrderItemServiceImpl;
 import com.marketing.web.services.order.OrderService;
-import com.marketing.web.services.order.OrderServiceImpl;
 import com.marketing.web.services.user.UserService;
-import com.marketing.web.services.user.UserServiceImpl;
 import com.marketing.web.utils.facade.OrderFacade;
 import com.marketing.web.utils.mappers.OrderMapper;
 import com.marketing.web.utils.mappers.UserMapper;
@@ -48,16 +42,17 @@ public class OrderController {
     private Logger logger = LoggerFactory.getLogger(OrderController.class);
 
     @GetMapping
-    public ResponseEntity<List<ReadableOrder>> getOrders(){
+    public ResponseEntity<WrapperReadableOrder> getOrders(@RequestParam(required = false) Integer pageNumber){
+        if (pageNumber == null){
+            pageNumber=1;
+        }
         User user = userService.getLoggedInUser();
 
         if (UserMapper.roleToRoleType(user.getRole()).equals(RoleType.ADMIN)){
-            return ResponseEntity.ok(orderService.findAll().stream()
-                    .map(OrderMapper::orderToReadableOrder).collect(Collectors.toList()));
+            return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAll(pageNumber)));
         }
 
-        return ResponseEntity.ok(orderService.findAllByUser(user).stream()
-                .map(OrderMapper::orderToReadableOrder).collect(Collectors.toList()));
+        return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(user,pageNumber)));
     }
 
     @PostMapping("/filter")
@@ -96,7 +91,6 @@ public class OrderController {
     @PostMapping("/update/{id}")
     public ResponseEntity<ReadableOrder> updateOrder(@PathVariable String id, @RequestBody WritableOrder order){
         User user = userService.getLoggedInUser();
-        logger.info(Double.toString(order.getDiscount()));
         ReadableOrder readableOrder = orderFacade.saveOrder(order,id,user);
         return ResponseEntity.ok(readableOrder);
     }

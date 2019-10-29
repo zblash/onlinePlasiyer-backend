@@ -6,6 +6,8 @@ import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -17,8 +19,13 @@ public class OrderServiceImpl implements OrderService {
     private OrderRepository orderRepository;
 
     @Override
-    public List<Order> findAll(){
-        return orderRepository.findAll();
+    public Page<Order> findAll(int pageNumber){
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
+        Page<Order> resultPage = orderRepository.findAllByOrderByIdDesc(pageRequest);
+        if (pageNumber > resultPage.getTotalPages()) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+        return resultPage;
     }
 
     @Override
@@ -32,8 +39,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> findAllByUser(User user){
-        return orderRepository.findAllBySellerOrBuyer(user,user);
+    public Page<Order> findAllByUser(User user, int pageNumber){
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
+        Page<Order> resultPage = orderRepository.findAllBySellerOrBuyerOrderByIdDesc(user,user,pageRequest);
+        if (pageNumber > resultPage.getTotalPages()) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+        return resultPage;
     }
 
     @Override
