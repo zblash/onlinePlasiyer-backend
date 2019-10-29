@@ -2,10 +2,12 @@ package com.marketing.web.utils.mappers;
 
 import com.marketing.web.dtos.order.ReadableOrder;
 import com.marketing.web.dtos.order.ReadableOrderItem;
+import com.marketing.web.dtos.order.WrapperReadableOrder;
 import com.marketing.web.models.Barcode;
 import com.marketing.web.models.CartItem;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.OrderItem;
+import org.springframework.data.domain.Page;
 
 import java.util.stream.Collectors;
 
@@ -64,6 +66,30 @@ public final class OrderMapper {
             readableOrderItem.setQuantity(orderItem.getQuantity());
             readableOrderItem.setTotalPrice(orderItem.getTotalPrice());
             return readableOrderItem;
+        }
+    }
+
+    public static WrapperReadableOrder pagedOrderListToWrapperReadableOrder(Page<Order> pagedOrder){
+        if (pagedOrder == null) {
+            return null;
+        } else {
+            WrapperReadableOrder wrapperReadableOrder = new WrapperReadableOrder();
+            wrapperReadableOrder.setKey("orders");
+            wrapperReadableOrder.setTotalPage(pagedOrder.getTotalPages());
+            wrapperReadableOrder.setPageNumber(pagedOrder.getNumber()+1);
+            if (pagedOrder.hasPrevious()) {
+                wrapperReadableOrder.setPreviousPage(pagedOrder.getNumber());
+            }
+            if (pagedOrder.hasNext()) {
+                wrapperReadableOrder.setNextPage(pagedOrder.getNumber()+2);
+            }
+            wrapperReadableOrder.setFirst(pagedOrder.isFirst());
+            wrapperReadableOrder.setLast(pagedOrder.isLast());
+            wrapperReadableOrder.setNumberOfElements(pagedOrder.getNumberOfElements());
+            wrapperReadableOrder.setTotalElements(pagedOrder.getNumberOfElements());
+            wrapperReadableOrder.setOrders(pagedOrder.getContent().stream()
+                    .map(OrderMapper::orderToReadableOrder).collect(Collectors.toList()));
+            return wrapperReadableOrder;
         }
     }
 }

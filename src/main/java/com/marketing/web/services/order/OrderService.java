@@ -1,22 +1,21 @@
 package com.marketing.web.services.order;
 
 import com.marketing.web.dtos.order.SearchOrder;
-import com.marketing.web.models.CartItem;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
+import org.springframework.data.domain.Page;
 
-import java.util.BitSet;
 import java.util.List;
 
 public interface OrderService {
 
-    List<Order> findAll();
+    Page<Order> findAll(int pageNumber);
 
     List<Order> findAllByFilter(SearchOrder searchOrder);
 
     List<Order> findAllByFilterAndUser(SearchOrder searchOrder, User user);
 
-    List<Order> findAllByUser(User user);
+    Page<Order> findAllByUser(User user, int pageNumber);
 
     Order findById(Long id);
 

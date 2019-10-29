@@ -1,6 +1,7 @@
 package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.invoice.ReadableInvoice;
+import com.marketing.web.dtos.invoice.WrapperReadableInvoice;
 import com.marketing.web.models.Invoice;
 import com.marketing.web.models.User;
 import com.marketing.web.services.invoice.InvoiceService;
@@ -26,11 +27,21 @@ public class InvoiceController {
     private InvoiceService invoiceService;
 
     @GetMapping
-    public ResponseEntity<List<ReadableInvoice>> getAll(){
+    public ResponseEntity<WrapperReadableInvoice> getAll(@RequestParam(required = false) Integer pageNumber){
+        if (pageNumber == null){
+            pageNumber=1;
+        }
         User user = userService.getLoggedInUser();
-        List<ReadableInvoice> readableInvoices = invoiceService.findAllByUser(user).stream()
-                    .map(InvoiceMapper::invoiceToReadableInvoice).collect(Collectors.toList());
-        return ResponseEntity.ok(readableInvoices);
+
+        return ResponseEntity.ok(
+                InvoiceMapper.pagedInvoiceListToWrapperReadableInvoice(invoiceService.findAllByUser(user, pageNumber)));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ReadableInvoice> getInvoiceById(@PathVariable String id){
+        User user = userService.getLoggedInUser();
+        Invoice invoice = invoiceService.findByUUIDAndUser(id, user);
+        return ResponseEntity.ok(InvoiceMapper.invoiceToReadableInvoice(invoice));
     }
 
     @PostMapping("/byOrder/{orderId}")

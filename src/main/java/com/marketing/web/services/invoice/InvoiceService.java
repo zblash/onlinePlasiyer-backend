@@ -2,12 +2,13 @@ package com.marketing.web.services.invoice;
 
 import com.marketing.web.models.Invoice;
 import com.marketing.web.models.User;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface InvoiceService {
 
-    List<Invoice> findAll();
+    Page<Invoice> findAll(int pageNumber);
 
     Invoice findById(Long id);
 
@@ -15,9 +16,11 @@ public interface InvoiceService {
 
     Invoice findByOrder(String orderId);
 
-    List<Invoice> findAllByUser(User user);
+    Page<Invoice> findAllByUser(User user, int pageNumber);
 
     Invoice findByOrderAndUser(String orderId, User user);
+
+    Invoice findByUUIDAndUser(String uuid, User user);
 
     Invoice create(Invoice invoice);
 
