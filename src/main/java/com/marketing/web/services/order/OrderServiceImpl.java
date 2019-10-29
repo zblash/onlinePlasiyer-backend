@@ -49,6 +49,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public List<Order> findAllByUserWithoutPagination(User user) {
+        return orderRepository.findAllBySellerOrBuyerOrderByIdDesc(user,user);
+    }
+
+    @Override
     public Order findById(Long id) {
         return orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order not found with id:" + id));
     }
