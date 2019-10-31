@@ -30,7 +30,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     public Page<Invoice> findAll(int pageNumber) {
         PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
         Page<Invoice> resultPage = invoiceRepository.findAllByOrderByIdDesc(pageRequest);
-        if (pageNumber > resultPage.getTotalPages()) {
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
         return resultPage;
@@ -64,7 +64,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             resultPage = invoiceRepository.findAllByOrderByIdDesc(pageRequest);
         }
 
-        if (pageNumber > resultPage.getTotalPages()) {
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
 

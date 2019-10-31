@@ -22,7 +22,7 @@ public class OrderServiceImpl implements OrderService {
     public Page<Order> findAll(int pageNumber){
         PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
         Page<Order> resultPage = orderRepository.findAllByOrderByIdDesc(pageRequest);
-        if (pageNumber > resultPage.getTotalPages()) {
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
         return resultPage;
@@ -42,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
     public Page<Order> findAllByUser(User user, int pageNumber){
         PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
         Page<Order> resultPage = orderRepository.findAllBySellerOrBuyerOrderByIdDesc(user,user,pageRequest);
-        if (pageNumber > resultPage.getTotalPages()) {
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
         return resultPage;

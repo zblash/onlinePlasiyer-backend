@@ -30,7 +30,7 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     public Page<ProductSpecify> findAll(int pageNumber) {
         PageRequest pageRequest = PageRequest.of(pageNumber-1,20);
         Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByOrderByIdDesc(pageRequest);
-        if (pageNumber > resultPage.getTotalPages()) {
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
         return resultPage;
@@ -40,7 +40,7 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     public Page<ProductSpecify> findAllByUser(User user, int pageNumber) {
         PageRequest pageRequest = PageRequest.of(pageNumber-1,20);
         Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByUserOrderByIdDesc(user, pageRequest);
-        if (pageNumber > resultPage.getTotalPages()) {
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
         return resultPage;
@@ -50,7 +50,7 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     public Page<ProductSpecify> findAllByProduct(Product product, int pageNumber) {
         PageRequest pageRequest = PageRequest.of(pageNumber-1,20);
         Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByProductOrderByIdDesc(product, pageRequest);
-        if (pageNumber > resultPage.getTotalPages()) {
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
         return resultPage;
@@ -60,7 +60,7 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     public Page<ProductSpecify> findAllByProductAndStates(Product product, List<State> states, int pageNumber) {
         PageRequest pageRequest = PageRequest.of(pageNumber-1,20);
         Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByProductAndStatesInOrderByIdDesc(product,states, pageRequest);
-        if (pageNumber > resultPage.getTotalPages()) {
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
         return resultPage;
