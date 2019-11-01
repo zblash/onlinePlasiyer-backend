@@ -113,7 +113,7 @@ public class ProductsController {
             if (product == null) {
                 product = ProductMapper.writableProductToProduct(writableProduct);
                 String fileName = storageService.store(uploadfile);
-                product.setPhotoUrl(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath()+"/"+fileName);
+                product.setPhotoUrl(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath()+"/photos/"+fileName);
                 product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
                 if (!user.getRole().getName().equals("ROLE_ADMIN")) {
                     product.setStatus(false);
@@ -151,7 +151,7 @@ public class ProductsController {
         Product product = barcodeService.findByBarcodeNo(writableProduct.getBarcode()).getProduct();
         if (uploadfile != null && !uploadfile.isEmpty()) {
             String fileName = storageService.store(uploadfile);
-            product.setPhotoUrl(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath()+"/"+fileName);
+            product.setPhotoUrl(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath()+"/photos/"+fileName);
 
         }
         product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
