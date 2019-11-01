@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -66,6 +67,7 @@ public class User implements Serializable {
     @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL,mappedBy = "user")
     @JoinColumn(name = "cart_id",referencedColumnName = "id")
+    @EqualsAndHashCode.Exclude
     private Cart cart;
 
     @PrePersist

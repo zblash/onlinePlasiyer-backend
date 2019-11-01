@@ -41,6 +41,7 @@ public class Product implements Serializable  {
     private boolean status;
 
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL,orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
     private Set<ProductSpecify> productSpecifies;
 
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
