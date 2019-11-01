@@ -1,5 +1,6 @@
 package com.marketing.web.utils.mappers;
 
+import com.marketing.web.dtos.WrapperPagination;
 import com.marketing.web.dtos.product.*;
 import com.marketing.web.models.Barcode;
 import com.marketing.web.models.Product;
@@ -74,11 +75,11 @@ public final class ProductMapper {
         }
     }
 
-    public static WrapperReadableProduct pagedProductListToWrapperReadableProduct(Page<Product> pagedProduct){
+    public static WrapperPagination<ReadableProduct> pagedProductListToWrapperReadableProduct(Page<Product> pagedProduct){
         if (pagedProduct == null) {
             return null;
         } else {
-            WrapperReadableProduct wrapperReadableProduct = new WrapperReadableProduct();
+            WrapperPagination<ReadableProduct> wrapperReadableProduct = new WrapperPagination<>();
             wrapperReadableProduct.setKey("products");
             wrapperReadableProduct.setTotalPage(pagedProduct.getTotalPages());
             wrapperReadableProduct.setPageNumber(pagedProduct.getNumber()+1);
@@ -90,7 +91,7 @@ public final class ProductMapper {
             }
             wrapperReadableProduct.setFirst(pagedProduct.isFirst());
             wrapperReadableProduct.setLast(pagedProduct.isLast());
-            wrapperReadableProduct.setNumberOfElements(pagedProduct.getNumberOfElements());
+            wrapperReadableProduct.setElementCountOfPage(15);
             wrapperReadableProduct.setTotalElements(pagedProduct.getTotalElements());
             wrapperReadableProduct.setValues(pagedProduct.getContent().stream()
                     .map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
@@ -98,11 +99,11 @@ public final class ProductMapper {
         }
     }
 
-    public static WrapperReadableProductSpecify pagedProductSpecifyListToWrapperReadableProductSpecify(Page<ProductSpecify> pagedProductSpecify){
+    public static WrapperPagination<ReadableProductSpecify> pagedProductSpecifyListToWrapperReadableProductSpecify(Page<ProductSpecify> pagedProductSpecify){
         if (pagedProductSpecify == null) {
             return null;
         } else {
-            WrapperReadableProductSpecify wrapperReadableProductSpecify = new WrapperReadableProductSpecify();
+            WrapperPagination<ReadableProductSpecify> wrapperReadableProductSpecify = new WrapperPagination<>();
             wrapperReadableProductSpecify.setKey("productSpecifies");
             wrapperReadableProductSpecify.setTotalPage(pagedProductSpecify.getTotalPages());
             wrapperReadableProductSpecify.setPageNumber(pagedProductSpecify.getNumber()+1);
@@ -114,7 +115,7 @@ public final class ProductMapper {
             }
             wrapperReadableProductSpecify.setFirst(pagedProductSpecify.isFirst());
             wrapperReadableProductSpecify.setLast(pagedProductSpecify.isLast());
-            wrapperReadableProductSpecify.setNumberOfElements(pagedProductSpecify.getNumberOfElements());
+            wrapperReadableProductSpecify.setElementCountOfPage(15);
             wrapperReadableProductSpecify.setTotalElements(pagedProductSpecify.getTotalElements());
             wrapperReadableProductSpecify.setValues(pagedProductSpecify.getContent().stream()
                     .map(ProductMapper::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));

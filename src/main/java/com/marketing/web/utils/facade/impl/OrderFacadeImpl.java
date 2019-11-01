@@ -46,6 +46,10 @@ public class OrderFacadeImpl implements OrderFacade {
         order.setWaybillDate(writableOrder.getWaybillDate());
 
         if (writableOrder.getStatus().equals(OrderStatus.FNS) || order.getStatus().equals(OrderStatus.PAD)){
+
+            double commission = order.getTotalPrice() * 0.01;
+            order.setCommission(commission);
+
             Invoice invoice = new Invoice();
             invoice.setBuyer(order.getBuyer());
             invoice.setSeller(order.getSeller());

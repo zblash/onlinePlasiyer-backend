@@ -1,20 +1,15 @@
 package com.marketing.web.controllers;
 
+import com.marketing.web.dtos.WrapperPagination;
 import com.marketing.web.dtos.invoice.ReadableInvoice;
-import com.marketing.web.dtos.invoice.WrapperReadableInvoice;
 import com.marketing.web.models.Invoice;
 import com.marketing.web.models.User;
 import com.marketing.web.services.invoice.InvoiceService;
-import com.marketing.web.services.invoice.InvoiceServiceImpl;
 import com.marketing.web.services.user.UserService;
-import com.marketing.web.services.user.UserServiceImpl;
 import com.marketing.web.utils.mappers.InvoiceMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/invoices")
@@ -27,7 +22,7 @@ public class InvoiceController {
     private InvoiceService invoiceService;
 
     @GetMapping
-    public ResponseEntity<WrapperReadableInvoice> getAll(@RequestParam(required = false) Integer pageNumber){
+    public ResponseEntity<WrapperPagination<ReadableInvoice>> getAll(@RequestParam(required = false) Integer pageNumber){
         if (pageNumber == null){
             pageNumber=1;
         }

@@ -1,21 +1,18 @@
 package com.marketing.web.controllers;
 
+import com.marketing.web.dtos.WrapperPagination;
 import com.marketing.web.dtos.product.ReadableProduct;
-import com.marketing.web.dtos.product.WrapperReadableProduct;
 import com.marketing.web.dtos.product.WritableBarcode;
 import com.marketing.web.dtos.product.WritableProduct;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
-import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Barcode;
 import com.marketing.web.models.Category;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.User;
-import com.marketing.web.pubsub.ProductProducer;
 import com.marketing.web.services.category.CategoryService;
 import com.marketing.web.services.product.BarcodeService;
 import com.marketing.web.services.product.ProductService;
-import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.services.storage.StorageService;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.ProductMapper;
@@ -54,7 +51,7 @@ public class ProductsController {
     private Logger logger = LoggerFactory.getLogger(ProductsController.class);
 
     @GetMapping
-    public ResponseEntity<WrapperReadableProduct> getAll(@RequestParam(required = false) Integer pageNumber){
+    public ResponseEntity<WrapperPagination<ReadableProduct>> getAll(@RequestParam(required = false) Integer pageNumber){
         if (pageNumber == null){
             pageNumber=1;
         }
@@ -62,7 +59,7 @@ public class ProductsController {
     }
 
     @GetMapping("/actives")
-    public ResponseEntity<WrapperReadableProduct> getAllActives(@RequestParam(required = false) Integer pageNumber){
+    public ResponseEntity<WrapperPagination<ReadableProduct>> getAllActives(@RequestParam(required = false) Integer pageNumber){
         if (pageNumber == null){
             pageNumber=1;
         }
@@ -70,7 +67,7 @@ public class ProductsController {
     }
 
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<WrapperReadableProduct> getAllByCategory(@PathVariable String categoryId,@RequestParam(required = false) Integer pageNumber){
+    public ResponseEntity<WrapperPagination<ReadableProduct>> getAllByCategory(@PathVariable String categoryId,@RequestParam(required = false) Integer pageNumber){
         if (pageNumber == null){
             pageNumber=1;
         }

@@ -28,7 +28,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public Page<Invoice> findAll(int pageNumber) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
         Page<Invoice> resultPage = invoiceRepository.findAllByOrderByIdDesc(pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
@@ -54,7 +54,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public Page<Invoice> findAllByUser(User user, int pageNumber) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
         Page<Invoice> resultPage = null;
         if (user.getRole().getName().equals("ROLE_"+RoleType.CUSTOMER.toString())){
             resultPage = invoiceRepository.findAllByBuyer_IdOrderByIdDesc(user.getId(), pageRequest);

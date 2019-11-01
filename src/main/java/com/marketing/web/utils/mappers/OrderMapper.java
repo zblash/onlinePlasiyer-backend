@@ -1,8 +1,8 @@
 package com.marketing.web.utils.mappers;
 
+import com.marketing.web.dtos.WrapperPagination;
 import com.marketing.web.dtos.order.ReadableOrder;
 import com.marketing.web.dtos.order.ReadableOrderItem;
-import com.marketing.web.dtos.order.WrapperReadableOrder;
 import com.marketing.web.models.Barcode;
 import com.marketing.web.models.CartItem;
 import com.marketing.web.models.Order;
@@ -42,6 +42,7 @@ public final class OrderMapper {
             readableOrder.setWaybillDate(order.getWaybillDate());
             readableOrder.setTotalPrice(order.getTotalPrice());
             readableOrder.setStatus(order.getStatus());
+            readableOrder.setCommission(order.getCommission());
             readableOrder.setOrderItems(order.getOrderItems().stream()
                     .map(OrderMapper::orderItemToReadableOrderItem).collect(Collectors.toList()));
             return readableOrder;
@@ -69,11 +70,11 @@ public final class OrderMapper {
         }
     }
 
-    public static WrapperReadableOrder pagedOrderListToWrapperReadableOrder(Page<Order> pagedOrder){
+    public static WrapperPagination<ReadableOrder> pagedOrderListToWrapperReadableOrder(Page<Order> pagedOrder){
         if (pagedOrder == null) {
             return null;
         } else {
-            WrapperReadableOrder wrapperReadableOrder = new WrapperReadableOrder();
+            WrapperPagination<ReadableOrder> wrapperReadableOrder = new WrapperPagination<>();
             wrapperReadableOrder.setKey("orders");
             wrapperReadableOrder.setTotalPage(pagedOrder.getTotalPages());
             wrapperReadableOrder.setPageNumber(pagedOrder.getNumber()+1);
@@ -85,7 +86,7 @@ public final class OrderMapper {
             }
             wrapperReadableOrder.setFirst(pagedOrder.isFirst());
             wrapperReadableOrder.setLast(pagedOrder.isLast());
-            wrapperReadableOrder.setNumberOfElements(pagedOrder.getNumberOfElements());
+            wrapperReadableOrder.setElementCountOfPage(15);
             wrapperReadableOrder.setTotalElements(pagedOrder.getTotalElements());
             wrapperReadableOrder.setValues(pagedOrder.getContent().stream()
                     .map(OrderMapper::orderToReadableOrder).collect(Collectors.toList()));

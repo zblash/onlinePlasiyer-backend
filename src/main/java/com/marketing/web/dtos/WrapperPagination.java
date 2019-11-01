@@ -1,8 +1,7 @@
-package com.marketing.web.dtos.product;
+package com.marketing.web.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
@@ -11,9 +10,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WrapperReadableProduct implements Serializable {
-
-    private List<ReadableProduct> values;
+public class WrapperPagination<T> implements Serializable {
+    private List<T> values;
 
     private String key;
 
@@ -27,7 +25,7 @@ public class WrapperReadableProduct implements Serializable {
 
     private long totalElements;
 
-    private int numberOfElements;
+    private int elementCountOfPage;
 
     private boolean last;
 

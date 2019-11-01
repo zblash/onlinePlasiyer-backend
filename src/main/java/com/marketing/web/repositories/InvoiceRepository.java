@@ -2,7 +2,6 @@ package com.marketing.web.repositories;
 
 import com.marketing.web.models.Invoice;
 import com.marketing.web.models.Order;
-import io.swagger.models.auth.In;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

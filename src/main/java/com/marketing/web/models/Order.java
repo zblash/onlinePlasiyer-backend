@@ -29,6 +29,8 @@ public class Order implements Serializable  {
     @NotNull
     private double totalPrice;
 
+    private double commission;
+
     @NotNull
     private OrderStatus status;
 

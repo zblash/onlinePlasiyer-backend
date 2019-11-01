@@ -1,5 +1,6 @@
 package com.marketing.web.controllers;
 
+import com.marketing.web.dtos.WrapperPagination;
 import com.marketing.web.dtos.order.*;
 import com.marketing.web.enums.OrderStatus;
 import com.marketing.web.enums.RoleType;
@@ -42,7 +43,7 @@ public class OrderController {
     private Logger logger = LoggerFactory.getLogger(OrderController.class);
 
     @GetMapping
-    public ResponseEntity<WrapperReadableOrder> getOrders(@RequestParam(required = false) Integer pageNumber){
+    public ResponseEntity<WrapperPagination<ReadableOrder>> getOrders(@RequestParam(required = false) Integer pageNumber){
         if (pageNumber == null){
             pageNumber=1;
         }
@@ -95,15 +96,16 @@ public class OrderController {
         return ResponseEntity.ok(readableOrder);
     }
 
-    @PreAuthorize("hasRole('ROLE_MERCHANT')")
-    @PostMapping("changeStatus/{id}/{status}")
-    public ResponseEntity<ReadableOrder> changeOrderStatus(@PathVariable String id,@PathVariable String status){
-        User user = userService.getLoggedInUser();
-        OrderStatus orderStatus = OrderStatus.fromValue(status.toUpperCase());
-        Order order = orderService.findByUuidAndUser(id,user);
-        order.setStatus(orderStatus);
-        return ResponseEntity.ok(OrderMapper.orderToReadableOrder(
-                orderService.update(order.getUuid().toString(),order)));
-
-    }
+//    GEREKSIZ METHOD
+//    @PreAuthorize("hasRole('ROLE_MERCHANT')")
+//    @PostMapping("changeStatus/{id}/{status}")
+//    public ResponseEntity<ReadableOrder> changeOrderStatus(@PathVariable String id,@PathVariable String status){
+//        User user = userService.getLoggedInUser();
+//        OrderStatus orderStatus = OrderStatus.fromValue(status.toUpperCase());
+//        Order order = orderService.findByUuidAndUser(id,user);
+//        order.setStatus(orderStatus);
+//        return ResponseEntity.ok(OrderMapper.orderToReadableOrder(
+//                orderService.update(order.getUuid().toString(),order)));
+//
+//    }
 }
