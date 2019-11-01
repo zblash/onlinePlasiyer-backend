@@ -113,7 +113,7 @@ public class ProductsController {
             if (product == null) {
                 product = ProductMapper.writableProductToProduct(writableProduct);
                 String fileName = storageService.store(uploadfile);
-                product.setPhotoUrl(request.getRequestURL().toString()+"/"+fileName);
+                product.setPhotoUrl(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath()+"/"+fileName);
                 product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
                 if (!user.getRole().getName().equals("ROLE_ADMIN")) {
                     product.setStatus(false);
@@ -147,11 +147,11 @@ public class ProductsController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile, @RequestHeader String host){
+    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile, HttpServletRequest request){
         Product product = barcodeService.findByBarcodeNo(writableProduct.getBarcode()).getProduct();
         if (uploadfile != null && !uploadfile.isEmpty()) {
             String fileName = storageService.store(uploadfile);
-            product.setPhotoUrl(host+"/"+fileName);
+            product.setPhotoUrl(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath()+"/"+fileName);
 
         }
         product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
