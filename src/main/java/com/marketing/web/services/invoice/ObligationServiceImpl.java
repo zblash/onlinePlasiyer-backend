@@ -11,6 +11,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.UUID;
+
 @Service
 public class ObligationServiceImpl implements ObligationService {
 
@@ -31,8 +34,18 @@ public class ObligationServiceImpl implements ObligationService {
     }
 
     @Override
+    public List<Obligation> findAllByUser(User user) {
+        return obligationRepository.findAllByUserOrderByIdDesc(user);
+    }
+
+    @Override
     public Obligation findById(Long id) {
         return obligationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Obligation not found with id: "+ id));
+    }
+
+    @Override
+    public Obligation findByUuid(String uuid) {
+        return obligationRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Obligation not found with id: "+ uuid));
     }
 
     @Override
@@ -42,12 +55,16 @@ public class ObligationServiceImpl implements ObligationService {
 
     @Override
     public Obligation create(Obligation obligation) {
-        return null;
+        return obligationRepository.save(obligation);
     }
 
     @Override
-    public Obligation update(Long id, Obligation updatedObligation) {
-        return null;
+    public Obligation update(String uuid, Obligation updatedObligation) {
+        Obligation obligation = findByUuid(uuid);
+        obligation.setUser(updatedObligation.getUser());
+        obligation.setReceivable(updatedObligation.getReceivable());
+        obligation.setDebt(updatedObligation.getDebt());
+        return obligationRepository.save(obligation);
     }
 
     @Override

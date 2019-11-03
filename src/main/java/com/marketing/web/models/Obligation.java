@@ -23,8 +23,6 @@ public class Obligation implements Serializable {
 
     private User user;
 
-    private double total;
-
     private double debt;
 
     private double receivable;

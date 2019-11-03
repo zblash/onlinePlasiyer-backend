@@ -8,6 +8,7 @@ import com.marketing.web.services.cart.CartItemService;
 import com.marketing.web.services.cart.CartItemServiceImpl;
 import com.marketing.web.services.invoice.InvoiceService;
 import com.marketing.web.services.invoice.InvoiceServiceImpl;
+import com.marketing.web.services.invoice.ObligationService;
 import com.marketing.web.services.order.OrderItemService;
 import com.marketing.web.services.order.OrderItemServiceImpl;
 import com.marketing.web.services.order.OrderService;
@@ -39,6 +40,9 @@ public class OrderFacadeImpl implements OrderFacade {
     @Autowired
     private InvoiceService invoiceService;
 
+    @Autowired
+    private ObligationService obligationService;
+
     @Override
     public ReadableOrder saveOrder(WritableOrder writableOrder, String uuid, User seller) {
         Order order = orderService.findByUuidAndUser(uuid,seller);
@@ -49,6 +53,12 @@ public class OrderFacadeImpl implements OrderFacade {
 
             double commission = order.getTotalPrice() * 0.01;
             order.setCommission(commission);
+
+            Obligation obligation = new Obligation();
+            obligation.setDebt(commission);
+            obligation.setReceivable(0);
+            obligation.setUser(seller);
+            obligationService.create(obligation);
 
             Invoice invoice = new Invoice();
             invoice.setBuyer(order.getBuyer());
