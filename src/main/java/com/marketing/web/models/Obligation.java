@@ -12,7 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "credits")
+@Table(name = "obligations")
 public class Obligation implements Serializable {
 
     @Id
@@ -21,6 +21,8 @@ public class Obligation implements Serializable {
 
     private UUID uuid;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;
 
     private double debt;

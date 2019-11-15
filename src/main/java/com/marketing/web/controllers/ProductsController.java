@@ -97,6 +97,15 @@ public class ProductsController {
         return ResponseEntity.ok(ProductMapper.productToReadableProduct(productBarcode.getProduct()));
     }
 
+    @PostMapping("/hasProduct/{barcode}")
+    public ResponseEntity<Boolean> hasProductByBarcode(@PathVariable String barcode) {
+        Barcode productBarcode = barcodeService.checkByBarcodeNo(barcode);
+        if (productBarcode == null || productBarcode.getProduct() == null) {
+            return ResponseEntity.ok(false);
+        }
+        return ResponseEntity.ok(true);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ReadableProduct> getById(@PathVariable String id){
         return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.findByUUID(id)));
