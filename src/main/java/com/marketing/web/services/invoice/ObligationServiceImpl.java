@@ -1,5 +1,6 @@
 package com.marketing.web.services.invoice;
 
+import com.marketing.web.dtos.obligation.ReadableTotalObligation;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Obligation;
 import com.marketing.web.models.User;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.DoubleStream;
 
 @Service
 public class ObligationServiceImpl implements ObligationService {
@@ -34,11 +36,6 @@ public class ObligationServiceImpl implements ObligationService {
     }
 
     @Override
-    public List<Obligation> findAllByUser(User user) {
-        return obligationRepository.findAllByUserOrderByIdDesc(user);
-    }
-
-    @Override
     public Obligation findById(Long id) {
         return obligationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Obligation not found with id: "+ id));
     }
@@ -50,7 +47,22 @@ public class ObligationServiceImpl implements ObligationService {
 
     @Override
     public Page<Obligation> findAllByUser(User user, int pageNumber) {
-        return null;
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
+        Page<Obligation> resultPage = obligationRepository.findAllByUserOrderByIdDesc(user,pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+        return resultPage;
+    }
+
+    @Override
+    public ReadableTotalObligation getTotalObligationByUser(User user) {
+        List<Obligation> obligations = obligationRepository.findAllByUserOrderByIdDesc(user);
+        ReadableTotalObligation readableTotalObligation = new ReadableTotalObligation();
+        readableTotalObligation.setId(user.getUuid().toString()+user.getId().toString());
+        readableTotalObligation.setTotalDebts(obligations.stream().flatMapToDouble(obligation -> DoubleStream.of(obligation.getDebt())).sum());
+        readableTotalObligation.setTotalReceivables(obligations.stream().flatMapToDouble(obligation -> DoubleStream.of(obligation.getReceivable())).sum());
+        return readableTotalObligation;
     }
 
     @Override

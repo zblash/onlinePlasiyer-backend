@@ -11,6 +11,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class ReadableObligation implements Serializable {
 
+    private String id;
+
     private double debt;
 
     private double receivable;

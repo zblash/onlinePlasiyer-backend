@@ -18,4 +18,6 @@ public interface ObligationRepository extends JpaRepository<Obligation, Long> {
     Optional<Obligation> findByUuid(UUID uuid);
 
     List<Obligation> findAllByUserOrderByIdDesc(User user);
+
+    Page<Obligation> findAllByUserOrderByIdDesc(User user,Pageable pageable);
 }
