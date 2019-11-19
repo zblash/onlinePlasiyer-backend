@@ -49,5 +49,12 @@ public class AnnouncementsController {
         return ResponseEntity.ok(AnnouncementMapper.announcementToReadableAnnouncement(announcementService.create(announcement)));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<ReadableAnnouncement> deleteProduct(@PathVariable String id){
+        Announcement announcement = announcementService.findByUUID(id);
+        announcementService.delete(announcement);
+        return ResponseEntity.ok(AnnouncementMapper.announcementToReadableAnnouncement(announcement));
+    }
 
 }
