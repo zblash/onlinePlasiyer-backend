@@ -11,7 +11,9 @@ import java.util.UUID;
 
 public interface AnnouncementRepository extends JpaRepository<Announcement,Long> {
 
-    Page<Announcement> findAllByLastDateAfter(Date date, Pageable pageable);
+    Page<Announcement> findAllByLastDateAfterOrderByIdDesc(Date date, Pageable pageable);
+
+    Page<Announcement> findAllByOrderByIdDesc(Pageable pageable);
 
     Optional<Announcement> findByUuid(UUID uuid);
 }

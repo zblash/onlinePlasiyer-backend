@@ -37,6 +37,15 @@ public class AnnouncementsController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/all")
+    public ResponseEntity<WrapperPagination<ReadableAnnouncement>> getAllWithInactives(@RequestParam(required = false) Integer pageNumber){
+        if (pageNumber == null){
+            pageNumber=1;
+        }
+        return ResponseEntity.ok(AnnouncementMapper.pagedAnnouncementListToWrapperReadableAnnouncement(announcementService.findAll(pageNumber)));
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<ReadableAnnouncement> createAnnouncement(@Valid WritableAnnouncement writableAnnouncement, @ValidImg @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile, HttpServletRequest request){
 
@@ -47,6 +56,21 @@ public class AnnouncementsController {
         String fileName = storageService.store(uploadfile);
         announcement.setFileUrl(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath()+"/photos/"+fileName);
         return ResponseEntity.ok(AnnouncementMapper.announcementToReadableAnnouncement(announcementService.create(announcement)));
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("/update/{id}")
+    public ResponseEntity<ReadableAnnouncement> updateAnnouncement(@PathVariable String id, @Valid WritableAnnouncement writableAnnouncement, @ValidImg @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile, HttpServletRequest request){
+
+        Announcement announcement = announcementService.findByUUID(id);
+        announcement.setTitle(writableAnnouncement.getTitle());
+        announcement.setMessage(writableAnnouncement.getMessage());
+        announcement.setLastDate(writableAnnouncement.getLastDate());
+        if (uploadfile != null && !uploadfile.isEmpty()) {
+            String fileName = storageService.store(uploadfile);
+            announcement.setFileUrl(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() + "/photos/" + fileName);
+        }
+        return ResponseEntity.ok(AnnouncementMapper.announcementToReadableAnnouncement(announcementService.update(id,announcement)));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

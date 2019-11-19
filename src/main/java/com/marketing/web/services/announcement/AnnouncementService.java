@@ -9,6 +9,8 @@ public interface AnnouncementService {
 
     Page<Announcement> findAllActives(Date date, int pageNumber);
 
+    Page<Announcement> findAll(int pageNumber);
+
     Announcement findById(Long id);
 
     Announcement findByUUID(String uuid);
@@ -18,4 +20,5 @@ public interface AnnouncementService {
     Announcement update(String uuid,Announcement updatedAnnouncement);
 
     void delete(Announcement announcement);
+
 }
