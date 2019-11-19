@@ -1,4 +1,4 @@
-package com.marketing.web.dtos.invoice;
+package com.marketing.web.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,9 +10,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WrapperReadableInvoice implements Serializable {
-
-    private List<ReadableInvoice> invoices;
+public class WrapperPagination<T> implements Serializable {
+    private List<T> values;
 
     private String key;
 
@@ -24,12 +23,11 @@ public class WrapperReadableInvoice implements Serializable {
 
     private int totalPage;
 
-    private int totalElements;
+    private long totalElements;
 
-    private int numberOfElements;
+    private int elementCountOfPage;
 
     private boolean last;
 
     private boolean first;
 }
-

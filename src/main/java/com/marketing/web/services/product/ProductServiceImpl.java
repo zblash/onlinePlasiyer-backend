@@ -27,9 +27,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<Product> findAllByStatus(boolean status, int pageNumber){
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
         Page<Product> resultPage = productRepository.findAllByStatusOrderByIdDesc(status,pageRequest);
-        if (pageNumber > resultPage.getTotalPages()) {
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
         return resultPage;
@@ -38,9 +38,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<Product> findAllByCategory(Category category, int pageNumber){
         List<Category> categories = category.collectLeafChildren();
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
         Page<Product> resultPage = productRepository.findAllByCategoryInOrderByIdDesc(categories,pageRequest);
-        if (pageNumber > resultPage.getTotalPages()) {
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
         return resultPage;
@@ -49,9 +49,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<Product> findAllByCategoryAndStatus(Category category, boolean status, int pageNumber){
         List<Category> categories = category.collectLeafChildren();
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
         Page<Product> resultPage = productRepository.findAllByCategoryInAndStatusOrderByIdDesc(categories, status,pageRequest);
-        if (pageNumber > resultPage.getTotalPages()) {
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
         return resultPage;
@@ -60,9 +60,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<Product> findAll(int pageNumber) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
         Page<Product> resultPage = productRepository.findAllByOrderByIdDesc(pageRequest);
-        if (pageNumber > resultPage.getTotalPages()) {
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
         return resultPage;

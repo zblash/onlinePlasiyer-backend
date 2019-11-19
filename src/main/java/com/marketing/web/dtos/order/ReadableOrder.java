@@ -21,6 +21,8 @@ public class ReadableOrder implements Serializable {
 
     private OrderStatus status;
 
+    private double commission;
+
     private String sellerName;
 
     private String buyerName;

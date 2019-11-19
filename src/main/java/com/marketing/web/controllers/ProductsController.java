@@ -1,21 +1,18 @@
 package com.marketing.web.controllers;
 
+import com.marketing.web.dtos.WrapperPagination;
 import com.marketing.web.dtos.product.ReadableProduct;
-import com.marketing.web.dtos.product.WrapperReadableProduct;
 import com.marketing.web.dtos.product.WritableBarcode;
 import com.marketing.web.dtos.product.WritableProduct;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
-import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Barcode;
 import com.marketing.web.models.Category;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.User;
-import com.marketing.web.pubsub.ProductProducer;
 import com.marketing.web.services.category.CategoryService;
 import com.marketing.web.services.product.BarcodeService;
 import com.marketing.web.services.product.ProductService;
-import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.services.storage.StorageService;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.ProductMapper;
@@ -30,6 +27,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -54,7 +52,7 @@ public class ProductsController {
     private Logger logger = LoggerFactory.getLogger(ProductsController.class);
 
     @GetMapping
-    public ResponseEntity<WrapperReadableProduct> getAll(@RequestParam(required = false) Integer pageNumber){
+    public ResponseEntity<WrapperPagination<ReadableProduct>> getAll(@RequestParam(required = false) Integer pageNumber){
         if (pageNumber == null){
             pageNumber=1;
         }
@@ -62,7 +60,7 @@ public class ProductsController {
     }
 
     @GetMapping("/actives")
-    public ResponseEntity<WrapperReadableProduct> getAllActives(@RequestParam(required = false) Integer pageNumber){
+    public ResponseEntity<WrapperPagination<ReadableProduct>> getAllActives(@RequestParam(required = false) Integer pageNumber){
         if (pageNumber == null){
             pageNumber=1;
         }
@@ -70,7 +68,7 @@ public class ProductsController {
     }
 
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<WrapperReadableProduct> getAllByCategory(@PathVariable String categoryId,@RequestParam(required = false) Integer pageNumber){
+    public ResponseEntity<WrapperPagination<ReadableProduct>> getAllByCategory(@PathVariable String categoryId,@RequestParam(required = false) Integer pageNumber){
         if (pageNumber == null){
             pageNumber=1;
         }
@@ -99,6 +97,15 @@ public class ProductsController {
         return ResponseEntity.ok(ProductMapper.productToReadableProduct(productBarcode.getProduct()));
     }
 
+    @PostMapping("/hasProduct/{barcode}")
+    public ResponseEntity<Boolean> hasProductByBarcode(@PathVariable String barcode) {
+        Barcode productBarcode = barcodeService.checkByBarcodeNo(barcode);
+        if (productBarcode == null || productBarcode.getProduct() == null) {
+            return ResponseEntity.ok(false);
+        }
+        return ResponseEntity.ok(true);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ReadableProduct> getById(@PathVariable String id){
         return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.findByUUID(id)));
@@ -106,7 +113,7 @@ public class ProductsController {
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct,@ValidImg @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile, @RequestHeader String host){
+    public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct,@ValidImg @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile, HttpServletRequest request){
         User user = userService.getLoggedInUser();
 
         Barcode barcode = barcodeService.checkByBarcodeNo(writableProduct.getBarcode());
@@ -115,7 +122,7 @@ public class ProductsController {
             if (product == null) {
                 product = ProductMapper.writableProductToProduct(writableProduct);
                 String fileName = storageService.store(uploadfile);
-                product.setPhotoUrl(host+"/"+fileName);
+                product.setPhotoUrl(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath()+"/photos/"+fileName);
                 product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
                 if (!user.getRole().getName().equals("ROLE_ADMIN")) {
                     product.setStatus(false);
@@ -149,11 +156,11 @@ public class ProductsController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile, @RequestHeader String host){
+    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile, HttpServletRequest request){
         Product product = barcodeService.findByBarcodeNo(writableProduct.getBarcode()).getProduct();
         if (uploadfile != null && !uploadfile.isEmpty()) {
             String fileName = storageService.store(uploadfile);
-            product.setPhotoUrl(host+"/"+fileName);
+            product.setPhotoUrl(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath()+"/photos/"+fileName);
 
         }
         product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));

@@ -36,5 +36,7 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
 
     Page<Order> findAllBySellerOrBuyerOrderByIdDesc(User seller, User buyer, Pageable pageable);
 
+    List<Order> findAllBySellerOrBuyerOrderByIdDesc(User seller, User buyer);
+
     Optional<Order> findByUuidAndAndBuyerOrSeller(UUID uuid,User buyer,User seller);
 }

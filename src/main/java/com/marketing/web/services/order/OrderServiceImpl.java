@@ -20,9 +20,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<Order> findAll(int pageNumber){
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
         Page<Order> resultPage = orderRepository.findAllByOrderByIdDesc(pageRequest);
-        if (pageNumber > resultPage.getTotalPages()) {
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
         return resultPage;
@@ -40,12 +40,17 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<Order> findAllByUser(User user, int pageNumber){
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,12);
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
         Page<Order> resultPage = orderRepository.findAllBySellerOrBuyerOrderByIdDesc(user,user,pageRequest);
-        if (pageNumber > resultPage.getTotalPages()) {
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
         return resultPage;
+    }
+
+    @Override
+    public List<Order> findAllByUserWithoutPagination(User user) {
+        return orderRepository.findAllBySellerOrBuyerOrderByIdDesc(user,user);
     }
 
     @Override

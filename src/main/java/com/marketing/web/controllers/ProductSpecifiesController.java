@@ -3,8 +3,8 @@ package com.marketing.web.controllers;
 import static java.lang.String.format;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.marketing.web.dtos.WrapperPagination;
 import com.marketing.web.dtos.product.ReadableProductSpecify;
-import com.marketing.web.dtos.product.WrapperReadableProductSpecify;
 import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.dtos.websockets.WrapperWsProductSpecify;
 import com.marketing.web.enums.RoleType;
@@ -22,13 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/products/specify")
@@ -53,7 +51,7 @@ public class ProductSpecifiesController {
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @GetMapping
-    public ResponseEntity<WrapperReadableProductSpecify> getAll(@RequestParam(required = false) Integer pageNumber){
+    public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAll(@RequestParam(required = false) Integer pageNumber){
         if (pageNumber == null){
             pageNumber=1;
         }
@@ -71,7 +69,7 @@ public class ProductSpecifiesController {
     }
 
     @GetMapping("/product/{id}")
-    public ResponseEntity<WrapperReadableProductSpecify> getAllByProduct(@PathVariable String id, @RequestParam(required = false) Integer pageNumber){
+    public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAllByProduct(@PathVariable String id, @RequestParam(required = false) Integer pageNumber){
         if (pageNumber == null){
             pageNumber=1;
         }

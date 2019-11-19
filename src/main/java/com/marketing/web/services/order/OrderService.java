@@ -17,6 +17,8 @@ public interface OrderService {
 
     Page<Order> findAllByUser(User user, int pageNumber);
 
+    List<Order> findAllByUserWithoutPagination(User user);
+
     Order findById(Long id);
 
     Order findByUUID(String uuid);

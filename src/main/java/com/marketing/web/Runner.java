@@ -2,8 +2,10 @@ package com.marketing.web;
 
 import com.marketing.web.dtos.user.WritableRegister;
 import com.marketing.web.enums.RoleType;
+import com.marketing.web.enums.UnitType;
 import com.marketing.web.models.*;
 import com.marketing.web.repositories.*;
+import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.services.storage.StorageService;
 import com.marketing.web.services.user.AddressServiceImpl;
 import com.marketing.web.services.user.UserServiceImpl;
@@ -16,6 +18,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Component
 public class Runner implements CommandLineRunner {
@@ -39,16 +42,36 @@ public class Runner implements CommandLineRunner {
     BarcodeRepository barcodeRepository;
 
     @Autowired
+    UserRepository userRepository;
+
+    @Autowired
     UserServiceImpl userService;
 
     @Autowired
     AddressServiceImpl addressService;
 
+    @Autowired
+    ProductSpecifyService productSpecifyService;
+
     @Override
     public void run(String... args) throws Exception {
-        storageService.init();
 
-        statePopulator();
+        storageService.init();
+        populator();
+
+    }
+
+    public void dropTables(){
+        categoryRepository.deleteAll();
+        productRepository.deleteAll();
+        userRepository.deleteAll();
+        stateRepository.deleteAll();
+        cityRepository.deleteAll();
+    }
+
+    public void populator() throws URISyntaxException {
+
+        List<State> states = statePopulator();
 
         List<Category> categories = categoryPopulator();
 
@@ -56,11 +79,14 @@ public class Runner implements CommandLineRunner {
 
         barcodePopulator(products);
 
-        userPopulator();
+        User user = userPopulator(states);
 
+        productSpecifyPopulator(products,user);
     }
 
-    public void userPopulator() throws URISyntaxException {
+
+
+    public User userPopulator(List<State> states) throws URISyntaxException {
 
         WritableRegister writableRegister = new WritableRegister();
         writableRegister.setUsername("admin");
@@ -96,12 +122,14 @@ public class Runner implements CommandLineRunner {
 
         User user1 = UserMapper.writableRegisterToUser(writableRegister1);
         user1.setStatus(true);
-        userService.create(user1,writableRegister1.getRoleType());
+        user1.setActiveStates(states);
+        User saved = userService.create(user1,writableRegister1.getRoleType());
 
         User user2 = UserMapper.writableRegisterToUser(writableRegister2);
         user2.setStatus(true);
         userService.create(user2,writableRegister2.getRoleType());
 
+        return saved;
     }
 
     private List<Barcode> barcodePopulator(List<Product> products){
@@ -117,6 +145,32 @@ public class Runner implements CommandLineRunner {
             }
         }
         return barcodes;
+    }
+
+    private List<ProductSpecify> productSpecifyPopulator(List<Product> products, User user){
+        List<ProductSpecify> productSpecifies = new ArrayList<>();
+
+        for (Product product : products){
+            for (int i=0;i<4;i++){
+                List<State> states = new ArrayList<>(user.getActiveStates());
+                ProductSpecify productSpecify = new ProductSpecify();
+                productSpecify.setProduct(product);
+                productSpecify.setRecommendedRetailPrice(15);
+                productSpecify.setUnitType(UnitType.KG);
+                productSpecify.setContents(12);
+                productSpecify.setQuantity(150);
+                productSpecify.setUnitPrice(2);
+                productSpecify.setTotalPrice(14);
+                productSpecify.setStates(states);
+                productSpecify.setUser(user);
+                productSpecifies.add(productSpecify);
+                productSpecifyService.create(productSpecify);
+
+            }
+
+        }
+
+        return productSpecifies;
     }
 
     private List<Product> productPopulator(List<Category> categories) {
@@ -136,7 +190,7 @@ public class Runner implements CommandLineRunner {
         return productList;
     }
 
-    private void statePopulator(){
+    private List<State> statePopulator(){
             List<City> cities = new ArrayList<>();
             City city = new City();
             city.setCode(6);
@@ -178,7 +232,7 @@ public class Runner implements CommandLineRunner {
             state4.setCode(340);
             state4.setTitle("Beykoz");
             states.add(state4);
-            stateRepository.saveAll(states);
+            return stateRepository.saveAll(states);
 
     }
 
