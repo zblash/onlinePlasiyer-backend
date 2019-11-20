@@ -152,12 +152,12 @@ public class Runner implements CommandLineRunner {
         List<ProductSpecify> productSpecifies = new ArrayList<>();
 
         for (Product product : products){
-            for (int i=0;i<this.rn(15,35);i++){
+            for (int i=0;i<rn(15,35);i++){
                 List<State> states = new ArrayList<>(user.getActiveStates());
                 ProductSpecify productSpecify = new ProductSpecify();
                 productSpecify.setProduct(product);
-                productSpecify.setRecommendedRetailPrice(this.rn(15,999));
-                int randomForUnitType=this.rn(1,3)
+                productSpecify.setRecommendedRetailPrice(rn(15,999));
+                int randomForUnitType=rn(1,3);
                 if(randomForUnitType == 1){
                 productSpecify.setUnitType(UnitType.KG);
                 }
@@ -167,10 +167,10 @@ public class Runner implements CommandLineRunner {
                 if(randomForUnitType == 2){
                 productSpecify.setUnitType(UnitType.AD);
                 }
-                productSpecify.setContents(this.rn(15,1500));
-                productSpecify.setQuantity(this.rn(99,1500));
-                productSpecify.setUnitPrice(this.rn(2,1500));
-                productSpecify.setTotalPrice(this.rn(,1500));
+                productSpecify.setContents(rn(15,1500));
+                productSpecify.setQuantity(rn(99,1500));
+                productSpecify.setUnitPrice(rn(2,1500));
+                productSpecify.setTotalPrice(rn(5,1500));
                 productSpecify.setStates(states);
                 productSpecify.setUser(user);
                 productSpecifies.add(productSpecify);
@@ -188,13 +188,13 @@ public class Runner implements CommandLineRunner {
         List<Product> productList = new ArrayList<>();
         for (Category category : categories){
             j++;
-            for (int i=0;i<this.rn(15,35);i++){
+            for (int i=0;i<rn(15,35);i++){
                 Product product = new Product();
                 product.setCategory(category);
                 product.setName("Product - "+i+"_"+j);
-                product.setStatus(this.nextBoolean());
+                product.setStatus(true);
                 product.setPhotoUrl(randomPhoto());
-                product.setTax(this.rn(10000,9999999));
+                product.setTax(rn(10,20));
                 productRepository.save(product);
                 productList.add(product);
             }
@@ -250,7 +250,7 @@ public class Runner implements CommandLineRunner {
 
     private List<Category> categoryPopulator(){
         List<Category> categories = new ArrayList<>();
-        for (int i=0;i<this.rn(15,35);i++){
+        for (int i=0;i<+9;i++){
             Category category = new Category();
             category.setName("Category - "+i);
             category.setPhotoUrl(randomPhoto());
@@ -260,9 +260,9 @@ public class Runner implements CommandLineRunner {
         List<Category> savedCategories = categoryRepository.saveAll(categories);
         List<Category> subCats = new ArrayList<>();
         for (Category baseCategory : savedCategories){
-            for (int i=0;i<this.rn(15,35);i++){
+            for (int i=0;i<rn(15,35);i++){
                 Category subCat = new Category();
-                subCat.setName("Sub Category - "+this.rn(0,999)+""+i);
+                subCat.setName("Sub Category - "+i);
                 subCat.setSubCategory(true);
                 subCat.setParent(baseCategory);
                 subCat.setPhotoUrl(randomPhoto());
@@ -275,15 +275,15 @@ public class Runner implements CommandLineRunner {
 
 
     private String randomPhoto(){
-        return "https://picsum.photos/" + this.rn(500,1000) + "/"+ this.rn(500,1000) ;
+        return "https://picsum.photos/" + rn(500,1000) + "/"+ rn(500,1000) ;
     }
 
     private String generateBarcode() {
         int length = 13;
         char[] digits = new char[length];
-        digits[0] = (char) (this.r.nextInt(9) + '1');
+        digits[0] = (char) (r.nextInt(9) + '1');
         for (int i = 1; i < length; i++) {
-            digits[i] = (char) (this.r.nextInt(10) + '0');
+            digits[i] = (char) (r.nextInt(10) + '0');
         }
         return new String(digits);
     }
