@@ -37,7 +37,7 @@ public final class ObligationMapper {
             }
             wrapperReadableObligation.setFirst(pagedObligation.isFirst());
             wrapperReadableObligation.setLast(pagedObligation.isLast());
-            wrapperReadableObligation.setElementCountOfPage(15);
+            wrapperReadableObligation.setElementCountOfPage(pagedObligation.getNumberOfElements());
             wrapperReadableObligation.setTotalElements(pagedObligation.getTotalElements());
             wrapperReadableObligation.setValues(pagedObligation.getContent().stream()
                     .map(ObligationMapper::obligationToReadableObligation).collect(Collectors.toList()));

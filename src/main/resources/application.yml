@@ -1,0 +1,46 @@
+spring:
+  profiles:
+    active: "dev"
+  main:
+    banner-mode: "off"
+
+---
+
+spring:
+  profiles: dev
+  datasource:
+    password: postgres
+    url: jdbc:postgresql://localhost:4540/marketing
+    username: postgres
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  redis:
+    host: localhost
+    password: ''
+    port: 3131
+    ssl: false
+
+
+---
+
+spring:
+  profiles: prod
+  datasource:
+    password: d4430990a28519705f6a885591a723bb5c5050a0b55818b13adbec949a5ae4b8
+    url: jdbc:postgresql://ec2-46-137-120-243.eu-west-1.compute.amazonaws.com:5432/dbrr16ts75ilsk
+    username: mzcgmbgdtuacps
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  redis:
+    host: localhost
+    password: ''
+    port: 3131
+    ssl: false
