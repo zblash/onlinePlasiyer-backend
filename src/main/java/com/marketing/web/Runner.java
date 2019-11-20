@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class Runner implements CommandLineRunner {
+    private Random r = new Random();
 
     @Autowired
     private StateRepository stateRepository;
@@ -151,16 +152,25 @@ public class Runner implements CommandLineRunner {
         List<ProductSpecify> productSpecifies = new ArrayList<>();
 
         for (Product product : products){
-            for (int i=0;i<4;i++){
+            for (int i=0;i<this.rn(15,35);i++){
                 List<State> states = new ArrayList<>(user.getActiveStates());
                 ProductSpecify productSpecify = new ProductSpecify();
                 productSpecify.setProduct(product);
-                productSpecify.setRecommendedRetailPrice(15);
+                productSpecify.setRecommendedRetailPrice(this.rn(15,999));
+                int randomForUnitType=this.rn(1,3)
+                if(randomForUnitType == 1){
                 productSpecify.setUnitType(UnitType.KG);
-                productSpecify.setContents(12);
-                productSpecify.setQuantity(150);
-                productSpecify.setUnitPrice(2);
-                productSpecify.setTotalPrice(14);
+                }
+                if(randomForUnitType == 2){
+                productSpecify.setUnitType(UnitType.KL);
+                }
+                if(randomForUnitType == 2){
+                productSpecify.setUnitType(UnitType.AD);
+                }
+                productSpecify.setContents(this.rn(15,1500));
+                productSpecify.setQuantity(this.rn(99,1500));
+                productSpecify.setUnitPrice(this.rn(2,1500));
+                productSpecify.setTotalPrice(this.rn(,1500));
                 productSpecify.setStates(states);
                 productSpecify.setUser(user);
                 productSpecifies.add(productSpecify);
@@ -174,18 +184,20 @@ public class Runner implements CommandLineRunner {
     }
 
     private List<Product> productPopulator(List<Category> categories) {
-        int i = 0;
+        int j = 0;
         List<Product> productList = new ArrayList<>();
         for (Category category : categories){
-            i++;
-            Product product = new Product();
-            product.setCategory(category);
-            product.setName("Example-Product"+i);
-            product.setStatus(true);
-            product.setPhotoUrl(randomPhoto());
-            product.setTax(18);
-            productRepository.save(product);
-            productList.add(product);
+            j++;
+            for (int i=0;i<this.rn(15,35);i++){
+                Product product = new Product();
+                product.setCategory(category);
+                product.setName("Example-Product"+i+"_"+j);
+                product.setStatus(this.nextBoolean());
+                product.setPhotoUrl(randomPhoto());
+                product.setTax(this.rn(10000,9999999));
+                productRepository.save(product);
+                productList.add(product);
+            }
         }
         return productList;
     }
@@ -238,63 +250,24 @@ public class Runner implements CommandLineRunner {
 
     private List<Category> categoryPopulator(){
         List<Category> categories = new ArrayList<>();
-        Category category = new Category();
-        category.setName("Kagit Urunleri");
-        category.setPhotoUrl(randomPhoto());
-        category.setSubCategory(false);
-        categories.add(category);
-        Category category1 = new Category();
-        category1.setName("Temizlik Urunleri");
-        category1.setSubCategory(false);
-        category1.setPhotoUrl(randomPhoto());
-        categories.add(category1);
-        Category category2 = new Category();
-        category2.setName("Kisisel Bakim Urunleri");
-        category2.setSubCategory(false);
-        category2.setPhotoUrl(randomPhoto());
-        categories.add(category2);
-        Category category3 = new Category();
-        category3.setName("Icecek Urunleri");
-        category3.setSubCategory(false);
-        category3.setPhotoUrl(randomPhoto());
-        categories.add(category3);
-        Category category4 = new Category();
-        category4.setName("Atistirmalik Urunler");
-        category4.setSubCategory(false);
-        category4.setPhotoUrl(randomPhoto());
-        categories.add(category4);
-        Category category5 = new Category();
-        category5.setName("Kuru Gida Urunleri");
-        category5.setSubCategory(false);
-        category5.setPhotoUrl(randomPhoto());
-        categories.add(category5);
-        Category category6 = new Category();
-        category6.setName("Sut Urunleri");
-        category6.setSubCategory(false);
-        category6.setPhotoUrl(randomPhoto());
-        categories.add(category6);
-        Category category7 = new Category();
-        category7.setName("Sarkuteri Urunleri");
-        category7.setSubCategory(false);
-        category7.setPhotoUrl(randomPhoto());
-        categories.add(category7);
-        Category category8 = new Category();
-        category8.setName("Tutun Urunleri");
-        category8.setSubCategory(false);
-        category8.setPhotoUrl(randomPhoto());
-        categories.add(category8);
-
+        for (int i=0;i<this.rn(15,35);i++){
+            Category category = new Category();
+            category.setName("Category - "+i);
+            category.setPhotoUrl(randomPhoto());
+            category.setSubCategory(false);
+            categories.add(category);
+        }
         List<Category> savedCategories = categoryRepository.saveAll(categories);
         List<Category> subCats = new ArrayList<>();
-        int i = 0;
         for (Category baseCategory : savedCategories){
-            i++;
-            Category subCat = new Category();
-            subCat.setName("Example Sub Category"+i);
-            subCat.setSubCategory(true);
-            subCat.setParent(baseCategory);
-            subCat.setPhotoUrl(randomPhoto());
-            subCats.add(subCat);
+            for (int i=0;i<this.rn(15,35);i++){
+                Category subCat = new Category();
+                subCat.setName("Example Sub Category - "+this.rn(0,999)+""+i);
+                subCat.setSubCategory(true);
+                subCat.setParent(baseCategory);
+                subCat.setPhotoUrl(randomPhoto());
+                subCats.add(subCat);
+            }
         }
         savedCategories.addAll(categoryRepository.saveAll(subCats));
         return savedCategories;
@@ -302,18 +275,19 @@ public class Runner implements CommandLineRunner {
 
 
     private String randomPhoto(){
-        Random rand = new Random();
-        return "https://picsum.photos/id/" + rand.nextInt(800) + "/200/200";
+        return "https://picsum.photos/" + this.rn(500,1000) + "/"+ this.rn(500,1000) ;
     }
 
     private String generateBarcode() {
         int length = 13;
-        Random random = new Random();
         char[] digits = new char[length];
-        digits[0] = (char) (random.nextInt(9) + '1');
+        digits[0] = (char) (this.r.nextInt(9) + '1');
         for (int i = 1; i < length; i++) {
-            digits[i] = (char) (random.nextInt(10) + '0');
+            digits[i] = (char) (this.r.nextInt(10) + '0');
         }
         return new String(digits);
     }
+    private int rn(int min, int max) {
+		return r.nextInt((max - min) + 1) + min;
+	}
 }
