@@ -9,13 +9,16 @@ import com.marketing.web.services.storage.StorageService;
 import com.marketing.web.utils.mappers.AnnouncementMapper;
 import com.marketing.web.validations.ValidImg;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @RestController
@@ -27,6 +30,13 @@ public class AnnouncementsController {
 
     @Autowired
     private StorageService storageService;
+
+    @InitBinder
+    protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        dateFormat.setLenient(false);
+        binder.registerCustomEditor(Date.class, null,  new CustomDateEditor(dateFormat, false));
+    }
 
     @GetMapping
     public ResponseEntity<WrapperPagination<ReadableAnnouncement>> getAll(@RequestParam(required = false) Integer pageNumber){
