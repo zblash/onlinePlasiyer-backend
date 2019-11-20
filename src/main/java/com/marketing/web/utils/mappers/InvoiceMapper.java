@@ -41,7 +41,7 @@ public final class InvoiceMapper {
             }
             wrapperReadableInvoice.setFirst(pagedInvoice.isFirst());
             wrapperReadableInvoice.setLast(pagedInvoice.isLast());
-            wrapperReadableInvoice.setElementCountOfPage(15);
+            wrapperReadableInvoice.setElementCountOfPage(pagedInvoice.getNumberOfElements());
             wrapperReadableInvoice.setTotalElements(pagedInvoice.getTotalElements());
             wrapperReadableInvoice.setValues(pagedInvoice.getContent().stream()
                     .map(InvoiceMapper::invoiceToReadableInvoice).collect(Collectors.toList()));

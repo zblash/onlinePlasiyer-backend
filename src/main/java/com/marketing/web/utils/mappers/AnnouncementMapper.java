@@ -38,7 +38,7 @@ public final class AnnouncementMapper {
             }
             wrapperReadableAnnouncement.setFirst(pagedAnnouncement.isFirst());
             wrapperReadableAnnouncement.setLast(pagedAnnouncement.isLast());
-            wrapperReadableAnnouncement.setElementCountOfPage(15);
+            wrapperReadableAnnouncement.setElementCountOfPage(pagedAnnouncement.getNumberOfElements());
             wrapperReadableAnnouncement.setTotalElements(pagedAnnouncement.getTotalElements());
             wrapperReadableAnnouncement.setValues(pagedAnnouncement.getContent().stream()
                     .map(AnnouncementMapper::announcementToReadableAnnouncement).collect(Collectors.toList()));

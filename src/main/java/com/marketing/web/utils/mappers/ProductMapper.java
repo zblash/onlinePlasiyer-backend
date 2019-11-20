@@ -91,7 +91,7 @@ public final class ProductMapper {
             }
             wrapperReadableProduct.setFirst(pagedProduct.isFirst());
             wrapperReadableProduct.setLast(pagedProduct.isLast());
-            wrapperReadableProduct.setElementCountOfPage(15);
+            wrapperReadableProduct.setElementCountOfPage(pagedProduct.getNumberOfElements());
             wrapperReadableProduct.setTotalElements(pagedProduct.getTotalElements());
             wrapperReadableProduct.setValues(pagedProduct.getContent().stream()
                     .map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
@@ -115,7 +115,7 @@ public final class ProductMapper {
             }
             wrapperReadableProductSpecify.setFirst(pagedProductSpecify.isFirst());
             wrapperReadableProductSpecify.setLast(pagedProductSpecify.isLast());
-            wrapperReadableProductSpecify.setElementCountOfPage(15);
+            wrapperReadableProductSpecify.setElementCountOfPage(pagedProductSpecify.getNumberOfElements());
             wrapperReadableProductSpecify.setTotalElements(pagedProductSpecify.getTotalElements());
             wrapperReadableProductSpecify.setValues(pagedProductSpecify.getContent().stream()
                     .map(ProductMapper::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
