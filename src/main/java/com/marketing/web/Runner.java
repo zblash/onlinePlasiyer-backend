@@ -191,7 +191,7 @@ public class Runner implements CommandLineRunner {
             for (int i=0;i<this.rn(15,35);i++){
                 Product product = new Product();
                 product.setCategory(category);
-                product.setName("Example-Product"+i+"_"+j);
+                product.setName("Product - "+i+"_"+j);
                 product.setStatus(this.nextBoolean());
                 product.setPhotoUrl(randomPhoto());
                 product.setTax(this.rn(10000,9999999));
@@ -262,7 +262,7 @@ public class Runner implements CommandLineRunner {
         for (Category baseCategory : savedCategories){
             for (int i=0;i<this.rn(15,35);i++){
                 Category subCat = new Category();
-                subCat.setName("Example Sub Category - "+this.rn(0,999)+""+i);
+                subCat.setName("Sub Category - "+this.rn(0,999)+""+i);
                 subCat.setSubCategory(true);
                 subCat.setParent(baseCategory);
                 subCat.setPhotoUrl(randomPhoto());
