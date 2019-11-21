@@ -13,7 +13,7 @@ import com.marketing.web.models.User;
 import com.marketing.web.services.category.CategoryService;
 import com.marketing.web.services.product.BarcodeService;
 import com.marketing.web.services.product.ProductService;
-import com.marketing.web.services.storage.StorageService;
+import com.marketing.web.services.storage.AmazonClient;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.ProductMapper;
 import com.marketing.web.utils.mappers.UserMapper;
@@ -27,7 +27,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -47,7 +46,7 @@ public class ProductsController {
     private BarcodeService barcodeService;
 
     @Autowired
-    private StorageService storageService;
+    private AmazonClient amazonClient;
 
     private Logger logger = LoggerFactory.getLogger(ProductsController.class);
 
@@ -113,7 +112,7 @@ public class ProductsController {
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct,@ValidImg @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile, HttpServletRequest request){
+    public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct,@ValidImg @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
         User user = userService.getLoggedInUser();
 
         Barcode barcode = barcodeService.checkByBarcodeNo(writableProduct.getBarcode());
@@ -121,8 +120,8 @@ public class ProductsController {
             Product product = productService.findByName(writableProduct.getName());
             if (product == null) {
                 product = ProductMapper.writableProductToProduct(writableProduct);
-                String fileName = storageService.store(uploadfile);
-                product.setPhotoUrl(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath()+"/photos/"+fileName);
+                String fileUrl = amazonClient.uploadFile(uploadfile);
+                product.setPhotoUrl(fileUrl);
                 product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
                 if (!user.getRole().getName().equals("ROLE_ADMIN")) {
                     product.setStatus(false);
@@ -150,17 +149,19 @@ public class ProductsController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<ReadableProduct> deleteProduct(@PathVariable String id){
         Product product = productService.findByUUID(id);
+        amazonClient.deleteFileFromS3Bucket(product.getPhotoUrl());
         productService.delete(product);
         return ResponseEntity.ok(ProductMapper.productToReadableProduct(product));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile, HttpServletRequest request){
+    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
         Product product = barcodeService.findByBarcodeNo(writableProduct.getBarcode()).getProduct();
         if (uploadfile != null && !uploadfile.isEmpty()) {
-            String fileName = storageService.store(uploadfile);
-            product.setPhotoUrl(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath()+"/photos/"+fileName);
+            amazonClient.deleteFileFromS3Bucket(product.getPhotoUrl());
+            String fileUrl = amazonClient.uploadFile(uploadfile);
+            product.setPhotoUrl(fileUrl);
 
         }
         product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));

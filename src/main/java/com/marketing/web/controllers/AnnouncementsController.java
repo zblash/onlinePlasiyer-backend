@@ -5,7 +5,7 @@ import com.marketing.web.dtos.announcement.ReadableAnnouncement;
 import com.marketing.web.dtos.announcement.WritableAnnouncement;
 import com.marketing.web.models.Announcement;
 import com.marketing.web.services.announcement.AnnouncementService;
-import com.marketing.web.services.storage.StorageService;
+import com.marketing.web.services.storage.AmazonClient;
 import com.marketing.web.utils.mappers.AnnouncementMapper;
 import com.marketing.web.validations.ValidImg;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class AnnouncementsController {
     private AnnouncementService announcementService;
 
     @Autowired
-    private StorageService storageService;
+    private AmazonClient amazonClient;
 
     @InitBinder
     protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) {
@@ -57,28 +57,30 @@ public class AnnouncementsController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<ReadableAnnouncement> createAnnouncement(@Valid WritableAnnouncement writableAnnouncement, @ValidImg @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile, HttpServletRequest request){
+    public ResponseEntity<ReadableAnnouncement> createAnnouncement(@Valid WritableAnnouncement writableAnnouncement, @ValidImg @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
 
         Announcement announcement = new Announcement();
         announcement.setTitle(writableAnnouncement.getTitle());
         announcement.setMessage(writableAnnouncement.getMessage());
         announcement.setLastDate(writableAnnouncement.getLastDate());
-        String fileName = storageService.store(uploadfile);
-        announcement.setFileUrl(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath()+"/photos/"+fileName);
+        String fileUrl = amazonClient.uploadFile(uploadfile);
+        announcement.setFileUrl(fileUrl);
         return ResponseEntity.ok(AnnouncementMapper.announcementToReadableAnnouncement(announcementService.create(announcement)));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<ReadableAnnouncement> updateAnnouncement(@PathVariable String id, @Valid WritableAnnouncement writableAnnouncement, @ValidImg @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile, HttpServletRequest request){
+    public ResponseEntity<ReadableAnnouncement> updateAnnouncement(@PathVariable String id, @Valid WritableAnnouncement writableAnnouncement, @ValidImg @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
 
         Announcement announcement = announcementService.findByUUID(id);
+        amazonClient.deleteFileFromS3Bucket(announcement.getFileUrl());
         announcement.setTitle(writableAnnouncement.getTitle());
         announcement.setMessage(writableAnnouncement.getMessage());
         announcement.setLastDate(writableAnnouncement.getLastDate());
         if (uploadfile != null && !uploadfile.isEmpty()) {
-            String fileName = storageService.store(uploadfile);
-            announcement.setFileUrl(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() + "/photos/" + fileName);
+            amazonClient.deleteFileFromS3Bucket(announcement.getFileUrl());
+            String fileUrl = amazonClient.uploadFile(uploadfile);
+            announcement.setFileUrl(fileUrl);
         }
         return ResponseEntity.ok(AnnouncementMapper.announcementToReadableAnnouncement(announcementService.update(id,announcement)));
     }
@@ -87,6 +89,7 @@ public class AnnouncementsController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<ReadableAnnouncement> deleteProduct(@PathVariable String id){
         Announcement announcement = announcementService.findByUUID(id);
+        amazonClient.deleteFileFromS3Bucket(announcement.getFileUrl());
         announcementService.delete(announcement);
         return ResponseEntity.ok(AnnouncementMapper.announcementToReadableAnnouncement(announcement));
     }
