@@ -27,7 +27,6 @@ public class ObligationsController {
     @Autowired
     private UserService userService;
 
-    @PreAuthorize("hasRole('ROLE_MERCHANT')")
     @GetMapping
     public ResponseEntity<WrapperPagination<ReadableObligation>> getAll(@RequestParam(required = false) Integer pageNumber){
         User user = userService.getLoggedInUser();

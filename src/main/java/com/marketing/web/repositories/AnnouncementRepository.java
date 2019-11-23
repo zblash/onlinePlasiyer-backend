@@ -6,12 +6,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface AnnouncementRepository extends JpaRepository<Announcement,Long> {
 
-    Page<Announcement> findAllByLastDateAfterOrderByIdDesc(Date date, Pageable pageable);
+    List<Announcement> findAllByLastDateAfterOrderByIdDesc(Date date);
 
     Page<Announcement> findAllByOrderByIdDesc(Pageable pageable);
 

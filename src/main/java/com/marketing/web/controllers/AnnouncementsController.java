@@ -2,6 +2,7 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.WrapperPagination;
 import com.marketing.web.dtos.announcement.ReadableAnnouncement;
+import com.marketing.web.dtos.announcement.WrapperReadableAnnouncement;
 import com.marketing.web.dtos.announcement.WritableAnnouncement;
 import com.marketing.web.models.Announcement;
 import com.marketing.web.services.announcement.AnnouncementService;
@@ -20,6 +21,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/announcements")
@@ -39,11 +42,13 @@ public class AnnouncementsController {
     }
 
     @GetMapping
-    public ResponseEntity<WrapperPagination<ReadableAnnouncement>> getAll(@RequestParam(required = false) Integer pageNumber){
-        if (pageNumber == null){
-            pageNumber=1;
-        }
-        return ResponseEntity.ok(AnnouncementMapper.pagedAnnouncementListToWrapperReadableAnnouncement(announcementService.findAllActives(new Date(),pageNumber)));
+    public ResponseEntity<WrapperReadableAnnouncement> getAll(){
+        WrapperReadableAnnouncement wrapperReadableAnnouncement = new WrapperReadableAnnouncement();
+        List<Announcement> announcements = announcementService.findAllActives(new Date());
+        wrapperReadableAnnouncement.setValues(announcements.stream()
+                .map(AnnouncementMapper::announcementToReadableAnnouncement).collect(Collectors.toList()));
+        wrapperReadableAnnouncement.setSize(announcements.size());
+        return ResponseEntity.ok(wrapperReadableAnnouncement);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
