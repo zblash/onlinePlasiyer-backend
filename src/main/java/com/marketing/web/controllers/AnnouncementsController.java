@@ -42,13 +42,10 @@ public class AnnouncementsController {
     }
 
     @GetMapping
-    public ResponseEntity<WrapperReadableAnnouncement> getAll(){
-        WrapperReadableAnnouncement wrapperReadableAnnouncement = new WrapperReadableAnnouncement();
+    public ResponseEntity<List<ReadableAnnouncement>> getAll(){
         List<Announcement> announcements = announcementService.findAllActives(new Date());
-        wrapperReadableAnnouncement.setValues(announcements.stream()
+        return ResponseEntity.ok(announcements.stream()
                 .map(AnnouncementMapper::announcementToReadableAnnouncement).collect(Collectors.toList()));
-        wrapperReadableAnnouncement.setSize(announcements.size());
-        return ResponseEntity.ok(wrapperReadableAnnouncement);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
