@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -18,13 +19,8 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     private AnnouncementRepository announcementRepository;
 
     @Override
-    public Page<Announcement> findAllActives(Date date, int pageNumber) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
-        Page<Announcement> resultPage = announcementRepository.findAllByLastDateAfterOrderByIdDesc(date,pageRequest);
-        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
-        }
-        return resultPage;
+    public List<Announcement> findAllActives(Date date) {
+        return announcementRepository.findAllByLastDateAfterOrderByIdDesc(date);
     }
 
     @Override

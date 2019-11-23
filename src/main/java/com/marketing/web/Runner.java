@@ -10,6 +10,8 @@ import com.marketing.web.services.storage.StorageService;
 import com.marketing.web.services.user.AddressServiceImpl;
 import com.marketing.web.services.user.UserServiceImpl;
 import com.marketing.web.utils.mappers.UserMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -129,7 +131,6 @@ public class Runner implements CommandLineRunner {
         User user2 = UserMapper.writableRegisterToUser(writableRegister2);
         user2.setStatus(true);
         userService.create(user2,writableRegister2.getRoleType());
-
         return saved;
     }
 

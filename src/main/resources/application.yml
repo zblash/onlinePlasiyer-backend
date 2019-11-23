@@ -4,6 +4,12 @@ spring:
   main:
     banner-mode: "off"
 
+amazonProperties:
+  endpointUrl: https://s3.eu-central-1.amazonaws.com
+  accessKey: AKIA4VPKRZHYKEPPQWU3
+  secretKey: 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
+  bucketName: onlineplasiyer
+
 ---
 
 spring:

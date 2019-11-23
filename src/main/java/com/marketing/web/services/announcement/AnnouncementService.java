@@ -4,10 +4,11 @@ import com.marketing.web.models.Announcement;
 import org.springframework.data.domain.Page;
 
 import java.util.Date;
+import java.util.List;
 
 public interface AnnouncementService {
 
-    Page<Announcement> findAllActives(Date date, int pageNumber);
+    List<Announcement> findAllActives(Date date);
 
     Page<Announcement> findAll(int pageNumber);
 
