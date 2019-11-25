@@ -67,7 +67,7 @@ public class CartController {
             List<State> productStates = productSpecifyService.findByUUID(writableCartItem.getProductId()).getStates();
             if (productStates.contains(user.getAddress().getState())) {
                 CartItem cartItem = cartItemService.createOrUpdate(user.getCart(), writableCartItem);
-                return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.findById(user.getCart().getId())));
+                return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.findByUser(user)));
             }
             throw new BadRequestException("You can't order this product");
         }

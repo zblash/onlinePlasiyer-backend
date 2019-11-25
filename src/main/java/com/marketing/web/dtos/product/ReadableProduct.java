@@ -18,6 +18,8 @@ public class ReadableProduct implements Serializable {
 
     private String categoryName;
 
+    private String categoryId;
+
     private String name;
 
     private String photoUrl;
