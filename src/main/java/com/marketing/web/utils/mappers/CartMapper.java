@@ -36,6 +36,7 @@ public final class CartMapper {
         } else {
             ReadableCartItem readableCartItem = new ReadableCartItem();
             readableCartItem.setId(cartItem.getUuid().toString());
+            readableCartItem.setProductId(cartItem.getProduct().getUuid().toString());
             readableCartItem.setProductPrice(cartItem.getProduct().getTotalPrice());
             readableCartItem.setUnitPrice(cartItem.getProduct().getUnitPrice());
             readableCartItem.setUnitType(cartItem.getProduct().getUnitType());

@@ -93,8 +93,8 @@ public class CartItemServiceImpl implements CartItemService {
                     .findFirst();
             if (optionalCartItem.isPresent()) {
                 CartItem foundItem = optionalCartItem.get();
-                cartItem.setQuantity(foundItem.getQuantity()+cartItem.getQuantity());
-                cartItem.setTotalPrice(foundItem.getTotalPrice()+cartItem.getTotalPrice());
+                cartItem.setQuantity(cartItem.getQuantity());
+                cartItem.setTotalPrice(cartItem.getTotalPrice());
                 return update(cart, foundItem, cartItem);
             }
         }

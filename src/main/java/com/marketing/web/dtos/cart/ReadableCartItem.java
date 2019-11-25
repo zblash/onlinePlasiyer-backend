@@ -18,6 +18,8 @@ public class ReadableCartItem implements Serializable {
 
     private double productPrice;
 
+    private String productId;
+
     private double unitPrice;
 
     private UnitType unitType;

@@ -48,6 +48,7 @@ public final class ProductMapper {
             readableProduct.setActive(product.isStatus());
             readableProduct.setBarcodeList(product.getBarcodes().stream().map(Barcode::getBarcodeNo).collect(Collectors.toList()));
             readableProduct.setCategoryName(product.getCategory().getName());
+            readableProduct.setCategoryId(product.getCategory().getUuid().toString());
             readableProduct.setName(product.getName());
             readableProduct.setPhotoUrl(product.getPhotoUrl());
             readableProduct.setTax(product.getTax());
