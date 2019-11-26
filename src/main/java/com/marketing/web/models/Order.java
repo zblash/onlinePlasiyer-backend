@@ -35,6 +35,7 @@ public class Order implements Serializable  {
     private OrderStatus status;
 
     @OneToMany(mappedBy = "order",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
+    @OrderBy("id desc")
     private List<OrderItem> orderItems;
 
     @OneToOne

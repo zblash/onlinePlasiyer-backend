@@ -9,6 +9,7 @@ import org.hibernate.annotations.FetchMode;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -29,6 +30,7 @@ public class Cart implements Serializable {
     private User user;
 
     @OneToMany(mappedBy = "cart",cascade = CascadeType.REMOVE,orphanRemoval = true,fetch = FetchType.EAGER)
+    @OrderBy("id desc")
     @Fetch(value = FetchMode.SUBSELECT)
     private List<CartItem> items;
 

@@ -39,6 +39,7 @@ public class Ticket implements Serializable {
 
     @JsonIgnore
     @OneToMany(mappedBy = "ticket",cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OrderBy("id desc")
     private List<TicketReply> ticketReplies;
 
     @PrePersist

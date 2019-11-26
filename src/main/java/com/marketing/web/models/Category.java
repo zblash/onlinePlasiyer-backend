@@ -40,10 +40,12 @@ public class Category implements Serializable {
     private Category parent;
 
     @OneToMany(mappedBy = "parent",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id desc")
     private List<Category> childs;
 
     @JsonIgnore
     @OneToMany(mappedBy = "category",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id desc")
     private List<Product> products;
 
     public List<Category> collectLeafChildren() {
