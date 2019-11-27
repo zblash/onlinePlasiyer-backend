@@ -113,8 +113,7 @@ public class OrderFacadeImpl implements OrderFacade {
                 orderItems.add(orderItem);
             }
             orderItemService.createAll(orderItems);
-
-            return orderService.findAllByUserWithoutPagination(user).stream().map(OrderMapper::orderToReadableOrder).collect(Collectors.toList());
+            return orders.stream().map(OrderMapper::orderToReadableOrder).collect(Collectors.toList());
         }
     }
 
