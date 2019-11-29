@@ -32,16 +32,16 @@ public class UserServiceImpl implements UserService {
     private RoleServiceImpl roleService;
 
     @Autowired
-    private StateRepository stateRepository;
-    @Autowired
-    private CityRepository cityRepository;
-
-    @Autowired
     private CartServiceImpl cartService;
 
     @Override
     public User findByUserName(String userName) {
         return userRepository.findByUsername(userName).orElseThrow(() -> new ResourceNotFoundException("User not found with username: "+ userName));
+    }
+
+    @Override
+    public boolean checkUserByEmail(String email) {
+        return !userRepository.findByEmail(email).isPresent();
     }
 
     @Override
@@ -97,7 +97,7 @@ public class UserServiceImpl implements UserService {
         User user = findById(id);
         user.setUsername(updatedUser.getUsername());
         user.setName(updatedUser.getName());
-        user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+        user.setPassword(updatedUser.getPassword());
         user.setEmail(updatedUser.getEmail());
         user.setTaxNumber(updatedUser.getTaxNumber());
         user.setStatus(updatedUser.isStatus());

@@ -3,6 +3,7 @@ package com.marketing.web.controllers;
 import com.marketing.web.dtos.user.*;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
+import com.marketing.web.errors.HttpMessage;
 import com.marketing.web.models.Address;
 import com.marketing.web.models.City;
 import com.marketing.web.models.State;
@@ -16,13 +17,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.context.request.WebRequest;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,7 +55,7 @@ public class UserController {
     private SimpMessagingTemplate webSocket;
 
     @PostMapping("/signin")
-    public ResponseEntity<?> login(@RequestBody WritableLogin writableLogin){
+    public ResponseEntity<?> login(@RequestBody WritableLogin writableLogin, WebRequest request){
         User userDetails = userService.findByUserName(writableLogin.getUsername());
 
         if (userDetails.isStatus() && passwordEncoder.matches(writableLogin.getPassword(),userDetails.getPassword())){
@@ -67,8 +72,13 @@ public class UserController {
                     .build();
             return ResponseEntity.ok(readableLogin);
         }
-
-        return new ResponseEntity<>("Given username or password incorrect", HttpStatus.UNAUTHORIZED);
+        HttpMessage httpMessage = new HttpMessage();
+        httpMessage.setError("");
+        httpMessage.setMessage("Given username or password incorrect");
+        httpMessage.setPath(((ServletWebRequest)request).getRequest().getRequestURL().toString());
+        httpMessage.setTimestamp(new Date());
+        httpMessage.setStatus(HttpStatus.UNAUTHORIZED.value());
+        return new ResponseEntity<>(httpMessage, HttpStatus.UNAUTHORIZED);
 
     }
 
@@ -91,6 +101,24 @@ public class UserController {
         throw new BadRequestException("Username or email already registered");
     }
 
+    @PostMapping("/api/users/changePassword")
+    public ResponseEntity<HttpMessage> changeUserPassword(@Valid @RequestBody WritablePasswordReset writablePasswordReset, WebRequest request){
+        User user = userService.getLoggedInUser();
+
+        if(writablePasswordReset.getPassword().equals(writablePasswordReset.getPasswordConfirmation())){
+            user.setPassword(passwordEncoder.encode(writablePasswordReset.getPassword()));
+            userService.update(user.getId(),user);
+            HttpMessage httpMessage = new HttpMessage();
+            httpMessage.setError("");
+            httpMessage.setMessage("Password changed");
+            httpMessage.setPath(((ServletWebRequest)request).getRequest().getRequestURL().toString());
+            httpMessage.setTimestamp(new Date());
+            httpMessage.setStatus(HttpStatus.OK.value());
+            return ResponseEntity.ok(httpMessage);
+        }
+        throw new BadRequestException("Fields not matching");
+    }
+
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
     @PostMapping("/api/users/addActiveState")
     public ResponseEntity<List<ReadableState>> addActiveState(@RequestBody List<String> states){
@@ -111,21 +139,28 @@ public class UserController {
     }
 
     @GetMapping("/api/users/getMyInfos")
-    public ResponseEntity<UserInfo> getUserInfos(){
+    public ResponseEntity<ReadableUserInfo> getUserInfos(){
         User user = userService.getLoggedInUser();
-        UserInfo.Builder userInfoBuilder = new UserInfo.Builder(user.getUsername());
-        userInfoBuilder.id(user.getUuid().toString());
-        userInfoBuilder.email(user.getEmail());
-        userInfoBuilder.name(user.getName());
-        String role = user.getRole().getName().split("_")[1];
-        userInfoBuilder.role(role);
-        userInfoBuilder.address(user.getAddress());
-        userInfoBuilder.activeStates(user.getActiveStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
-        UserInfo userInfo = userInfoBuilder
-                .build();
-        return ResponseEntity.ok(userInfo);
+        return ResponseEntity.ok(UserMapper.userToReadableUserInfo(user));
     }
 
+    @PostMapping("/api/users/updateInfos")
+    public ResponseEntity<ReadableUserInfo> updateUserInfo(@Valid @RequestBody WritableUserInfo writableUserInfo){
+        User user = userService.getLoggedInUser();
+        if (userService.checkUserByEmail(writableUserInfo.getEmail())){
+            user.setName(writableUserInfo.getName());
+            user.setEmail(writableUserInfo.getEmail());
+            Address address = user.getAddress();
+            State state = stateService.findByUuid(writableUserInfo.getAddress().getStateId());
+            City city = cityService.findByUuid(writableUserInfo.getAddress().getCityId());
+            address.setState(state);
+            address.setCity(city);
+            address.setDetails(writableUserInfo.getAddress().getDetails());
+            user.setAddress(addressService.update(address.getId(),address));
+            return ResponseEntity.ok(UserMapper.userToReadableUserInfo(userService.update(user.getId(),user)));
+        }
+        throw new BadRequestException("Email already registered");
+    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/api/users/{roleType}")
