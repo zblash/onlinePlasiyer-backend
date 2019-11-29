@@ -1,5 +1,6 @@
 package com.marketing.web.dtos.invoice;
 
+import com.marketing.web.dtos.order.ReadableOrder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -25,5 +26,7 @@ public class ReadableInvoice implements Serializable {
     private String seller;
 
     private String buyer;
+
+    private ReadableOrder order;
 
 }

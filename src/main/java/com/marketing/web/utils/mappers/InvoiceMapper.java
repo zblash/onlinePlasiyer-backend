@@ -21,6 +21,7 @@ public final class InvoiceMapper {
             readableInvoice.setPaidPrice(invoice.getPaidPrice());
             readableInvoice.setTotalPrice(invoice.getTotalPrice());
             readableInvoice.setUnPaidPrice(invoice.getUnPaidPrice());
+            readableInvoice.setOrder(OrderMapper.orderToReadableOrder(invoice.getOrder()));
             return readableInvoice;
         }
     }
