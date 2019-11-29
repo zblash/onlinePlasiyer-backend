@@ -1,9 +1,7 @@
 package com.marketing.web.dtos.user;
 
-import com.marketing.web.models.Address;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
@@ -12,7 +10,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserInfo implements Serializable {
+public class ReadableUserInfo implements Serializable {
 
     private String id;
 
@@ -24,11 +22,11 @@ public class UserInfo implements Serializable {
 
     private String role;
 
-    private Address address;
+    private ReadableAddress address;
 
     private List<ReadableState> activeStates;
 
-    private UserInfo(Builder builder){
+    private ReadableUserInfo(Builder builder){
         this.id = builder.id;
         this.username = builder.username;
         this.name = builder.name;
@@ -50,7 +48,7 @@ public class UserInfo implements Serializable {
 
         private String role;
 
-        private Address address;
+        private ReadableAddress address;
 
         private List<ReadableState> activeStates;
 
@@ -78,7 +76,7 @@ public class UserInfo implements Serializable {
             return this;
         }
 
-        public Builder address(Address address){
+        public Builder address(ReadableAddress address){
             this.address = address;
             return this;
         }
@@ -88,8 +86,8 @@ public class UserInfo implements Serializable {
             return this;
         }
 
-        public UserInfo build() {
-            UserInfo userInfo = new UserInfo(this);
+        public ReadableUserInfo build() {
+            ReadableUserInfo userInfo = new ReadableUserInfo(this);
             return userInfo;
         }
 

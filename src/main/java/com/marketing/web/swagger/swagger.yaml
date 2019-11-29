@@ -1252,7 +1252,7 @@ paths:
         '200':
           description: OK
           schema:
-            $ref: '#/definitions/UserInfo'
+            $ref: '#/definitions/ReadableUserInfo'
         '201':
           description: Created
         '401':
@@ -2077,7 +2077,7 @@ definitions:
         type: string
       username:
         type: string
-    title: UserInfo
+    title: ReadableUserInfo
   View:
     type: object
     properties:

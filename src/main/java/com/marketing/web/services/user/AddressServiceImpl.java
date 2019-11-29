@@ -36,7 +36,8 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public Address update(Address address, Address updatedAddress) {
+    public Address update(Long id, Address updatedAddress) {
+        Address address = findById(id);
         address.setCity(updatedAddress.getCity());
         address.setState(updatedAddress.getState());
         address.setDetails(updatedAddress.getDetails());

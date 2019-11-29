@@ -2,6 +2,7 @@ package com.marketing.web.utils.mappers;
 
 import com.marketing.web.dtos.user.*;
 import com.marketing.web.enums.RoleType;
+import com.marketing.web.models.Address;
 import com.marketing.web.models.Role;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
@@ -9,7 +10,6 @@ import com.marketing.web.models.User;
 import java.util.stream.Collectors;
 
 public final class UserMapper {
-
 
     public static User writableRegisterToUser(WritableRegister writableRegister) {
         if (writableRegister == null) {
@@ -94,4 +94,36 @@ public final class UserMapper {
             return RoleType.fromValue(role.getName().split("_")[1]);
         }
     }
+
+    public static ReadableAddress addressToReadableAddress(Address address){
+        if (address == null){
+            return null;
+        } else {
+            ReadableAddress readableAddress = new ReadableAddress();
+            readableAddress.setId(address.getUuid().toString());
+            readableAddress.setCityId(address.getCity().getUuid().toString());
+            readableAddress.setCityName(address.getCity().getTitle());
+            readableAddress.setStateId(address.getState().getUuid().toString());
+            readableAddress.setStateName(address.getState().getTitle());
+            readableAddress.setDetails(address.getDetails());
+            return readableAddress;
+        }
+    }
+
+    public static ReadableUserInfo userToReadableUserInfo(User user){
+        if (user == null){
+            return null;
+        }else {
+            ReadableUserInfo.Builder userInfoBuilder = new ReadableUserInfo.Builder(user.getUsername());
+            userInfoBuilder.id(user.getUuid().toString());
+            userInfoBuilder.email(user.getEmail());
+            userInfoBuilder.name(user.getName());
+            String role = user.getRole().getName().split("_")[1];
+            userInfoBuilder.role(role);
+            userInfoBuilder.address(UserMapper.addressToReadableAddress(user.getAddress()));
+            userInfoBuilder.activeStates(user.getActiveStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
+            return userInfoBuilder.build();
+        }
+    }
+
 }
