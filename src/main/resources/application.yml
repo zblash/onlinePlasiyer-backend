@@ -3,7 +3,8 @@ spring:
     active: "dev"
   main:
     banner-mode: "off"
-
+  cache:
+    type: redis
 amazonProperties:
   endpointUrl: https://s3.eu-central-1.amazonaws.com
   accessKey: AKIA4VPKRZHYKEPPQWU3

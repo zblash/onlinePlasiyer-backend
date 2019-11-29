@@ -11,7 +11,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ErrorMessage {
+public class HttpMessage {
 
 
     private Date timestamp;

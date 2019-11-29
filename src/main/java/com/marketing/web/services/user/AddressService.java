@@ -13,7 +13,7 @@ public interface AddressService {
 
     Address create(Address address);
 
-    Address update(Address address,Address updatedAddress);
+    Address update(Long id,Address updatedAddress);
 
     void delete(Address Address);
 }

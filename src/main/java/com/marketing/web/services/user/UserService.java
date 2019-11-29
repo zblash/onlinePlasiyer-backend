@@ -9,6 +9,8 @@ public interface UserService {
 
     User findByUserName(String userName);
 
+    boolean checkUserByEmail(String email);
+
     boolean canRegister(User user);
 
     List<User> findAll();
