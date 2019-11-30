@@ -147,7 +147,7 @@ public class UserController {
     @PostMapping("/api/users/updateInfos")
     public ResponseEntity<ReadableUserInfo> updateUserInfo(@Valid @RequestBody WritableUserInfo writableUserInfo){
         User user = userService.getLoggedInUser();
-        if (userService.checkUserByEmail(writableUserInfo.getEmail())){
+        if (writableUserInfo.getEmail().equals(user.getEmail()) && !userService.checkUserByEmail(writableUserInfo.getEmail())){
             user.setName(writableUserInfo.getName());
             user.setEmail(writableUserInfo.getEmail());
             Address address = user.getAddress();
