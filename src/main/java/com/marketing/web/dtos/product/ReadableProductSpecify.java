@@ -1,5 +1,6 @@
 package com.marketing.web.dtos.product;
 
+import com.marketing.web.dtos.user.ReadableState;
 import com.marketing.web.enums.UnitType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,6 +35,6 @@ public class ReadableProductSpecify implements Serializable {
 
     private String sellerName;
 
-    private List<String> states;
+    private List<ReadableState> states;
 
 }

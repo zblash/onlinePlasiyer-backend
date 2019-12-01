@@ -21,4 +21,6 @@ public class ReadableCategory implements Serializable {
     private boolean isSubCategory;
 
     private String parentId;
+
+    private int subCategoryCount;
 }
