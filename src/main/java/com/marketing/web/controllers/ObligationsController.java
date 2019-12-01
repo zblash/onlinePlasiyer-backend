@@ -37,7 +37,6 @@ public class ObligationsController {
 
     }
 
-    @PreAuthorize("hasRole('ROLE_MERCHANT')")
     @GetMapping("/totals")
     public ResponseEntity<ReadableTotalObligation> getTotals(){
         User user = userService.getLoggedInUser();

@@ -75,6 +75,14 @@ public class OrderFacadeImpl implements OrderFacade {
             invoice.setBuyer(order.getBuyer());
             invoice.setSeller(order.getSeller());
             invoiceService.create(invoice);
+
+            if (invoice.getUnPaidPrice() > 0){
+                Obligation buyerObligation = new Obligation();
+                buyerObligation.setDebt(invoice.getUnPaidPrice());
+                buyerObligation.setReceivable(0);
+                buyerObligation.setUser(order.getBuyer());
+                obligationService.create(buyerObligation);
+            }
         }
         return OrderMapper.orderToReadableOrder(orderService.update(order.getUuid().toString(),order));
 
