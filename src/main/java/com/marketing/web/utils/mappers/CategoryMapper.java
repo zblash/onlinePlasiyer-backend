@@ -28,6 +28,9 @@ public final class CategoryMapper {
             readableCategory.setSubCategory(category.isSubCategory());
             if (category.isSubCategory()) {
                 readableCategory.setParentId(category.getParent().getUuid().toString());
+                readableCategory.setSubCategoryCount(0);
+            }else {
+                readableCategory.setSubCategoryCount(category.getChilds().size());
             }
             return readableCategory;
         }

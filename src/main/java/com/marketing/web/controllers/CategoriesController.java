@@ -2,6 +2,7 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.category.ReadableCategory;
 import com.marketing.web.dtos.category.WritableCategory;
+import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.Category;
 import com.marketing.web.services.category.CategoryService;
 import com.marketing.web.services.storage.AmazonClient;
@@ -42,6 +43,16 @@ public class CategoriesController {
         }
        return ResponseEntity.ok(categories.stream()
                .map(CategoryMapper::categoryToReadableCategory).collect(Collectors.toList()));
+    }
+
+    @GetMapping("/{id}/subCategories")
+    public ResponseEntity<List<ReadableCategory>> getAllSubCategories(@PathVariable String id){
+        Category category = categoryService.findByUUID(id);
+        if (!category.isSubCategory()){
+            return ResponseEntity.ok(category.getChilds().stream()
+                    .map(CategoryMapper::categoryToReadableCategory).collect(Collectors.toList()));
+        }
+        throw new BadRequestException("This category is not main: "+id);
     }
 
     @GetMapping("/{id}")
