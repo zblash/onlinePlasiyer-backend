@@ -2,10 +2,7 @@ package com.marketing.web.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -68,6 +65,7 @@ public class User implements Serializable {
     @OneToOne(cascade = CascadeType.ALL,mappedBy = "user")
     @JoinColumn(name = "cart_id",referencedColumnName = "id")
     @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Cart cart;
 
     @PrePersist

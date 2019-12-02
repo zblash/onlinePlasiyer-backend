@@ -14,13 +14,11 @@ function setConnected(connected) {
 
 function connect() {
     stompClient = Stomp.client("ws://localhost:8080/ws");
-    var headers = {
-        'Authorization': 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtZXJjaGFudCIsInJvbGUiOiJST0xFX01FUkNIQU5UIiwidXNlcklkIjo0OSwiZXhwIjoxNTcxMjc3NTMyfQ.H-6KYy3C1MTfVSf2LnU3yQo5A69rtZo7mDGHse6L5k5zxgNnlzFyK7Z6j71WqCn4aai98CSutMN_YA_V74Tm5A'
-    };
-    stompClient.connect({Authorization: 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtZXJjaGFudCIsInJvbGUiOiJST0xFX01FUkNIQU5UIiwidXNlcklkIjo0OSwiZXhwIjoxNTcxNjkwMjA3fQ.w9kcQ3SmQGZP9Rto8eqsKYkRpwyhxf5E7KWUB7rRFm020zHZFJYiFhs7oeWMjCK5kCBhpJj1lKLA1xOonSkw1A'}, function (frame) {
+
+    stompClient.connect({Authorization: `Bearer ${$("#name").val()}`}, function (frame) {
         setConnected(true);
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/user/merchant/queue/notify', function (greeting) {
+        stompClient.subscribe('/user/admin/queue/notify', function (greeting) {
             showGreeting(JSON.parse(greeting.body).content);
         });
     });
@@ -34,10 +32,6 @@ function disconnect() {
     console.log("Disconnected");
 }
 
-function sendName() {
-    stompClient.send("/app/hello", {}, JSON.stringify({'name': $("#name").val()}));
-}
-
 function showGreeting(message) {
     $("#greetings").append("<tr><td>" + message + "</td></tr>");
 }
@@ -48,6 +42,5 @@ $(function () {
     });
     $( "#connect" ).click(function() { connect(); });
     $( "#disconnect" ).click(function() { disconnect(); });
-    $( "#send" ).click(function() { sendName(); });
 });
 

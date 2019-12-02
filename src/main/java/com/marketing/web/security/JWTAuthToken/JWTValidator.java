@@ -22,7 +22,7 @@ public class JWTValidator {
     private String secret = "D6D317C8F7CEDC7B170B892FE9D3A8C4CD0861BE653203FB6D349C2478D92811";
 
     public User validate(String token) {
-
+        logger.info("JWTValidator den sea");
         User user = null;
         try {
             Claims body = Jwts.parser()
@@ -36,7 +36,7 @@ public class JWTValidator {
         catch (ExpiredJwtException | SignatureException e) {
             throw e;
         }
-
+        logger.info("JWTValidator: "+user.getName());
         return user;
     }
 }
