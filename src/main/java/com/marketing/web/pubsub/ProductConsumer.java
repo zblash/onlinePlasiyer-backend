@@ -3,6 +3,7 @@ package com.marketing.web.pubsub;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marketing.web.dtos.product.ReadableProductSpecify;
 import com.marketing.web.dtos.websockets.WrapperWsProductSpecify;
+import com.marketing.web.services.websocket.WebSocketNotificationSenderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ import static java.lang.String.format;
 public class ProductConsumer {
 
     @Autowired
-    private SimpMessagingTemplate webSocket;
+    private WebSocketNotificationSenderService webSocket;
 
     private Logger logger = LoggerFactory.getLogger(ProductConsumer.class);
 
@@ -25,9 +26,9 @@ public class ProductConsumer {
         ObjectMapper objectMapper = new ObjectMapper();
         WrapperWsProductSpecify wrapperWsProductSpecify= objectMapper.readValue(object, WrapperWsProductSpecify.class);
         wrapperWsProductSpecify.getProductSpecify().getStates().forEach(state -> {
-            logger.info("Sended to clients "+ state);
-            webSocket.convertAndSend(format("/channel/%s", state), wrapperWsProductSpecify);
-        });
+          logger.info("Sended to clients "+ state);
+           // webSocket.convertAndSend(format("/channel/%s", state), wrapperWsProductSpecify);
+       });
     }
 
 

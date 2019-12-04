@@ -13,21 +13,15 @@ function setConnected(connected) {
 }
 
 function connect() {
-    stompClient = Stomp.client("ws://localhost:8080/ws");
+    let webSocket = new WebSocket(`ws://localhost:8080/handler?token=${$("#name").val()}`);
+    webSocket.onmessage = function(data){
+        console.log(data.data);
+    }
 
-    stompClient.connect({Authorization: `Bearer ${$("#name").val()}`}, function (frame) {
-        setConnected(true);
-        console.log('Connected: ' + frame);
-        stompClient.subscribe('/user/admin/queue/notify', function (greeting) {
-            showGreeting(JSON.parse(greeting.body).content);
-        });
-    });
 }
 
 function disconnect() {
-    if (stompClient !== null) {
-        stompClient.disconnect();
-    }
+
     setConnected(false);
     console.log("Disconnected");
 }
