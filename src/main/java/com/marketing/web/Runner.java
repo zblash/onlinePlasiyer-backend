@@ -58,13 +58,10 @@ public class Runner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-
-        storageService.init();
         populator();
-
     }
 
-    public void dropTables(){
+    public void dropTables() {
         categoryRepository.deleteAll();
         productRepository.deleteAll();
         userRepository.deleteAll();
@@ -84,9 +81,8 @@ public class Runner implements CommandLineRunner {
 
         User user = userPopulator(states);
 
-        productSpecifyPopulator(products,user);
+        productSpecifyPopulator(products, user);
     }
-
 
 
     public User userPopulator(List<State> states) throws URISyntaxException {
@@ -121,24 +117,24 @@ public class Runner implements CommandLineRunner {
 
         User user = UserMapper.writableRegisterToUser(writableRegister);
         user.setStatus(true);
-        userService.create(user,writableRegister.getRoleType());
+        userService.create(user, writableRegister.getRoleType());
 
         User user1 = UserMapper.writableRegisterToUser(writableRegister1);
         user1.setStatus(true);
         user1.setActiveStates(states);
-        User saved = userService.create(user1,writableRegister1.getRoleType());
+        User saved = userService.create(user1, writableRegister1.getRoleType());
 
         User user2 = UserMapper.writableRegisterToUser(writableRegister2);
         user2.setStatus(true);
-        userService.create(user2,writableRegister2.getRoleType());
+        userService.create(user2, writableRegister2.getRoleType());
         return saved;
     }
 
-    private List<Barcode> barcodePopulator(List<Product> products){
+    private List<Barcode> barcodePopulator(List<Product> products) {
         List<Barcode> barcodes = new ArrayList<>();
 
-        for (Product product : products){
-            for (int i=0;i<4;i++){
+        for (Product product : products) {
+            for (int i = 0; i < 4; i++) {
                 Barcode barcode = new Barcode();
                 barcode.setProduct(product);
                 barcode.setBarcodeNo(generateBarcode());
@@ -149,29 +145,29 @@ public class Runner implements CommandLineRunner {
         return barcodes;
     }
 
-    private List<ProductSpecify> productSpecifyPopulator(List<Product> products, User user){
+    private List<ProductSpecify> productSpecifyPopulator(List<Product> products, User user) {
         List<ProductSpecify> productSpecifies = new ArrayList<>();
 
-        for (Product product : products){
-            for (int i=0;i<rn(15,35);i++){
+        for (Product product : products) {
+            for (int i = 0; i < rn(15, 35); i++) {
                 List<State> states = new ArrayList<>(user.getActiveStates());
                 ProductSpecify productSpecify = new ProductSpecify();
                 productSpecify.setProduct(product);
-                productSpecify.setRecommendedRetailPrice(rn(15,999));
-                int randomForUnitType=rn(1,3);
-                if(randomForUnitType == 1){
-                productSpecify.setUnitType(UnitType.KG);
+                productSpecify.setRecommendedRetailPrice(rn(15, 999));
+                int randomForUnitType = rn(1, 3);
+                if (randomForUnitType == 1) {
+                    productSpecify.setUnitType(UnitType.KG);
                 }
-                if(randomForUnitType == 2){
-                productSpecify.setUnitType(UnitType.KL);
+                if (randomForUnitType == 2) {
+                    productSpecify.setUnitType(UnitType.KL);
                 }
-                if(randomForUnitType == 2){
-                productSpecify.setUnitType(UnitType.AD);
+                if (randomForUnitType == 2) {
+                    productSpecify.setUnitType(UnitType.AD);
                 }
-                productSpecify.setContents(rn(15,1500));
-                productSpecify.setQuantity(rn(99,1500));
-                productSpecify.setUnitPrice(rn(2,1500));
-                productSpecify.setTotalPrice(rn(5,1500));
+                productSpecify.setContents(rn(15, 1500));
+                productSpecify.setQuantity(rn(99, 1500));
+                productSpecify.setUnitPrice(rn(2, 1500));
+                productSpecify.setTotalPrice(rn(5, 1500));
                 productSpecify.setStates(states);
                 productSpecify.setUser(user);
                 productSpecifies.add(productSpecify);
@@ -187,15 +183,15 @@ public class Runner implements CommandLineRunner {
     private List<Product> productPopulator(List<Category> categories) {
         int j = 0;
         List<Product> productList = new ArrayList<>();
-        for (Category category : categories){
+        for (Category category : categories) {
             j++;
-            for (int i=0;i<rn(15,35);i++){
+            for (int i = 0; i < rn(15, 35); i++) {
                 Product product = new Product();
                 product.setCategory(category);
-                product.setName("Product - "+i+"_"+j);
+                product.setName("Product - " + i + "_" + j);
                 product.setStatus(true);
                 product.setPhotoUrl(randomPhoto());
-                product.setTax(rn(10,20));
+                product.setTax(rn(10, 20));
                 productRepository.save(product);
                 productList.add(product);
             }
@@ -203,67 +199,67 @@ public class Runner implements CommandLineRunner {
         return productList;
     }
 
-    private List<State> statePopulator(){
-            List<City> cities = new ArrayList<>();
-            City city = new City();
-            city.setCode(6);
-            city.setTitle("ANKARA");
-            cities.add(city);
-            City city1 = new City();
-            city1.setCode(7);
-            city1.setTitle("ANTALYA");
-            cities.add(city1);
-            City city2 = new City();
-            city2.setCode(34);
-            city2.setTitle("ISTANBUL");
-            cities.add(city2);
-            cityRepository.saveAll(cities);
+    private List<State> statePopulator() {
+        List<City> cities = new ArrayList<>();
+        City city = new City();
+        city.setCode(6);
+        city.setTitle("ANKARA");
+        cities.add(city);
+        City city1 = new City();
+        city1.setCode(7);
+        city1.setTitle("ANTALYA");
+        cities.add(city1);
+        City city2 = new City();
+        city2.setCode(34);
+        city2.setTitle("ISTANBUL");
+        cities.add(city2);
+        cityRepository.saveAll(cities);
 
-            List<State> states = new ArrayList<>();
-            State state = new State();
-            state.setCity(cityRepository.findByTitle("ANTALYA").orElse(null));
-            state.setCode(700);
-            state.setTitle("Manavgat");
-            states.add(state);
-            State state1 = new State();
-            state1.setCity(cityRepository.findByTitle("ANTALYA").orElse(null));
-            state1.setCode(750);
-            state1.setTitle("Alanya");
-            states.add(state1);
-            State state2 = new State();
-            state2.setCity(cityRepository.findByTitle("ANKARA").orElse(null));
-            state2.setCode(600);
-            state2.setTitle("Mamak");
-            states.add(state2);
-            State state3 = new State();
-            state3.setCity(cityRepository.findByTitle("ANKARA").orElse(null));
-            state3.setCode(600);
-            state3.setTitle("Çankaya");
-            states.add(state3);
-            State state4 = new State();
-            state4.setCity(cityRepository.findByTitle("ISTANBUL").orElse(null));
-            state4.setCode(340);
-            state4.setTitle("Beykoz");
-            states.add(state4);
-            return stateRepository.saveAll(states);
+        List<State> states = new ArrayList<>();
+        State state = new State();
+        state.setCity(cityRepository.findByTitle("ANTALYA").orElse(null));
+        state.setCode(700);
+        state.setTitle("Manavgat");
+        states.add(state);
+        State state1 = new State();
+        state1.setCity(cityRepository.findByTitle("ANTALYA").orElse(null));
+        state1.setCode(750);
+        state1.setTitle("Alanya");
+        states.add(state1);
+        State state2 = new State();
+        state2.setCity(cityRepository.findByTitle("ANKARA").orElse(null));
+        state2.setCode(600);
+        state2.setTitle("Mamak");
+        states.add(state2);
+        State state3 = new State();
+        state3.setCity(cityRepository.findByTitle("ANKARA").orElse(null));
+        state3.setCode(600);
+        state3.setTitle("Çankaya");
+        states.add(state3);
+        State state4 = new State();
+        state4.setCity(cityRepository.findByTitle("ISTANBUL").orElse(null));
+        state4.setCode(340);
+        state4.setTitle("Beykoz");
+        states.add(state4);
+        return stateRepository.saveAll(states);
 
     }
 
-    private List<Category> categoryPopulator(){
+    private List<Category> categoryPopulator() {
         List<Category> categories = new ArrayList<>();
-        for (int i=0;i<+9;i++){
+        for (int i = 0; i < +9; i++) {
             Category category = new Category();
-            category.setName("Category - "+i);
+            category.setName("Category - " + i);
             category.setPhotoUrl(randomPhoto());
             category.setSubCategory(false);
             categories.add(category);
         }
         List<Category> savedCategories = categoryRepository.saveAll(categories);
         List<Category> subCats = new ArrayList<>();
-        for (Category baseCategory : savedCategories){
-            for (int i=0;i<rn(15,35);i++){
+        for (Category baseCategory : savedCategories) {
+            for (int i = 0; i < rn(15, 35); i++) {
                 Category subCat = new Category();
-                subCat.setName("Sub Category - "+i);
+                subCat.setName("Sub Category - " + i);
                 subCat.setSubCategory(true);
                 subCat.setParent(baseCategory);
                 subCat.setPhotoUrl(randomPhoto());
@@ -275,8 +271,8 @@ public class Runner implements CommandLineRunner {
     }
 
 
-    private String randomPhoto(){
-        return "https://picsum.photos/" + rn(500,1000) + "/"+ rn(500,1000) ;
+    private String randomPhoto() {
+        return "https://picsum.photos/" + rn(500, 1000) + "/" + rn(500, 1000);
     }
 
     private String generateBarcode() {
@@ -288,7 +284,8 @@ public class Runner implements CommandLineRunner {
         }
         return new String(digits);
     }
+
     private int rn(int min, int max) {
-		return r.nextInt((max - min) + 1) + min;
-	}
+        return r.nextInt((max - min) + 1) + min;
+    }
 }
