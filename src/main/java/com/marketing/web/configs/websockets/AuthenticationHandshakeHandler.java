@@ -1,4 +1,4 @@
-package com.marketing.web.configs;
+package com.marketing.web.configs.websockets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,6 @@ import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.*;
-import java.util.function.Supplier;
 
 public class AuthenticationHandshakeHandler implements HandshakeHandler, Lifecycle {
     private static final boolean jettyWsPresent;

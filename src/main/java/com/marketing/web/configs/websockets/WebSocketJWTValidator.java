@@ -1,4 +1,4 @@
-package com.marketing.web.configs;
+package com.marketing.web.configs.websockets;
 
 import com.marketing.web.models.User;
 import com.marketing.web.security.JWTAuthToken.JWTValidator;
