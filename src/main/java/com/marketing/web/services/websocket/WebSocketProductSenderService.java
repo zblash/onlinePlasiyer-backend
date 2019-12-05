@@ -2,6 +2,7 @@ package com.marketing.web.services.websocket;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.marketing.web.dtos.user.ReadableState;
 import com.marketing.web.dtos.websockets.WrapperWsProductSpecify;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
@@ -25,12 +26,16 @@ public class WebSocketProductSenderService  implements IWebSocketSenderService<W
     public void convertAndSend(WrapperWsProductSpecify payload) throws JsonProcessingException {
         String payloadString = mapper.writeValueAsString(payload);
         sessions.stream().forEach(session -> {
-            try {
-                session.sendMessage(new TextMessage(payloadString));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
+            if (payload.getProductSpecify().getStates().stream()
+                    .map(ReadableState::getId)
+                    .anyMatch(stateId -> stateId.equals(session.getAttributes().get("stateId")))) {
+                try {
+                    session.sendMessage(new TextMessage(payloadString));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         });
     }
 
