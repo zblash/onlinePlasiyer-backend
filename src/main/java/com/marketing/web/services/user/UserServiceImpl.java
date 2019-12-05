@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean canRegister(User user){
-        return !userRepository.findByUsernameOrEmail(user.getUsername(),user.getEmail()).isPresent();
+        return !userRepository.findByUsernameOrEmailOrName(user.getUsername(), user.getEmail(), user.getName()).isPresent();
     }
 
     @Override

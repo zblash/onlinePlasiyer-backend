@@ -39,7 +39,7 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     @Override
     public Page<ProductSpecify> findAllByUser(User user, int pageNumber) {
         PageRequest pageRequest = PageRequest.of(pageNumber-1,20);
-        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByUserOrderByIdDesc(user, pageRequest);
+        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByUserOrderByTotalPriceAsc(user, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
@@ -49,7 +49,7 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     @Override
     public Page<ProductSpecify> findAllByProduct(Product product, int pageNumber) {
         PageRequest pageRequest = PageRequest.of(pageNumber-1,20);
-        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByProductOrderByIdDesc(product, pageRequest);
+        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByProductOrderByTotalPriceAsc(product, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
@@ -59,7 +59,7 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     @Override
     public Page<ProductSpecify> findAllByProductAndStates(Product product, List<State> states, int pageNumber) {
         PageRequest pageRequest = PageRequest.of(pageNumber-1,20);
-        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByProductAndStatesInOrderByIdDesc(product,states, pageRequest);
+        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByProductAndStatesInOrderByTotalPriceAsc(product,states, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }

@@ -2,10 +2,13 @@ package com.marketing.web.utils.mappers;
 
 import com.marketing.web.dtos.cart.ReadableCart;
 import com.marketing.web.dtos.cart.ReadableCartItem;
+import com.marketing.web.dtos.cart.ReadableCartItemDetail;
 import com.marketing.web.models.Barcode;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItem;
+import com.marketing.web.models.User;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,9 +23,20 @@ public final class CartMapper {
             int quantity = items.stream().mapToInt(CartItem::getQuantity).sum();
             ReadableCart readableCart = new ReadableCart();
             readableCart.setId(cart.getUuid().toString());
+
             if (!cart.getItems().isEmpty() || cart.getItems() != null) {
-                readableCart.setItems(cart.getItems().stream()
-                        .map(CartMapper::cartItemToReadableCartItem).collect(Collectors.toList()));
+                List<ReadableCartItemDetail> cartItemDetails = new ArrayList<>();
+                List<User> sellers = cart.getItems().stream().map(x -> x.getProduct().getUser()).distinct().collect(Collectors.toList());
+                for (User seller : sellers) {
+                    ReadableCartItemDetail cartItemDetail = new ReadableCartItemDetail();
+                    cartItemDetail.setId(readableCart.getId() + seller.getId().toString());
+                    cartItemDetail.setSeller(seller.getName());
+                    cartItemDetail.setDetails(cart.getItems().stream().filter(x -> x.getProduct().getUser().getName().equals(seller.getName())).map(CartMapper::cartItemToReadableCartItem).collect(Collectors.toList()));
+                    cartItemDetail.setTotalPrice(cartItemDetail.getDetails().stream().mapToDouble(ReadableCartItem::getTotalPrice).sum());
+                    cartItemDetail.setQuantity(cartItemDetail.getDetails().stream().mapToInt(ReadableCartItem::getQuantity).sum());
+                    cartItemDetails.add(cartItemDetail);
+                }
+                readableCart.setItems(cartItemDetails);
             }
             readableCart.setTotalPrice(totalPrice);
             readableCart.setQuantity(quantity);
