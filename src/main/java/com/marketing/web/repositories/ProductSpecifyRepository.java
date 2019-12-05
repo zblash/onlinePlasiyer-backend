@@ -20,10 +20,10 @@ public interface ProductSpecifyRepository extends JpaRepository<ProductSpecify,L
 
     Optional<ProductSpecify> findByUuidAndUser_Id(UUID uuid, Long userId);
 
-    Page<ProductSpecify> findAllByProductAndStatesInOrderByIdDesc(Product product, List<State> states, Pageable pageable);
+    Page<ProductSpecify> findAllByProductAndStatesInOrderByTotalPriceAsc(Product product, List<State> states, Pageable pageable);
 
-    Page<ProductSpecify> findAllByProductOrderByIdDesc(Product product, Pageable pageable);
+    Page<ProductSpecify> findAllByProductOrderByTotalPriceAsc(Product product, Pageable pageable);
 
-    Page<ProductSpecify> findAllByUserOrderByIdDesc(User user, Pageable pageable);
+    Page<ProductSpecify> findAllByUserOrderByTotalPriceAsc(User user, Pageable pageable);
 
 }
