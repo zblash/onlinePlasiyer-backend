@@ -1,8 +1,11 @@
 package com.marketing.web.services.order;
 
+import com.marketing.web.dtos.order.OrderSummary;
 import com.marketing.web.dtos.order.SearchOrder;
+import com.marketing.web.enums.OrderStatus;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Order;
+import com.marketing.web.repositories.OrderGroup;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,30 @@ public class OrderServiceImpl implements OrderService {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
         return resultPage;
+    }
+
+    @Override
+    public OrderSummary groupBy(User user) {
+        List<OrderGroup> orderGroups = orderRepository.groupBy(user);
+        OrderSummary orderSummary = new OrderSummary();
+        for (OrderGroup orderGroup : orderGroups){
+            switch (OrderStatus.fromValue(orderGroup.getStatus())){
+                case NEW :
+                    orderSummary.setNewCount(orderGroup.getCnt().intValue());
+                    break;
+                case FNS:
+                    orderSummary.setFinishedCount(orderGroup.getCnt().intValue());
+                    break;
+                case PAD:
+                    orderSummary.setPaidCount(orderGroup.getCnt().intValue());
+                    break;
+                case CNCL:
+                    orderSummary.setCancelledCount(orderGroup.getCnt().intValue());
+                    break;
+            }
+        }
+        orderSummary.setId(user.getId() + "ordersummary".hashCode() + user.getUuid().toString());
+        return orderSummary;
     }
 
     @Override

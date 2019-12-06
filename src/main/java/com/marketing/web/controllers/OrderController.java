@@ -2,7 +2,6 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.WrapperPagination;
 import com.marketing.web.dtos.order.*;
-import com.marketing.web.enums.OrderStatus;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Order;
@@ -54,6 +53,13 @@ public class OrderController {
         }
 
         return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(user, pageNumber)));
+    }
+
+    @PreAuthorize("hasRole('ROLE_MERCHANT')")
+    @GetMapping("/summary")
+    public ResponseEntity<?> getOrderSummary(){
+        User user = userService.getLoggedInUser();
+        return ResponseEntity.ok(orderService.groupBy(user));
     }
 
     @PostMapping("/filter")

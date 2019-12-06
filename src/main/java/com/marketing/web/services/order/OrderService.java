@@ -1,5 +1,6 @@
 package com.marketing.web.services.order;
 
+import com.marketing.web.dtos.order.OrderSummary;
 import com.marketing.web.dtos.order.SearchOrder;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
@@ -10,6 +11,8 @@ import java.util.List;
 public interface OrderService {
 
     Page<Order> findAll(int pageNumber);
+
+    OrderSummary groupBy(User user);
 
     List<Order> findAllByFilter(SearchOrder searchOrder);
 
