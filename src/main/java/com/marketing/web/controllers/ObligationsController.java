@@ -43,14 +43,5 @@ public class ObligationsController {
         return ResponseEntity.ok(obligationService.getTotalObligationByUser(user));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/user/{id}")
-    public ResponseEntity<WrapperPagination<ReadableObligation>> getAll(String id,@RequestParam(required = false) Integer pageNumber){
-        User user = userService.findByUUID(id);
-        if (pageNumber == null){
-            pageNumber=1;
-        }
-        return ResponseEntity.ok(ObligationMapper.pagedObligationListToWrapperReadableObligation(obligationService.findAllByUser(user,pageNumber)));
-    }
 
 }
