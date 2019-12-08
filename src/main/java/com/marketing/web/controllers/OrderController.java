@@ -61,7 +61,11 @@ public class OrderController {
         User user = userService.getLoggedInUser();
         return ResponseEntity.ok(orderService.groupBy(user));
     }
-
+    @GetMapping("/summary/byUser/{userId}")
+    public ResponseEntity<OrderSummary> getUserOrderSummary(@PathVariable String userId){
+        User user = userService.findByUUID(userId);
+        return ResponseEntity.ok(orderService.groupBy(user));
+    }
     @PostMapping("/filter")
     public ResponseEntity<List<ReadableOrder>> getOrdersByFilter(@RequestBody SearchOrder searchOrder) {
         User user = userService.getLoggedInUser();
