@@ -1,6 +1,5 @@
 package com.marketing.web.controllers;
 
-import static java.lang.String.format;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.marketing.web.dtos.WrapperPagination;
@@ -38,9 +37,6 @@ public class ProductSpecifiesController {
     private UserService userService;
 
     @Autowired
-    private ProductService productService;
-
-    @Autowired
     private ProductSpecifyService productSpecifyService;
 
     @Autowired
@@ -68,57 +64,21 @@ public class ProductSpecifiesController {
                         .pagedProductSpecifyListToWrapperReadableProductSpecify(productSpecifyService.findAll(pageNumber)));
     }
 
-    @GetMapping("/product/{id}")
-    public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAllByProduct(@PathVariable String id, @RequestParam(required = false) Integer pageNumber){
-        if (pageNumber == null){
-            pageNumber=1;
-        }
-        User user = userService.getLoggedInUser();
-        RoleType role = UserMapper.roleToRoleType(user.getRole());
-        Product product = productService.findByUUID(id);
-
-        switch (role){
-            case MERCHANT:
-                return ResponseEntity.ok(
-                        ProductMapper
-                                .pagedProductSpecifyListToWrapperReadableProductSpecify(
-                                        productSpecifyService.findAllByProductAndStates(product, user.getActiveStates(), pageNumber)));
-            case CUSTOMER:
-                return ResponseEntity.ok(
-                        ProductMapper
-                                .pagedProductSpecifyListToWrapperReadableProductSpecify(
-                                        productSpecifyService.findAllByProductAndStates(product, Collections.singletonList(user.getAddress().getState()), pageNumber)));
-            default:
-                return ResponseEntity.ok(ProductMapper
-                        .pagedProductSpecifyListToWrapperReadableProductSpecify(
-                                productSpecifyService.findAllByProduct(product, pageNumber)));
-        }
-
-    }
-
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<ReadableProductSpecify> createProductSpecify(@Valid @RequestBody WritableProductSpecify writableProductSpecify, @RequestParam(required = false) String userId) throws JsonProcessingException {
         User user = userService.getLoggedInUser();
-
+        RoleType role = UserMapper.roleToRoleType(user.getRole());
         ReadableProductSpecify readableProductSpecify;
-        if (user.getRole().getName().equals("ROLE_"+ RoleType.ADMIN) && !userId.isEmpty()) {
-            readableProductSpecify = productFacade.createProductSpecify(writableProductSpecify, userService.findByUUID(userId));
-        }else if (user.getRole().getName().equals("ROLE_"+RoleType.MERCHANT)){
+        if (role.equals(RoleType.MERCHANT)){
             readableProductSpecify = productFacade.createProductSpecify(writableProductSpecify, user);
+        }else if (!userId.isEmpty()) {
+            readableProductSpecify = productFacade.createProductSpecify(writableProductSpecify, userService.findByUUID(userId));
         }else{
             throw new BadRequestException("userId request parameter must not blank");
         }
 
-        WrapperWsProductSpecify wrapperWsProductSpecify = new WrapperWsProductSpecify();
-        wrapperWsProductSpecify.setStatus(WsStatus.CR);
-        wrapperWsProductSpecify.setProductSpecify(readableProductSpecify);
-        wrapperWsProductSpecify.setProductBarcode(writableProductSpecify.getBarcode());
-        wrapperWsProductSpecify.setProductName(readableProductSpecify.getProductName());
-        wrapperWsProductSpecify.setProductId(readableProductSpecify.getProductId());
-       productProducer.sendProductSpecify(wrapperWsProductSpecify);
-
-
+       productProducer.sendProductSpecify(ProductMapper.readableProductSpecifyToWrapperWsProductSpecify(readableProductSpecify,WsStatus.CR));
 
         return ResponseEntity.ok(readableProductSpecify);
     }
@@ -128,7 +88,8 @@ public class ProductSpecifiesController {
     public ResponseEntity<ReadableProductSpecify> deleteProductSpecify(@PathVariable String id){
         User user = userService.getLoggedInUser();
         ProductSpecify productSpecify;
-        if (user.getRole().getName().equals("ROLE_ADMIN")){
+        RoleType role = UserMapper.roleToRoleType(user.getRole());
+        if (role.equals(RoleType.ADMIN)){
             productSpecify = productSpecifyService.findByUUID(id);
         }else {
             productSpecify = productSpecifyService.findByUUIDAndUser(id,user);
@@ -139,25 +100,11 @@ public class ProductSpecifiesController {
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<ReadableProductSpecify> updateProductSpecify(@PathVariable String id, @Valid @RequestBody WritableProductSpecify writableProductSpecify, @RequestParam(required = false) String userId) throws JsonProcessingException {
+    public ResponseEntity<ReadableProductSpecify> updateProductSpecify(@PathVariable String id, @Valid @RequestBody WritableProductSpecify writableProductSpecify) throws JsonProcessingException {
         User user = userService.getLoggedInUser();
-        ReadableProductSpecify readableProductSpecify;
+        ReadableProductSpecify readableProductSpecify = productFacade.updateProductSpecify(id,writableProductSpecify, user);
 
-        if (user.getRole().getName().equals("ROLE_"+ RoleType.ADMIN) && !userId.isEmpty()) {
-            readableProductSpecify = productFacade.updateProductSpecify(id,writableProductSpecify,userService.findByUUID(userId));
-        }else if (user.getRole().getName().equals("ROLE_"+RoleType.MERCHANT)){
-            readableProductSpecify = productFacade.updateProductSpecify(id,writableProductSpecify,user);
-        }else{
-            throw new BadRequestException("userId request parameter must not blank");
-        }
-
-        WrapperWsProductSpecify wrapperWsProductSpecify = new WrapperWsProductSpecify();
-        wrapperWsProductSpecify.setStatus(WsStatus.UP);
-        wrapperWsProductSpecify.setProductSpecify(readableProductSpecify);
-        wrapperWsProductSpecify.setProductBarcode(writableProductSpecify.getBarcode());
-        wrapperWsProductSpecify.setProductName(readableProductSpecify.getProductName());
-        wrapperWsProductSpecify.setProductId(readableProductSpecify.getProductId());
-        productProducer.sendProductSpecify(wrapperWsProductSpecify);
+        productProducer.sendProductSpecify(ProductMapper.readableProductSpecifyToWrapperWsProductSpecify(readableProductSpecify,WsStatus.UP));
         return ResponseEntity.ok(readableProductSpecify);
     }
 }

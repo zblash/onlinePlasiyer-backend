@@ -57,7 +57,7 @@ public class OrderController {
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
     @GetMapping("/summary")
-    public ResponseEntity<?> getOrderSummary(){
+    public ResponseEntity<OrderSummary> getOrderSummary(){
         User user = userService.getLoggedInUser();
         return ResponseEntity.ok(orderService.groupBy(user));
     }
@@ -84,7 +84,7 @@ public class OrderController {
         Order order;
         if (UserMapper.roleToRoleType(user.getRole()).equals(RoleType.ADMIN)) {
             if (userId.isEmpty()) {
-                throw new ResourceNotFoundException("User not found with userId: " + userId);
+                throw new ResourceNotFoundException("User not found");
             }
             order = orderService.findByUuidAndUser(id, userService.findByUUID(userId));
         }

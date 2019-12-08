@@ -19,10 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
@@ -140,10 +137,10 @@ public class AuthController {
         return ResponseEntity.ok(UserMapper.userToReadableUserInfo(user));
     }
 
-    @PostMapping("/api/user/updateInfos")
+    @PutMapping("/api/user/updateInfos")
     public ResponseEntity<ReadableUserInfo> updateUserInfo(@Valid @RequestBody WritableUserInfo writableUserInfo){
         User user = userService.getLoggedInUser();
-        if (writableUserInfo.getEmail().equals(user.getEmail()) && !userService.checkUserByEmail(writableUserInfo.getEmail())){
+        if (writableUserInfo.getEmail().equals(user.getEmail()) || !userService.checkUserByEmail(writableUserInfo.getEmail())){
             user.setName(writableUserInfo.getName());
             user.setEmail(writableUserInfo.getEmail());
             Address address = user.getAddress();
