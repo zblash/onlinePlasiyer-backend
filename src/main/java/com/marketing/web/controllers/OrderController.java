@@ -48,19 +48,20 @@ public class OrderController {
             pageNumber = 1;
         }
         User user = userService.getLoggedInUser();
-
         if (UserMapper.roleToRoleType(user.getRole()).equals(RoleType.ADMIN)) {
-            if (!userId.isEmpty()) {
-                User userByUserId = userService.findByUUID(userId);
-                if (!UserMapper.roleToRoleType(userByUserId.getRole()).equals(RoleType.MERCHANT)) {
-                    throw new BadRequestException("User does not have merchant role");
-                }
-                return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(userByUserId, pageNumber)));
-            }
             return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAll(pageNumber)));
         }
-
         return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(user, pageNumber)));
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/byUser/{userId}")
+    public ResponseEntity<WrapperPagination<ReadableOrder>> getOrdersByUser(@PathVariable String userId, @RequestParam(required = false) Integer pageNumber) {
+        if (pageNumber == null) {
+            pageNumber = 1;
+        }
+        User userByUserId = userService.findByUUID(userId);
+        return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(userByUserId, pageNumber)));
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
