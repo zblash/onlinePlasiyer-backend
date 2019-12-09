@@ -2,8 +2,8 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.WrapperPagination;
 import com.marketing.web.dtos.order.*;
-import com.marketing.web.enums.OrderStatus;
 import com.marketing.web.enums.RoleType;
+import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
@@ -43,17 +43,38 @@ public class OrderController {
     private Logger logger = LoggerFactory.getLogger(OrderController.class);
 
     @GetMapping
-    public ResponseEntity<WrapperPagination<ReadableOrder>> getOrders(@RequestParam(required = false) Integer pageNumber) {
+    public ResponseEntity<WrapperPagination<ReadableOrder>> getOrders(@RequestParam(required = false) String userId, @RequestParam(required = false) Integer pageNumber) {
         if (pageNumber == null) {
             pageNumber = 1;
         }
         User user = userService.getLoggedInUser();
-
         if (UserMapper.roleToRoleType(user.getRole()).equals(RoleType.ADMIN)) {
             return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAll(pageNumber)));
         }
-
         return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(user, pageNumber)));
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/byUser/{userId}")
+    public ResponseEntity<WrapperPagination<ReadableOrder>> getOrdersByUser(@PathVariable String userId, @RequestParam(required = false) Integer pageNumber) {
+        if (pageNumber == null) {
+            pageNumber = 1;
+        }
+        User userByUserId = userService.findByUUID(userId);
+        return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(userByUserId, pageNumber)));
+    }
+
+    @PreAuthorize("hasRole('ROLE_MERCHANT')")
+    @GetMapping("/summary")
+    public ResponseEntity<OrderSummary> getOrderSummary() {
+        User user = userService.getLoggedInUser();
+        return ResponseEntity.ok(orderService.groupBy(user));
+    }
+
+    @GetMapping("/summary/byUser/{userId}")
+    public ResponseEntity<OrderSummary> getUserOrderSummary(@PathVariable String userId) {
+        User user = userService.findByUUID(userId);
+        return ResponseEntity.ok(orderService.groupBy(user));
     }
 
     @PostMapping("/filter")
@@ -78,7 +99,7 @@ public class OrderController {
         Order order;
         if (UserMapper.roleToRoleType(user.getRole()).equals(RoleType.ADMIN)) {
             if (userId.isEmpty()) {
-                throw new ResourceNotFoundException("User not found with userId: " + userId);
+                throw new ResourceNotFoundException("User not found");
             }
             order = orderService.findByUuidAndUser(id, userService.findByUUID(userId));
         }

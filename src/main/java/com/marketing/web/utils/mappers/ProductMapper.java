@@ -2,6 +2,8 @@ package com.marketing.web.utils.mappers;
 
 import com.marketing.web.dtos.WrapperPagination;
 import com.marketing.web.dtos.product.*;
+import com.marketing.web.dtos.websockets.WrapperWsProductSpecify;
+import com.marketing.web.enums.WsStatus;
 import com.marketing.web.models.Barcode;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
@@ -73,6 +75,19 @@ public final class ProductMapper {
             readableProductSpecify.setSellerName(productSpecify.getUser().getName());
             readableProductSpecify.setStates(productSpecify.getStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
             return readableProductSpecify;
+        }
+    }
+
+    public static WrapperWsProductSpecify readableProductSpecifyToWrapperWsProductSpecify(ReadableProductSpecify readableProductSpecify, WsStatus wsStatus){
+        if (readableProductSpecify == null || wsStatus == null){
+            return null;
+        }else {
+            WrapperWsProductSpecify wrapperWsProductSpecify = new WrapperWsProductSpecify();
+            wrapperWsProductSpecify.setStatus(wsStatus);
+            wrapperWsProductSpecify.setProductSpecify(readableProductSpecify);
+            wrapperWsProductSpecify.setProductName(readableProductSpecify.getProductName());
+            wrapperWsProductSpecify.setProductId(readableProductSpecify.getProductId());
+            return wrapperWsProductSpecify;
         }
     }
 

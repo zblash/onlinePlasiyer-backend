@@ -2,7 +2,6 @@ package com.marketing.web.repositories;
 
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,6 +20,9 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
 
     List<Order> findAllBySeller_Id(Long id);
 
+    @Query("SELECT o.status AS status, COUNT(o.status) AS cnt FROM Order o WHERE o.buyer = ?1 or o.seller = ?1 GROUP BY o.status")
+    List<OrderGroup> groupBy(User user);
+
     @Query("SELECT o FROM Order o WHERE o.orderDate BETWEEN ?1 AND ?2")
     List<Order> findAllByOrderDateRange(Date startDate, Date endDate);
 
@@ -28,7 +30,7 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     List<Order> findAllByOrderDateRangeAndUsers(Date startDate, Date endDate, Long sellerId, Long buyerId);
 
     @Query("SELECT o FROM Order o WHERE o.uuid = ?1 and o.seller = ?2 or o.buyer = ?3")
-    List<Order> findAllByUuidAndUsers(Long sellerId, Long buyerId);
+    List<Order> findAllByUuidAndSeller(Long sellerId, Long buyerId);
 
     Optional<Order> findBySeller_IdAndUuid(Long sellerId, UUID uuid);
 

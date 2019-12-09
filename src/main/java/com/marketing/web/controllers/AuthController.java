@@ -1,7 +1,6 @@
 package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.user.*;
-import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.HttpMessage;
 import com.marketing.web.models.Address;
@@ -9,15 +8,15 @@ import com.marketing.web.models.City;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
 import com.marketing.web.security.JWTAuthToken.JWTGenerator;
-import com.marketing.web.services.user.*;
+import com.marketing.web.services.user.AddressService;
+import com.marketing.web.services.user.CityService;
+import com.marketing.web.services.user.StateService;
+import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.CityMapper;
 import com.marketing.web.utils.mappers.UserMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -25,17 +24,19 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-public class UserController {
+public class AuthController {
+
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private AddressService addressService;
@@ -45,15 +46,6 @@ public class UserController {
 
     @Autowired
     private CityService cityService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    private Logger logger = LoggerFactory.getLogger(UserController.class);
-
-    @Autowired
-    private SimpMessagingTemplate webSocket;
-
     @PostMapping("/signin")
     public ResponseEntity<?> login(@RequestBody WritableLogin writableLogin, WebRequest request){
         User userDetails = userService.findByUserName(writableLogin.getUsername());
@@ -101,7 +93,8 @@ public class UserController {
         throw new BadRequestException("Username or email already registered");
     }
 
-    @PostMapping("/api/users/changePassword")
+
+    @PostMapping("/api/user/changePassword")
     public ResponseEntity<HttpMessage> changeUserPassword(@Valid @RequestBody WritablePasswordReset writablePasswordReset, WebRequest request){
         User user = userService.getLoggedInUser();
 
@@ -120,7 +113,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
-    @PostMapping("/api/users/addActiveState")
+    @PostMapping("/api/user/addActiveState")
     public ResponseEntity<List<ReadableState>> addActiveState(@RequestBody List<String> states){
         User user = userService.getLoggedInUser();
         List<State> stateList = stateService.findAllByUuids(states);
@@ -132,22 +125,22 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
-    @GetMapping("/api/users/activeStates")
+    @GetMapping("/api/user/activeStates")
     public ResponseEntity<List<ReadableState>> getActiveStates(){
         User user = userService.getLoggedInUser();
         return ResponseEntity.ok(user.getActiveStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
     }
 
-    @GetMapping("/api/users/getMyInfos")
+    @GetMapping("/api/user/getinfos")
     public ResponseEntity<ReadableUserInfo> getUserInfos(){
         User user = userService.getLoggedInUser();
         return ResponseEntity.ok(UserMapper.userToReadableUserInfo(user));
     }
 
-    @PostMapping("/api/users/updateInfos")
+    @PutMapping("/api/user/updateInfos")
     public ResponseEntity<ReadableUserInfo> updateUserInfo(@Valid @RequestBody WritableUserInfo writableUserInfo){
         User user = userService.getLoggedInUser();
-        if (writableUserInfo.getEmail().equals(user.getEmail()) && !userService.checkUserByEmail(writableUserInfo.getEmail())){
+        if (writableUserInfo.getEmail().equals(user.getEmail()) || !userService.checkUserByEmail(writableUserInfo.getEmail())){
             user.setName(writableUserInfo.getName());
             user.setEmail(writableUserInfo.getEmail());
             Address address = user.getAddress();
@@ -160,141 +153,5 @@ public class UserController {
             return ResponseEntity.ok(UserMapper.userToReadableUserInfo(userService.update(user.getId(),user)));
         }
         throw new BadRequestException("Email already registered");
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/api/users/{roleType}")
-    public ResponseEntity<?> getUsersByRole(@PathVariable String roleType, @RequestParam(required = false) Boolean status) {
-        RoleType role = RoleType.valueOf(roleType.toUpperCase());
-        List<User> users;
-
-        if (status != null) {
-            users = userService.findAllByRoleAndStatus(role, status);
-        }else {
-            users = userService.findAllByRole(role);
-        }
-
-        switch (role) {
-            case CUSTOMER:
-                return ResponseEntity.ok(users.stream()
-                        .map(UserMapper::userToCustomer)
-                        .collect(Collectors.toList()));
-            case MERCHANT:
-                return ResponseEntity.ok(users.stream()
-                        .map(UserMapper::userToMerchant)
-                        .collect(Collectors.toList()));
-            default:
-                return ResponseEntity.ok(users.stream()
-                        .map(UserMapper::userToAdmin)
-                        .collect(Collectors.toList()));
-        }
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/api/users/changeStatus/{id}/{status}")
-    public ResponseEntity<?> changeUserStatus(@PathVariable String id,@PathVariable boolean status){
-        User user = userService.findByUUID(id);
-        user.setStatus(status);
-        user = userService.update(user.getId(),user);
-        RoleType role = RoleType.valueOf(user.getRole().getName().split("_")[1].toUpperCase());
-        switch (role) {
-            case CUSTOMER:
-                return ResponseEntity.ok(UserMapper.userToCustomer(user));
-            case MERCHANT:
-                return ResponseEntity.ok(UserMapper.userToMerchant(user));
-            default:
-                return ResponseEntity.ok(UserMapper.userToAdmin(user));
-        }
-    }
-
-    // TODO Kaldirilacak
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/api/users/setActive/{id}")
-    public ResponseEntity<?> setActiveUser(@PathVariable String id){
-        User user = userService.findByUUID(id);
-        user.setStatus(true);
-        user = userService.update(user.getId(),user);
-        RoleType role = RoleType.valueOf(user.getRole().getName().split("_")[1].toUpperCase());
-        switch (role) {
-            case CUSTOMER:
-                return ResponseEntity.ok(UserMapper.userToCustomer(user));
-            case MERCHANT:
-                return ResponseEntity.ok(UserMapper.userToMerchant(user));
-            default:
-                return ResponseEntity.ok(UserMapper.userToAdmin(user));
-        }
-    }
-
-    // TODO Kaldirilacak
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/api/users/setPassive/{id}")
-    public ResponseEntity<?> setPassiveUser(@PathVariable String id){
-        User user = userService.findByUUID(id);
-        user.setStatus(false);
-        user = userService.update(user.getId(),user);
-        RoleType role = RoleType.valueOf(user.getRole().getName().split("_")[1].toUpperCase());
-        switch (role) {
-            case CUSTOMER:
-                return ResponseEntity.ok(UserMapper.userToCustomer(user));
-            case MERCHANT:
-                return ResponseEntity.ok(UserMapper.userToMerchant(user));
-            default:
-                return ResponseEntity.ok(UserMapper.userToAdmin(user));
-        }
-    }
-
-    // TODO Kaldirilacak
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/api/users/customers")
-    public ResponseEntity<List<CustomerUser>> getAllCustomers(){
-
-        return ResponseEntity.ok(userService.findAllByRole(RoleType.CUSTOMER).stream()
-                .map(UserMapper::userToCustomer)
-                .collect(Collectors.toList()));
-    }
-
-    // TODO Kaldirilacak
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/api/users/merchant")
-    public ResponseEntity<List<MerchantUser>> getAllMerchants(){
-        return ResponseEntity.ok(userService.findAllByRole(RoleType.MERCHANT).stream()
-                .map(UserMapper::userToMerchant)
-                .collect(Collectors.toList()));
-    }
-
-    // TODO Kaldirilacak
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/api/users/merchant/passive")
-    public ResponseEntity<List<MerchantUser>> getPassiveMerchantUsers(){
-        return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.MERCHANT,false).stream()
-                .map(UserMapper::userToMerchant)
-                .collect(Collectors.toList()));
-    }
-
-    // TODO Kaldirilacak
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/api/users/merchant/active")
-    public ResponseEntity<List<MerchantUser>> getActiveMerchantUsers(){
-        return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.MERCHANT,true).stream()
-                .map(UserMapper::userToMerchant)
-                .collect(Collectors.toList()));
-    }
-
-    // TODO Kaldirilacak
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/api/users/customers/passive")
-    public ResponseEntity<List<CustomerUser>> getPassiveCustomerUsers(){
-        return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.CUSTOMER,false).stream()
-                .map(UserMapper::userToCustomer)
-                .collect(Collectors.toList()));
-    }
-
-    // TODO Kaldirilacak
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/api/users/customers/active")
-    public ResponseEntity<List<CustomerUser>> getActiveCustomerUsers(){
-        return ResponseEntity.ok(userService.findAllByRoleAndStatus(RoleType.CUSTOMER,true).stream()
-                .map(UserMapper::userToCustomer)
-                .collect(Collectors.toList()));
     }
 }

@@ -10,7 +10,17 @@ import io.jsonwebtoken.SignatureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Component;
+
+import java.security.Principal;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 public class JWTValidator {
@@ -22,8 +32,7 @@ public class JWTValidator {
     private String secret = "D6D317C8F7CEDC7B170B892FE9D3A8C4CD0861BE653203FB6D349C2478D92811";
 
     public User validate(String token) {
-
-        User user = null;
+        User user;
         try {
             Claims body = Jwts.parser()
                     .setSigningKey(secret)
@@ -36,7 +45,6 @@ public class JWTValidator {
         catch (ExpiredJwtException | SignatureException e) {
             throw e;
         }
-
         return user;
     }
 }

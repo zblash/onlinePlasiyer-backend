@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -16,8 +17,6 @@ public class WrapperWsProductSpecify implements Serializable {
     private WsStatus status;
 
     private String productName;
-
-    private String productBarcode;
 
     private String productId;
 

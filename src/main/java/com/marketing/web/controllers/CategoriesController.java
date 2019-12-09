@@ -87,7 +87,7 @@ public class CategoriesController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<ReadableCategory> updateCategory(@PathVariable String id, @Valid WritableCategory updatedCategory, @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
+    public ResponseEntity<ReadableCategory> updateCategory(@PathVariable String id, @Valid WritableCategory updatedCategory, @RequestParam(value="uploadfile", required = false) MultipartFile uploadfile){
         Category category = CategoryMapper.writableCategorytoCategory(updatedCategory);
         if (uploadfile != null && !uploadfile.isEmpty()) {
             amazonClient.deleteFileFromS3Bucket(category.getPhotoUrl());

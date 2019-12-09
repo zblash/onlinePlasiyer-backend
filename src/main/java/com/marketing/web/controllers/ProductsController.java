@@ -2,6 +2,7 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.WrapperPagination;
 import com.marketing.web.dtos.product.ReadableProduct;
+import com.marketing.web.dtos.product.ReadableProductSpecify;
 import com.marketing.web.dtos.product.WritableBarcode;
 import com.marketing.web.dtos.product.WritableProduct;
 import com.marketing.web.enums.RoleType;
@@ -13,6 +14,7 @@ import com.marketing.web.models.User;
 import com.marketing.web.services.category.CategoryService;
 import com.marketing.web.services.product.BarcodeService;
 import com.marketing.web.services.product.ProductService;
+import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.services.storage.AmazonClient;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.ProductMapper;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/products")
@@ -38,6 +41,9 @@ public class ProductsController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private ProductSpecifyService productSpecifyService;
 
     @Autowired
     private CategoryService categoryService;
@@ -110,6 +116,19 @@ public class ProductsController {
         return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.findByUUID(id)));
     }
 
+    @GetMapping("/{id}/specifies")
+    public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAllByProduct(@PathVariable String id, @RequestParam(required = false) Integer pageNumber){
+        if (pageNumber == null){
+            pageNumber=1;
+        }
+        User user = userService.getLoggedInUser();
+
+        return ResponseEntity.ok(
+                ProductMapper
+                        .pagedProductSpecifyListToWrapperReadableProductSpecify(
+                                productSpecifyService.findAllByProductAndStates(productService.findByUUID(id), Collections.singletonList(user.getAddress().getState()), pageNumber)));
+
+    }
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct,@ValidImg @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
@@ -156,7 +175,7 @@ public class ProductsController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
+    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(value="uploadfile", required = false) MultipartFile uploadfile){
         Product product = barcodeService.findByBarcodeNo(writableProduct.getBarcode()).getProduct();
         if (uploadfile != null && !uploadfile.isEmpty()) {
             amazonClient.deleteFileFromS3Bucket(product.getPhotoUrl());

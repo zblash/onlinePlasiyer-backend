@@ -48,4 +48,6 @@ public class WritableRegister implements Serializable {
     @NotNull
     private RoleType roleType;
 
+    private boolean status;
+
 }
