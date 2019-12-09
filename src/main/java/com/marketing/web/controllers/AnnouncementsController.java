@@ -11,6 +11,7 @@ import com.marketing.web.utils.mappers.AnnouncementMapper;
 import com.marketing.web.validations.ValidImg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.ServletRequestDataBinder;
@@ -67,7 +68,8 @@ public class AnnouncementsController {
         announcement.setLastDate(writableAnnouncement.getLastDate());
         String fileUrl = amazonClient.uploadFile(uploadfile);
         announcement.setFileUrl(fileUrl);
-        return ResponseEntity.ok(AnnouncementMapper.announcementToReadableAnnouncement(announcementService.create(announcement)));
+        return new ResponseEntity<>(AnnouncementMapper.announcementToReadableAnnouncement(announcementService.create(announcement)),
+                HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

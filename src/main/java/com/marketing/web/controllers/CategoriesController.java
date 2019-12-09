@@ -10,6 +10,7 @@ import com.marketing.web.utils.mappers.CategoryMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -73,7 +74,7 @@ public class CategoriesController {
 
             Category savedCategory = categoryService.create(category);
 
-        return ResponseEntity.ok(CategoryMapper.categoryToReadableCategory(savedCategory));
+        return new ResponseEntity<>(CategoryMapper.categoryToReadableCategory(savedCategory), HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

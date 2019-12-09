@@ -131,17 +131,4 @@ public class OrderController {
         ReadableOrder readableOrder = orderFacade.saveOrder(order, id, user);
         return ResponseEntity.ok(readableOrder);
     }
-
-//    GEREKSIZ METHOD
-//    @PreAuthorize("hasRole('ROLE_MERCHANT')")
-//    @PostMapping("changeStatus/{id}/{status}")
-//    public ResponseEntity<ReadableOrder> changeOrderStatus(@PathVariable String id,@PathVariable String status){
-//        User user = userService.getLoggedInUser();
-//        OrderStatus orderStatus = OrderStatus.fromValue(status.toUpperCase());
-//        Order order = orderService.findByUuidAndUser(id,user);
-//        order.setStatus(orderStatus);
-//        return ResponseEntity.ok(OrderMapper.orderToReadableOrder(
-//                orderService.update(order.getUuid().toString(),order)));
-//
-//    }
 }

@@ -157,7 +157,7 @@ public class ProductsController {
                 product.addBarcode(barcodeService.create(barcode));
             }
 
-            return ResponseEntity.ok(ProductMapper.productToReadableProduct(product));
+            return new ResponseEntity<>(ProductMapper.productToReadableProduct(product),HttpStatus.CREATED);
         }
 
         return new ResponseEntity<>("Product already added", HttpStatus.CONFLICT);
