@@ -47,13 +47,13 @@ public class ProductSpecifiesController {
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @GetMapping
-    public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAll(@RequestParam(required = false) Integer pageNumber){
-        if (pageNumber == null){
-            pageNumber=1;
+    public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAll(@RequestParam(required = false) Integer pageNumber) {
+        if (pageNumber == null) {
+            pageNumber = 1;
         }
         User user = userService.getLoggedInUser();
         RoleType role = UserMapper.roleToRoleType(user.getRole());
-        if (role.equals(RoleType.MERCHANT)){
+        if (role.equals(RoleType.MERCHANT)) {
             return ResponseEntity.ok(
                     ProductMapper
                             .pagedProductSpecifyListToWrapperReadableProductSpecify(productSpecifyService.findAllByUser(user, pageNumber)));
@@ -64,35 +64,52 @@ public class ProductSpecifiesController {
                         .pagedProductSpecifyListToWrapperReadableProductSpecify(productSpecifyService.findAll(pageNumber)));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/byUser/{userId}")
+    public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAllByUser(@PathVariable String userId, @RequestParam(required = false) Integer pageNumber) {
+        if (pageNumber == null) {
+            pageNumber = 1;
+        }
+        User user = userService.findByUUID(userId);
+        RoleType role = UserMapper.roleToRoleType(user.getRole());
+        if (role.equals(RoleType.MERCHANT)) {
+            return ResponseEntity.ok(
+                    ProductMapper
+                            .pagedProductSpecifyListToWrapperReadableProductSpecify(productSpecifyService.findAllByUser(user, pageNumber)));
+
+        }
+        throw new BadRequestException("User does not have merchant role");
+    }
+
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<ReadableProductSpecify> createProductSpecify(@Valid @RequestBody WritableProductSpecify writableProductSpecify, @RequestParam(required = false) String userId) throws JsonProcessingException {
         User user = userService.getLoggedInUser();
         RoleType role = UserMapper.roleToRoleType(user.getRole());
         ReadableProductSpecify readableProductSpecify;
-        if (role.equals(RoleType.MERCHANT)){
+        if (role.equals(RoleType.MERCHANT)) {
             readableProductSpecify = productFacade.createProductSpecify(writableProductSpecify, user);
-        }else if (!userId.isEmpty()) {
+        } else if (!userId.isEmpty()) {
             readableProductSpecify = productFacade.createProductSpecify(writableProductSpecify, userService.findByUUID(userId));
-        }else{
+        } else {
             throw new BadRequestException("userId request parameter must not blank");
         }
 
-       productProducer.sendProductSpecify(ProductMapper.readableProductSpecifyToWrapperWsProductSpecify(readableProductSpecify,WsStatus.CR));
+        productProducer.sendProductSpecify(ProductMapper.readableProductSpecifyToWrapperWsProductSpecify(readableProductSpecify, WsStatus.CR));
 
         return ResponseEntity.ok(readableProductSpecify);
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ReadableProductSpecify> deleteProductSpecify(@PathVariable String id){
+    public ResponseEntity<ReadableProductSpecify> deleteProductSpecify(@PathVariable String id) {
         User user = userService.getLoggedInUser();
         ProductSpecify productSpecify;
         RoleType role = UserMapper.roleToRoleType(user.getRole());
-        if (role.equals(RoleType.ADMIN)){
+        if (role.equals(RoleType.ADMIN)) {
             productSpecify = productSpecifyService.findByUUID(id);
-        }else {
-            productSpecify = productSpecifyService.findByUUIDAndUser(id,user);
+        } else {
+            productSpecify = productSpecifyService.findByUUIDAndUser(id, user);
         }
         productSpecifyService.delete(productSpecify);
         return ResponseEntity.ok(ProductMapper.productSpecifyToReadableProductSpecify(productSpecify));
@@ -102,9 +119,9 @@ public class ProductSpecifiesController {
     @PutMapping("/update/{id}")
     public ResponseEntity<ReadableProductSpecify> updateProductSpecify(@PathVariable String id, @Valid @RequestBody WritableProductSpecify writableProductSpecify) throws JsonProcessingException {
         User user = userService.getLoggedInUser();
-        ReadableProductSpecify readableProductSpecify = productFacade.updateProductSpecify(id,writableProductSpecify, user);
+        ReadableProductSpecify readableProductSpecify = productFacade.updateProductSpecify(id, writableProductSpecify, user);
 
-        productProducer.sendProductSpecify(ProductMapper.readableProductSpecifyToWrapperWsProductSpecify(readableProductSpecify,WsStatus.UP));
+        productProducer.sendProductSpecify(ProductMapper.readableProductSpecifyToWrapperWsProductSpecify(readableProductSpecify, WsStatus.UP));
         return ResponseEntity.ok(readableProductSpecify);
     }
 }

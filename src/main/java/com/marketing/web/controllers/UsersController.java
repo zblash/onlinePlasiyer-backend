@@ -241,40 +241,5 @@ public class UsersController {
         return ResponseEntity.ok(user.getActiveStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
     }
 
-    @GetMapping("/orderSummary/{id}")
-    public ResponseEntity<OrderSummary> getUserOrderSummary(@PathVariable String id){
-        User user = userService.findByUUID(id);
-        return ResponseEntity.ok(orderService.groupBy(user));
-    }
 
-    @GetMapping("/obligations/totals/{id}")
-    ResponseEntity<ReadableTotalObligation> getObligationsTotals(@PathVariable String id){
-        User user = userService.findByUUID(id);
-        return ResponseEntity.ok(obligationService.getTotalObligationByUser(user));
-    }
-
-    @GetMapping("/obligations/{id}")
-    public ResponseEntity<WrapperPagination<ReadableObligation>> getAllObligations(@PathVariable String id, @RequestParam(required = false) Integer pageNumber){
-        User user = userService.findByUUID(id);
-        if (pageNumber == null){
-            pageNumber=1;
-        }
-        return ResponseEntity.ok(ObligationMapper.pagedObligationListToWrapperReadableObligation(obligationService.findAllByUser(user,pageNumber)));
-    }
-
-    @GetMapping("productSpecifies/{id}")
-    public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAllProductSpecifies(@PathVariable String id, @RequestParam(required = false) Integer pageNumber) {
-        if (pageNumber == null) {
-            pageNumber = 1;
-        }
-        User user = userService.findByUUID(id);
-        RoleType role = UserMapper.roleToRoleType(user.getRole());
-        if (role.equals(RoleType.MERCHANT)){
-            return ResponseEntity.ok(
-                    ProductMapper
-                            .pagedProductSpecifyListToWrapperReadableProductSpecify(productSpecifyService.findAllByUser(user, pageNumber)));
-
-    }
-        throw new BadRequestException("User does not have merchant role");
-    }
 }
