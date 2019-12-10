@@ -3,6 +3,7 @@ package com.marketing.web.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.marketing.web.dtos.WrapperPagination;
+import com.marketing.web.dtos.product.ReadableProduct;
 import com.marketing.web.dtos.product.ReadableProductSpecify;
 import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.dtos.websockets.WrapperWsProductSpecify;
@@ -65,6 +66,16 @@ public class ProductSpecifiesController {
                         .pagedProductSpecifyListToWrapperReadableProductSpecify(productSpecifyService.findAll(pageNumber)));
     }
 
+    @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
+    @GetMapping("/{id}")
+    public ResponseEntity<ReadableProductSpecify> getById(@PathVariable String id) {
+        User user = userService.getLoggedInUser();
+        RoleType role = UserMapper.roleToRoleType(user.getRole());
+        if (role.equals(RoleType.ADMIN)) {
+            return ResponseEntity.ok(ProductMapper.productSpecifyToReadableProductSpecify(productSpecifyService.findByUUID(id)));
+        }
+        return ResponseEntity.ok(ProductMapper.productSpecifyToReadableProductSpecify(productSpecifyService.findByUUIDAndUser(id, user)));
+    }
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/byUser/{userId}")
     public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAllByUser(@PathVariable String userId, @RequestParam(required = false) Integer pageNumber) {
@@ -102,7 +113,7 @@ public class ProductSpecifiesController {
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<ReadableProductSpecify> deleteProductSpecify(@PathVariable String id) {
         User user = userService.getLoggedInUser();
         ProductSpecify productSpecify;
@@ -117,7 +128,7 @@ public class ProductSpecifiesController {
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ReadableProductSpecify> updateProductSpecify(@PathVariable String id, @Valid @RequestBody WritableProductSpecify writableProductSpecify) throws JsonProcessingException {
         User user = userService.getLoggedInUser();
         ReadableProductSpecify readableProductSpecify = productFacade.updateProductSpecify(id, writableProductSpecify, user);

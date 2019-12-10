@@ -37,4 +37,5 @@ public class ReadableProductSpecify implements Serializable {
 
     private List<ReadableState> states;
 
+    private List<String> productBarcodeList;
 }

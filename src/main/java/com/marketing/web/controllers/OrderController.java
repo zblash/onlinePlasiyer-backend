@@ -125,7 +125,7 @@ public class OrderController {
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
-    @PostMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ReadableOrder> updateOrder(@PathVariable String id, @RequestBody WritableOrder order) {
         User user = userService.getLoggedInUser();
         ReadableOrder readableOrder = orderFacade.saveOrder(order, id, user);

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -67,6 +68,13 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     }
 
     @Override
+    public List<ProductSpecify> findAllByProductAndStatesLimit(Product product, List<State> states, int limit) {
+        PageRequest pageRequest = PageRequest.of(0,2, Sort.by(Sort.Direction.ASC,"totalPrice"));
+        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByProductAndStatesInOrderByTotalPriceAsc(product,states, pageRequest);
+        return resultPage.getContent();
+    }
+
+    @Override
     public ProductSpecify findById(Long id) {
         return productSpecifyRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("ProductSpecify not found with id:" + id));
     }
@@ -97,7 +105,6 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
         productSpecify.setUnitPrice(updatedProductSpecify.getUnitPrice());
         productSpecify.setProduct(updatedProductSpecify.getProduct());
         productSpecify.setStates(updatedProductSpecify.getStates());
-        productSpecify.setProduct(updatedProductSpecify.getProduct());
         return productSpecifyRepository.save(productSpecify);
     }
 

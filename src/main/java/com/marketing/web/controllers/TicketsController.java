@@ -99,7 +99,7 @@ public class TicketsController {
         return ResponseEntity.ok(TicketMapper.ticketToReadableTicket(ticketService.update(id,ticket)));
     }
 
-    @PostMapping("/update/{id}")
+    @PostMapping("/{id}")
     public ResponseEntity<ReadableTicket> updateTicket(@PathVariable String id,@RequestBody WritableTicket writableTicket){
         User loggedInUser = userService.getLoggedInUser();
         Ticket ticket;

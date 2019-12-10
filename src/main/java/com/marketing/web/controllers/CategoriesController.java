@@ -78,7 +78,7 @@ public class CategoriesController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<ReadableCategory> deleteCategory(@PathVariable String id){
         Category category = categoryService.findByUUID(id);
         amazonClient.deleteFileFromS3Bucket(category.getPhotoUrl());
@@ -87,7 +87,7 @@ public class CategoriesController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ReadableCategory> updateCategory(@PathVariable String id, @Valid WritableCategory updatedCategory, @RequestParam(value="uploadfile", required = false) MultipartFile uploadfile){
         Category category = CategoryMapper.writableCategorytoCategory(updatedCategory);
         if (uploadfile != null && !uploadfile.isEmpty()) {
