@@ -3,16 +3,13 @@ package com.marketing.web.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.marketing.web.dtos.WrapperPagination;
-import com.marketing.web.dtos.product.ReadableProduct;
 import com.marketing.web.dtos.product.ReadableProductSpecify;
 import com.marketing.web.dtos.product.WritableProductSpecify;
-import com.marketing.web.dtos.websockets.WrapperWsProductSpecify;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.enums.WsStatus;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.*;
 import com.marketing.web.pubsub.ProductProducer;
-import com.marketing.web.services.product.ProductService;
 import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.facade.ProductFacade;
@@ -27,7 +24,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.*;
 
 @RestController
 @RequestMapping("/api/products/specify")
@@ -94,7 +90,7 @@ public class ProductSpecifiesController {
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<ReadableProductSpecify> createProductSpecify(@Valid @RequestBody WritableProductSpecify writableProductSpecify, @RequestParam(required = false) String userId) throws JsonProcessingException {
         User user = userService.getLoggedInUser();
         RoleType role = UserMapper.roleToRoleType(user.getRole());

@@ -2,7 +2,6 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.WrapperPagination;
 import com.marketing.web.dtos.announcement.ReadableAnnouncement;
-import com.marketing.web.dtos.announcement.WrapperReadableAnnouncement;
 import com.marketing.web.dtos.announcement.WritableAnnouncement;
 import com.marketing.web.models.Announcement;
 import com.marketing.web.services.announcement.AnnouncementService;
@@ -59,7 +58,7 @@ public class AnnouncementsController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<ReadableAnnouncement> createAnnouncement(@Valid WritableAnnouncement writableAnnouncement, @ValidImg @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
 
         Announcement announcement = new Announcement();
@@ -73,7 +72,7 @@ public class AnnouncementsController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ReadableAnnouncement> updateAnnouncement(@PathVariable String id, @Valid WritableAnnouncement writableAnnouncement, @ValidImg @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
 
         Announcement announcement = announcementService.findByUUID(id);
@@ -90,8 +89,8 @@ public class AnnouncementsController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ReadableAnnouncement> deleteProduct(@PathVariable String id){
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ReadableAnnouncement> deleteAnnouncement(@PathVariable String id){
         Announcement announcement = announcementService.findByUUID(id);
         amazonClient.deleteFileFromS3Bucket(announcement.getFileUrl());
         announcementService.delete(announcement);

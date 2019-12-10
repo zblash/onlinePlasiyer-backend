@@ -62,7 +62,7 @@ public class CategoriesController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<ReadableCategory> createCategory(@Valid WritableCategory writableCategory, @RequestParam MultipartFile uploadfile){
             Category category = CategoryMapper.writableCategorytoCategory(writableCategory);
             String fileUrl = amazonClient.uploadFile(uploadfile);

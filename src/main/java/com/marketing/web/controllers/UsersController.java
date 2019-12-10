@@ -1,10 +1,5 @@
 package com.marketing.web.controllers;
 
-import com.marketing.web.dtos.WrapperPagination;
-import com.marketing.web.dtos.obligation.ReadableObligation;
-import com.marketing.web.dtos.obligation.ReadableTotalObligation;
-import com.marketing.web.dtos.order.OrderSummary;
-import com.marketing.web.dtos.product.ReadableProductSpecify;
 import com.marketing.web.dtos.user.*;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
@@ -17,8 +12,6 @@ import com.marketing.web.services.order.OrderService;
 import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.services.user.*;
 import com.marketing.web.utils.mappers.CityMapper;
-import com.marketing.web.utils.mappers.ObligationMapper;
-import com.marketing.web.utils.mappers.ProductMapper;
 import com.marketing.web.utils.mappers.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,7 +178,7 @@ public class UsersController {
                 .collect(Collectors.toList()));
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<ReadableRegister> createUser(@Valid @RequestBody WritableRegister writableRegister) {
         User user = UserMapper.writableRegisterToUser(writableRegister);
 
@@ -208,7 +201,7 @@ public class UsersController {
         User user = userService.findByUUID(id);
         return ResponseEntity.ok(UserMapper.userToReadableUserInfo(user));
     }
-    @PutMapping("/updateInfos/{id}")
+    @PutMapping("/infos/{id}")
     public ResponseEntity<ReadableUserInfo> updateUser(@PathVariable String id, @Valid @RequestBody WritableUserInfo writableUserInfo) {
         User user = userService.findByUUID(id);
         if (writableUserInfo.getEmail().equals(user.getEmail()) || !userService.checkUserByEmail(writableUserInfo.getEmail())) {
@@ -225,7 +218,7 @@ public class UsersController {
         }
         throw new BadRequestException("Email already registered");
     }
-    @PostMapping("/addActiveState/{id}")
+    @PostMapping("/activeStates/{id}")
     public ResponseEntity<List<ReadableState>> addActiveState(@PathVariable String id, @RequestBody List<String> states){
         User user = userService.findByUUID(id);
         List<State> stateList = stateService.findAllByUuids(states);

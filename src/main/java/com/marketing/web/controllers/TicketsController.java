@@ -9,11 +9,8 @@ import com.marketing.web.models.Ticket;
 import com.marketing.web.models.TicketReply;
 import com.marketing.web.models.User;
 import com.marketing.web.services.ticket.TicketReplyService;
-import com.marketing.web.services.ticket.TicketReplyServiceImpl;
 import com.marketing.web.services.ticket.TicketService;
-import com.marketing.web.services.ticket.TicketServiceImpl;
 import com.marketing.web.services.user.UserService;
-import com.marketing.web.services.user.UserServiceImpl;
 import com.marketing.web.utils.mappers.TicketMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -61,7 +58,7 @@ public class TicketsController {
                 .collect(Collectors.toList()));
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<ReadableTicket> createTicket(@RequestBody WritableTicket writableTicket){
         Ticket ticket = TicketMapper.writableTicketToTicket(writableTicket);
         ticket.setStatus(TicketStatus.OPN);

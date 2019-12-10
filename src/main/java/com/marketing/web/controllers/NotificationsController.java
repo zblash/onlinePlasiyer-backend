@@ -44,7 +44,7 @@ public class NotificationsController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<ReadableNotification> createNotification(@Valid @RequestBody WritableNotification writableNotification) throws JsonProcessingException {
         Notification notification = new Notification();
         notification.setMessage(writableNotification.getMessage());

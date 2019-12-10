@@ -3,14 +3,12 @@ package com.marketing.web.controllers;
 import com.marketing.web.dtos.WrapperPagination;
 import com.marketing.web.dtos.obligation.ReadableObligation;
 import com.marketing.web.dtos.obligation.ReadableTotalObligation;
-import com.marketing.web.models.Obligation;
 import com.marketing.web.models.User;
 import com.marketing.web.services.invoice.ObligationService;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.ObligationMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
