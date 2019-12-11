@@ -61,6 +61,7 @@ public class ProductsController {
         if (pageNumber == null){
             pageNumber=1;
         }
+
         return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAll(pageNumber)));
     }
 

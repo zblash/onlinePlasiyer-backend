@@ -70,6 +70,7 @@ public class OrderController {
         return ResponseEntity.ok(orderService.groupBy(user));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/summary/byUser/{userId}")
     public ResponseEntity<OrderSummary> getUserOrderSummary(@PathVariable String userId) {
         User user = userService.findByUUID(userId);
@@ -123,11 +124,19 @@ public class OrderController {
                 .map(OrderMapper::orderItemToReadableOrderItem).collect(Collectors.toList()));
     }
 
-    @PreAuthorize("hasRole('ROLE_MERCHANT')")
+    @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<ReadableOrder> updateOrder(@PathVariable String id, @RequestBody WritableOrder order) {
+    public ResponseEntity<ReadableOrder> updateOrder(@PathVariable String id, @RequestBody WritableOrder writableOrder) {
         User user = userService.getLoggedInUser();
-        ReadableOrder readableOrder = orderFacade.saveOrder(order, id, user);
+        RoleType role = UserMapper.roleToRoleType(user.getRole());
+        Order order;
+        if (role.equals(RoleType.ADMIN)){
+            order = orderService.findByUUID(id);
+        }else {
+            order = orderService.findByUuidAndUser(id, user);
+        }
+
+        ReadableOrder readableOrder = orderFacade.saveOrder(writableOrder, order);
         return ResponseEntity.ok(readableOrder);
     }
 }
