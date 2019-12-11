@@ -13,6 +13,7 @@ import com.marketing.web.services.user.UserService;
 import com.marketing.web.services.user.UserServiceImpl;
 import com.marketing.web.utils.mappers.NotificationMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +44,7 @@ public class NotificationsController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<ReadableNotification> createNotification(@Valid @RequestBody WritableNotification writableNotification) throws JsonProcessingException {
         Notification notification = new Notification();
         notification.setMessage(writableNotification.getMessage());
@@ -55,6 +56,6 @@ public class NotificationsController {
         wrapperWsNotification.setNotification(readableNotification);
         wrapperWsNotification.setUser(notification.getUser());
         notificationProducer.sendNotification(wrapperWsNotification);
-        return ResponseEntity.ok(readableNotification);
+        return new ResponseEntity<>(readableNotification, HttpStatus.CREATED);
     }
 }

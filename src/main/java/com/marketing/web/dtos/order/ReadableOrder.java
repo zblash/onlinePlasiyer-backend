@@ -1,5 +1,6 @@
 package com.marketing.web.dtos.order;
 
+import com.marketing.web.dtos.user.ReadableAddress;
 import com.marketing.web.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,6 +31,8 @@ public class ReadableOrder implements Serializable {
     private Date orderDate;
 
     private Date waybillDate;
+
+    private ReadableAddress buyerAddress;
 
     private List<ReadableOrderItem> orderItems;
 }

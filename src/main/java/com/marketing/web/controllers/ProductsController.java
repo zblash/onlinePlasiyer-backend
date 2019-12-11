@@ -61,6 +61,7 @@ public class ProductsController {
         if (pageNumber == null){
             pageNumber=1;
         }
+
         return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAll(pageNumber)));
     }
 
@@ -130,7 +131,7 @@ public class ProductsController {
 
     }
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct,@ValidImg @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
         User user = userService.getLoggedInUser();
 
@@ -157,7 +158,7 @@ public class ProductsController {
                 product.addBarcode(barcodeService.create(barcode));
             }
 
-            return ResponseEntity.ok(ProductMapper.productToReadableProduct(product));
+            return new ResponseEntity<>(ProductMapper.productToReadableProduct(product),HttpStatus.CREATED);
         }
 
         return new ResponseEntity<>("Product already added", HttpStatus.CONFLICT);
@@ -165,7 +166,7 @@ public class ProductsController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<ReadableProduct> deleteProduct(@PathVariable String id){
         Product product = productService.findByUUID(id);
         amazonClient.deleteFileFromS3Bucket(product.getPhotoUrl());
@@ -174,7 +175,7 @@ public class ProductsController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(value="uploadfile", required = false) MultipartFile uploadfile){
         Product product = barcodeService.findByBarcodeNo(writableProduct.getBarcode()).getProduct();
         if (uploadfile != null && !uploadfile.isEmpty()) {

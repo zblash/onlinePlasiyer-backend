@@ -113,7 +113,7 @@ public class AuthController {
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
-    @PostMapping("/api/user/addActiveState")
+    @PostMapping("/api/user/activeStates")
     public ResponseEntity<List<ReadableState>> addActiveState(@RequestBody List<String> states){
         User user = userService.getLoggedInUser();
         List<State> stateList = stateService.findAllByUuids(states);
@@ -137,7 +137,7 @@ public class AuthController {
         return ResponseEntity.ok(UserMapper.userToReadableUserInfo(user));
     }
 
-    @PutMapping("/api/user/updateInfos")
+    @PutMapping("/api/user/infos")
     public ResponseEntity<ReadableUserInfo> updateUserInfo(@Valid @RequestBody WritableUserInfo writableUserInfo){
         User user = userService.getLoggedInUser();
         if (writableUserInfo.getEmail().equals(user.getEmail()) || !userService.checkUserByEmail(writableUserInfo.getEmail())){

@@ -1,5 +1,6 @@
 package com.marketing.web.dtos.order;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.marketing.web.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,5 +23,6 @@ public class WritableOrder implements Serializable {
     @NotBlank
     private OrderStatus status;
 
+    @JsonFormat(pattern="dd-MM-yyyy")
     private Date waybillDate;
 }

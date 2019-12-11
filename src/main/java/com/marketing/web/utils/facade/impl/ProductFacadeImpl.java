@@ -58,16 +58,13 @@ public class ProductFacadeImpl implements ProductFacade {
         if (barcode == null || barcode.getProduct() == null) {
             throw new ResourceNotFoundException("Product not found with barcode: "+writableProductSpecify.getBarcode());
         }
-        ProductSpecify productSpecify = ProductMapper.writableProductSpecifyToProductSpecify(writableProductSpecify);
-        RoleType role = UserMapper.roleToRoleType(user.getRole());
-        if (role.equals(RoleType.MERCHANT) && !productSpecify.getUser().equals(user)){
-            throw new BadRequestException("You don't have permission for product specify with id: "+uuid);
-        }
-        List<State> states = stateService.findAllByUuids(writableProductSpecify.getStateList());
+        ProductSpecify productSpecify = productSpecifyService.findByUUIDAndUser(uuid, user);
+        ProductSpecify updatedProductSpecify = ProductMapper.writableProductSpecifyToProductSpecify(writableProductSpecify);
 
+        List<State> states = stateService.findAllByUuids(writableProductSpecify.getStateList());
 
         productSpecify.setStates(productSpecifyService.allowedStates(productSpecify.getUser(),states));
         productSpecify.setProduct(barcode.getProduct());
-        return ProductMapper.productSpecifyToReadableProductSpecify(productSpecifyService.update(uuid,productSpecify));
+        return ProductMapper.productSpecifyToReadableProductSpecify(productSpecifyService.update(productSpecify.getUuid().toString(),ProductMapper.writableProductSpecifyToProductSpecify(writableProductSpecify)));
     }
 }

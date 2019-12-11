@@ -9,13 +9,11 @@ import com.marketing.web.models.Ticket;
 import com.marketing.web.models.TicketReply;
 import com.marketing.web.models.User;
 import com.marketing.web.services.ticket.TicketReplyService;
-import com.marketing.web.services.ticket.TicketReplyServiceImpl;
 import com.marketing.web.services.ticket.TicketService;
-import com.marketing.web.services.ticket.TicketServiceImpl;
 import com.marketing.web.services.user.UserService;
-import com.marketing.web.services.user.UserServiceImpl;
 import com.marketing.web.utils.mappers.TicketMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -60,12 +58,12 @@ public class TicketsController {
                 .collect(Collectors.toList()));
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<ReadableTicket> createTicket(@RequestBody WritableTicket writableTicket){
         Ticket ticket = TicketMapper.writableTicketToTicket(writableTicket);
         ticket.setStatus(TicketStatus.OPN);
         ticket.setUser(userService.getLoggedInUser());
-        return ResponseEntity.ok(TicketMapper.ticketToReadableTicket(ticketService.create(ticket)));
+        return new ResponseEntity<>(TicketMapper.ticketToReadableTicket(ticketService.create(ticket)), HttpStatus.CREATED);
     }
 
     @PostMapping("/{id}/createReply")
@@ -98,7 +96,7 @@ public class TicketsController {
         return ResponseEntity.ok(TicketMapper.ticketToReadableTicket(ticketService.update(id,ticket)));
     }
 
-    @PostMapping("/update/{id}")
+    @PostMapping("/{id}")
     public ResponseEntity<ReadableTicket> updateTicket(@PathVariable String id,@RequestBody WritableTicket writableTicket){
         User loggedInUser = userService.getLoggedInUser();
         Ticket ticket;

@@ -44,8 +44,7 @@ public class OrderFacadeImpl implements OrderFacade {
     private ObligationService obligationService;
 
     @Override
-    public ReadableOrder saveOrder(WritableOrder writableOrder, String uuid, User seller) {
-        Order order = orderService.findByUuidAndUser(uuid,seller);
+    public ReadableOrder saveOrder(WritableOrder writableOrder, Order order) {
         order.setStatus(writableOrder.getStatus());
         order.setWaybillDate(writableOrder.getWaybillDate());
 
@@ -57,7 +56,7 @@ public class OrderFacadeImpl implements OrderFacade {
             Obligation obligation = new Obligation();
             obligation.setDebt(commission);
             obligation.setReceivable(0);
-            obligation.setUser(seller);
+            obligation.setUser(order.getSeller());
             obligationService.create(obligation);
 
             Invoice invoice = new Invoice();
