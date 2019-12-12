@@ -192,7 +192,7 @@ public class ProductsController {
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping("/addBarcode/{id}")
-    public ResponseEntity<ReadableProduct> addBarcode(@PathVariable String id, @Valid WritableBarcode writableBarcode){
+    public ResponseEntity<ReadableProduct> addBarcode(@PathVariable String id, @Valid @RequestBody WritableBarcode writableBarcode){
         Product product = productService.findByUUID(id);
         if (barcodeService.checkByBarcodeNo(writableBarcode.getBarcode()) == null){
             Barcode barcode = new Barcode();
