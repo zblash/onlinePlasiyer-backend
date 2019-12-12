@@ -27,8 +27,13 @@ public class BarcodeServiceImpl implements BarcodeService {
     }
 
     @Override
+    public Barcode findByProductAndBarcodeNo(Product product, String barcodeNo) {
+        return barcodeRepository.findByProductAndBarcodeNo(product, barcodeNo).orElseThrow(() -> new ResourceNotFoundException("Barcode not found : "+barcodeNo));
+    }
+
+    @Override
     public Barcode findByBarcodeNo(String barcodeNo) {
-        return barcodeRepository.findByBarcodeNo(barcodeNo).orElseThrow(() -> new ResourceNotFoundException("This barcode not found : "+barcodeNo));
+        return barcodeRepository.findByBarcodeNo(barcodeNo).orElseThrow(() -> new ResourceNotFoundException("Barcode not found : "+barcodeNo));
     }
 
     @Override
