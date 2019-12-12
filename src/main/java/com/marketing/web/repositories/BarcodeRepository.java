@@ -15,4 +15,6 @@ public interface BarcodeRepository extends JpaRepository<Barcode,Long> {
     Optional<Barcode> findByBarcodeNo(String barcodeNo);
 
     List<Barcode> findAllByProduct(Product product);
+
+    Optional<Barcode> findByProductAndBarcodeNo(Product product, String barcodeNo);
 }

@@ -204,4 +204,13 @@ public class ProductsController {
         throw new BadRequestException("This barcode already added : "+writableBarcode.getBarcode());
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping("/removeBarcode/{id}")
+    public ResponseEntity<ReadableProduct> removeBarcode(@PathVariable String id, @Valid @RequestBody WritableBarcode writableBarcode){
+        Product product = productService.findByUUID(id);
+        Barcode barcode = barcodeService.findByProductAndBarcodeNo(product, writableBarcode.getBarcode());
+        product.removeBarcode(barcode);
+        barcodeService.delete(barcode);
+        return ResponseEntity.ok(ProductMapper.productToReadableProduct(product));
+    }
 }
