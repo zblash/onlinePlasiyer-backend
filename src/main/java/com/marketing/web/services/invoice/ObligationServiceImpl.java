@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,9 +27,9 @@ public class ObligationServiceImpl implements ObligationService {
 
 
     @Override
-    public Page<Obligation> findAll(int pageNumber) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
-        Page<Obligation> resultPage = obligationRepository.findAllByOrderByIdDesc(pageRequest);
+    public Page<Obligation> findAll(int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        Page<Obligation> resultPage = obligationRepository.findAll(pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
@@ -46,9 +47,9 @@ public class ObligationServiceImpl implements ObligationService {
     }
 
     @Override
-    public Page<Obligation> findAllByUser(User user, int pageNumber) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
-        Page<Obligation> resultPage = obligationRepository.findAllByUserOrderByIdDesc(user,pageRequest);
+    public Page<Obligation> findAllByUser(User user, int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        Page<Obligation> resultPage = obligationRepository.findAllByUser(user,pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }

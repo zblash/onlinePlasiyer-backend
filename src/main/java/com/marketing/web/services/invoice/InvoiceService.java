@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface InvoiceService {
 
-    Page<Invoice> findAll(int pageNumber);
+    Page<Invoice> findAll(int pageNumber, String sortBy, String sortType);
 
     Invoice findById(Long id);
 
@@ -16,7 +16,7 @@ public interface InvoiceService {
 
     Invoice findByOrder(String orderId);
 
-    Page<Invoice> findAllByUser(User user, int pageNumber);
+    Page<Invoice> findAllByUser(User user, int pageNumber, String sortBy, String sortType);
 
     Invoice findByOrderAndUser(String orderId, User user);
 

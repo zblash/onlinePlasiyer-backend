@@ -57,35 +57,24 @@ public class ProductsController {
     private Logger logger = LoggerFactory.getLogger(ProductsController.class);
 
     @GetMapping
-    public ResponseEntity<WrapperPagination<ReadableProduct>> getAll(@RequestParam(required = false) Integer pageNumber){
-        if (pageNumber == null){
-            pageNumber=1;
-        }
-
-        return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAll(pageNumber)));
+    public ResponseEntity<WrapperPagination<ReadableProduct>> getAll(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
+        return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAll(pageNumber, sortBy, sortType)));
     }
 
     @GetMapping("/actives")
-    public ResponseEntity<WrapperPagination<ReadableProduct>> getAllActives(@RequestParam(required = false) Integer pageNumber){
-        if (pageNumber == null){
-            pageNumber=1;
-        }
-        return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByStatus(true,pageNumber)));
+    public ResponseEntity<WrapperPagination<ReadableProduct>> getAllActives(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
+        return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByStatus(true,pageNumber, sortBy,  sortType)));
     }
 
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<WrapperPagination<ReadableProduct>> getAllByCategory(@PathVariable String categoryId,@RequestParam(required = false) Integer pageNumber){
-        if (pageNumber == null){
-            pageNumber=1;
-        }
+    public ResponseEntity<WrapperPagination<ReadableProduct>> getAllByCategory(@PathVariable String categoryId,@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
         User user = userService.getLoggedInUser();
         RoleType role = UserMapper.roleToRoleType(user.getRole());
         Category category = categoryService.findByUUID(categoryId);
         if (role.equals(RoleType.ADMIN)){
-            return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByCategory(category,pageNumber)));
-
+            return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByCategory(category,pageNumber, sortBy, sortType)));
         }
-        return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByCategoryAndStatus(category,true,pageNumber)));
+        return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByCategoryAndStatus(category,true,pageNumber, sortBy, sortType)));
     }
 
     @GetMapping("/barcode/{barcode}")
@@ -118,16 +107,14 @@ public class ProductsController {
     }
 
     @GetMapping("/{id}/specifies")
-    public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAllByProduct(@PathVariable String id, @RequestParam(required = false) Integer pageNumber){
-        if (pageNumber == null){
-            pageNumber=1;
-        }
+    public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAllByProduct(@PathVariable String id, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "totalPrice") String sortBy, @RequestParam(defaultValue = "asc") String sortType){
+
         User user = userService.getLoggedInUser();
 
         return ResponseEntity.ok(
                 ProductMapper
                         .pagedProductSpecifyListToWrapperReadableProductSpecify(
-                                productSpecifyService.findAllByProductAndStates(productService.findByUUID(id), Collections.singletonList(user.getAddress().getState()), pageNumber)));
+                                productSpecifyService.findAllByProductAndStates(productService.findByUUID(id), Collections.singletonList(user.getAddress().getState()), pageNumber, sortBy, sortType)));
 
     }
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")

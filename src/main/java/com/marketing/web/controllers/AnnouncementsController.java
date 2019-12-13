@@ -50,11 +50,9 @@ public class AnnouncementsController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/all")
-    public ResponseEntity<WrapperPagination<ReadableAnnouncement>> getAllWithInactives(@RequestParam(required = false) Integer pageNumber){
-        if (pageNumber == null){
-            pageNumber=1;
-        }
-        return ResponseEntity.ok(AnnouncementMapper.pagedAnnouncementListToWrapperReadableAnnouncement(announcementService.findAll(pageNumber)));
+    public ResponseEntity<WrapperPagination<ReadableAnnouncement>> getAllWithInactives(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
+
+        return ResponseEntity.ok(AnnouncementMapper.pagedAnnouncementListToWrapperReadableAnnouncement(announcementService.findAll(pageNumber, sortBy, sortType)));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

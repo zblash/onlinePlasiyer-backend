@@ -10,13 +10,13 @@ import java.util.List;
 
 public interface ProductSpecifyService {
 
-    Page<ProductSpecify> findAll(int pageNumber);
+    Page<ProductSpecify> findAll(int pageNumber, String sortBy, String sortType);
 
-    Page<ProductSpecify> findAllByUser(User user, int pageNumber);
+    Page<ProductSpecify> findAllByUser(User user, int pageNumber, String sortBy, String sortType);
 
-    Page<ProductSpecify> findAllByProduct(Product product, int pageNumber);
+    Page<ProductSpecify> findAllByProduct(Product product, int pageNumber, String sortBy, String sortType);
 
-    Page<ProductSpecify> findAllByProductAndStates(Product product, List<State> states, int pageNumber);
+    Page<ProductSpecify> findAllByProductAndStates(Product product, List<State> states, int pageNumber, String sortBy, String sortType);
 
     List<ProductSpecify> findAllByProductAndStatesLimit(Product product, List<State> states, int limit);
 

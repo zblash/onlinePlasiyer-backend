@@ -45,21 +45,19 @@ public class ProductSpecifiesController {
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @GetMapping
-    public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAll(@RequestParam(required = false) Integer pageNumber) {
-        if (pageNumber == null) {
-            pageNumber = 1;
-        }
+    public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAll(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "totalPrice") String sortBy, @RequestParam(defaultValue = "asc") String sortType) {
+
         User user = userService.getLoggedInUser();
         RoleType role = UserMapper.roleToRoleType(user.getRole());
         if (role.equals(RoleType.MERCHANT)) {
             return ResponseEntity.ok(
                     ProductMapper
-                            .pagedProductSpecifyListToWrapperReadableProductSpecify(productSpecifyService.findAllByUser(user, pageNumber)));
+                            .pagedProductSpecifyListToWrapperReadableProductSpecify(productSpecifyService.findAllByUser(user, pageNumber, sortBy, sortType)));
         }
 
         return ResponseEntity.ok(
                 ProductMapper
-                        .pagedProductSpecifyListToWrapperReadableProductSpecify(productSpecifyService.findAll(pageNumber)));
+                        .pagedProductSpecifyListToWrapperReadableProductSpecify(productSpecifyService.findAll(pageNumber, sortBy, sortType)));
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
@@ -74,16 +72,14 @@ public class ProductSpecifiesController {
     }
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/byUser/{userId}")
-    public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAllByUser(@PathVariable String userId, @RequestParam(required = false) Integer pageNumber) {
-        if (pageNumber == null) {
-            pageNumber = 1;
-        }
+    public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAllByUser(@PathVariable String userId, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "totalPrice") String sortBy, @RequestParam(defaultValue = "asc") String sortType) {
+
         User user = userService.findByUUID(userId);
         RoleType role = UserMapper.roleToRoleType(user.getRole());
         if (role.equals(RoleType.MERCHANT)) {
             return ResponseEntity.ok(
                     ProductMapper
-                            .pagedProductSpecifyListToWrapperReadableProductSpecify(productSpecifyService.findAllByUser(user, pageNumber)));
+                            .pagedProductSpecifyListToWrapperReadableProductSpecify(productSpecifyService.findAllByUser(user, pageNumber, sortBy, sortType)));
 
         }
         throw new BadRequestException("User does not have merchant role");

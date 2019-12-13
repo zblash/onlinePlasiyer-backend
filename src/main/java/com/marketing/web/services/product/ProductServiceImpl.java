@@ -6,9 +6,12 @@ import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.repositories.ProductRepository;
 import com.marketing.web.services.category.CategoryServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -22,13 +25,12 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    @Autowired
-    private CategoryServiceImpl categoryService;
+    private Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
 
     @Override
-    public Page<Product> findAllByStatus(boolean status, int pageNumber){
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
-        Page<Product> resultPage = productRepository.findAllByStatusOrderByIdDesc(status,pageRequest);
+    public Page<Product> findAllByStatus(boolean status, int pageNumber, String sortBy, String sortType){
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        Page<Product> resultPage = productRepository.findAllByStatus(status,pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
@@ -36,10 +38,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<Product> findAllByCategory(Category category, int pageNumber){
+    public Page<Product> findAllByCategory(Category category, int pageNumber, String sortBy, String sortType){
         List<Category> categories = category.collectLeafChildren();
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
-        Page<Product> resultPage = productRepository.findAllByCategoryInOrderByIdDesc(categories,pageRequest);
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        Page<Product> resultPage = productRepository.findAllByCategoryIn(categories,pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
@@ -47,10 +49,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<Product> findAllByCategoryAndStatus(Category category, boolean status, int pageNumber){
+    public Page<Product> findAllByCategoryAndStatus(Category category, boolean status, int pageNumber, String sortBy, String sortType){
         List<Category> categories = category.collectLeafChildren();
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
-        Page<Product> resultPage = productRepository.findAllByCategoryInAndStatusOrderByIdDesc(categories, status,pageRequest);
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        Page<Product> resultPage = productRepository.findAllByCategoryInAndStatus(categories, status,pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
@@ -59,9 +61,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<Product> findAll(int pageNumber) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
-        Page<Product> resultPage = productRepository.findAllByOrderByIdDesc(pageRequest);
+    public Page<Product> findAll(int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        Page<Product> resultPage = productRepository.findAll(pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }

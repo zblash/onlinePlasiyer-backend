@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public interface OrderRepository extends JpaRepository<Order,Long> {
 
-    Page<Order> findAllByOrderByIdDesc(Pageable pageable);
+    Page<Order> findAll(Pageable pageable);
 
     List<Order> findAllByBuyer_Id(Long id);
 
@@ -36,7 +36,7 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
 
     Optional<Order> findByUuid(UUID uuid);
 
-    Page<Order> findAllBySellerOrBuyerOrderByIdDesc(User seller, User buyer, Pageable pageable);
+    Page<Order> findAllBySellerOrBuyer(User seller, User buyer, Pageable pageable);
 
     List<Order> findAllBySellerOrBuyerOrderByIdDesc(User seller, User buyer);
 

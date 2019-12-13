@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface OrderService {
 
-    Page<Order> findAll(int pageNumber);
+    Page<Order> findAll(int pageNumber, String sortBy, String sortType);
 
     OrderSummary groupBy(User user);
 
@@ -18,7 +18,7 @@ public interface OrderService {
 
     List<Order> findAllByFilterAndUser(SearchOrder searchOrder, User user);
 
-    Page<Order> findAllByUser(User user, int pageNumber);
+    Page<Order> findAllByUser(User user, int pageNumber, String sortBy, String sortType);
 
     List<Order> findAllByUserWithoutPagination(User user);
 

@@ -13,11 +13,11 @@ import java.util.UUID;
 
 public interface ObligationRepository extends JpaRepository<Obligation, Long> {
 
-    Page<Obligation> findAllByOrderByIdDesc(Pageable pageable);
+    Page<Obligation> findAll(Pageable pageable);
 
     Optional<Obligation> findByUuid(UUID uuid);
 
     List<Obligation> findAllByUserOrderByIdDesc(User user);
 
-    Page<Obligation> findAllByUserOrderByIdDesc(User user,Pageable pageable);
+    Page<Obligation> findAllByUser(User user,Pageable pageable);
 }
