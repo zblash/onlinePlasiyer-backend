@@ -8,13 +8,13 @@ import java.util.List;
 
 public interface ProductService {
 
-    Page<Product> findAllByStatus(boolean status, int pageNumber);
+    Page<Product> findAllByStatus(boolean status, int pageNumber, String sortBy, String sortType);
 
-    Page<Product> findAllByCategory(Category category, int pageNumber);
+    Page<Product> findAllByCategory(Category category, int pageNumber, String sortBy, String sortType);
 
-    Page<Product> findAllByCategoryAndStatus(Category category, boolean status, int pageNumber);
+    Page<Product> findAllByCategoryAndStatus(Category category, boolean status, int pageNumber, String sortBy, String sortType);
 
-    Page<Product> findAll(int pageNumber);
+    Page<Product> findAll(int pageNumber, String sortBy, String sortType);
 
     Product findById(Long id);
 

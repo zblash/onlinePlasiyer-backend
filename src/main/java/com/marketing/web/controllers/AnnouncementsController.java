@@ -50,10 +50,8 @@ public class AnnouncementsController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/all")
-    public ResponseEntity<WrapperPagination<ReadableAnnouncement>> getAllWithInactives(@RequestParam(required = false) Integer pageNumber){
-        if (pageNumber == null){
-            pageNumber=1;
-        }
+    public ResponseEntity<WrapperPagination<ReadableAnnouncement>> getAllWithInactives(@RequestParam(defaultValue = "1") Integer pageNumber){
+
         return ResponseEntity.ok(AnnouncementMapper.pagedAnnouncementListToWrapperReadableAnnouncement(announcementService.findAll(pageNumber)));
     }
 

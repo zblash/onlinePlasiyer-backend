@@ -23,12 +23,10 @@ public class ObligationsController {
     private UserService userService;
 
     @GetMapping
-    public ResponseEntity<WrapperPagination<ReadableObligation>> getAll(@RequestParam(required = false) Integer pageNumber){
+    public ResponseEntity<WrapperPagination<ReadableObligation>> getAll(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
         User user = userService.getLoggedInUser();
-        if (pageNumber == null){
-            pageNumber=1;
-        }
-        return ResponseEntity.ok(ObligationMapper.pagedObligationListToWrapperReadableObligation(obligationService.findAllByUser(user,pageNumber)));
+
+        return ResponseEntity.ok(ObligationMapper.pagedObligationListToWrapperReadableObligation(obligationService.findAllByUser(user,pageNumber, sortBy, sortType)));
 
     }
 
@@ -45,12 +43,10 @@ public class ObligationsController {
     }
 
     @GetMapping("/byUser/{userId}")
-    public ResponseEntity<WrapperPagination<ReadableObligation>> getAllObligations(@PathVariable String userId, @RequestParam(required = false) Integer pageNumber){
+    public ResponseEntity<WrapperPagination<ReadableObligation>> getAllObligations(@PathVariable String userId, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
         User user = userService.findByUUID(userId);
-        if (pageNumber == null){
-            pageNumber=1;
-        }
-        return ResponseEntity.ok(ObligationMapper.pagedObligationListToWrapperReadableObligation(obligationService.findAllByUser(user,pageNumber)));
+
+        return ResponseEntity.ok(ObligationMapper.pagedObligationListToWrapperReadableObligation(obligationService.findAllByUser(user,pageNumber, sortBy, sortType)));
     }
 
 }

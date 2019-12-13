@@ -12,17 +12,17 @@ import java.util.UUID;
 
 public interface ProductRepository extends JpaRepository<Product,Long> {
 
-    Page<Product> findAllByOrderByIdDesc(Pageable pageable);
+    Page<Product> findAll(Pageable pageable);
 
-    Page<Product> findAllByCategoryInOrderByIdDesc(List<Category> categories, Pageable pageable);
+    Page<Product> findAllByCategoryIn(List<Category> categories, Pageable pageable);
 
     List<Product> findAllByCategoryIn(List<Category> categories);
 
-    Page<Product> findAllByStatusOrderByIdDesc(boolean status, Pageable pageable);
+    Page<Product> findAllByStatus(boolean status, Pageable pageable);
 
     Optional<Product> findByName(String name);
 
     Optional<Product> findByUuid(UUID uuid);
 
-    Page<Product> findAllByCategoryInAndStatusOrderByIdDesc(List<Category> categories, boolean status, Pageable pageable);
+    Page<Product> findAllByCategoryInAndStatus(List<Category> categories, boolean status, Pageable pageable);
 }

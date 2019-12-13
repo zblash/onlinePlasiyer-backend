@@ -10,13 +10,13 @@ import java.util.List;
 
 public interface ObligationService {
 
-    Page<Obligation> findAll(int pageNumber);
+    Page<Obligation> findAll(int pageNumber, String sortBy, String sortType);
 
     Obligation findById(Long id);
 
     Obligation findByUuid(String uuid);
 
-    Page<Obligation> findAllByUser(User user, int pageNumber);
+    Page<Obligation> findAllByUser(User user, int pageNumber, String sortBy, String sortType);
 
     ReadableTotalObligation getTotalObligationByUser(User user);
 
