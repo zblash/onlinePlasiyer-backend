@@ -11,6 +11,7 @@ import com.marketing.web.services.order.OrderServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,9 +28,9 @@ public class InvoiceServiceImpl implements InvoiceService {
     private OrderServiceImpl orderService;
 
     @Override
-    public Page<Invoice> findAll(int pageNumber) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
-        Page<Invoice> resultPage = invoiceRepository.findAllByOrderByIdDesc(pageRequest);
+    public Page<Invoice> findAll(int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        Page<Invoice> resultPage = invoiceRepository.findAll(pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
@@ -52,16 +53,17 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoiceRepository.findByOrder(order).orElseThrow(() -> new ResourceNotFoundException("Invoice not found with given orderId: "+ orderId));
     }
 
+    // TODO REFACTOR
     @Override
-    public Page<Invoice> findAllByUser(User user, int pageNumber) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
+    public Page<Invoice> findAllByUser(User user, int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
         Page<Invoice> resultPage = null;
         if (user.getRole().getName().equals("ROLE_"+RoleType.CUSTOMER.toString())){
-            resultPage = invoiceRepository.findAllByBuyer_IdOrderByIdDesc(user.getId(), pageRequest);
+            resultPage = invoiceRepository.findAllByBuyer_Id(user.getId(), pageRequest);
         }else if (user.getRole().getName().equals("ROLE_"+RoleType.MERCHANT.toString())){
-            resultPage = invoiceRepository.findAllBySeller_IdOrderByIdDesc(user.getId(), pageRequest);
+            resultPage = invoiceRepository.findAllBySeller_Id(user.getId(), pageRequest);
         }else{
-            resultPage = invoiceRepository.findAllByOrderByIdDesc(pageRequest);
+            resultPage = invoiceRepository.findAll(pageRequest);
         }
 
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {

@@ -11,6 +11,8 @@ public interface BarcodeService {
 
     List<Barcode> findByProduct(Product product);
 
+    Barcode findByProductAndBarcodeNo(Product product, String barcodeNo);
+
     Barcode findByBarcodeNo(String barcodeNo);
 
     Barcode checkByBarcodeNo(String barcodeNo);

@@ -14,16 +14,16 @@ import java.util.UUID;
 
 public interface ProductSpecifyRepository extends JpaRepository<ProductSpecify,Long> {
 
-    Page<ProductSpecify> findAllByOrderByIdDesc(Pageable pageable);
+    Page<ProductSpecify> findAllBy(Pageable pageable);
 
     Optional<ProductSpecify> findByUuid(UUID uuid);
 
     Optional<ProductSpecify> findByUuidAndUser_Id(UUID uuid, Long userId);
 
-    Page<ProductSpecify> findAllByProductAndStatesInOrderByTotalPriceAsc(Product product, List<State> states, Pageable pageable);
+    Page<ProductSpecify> findAllByProductAndStatesIn(Product product, List<State> states, Pageable pageable);
 
-    Page<ProductSpecify> findAllByProductOrderByTotalPriceAsc(Product product, Pageable pageable);
+    Page<ProductSpecify> findAllByProduct(Product product, Pageable pageable);
 
-    Page<ProductSpecify> findAllByUserOrderByTotalPriceAsc(User user, Pageable pageable);
+    Page<ProductSpecify> findAllByUser(User user, Pageable pageable);
 
 }

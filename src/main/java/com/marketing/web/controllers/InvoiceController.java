@@ -3,7 +3,6 @@ package com.marketing.web.controllers;
 import com.marketing.web.dtos.WrapperPagination;
 import com.marketing.web.dtos.invoice.ReadableInvoice;
 import com.marketing.web.enums.RoleType;
-import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.Invoice;
 import com.marketing.web.models.User;
 import com.marketing.web.services.invoice.InvoiceService;
@@ -26,27 +25,21 @@ public class InvoiceController {
     private InvoiceService invoiceService;
 
     @GetMapping
-    public ResponseEntity<WrapperPagination<ReadableInvoice>> getAll(@RequestParam(required = false) Integer pageNumber) {
-        if (pageNumber == null) {
-            pageNumber = 1;
-        }
+    public ResponseEntity<WrapperPagination<ReadableInvoice>> getAll(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
         User user = userService.getLoggedInUser();
         if (UserMapper.roleToRoleType(user.getRole()).equals(RoleType.ADMIN)) {
-            return ResponseEntity.ok(InvoiceMapper.pagedInvoiceListToWrapperReadableInvoice(invoiceService.findAll(pageNumber)));
+            return ResponseEntity.ok(InvoiceMapper.pagedInvoiceListToWrapperReadableInvoice(invoiceService.findAll(pageNumber, sortBy, sortType)));
         }
         return ResponseEntity.ok(
-                InvoiceMapper.pagedInvoiceListToWrapperReadableInvoice(invoiceService.findAllByUser(user, pageNumber)));
+                InvoiceMapper.pagedInvoiceListToWrapperReadableInvoice(invoiceService.findAllByUser(user, pageNumber, sortBy, sortType)));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/byUser/{userId}")
-    public ResponseEntity<WrapperPagination<ReadableInvoice>> getAllByUser(@PathVariable String userId, @RequestParam(required = false) Integer pageNumber){
-        if (pageNumber == null) {
-            pageNumber = 1;
-        }
+    public ResponseEntity<WrapperPagination<ReadableInvoice>> getAllByUser(@PathVariable String userId, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
         User user = userService.findByUUID(userId);
                 return ResponseEntity.ok(
-                        InvoiceMapper.pagedInvoiceListToWrapperReadableInvoice(invoiceService.findAllByUser(user, pageNumber)));
+                        InvoiceMapper.pagedInvoiceListToWrapperReadableInvoice(invoiceService.findAllByUser(user, pageNumber, sortBy, sortType)));
 
     }
 

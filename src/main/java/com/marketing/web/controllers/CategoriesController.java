@@ -10,6 +10,7 @@ import com.marketing.web.utils.mappers.CategoryMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -61,7 +62,7 @@ public class CategoriesController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<ReadableCategory> createCategory(@Valid WritableCategory writableCategory, @RequestParam MultipartFile uploadfile){
             Category category = CategoryMapper.writableCategorytoCategory(writableCategory);
             String fileUrl = amazonClient.uploadFile(uploadfile);
@@ -73,11 +74,11 @@ public class CategoriesController {
 
             Category savedCategory = categoryService.create(category);
 
-        return ResponseEntity.ok(CategoryMapper.categoryToReadableCategory(savedCategory));
+        return new ResponseEntity<>(CategoryMapper.categoryToReadableCategory(savedCategory), HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<ReadableCategory> deleteCategory(@PathVariable String id){
         Category category = categoryService.findByUUID(id);
         amazonClient.deleteFileFromS3Bucket(category.getPhotoUrl());
@@ -86,7 +87,7 @@ public class CategoriesController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ReadableCategory> updateCategory(@PathVariable String id, @Valid WritableCategory updatedCategory, @RequestParam(value="uploadfile", required = false) MultipartFile uploadfile){
         Category category = CategoryMapper.writableCategorytoCategory(updatedCategory);
         if (uploadfile != null && !uploadfile.isEmpty()) {

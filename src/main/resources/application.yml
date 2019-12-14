@@ -37,9 +37,9 @@ spring:
 spring:
   profiles: prod
   datasource:
-    password: d4430990a28519705f6a885591a723bb5c5050a0b55818b13adbec949a5ae4b8
-    url: jdbc:postgresql://ec2-46-137-120-243.eu-west-1.compute.amazonaws.com:5432/dbrr16ts75ilsk
-    username: mzcgmbgdtuacps
+    password: vAKj9GgWLLh3Y1MHIEA4
+    url: jdbc:postgresql://onlineplasiyerpostgres.c8pqewmiooar.eu-central-1.rds.amazonaws.com:5432/marketing
+    username: onlineplasiyer
   jpa:
     hibernate:
       ddl-auto: create

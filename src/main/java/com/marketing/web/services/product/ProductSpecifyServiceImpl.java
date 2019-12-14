@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,9 +28,9 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     private ProductSpecifyRepository productSpecifyRepository;
 
     @Override
-    public Page<ProductSpecify> findAll(int pageNumber) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,20);
-        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByOrderByIdDesc(pageRequest);
+    public Page<ProductSpecify> findAll(int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,20, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        Page<ProductSpecify> resultPage = productSpecifyRepository.findAll(pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
@@ -37,9 +38,9 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     }
 
     @Override
-    public Page<ProductSpecify> findAllByUser(User user, int pageNumber) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,20);
-        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByUserOrderByTotalPriceAsc(user, pageRequest);
+    public Page<ProductSpecify> findAllByUser(User user, int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,20, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByUser(user, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
@@ -47,9 +48,9 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     }
 
     @Override
-    public Page<ProductSpecify> findAllByProduct(Product product, int pageNumber) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,20);
-        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByProductOrderByTotalPriceAsc(product, pageRequest);
+    public Page<ProductSpecify> findAllByProduct(Product product, int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,20, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByProduct(product, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
@@ -57,13 +58,20 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     }
 
     @Override
-    public Page<ProductSpecify> findAllByProductAndStates(Product product, List<State> states, int pageNumber) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,20);
-        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByProductAndStatesInOrderByTotalPriceAsc(product,states, pageRequest);
+    public Page<ProductSpecify> findAllByProductAndStates(Product product, List<State> states, int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,20, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByProductAndStatesIn(product,states, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
         return resultPage;
+    }
+
+    @Override
+    public List<ProductSpecify> findAllByProductAndStatesLimit(Product product, List<State> states, int limit) {
+        PageRequest pageRequest = PageRequest.of(0,2, Sort.by(Sort.Direction.ASC,"totalPrice"));
+        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByProductAndStatesIn(product,states, pageRequest);
+        return resultPage.getContent();
     }
 
     @Override
@@ -97,7 +105,6 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
         productSpecify.setUnitPrice(updatedProductSpecify.getUnitPrice());
         productSpecify.setProduct(updatedProductSpecify.getProduct());
         productSpecify.setStates(updatedProductSpecify.getStates());
-        productSpecify.setProduct(updatedProductSpecify.getProduct());
         return productSpecifyRepository.save(productSpecify);
     }
 

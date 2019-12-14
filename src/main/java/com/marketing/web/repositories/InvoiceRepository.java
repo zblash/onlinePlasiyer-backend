@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public interface InvoiceRepository extends JpaRepository<Invoice,Long> {
 
-    Page<Invoice> findAllByOrderByIdDesc(Pageable pageable);
+    Page<Invoice> findAll(Pageable pageable);
 
     Optional<Invoice> findByOrder(Order order);
 
@@ -19,9 +19,9 @@ public interface InvoiceRepository extends JpaRepository<Invoice,Long> {
 
     Optional<Invoice> findByOrderAndSeller_Id(Order order,Long sellerId);
 
-    Page<Invoice> findAllByBuyer_IdOrderByIdDesc(Long id, Pageable pageable);
+    Page<Invoice> findAllByBuyer_Id(Long id, Pageable pageable);
 
-    Page<Invoice> findAllBySeller_IdOrderByIdDesc(Long id, Pageable pageable);
+    Page<Invoice> findAllBySeller_Id(Long id, Pageable pageable);
 
     Optional<Invoice> findByUuid(UUID uuid);
 

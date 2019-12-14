@@ -3,7 +3,6 @@ package com.marketing.web.controllers;
 import com.marketing.web.dtos.WrapperPagination;
 import com.marketing.web.dtos.order.*;
 import com.marketing.web.enums.RoleType;
-import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
@@ -20,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,25 +43,21 @@ public class OrderController {
     private Logger logger = LoggerFactory.getLogger(OrderController.class);
 
     @GetMapping
-    public ResponseEntity<WrapperPagination<ReadableOrder>> getOrders(@RequestParam(required = false) String userId, @RequestParam(required = false) Integer pageNumber) {
-        if (pageNumber == null) {
-            pageNumber = 1;
-        }
+    public ResponseEntity<WrapperPagination<ReadableOrder>> getOrders(@RequestParam(required = false) String userId, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
+
         User user = userService.getLoggedInUser();
         if (UserMapper.roleToRoleType(user.getRole()).equals(RoleType.ADMIN)) {
-            return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAll(pageNumber)));
+            return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAll(pageNumber, sortBy, sortType)));
         }
-        return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(user, pageNumber)));
+        return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(user, pageNumber, sortBy, sortType)));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/byUser/{userId}")
-    public ResponseEntity<WrapperPagination<ReadableOrder>> getOrdersByUser(@PathVariable String userId, @RequestParam(required = false) Integer pageNumber) {
-        if (pageNumber == null) {
-            pageNumber = 1;
-        }
+    public ResponseEntity<WrapperPagination<ReadableOrder>> getOrdersByUser(@PathVariable String userId, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
+
         User userByUserId = userService.findByUUID(userId);
-        return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(userByUserId, pageNumber)));
+        return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(userByUserId, pageNumber, sortBy, sortType)));
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
@@ -71,6 +67,7 @@ public class OrderController {
         return ResponseEntity.ok(orderService.groupBy(user));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/summary/byUser/{userId}")
     public ResponseEntity<OrderSummary> getUserOrderSummary(@PathVariable String userId) {
         User user = userService.findByUUID(userId);
@@ -124,24 +121,19 @@ public class OrderController {
                 .map(OrderMapper::orderItemToReadableOrderItem).collect(Collectors.toList()));
     }
 
-    @PreAuthorize("hasRole('ROLE_MERCHANT')")
-    @PostMapping("/update/{id}")
-    public ResponseEntity<ReadableOrder> updateOrder(@PathVariable String id, @RequestBody WritableOrder order) {
+    @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
+    @PutMapping("/{id}")
+    public ResponseEntity<ReadableOrder> updateOrder(@PathVariable String id, @Valid @RequestBody WritableOrder writableOrder) {
         User user = userService.getLoggedInUser();
-        ReadableOrder readableOrder = orderFacade.saveOrder(order, id, user);
+        RoleType role = UserMapper.roleToRoleType(user.getRole());
+        Order order;
+        if (role.equals(RoleType.ADMIN)){
+            order = orderService.findByUUID(id);
+        }else {
+            order = orderService.findByUuidAndUser(id, user);
+        }
+
+        ReadableOrder readableOrder = orderFacade.saveOrder(writableOrder, order);
         return ResponseEntity.ok(readableOrder);
     }
-
-//    GEREKSIZ METHOD
-//    @PreAuthorize("hasRole('ROLE_MERCHANT')")
-//    @PostMapping("changeStatus/{id}/{status}")
-//    public ResponseEntity<ReadableOrder> changeOrderStatus(@PathVariable String id,@PathVariable String status){
-//        User user = userService.getLoggedInUser();
-//        OrderStatus orderStatus = OrderStatus.fromValue(status.toUpperCase());
-//        Order order = orderService.findByUuidAndUser(id,user);
-//        order.setStatus(orderStatus);
-//        return ResponseEntity.ok(OrderMapper.orderToReadableOrder(
-//                orderService.update(order.getUuid().toString(),order)));
-//
-//    }
 }
