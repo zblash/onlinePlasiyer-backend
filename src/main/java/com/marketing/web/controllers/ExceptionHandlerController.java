@@ -3,6 +3,7 @@ package com.marketing.web.controllers;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.HttpMessage;
 import com.marketing.web.errors.ResourceNotFoundException;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -41,4 +42,11 @@ public class ExceptionHandlerController {
         HttpMessage httpMessage = new HttpMessage(new Date(),HttpStatus.BAD_REQUEST.value(),"Bad Request",ex.getMessage(),((ServletWebRequest)request).getRequest().getRequestURL().toString());
         return new ResponseEntity<>(httpMessage, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(PropertyReferenceException.class)
+    public ResponseEntity<?> handlePropertyReferenceException(PropertyReferenceException ex, WebRequest request) {
+        HttpMessage httpMessage = new HttpMessage(new Date(),HttpStatus.BAD_REQUEST.value(),"Bad Request",ex.getMessage(),((ServletWebRequest)request).getRequest().getRequestURL().toString());
+        return new ResponseEntity<>(httpMessage, HttpStatus.BAD_REQUEST);
+    }
+
 }
