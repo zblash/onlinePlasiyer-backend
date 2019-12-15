@@ -14,6 +14,7 @@ public final class NotificationMapper {
             readableNotification.setMessage(notification.getMessage());
             readableNotification.setTitle(notification.getTitle());
             readableNotification.setUserId(notification.getUser().getUuid().toString());
+            readableNotification.setUserName(notification.getUser().getUsername());
             return readableNotification;
         }
     }

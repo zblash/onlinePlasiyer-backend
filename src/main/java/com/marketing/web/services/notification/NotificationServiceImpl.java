@@ -23,6 +23,11 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public List<Notification> findAll() {
+       return notificationRepository.findAll();
+    }
+
+    @Override
     public Notification findByUUID(String uuid) {
         return notificationRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Notification not found with id: "+ uuid));
     }
