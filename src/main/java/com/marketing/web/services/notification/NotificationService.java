@@ -9,7 +9,10 @@ public interface NotificationService {
 
     List<Notification> findAllByUser(User user);
 
+    Notification findByUUID(String uuid);
+
     Notification create(Notification notification);
 
+    void delete(Notification notification);
 
 }

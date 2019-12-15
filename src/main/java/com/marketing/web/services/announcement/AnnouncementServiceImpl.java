@@ -61,6 +61,6 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     @Override
     public void delete(Announcement announcement) {
-
+        announcementRepository.delete(announcement);
     }
 }
