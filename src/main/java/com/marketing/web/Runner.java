@@ -73,13 +73,13 @@ public class Runner implements CommandLineRunner {
 
         List<State> states = statePopulator();
 
+        User user = userPopulator(states);
+
         List<Category> categories = categoryPopulator();
 
         List<Product> products = productPopulator(categories);
 
         barcodePopulator(products);
-
-        User user = userPopulator(states);
 
         productSpecifyPopulator(products, user);
     }

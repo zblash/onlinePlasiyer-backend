@@ -58,4 +58,12 @@ public class NotificationsController {
         notificationProducer.sendNotification(wrapperWsNotification);
         return new ResponseEntity<>(readableNotification, HttpStatus.CREATED);
     }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ReadableNotification> deleteNotification(@PathVariable String id){
+        Notification notification = notificationService.findByUUID(id);
+        notificationService.delete(notification);
+        return ResponseEntity.ok(NotificationMapper.notificationToReadableNotification(notification));
+    }
 }

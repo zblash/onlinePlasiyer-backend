@@ -22,15 +22,11 @@ public class Credit implements Serializable {
 
     private UUID uuid;
 
-    private User payer;
-
-    private User creditor;
+    @OneToOne
+    @JoinColumn(name = "user_id",referencedColumnName = "id")
+    private User user;
 
     private double totalDebt;
-
-    private double overdueDebt;
-    
-    private double notOverdueDebt;
 
     private double creditLimit;
 
