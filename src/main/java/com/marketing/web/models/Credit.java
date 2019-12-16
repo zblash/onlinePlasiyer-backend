@@ -14,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "credits")
+@Table(name = "credits",uniqueConstraints={@UniqueConstraint(columnNames={"user_id"})})
 public class Credit implements Serializable {
 
     @Id

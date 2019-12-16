@@ -3,6 +3,7 @@ package com.marketing.web.controllers;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.HttpMessage;
 import com.marketing.web.errors.ResourceNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.context.request.WebRequest;
 import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Objects;
 
 @RestControllerAdvice
 public class ExceptionHandlerController {
@@ -60,6 +62,13 @@ public class ExceptionHandlerController {
         error.setMessage("Validation error");
         error.addValidationErrors(ex.getBindingResult().getFieldErrors());
         error.addValidationError(ex.getBindingResult().getGlobalErrors());
+        return buildResponseEntity(error, (ServletWebRequest) request);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException ex, WebRequest request){
+        HttpMessage error = new HttpMessage(HttpStatus.BAD_REQUEST);
+        error.setMessage(Objects.requireNonNull(ex.getRootCause()).getMessage());
         return buildResponseEntity(error, (ServletWebRequest) request);
     }
 
