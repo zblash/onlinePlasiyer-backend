@@ -14,7 +14,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class WritableTicketReply implements Serializable {
 
-    @Size(min = 25)
     @NotBlank
     private String message;
 

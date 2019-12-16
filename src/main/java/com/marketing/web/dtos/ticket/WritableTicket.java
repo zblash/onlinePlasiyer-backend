@@ -14,7 +14,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class WritableTicket implements Serializable {
 
-    @Size(min = 25)
     @NotBlank
     private String title;
 }

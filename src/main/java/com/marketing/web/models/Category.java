@@ -30,6 +30,7 @@ public class Category implements Serializable {
     @NotBlank
     private String name;
 
+    @NotBlank
     private String photoUrl;
 
     private boolean subCategory;

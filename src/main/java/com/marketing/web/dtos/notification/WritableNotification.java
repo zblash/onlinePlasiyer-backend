@@ -15,11 +15,9 @@ import java.io.Serializable;
 public class WritableNotification implements Serializable {
 
     @NotBlank
-    @Size(min = 5)
     private String title;
 
     @NotBlank
-    @Size(min = 10)
     private String message;
 
     @NotBlank

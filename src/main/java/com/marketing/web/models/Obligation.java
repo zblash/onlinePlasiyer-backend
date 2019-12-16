@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -25,8 +26,10 @@ public class Obligation implements Serializable {
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;
 
+    @NotNull
     private double debt;
 
+    @NotNull
     private double receivable;
 
     @PrePersist

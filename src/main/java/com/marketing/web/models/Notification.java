@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -21,8 +22,10 @@ public class Notification implements Serializable {
 
     private UUID uuid;
 
+    @NotBlank
     private String title;
 
+    @NotBlank
     private String message;
 
     @ManyToOne

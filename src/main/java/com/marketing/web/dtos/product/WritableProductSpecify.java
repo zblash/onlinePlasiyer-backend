@@ -18,7 +18,7 @@ import java.util.List;
 public class WritableProductSpecify implements Serializable {
 
     @NotBlank
-    @Size(min = 13,max = 100)
+    @Size(min = 13,max = 13)
     private String barcode;
 
     @NotNull

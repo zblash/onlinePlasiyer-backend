@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -26,8 +27,10 @@ public class Credit implements Serializable {
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;
 
+    @NotNull
     private double totalDebt;
 
+    @NotNull
     private double creditLimit;
 
     @PrePersist
