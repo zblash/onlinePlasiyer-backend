@@ -64,13 +64,11 @@ public class AuthController {
                     .build();
             return ResponseEntity.ok(readableLogin);
         }
-        HttpMessage httpMessage = new HttpMessage();
-        httpMessage.setError("");
+
+        HttpMessage httpMessage = new HttpMessage(HttpStatus.UNAUTHORIZED);
         httpMessage.setMessage("Given username or password incorrect");
         httpMessage.setPath(((ServletWebRequest)request).getRequest().getRequestURL().toString());
-        httpMessage.setTimestamp(new Date());
-        httpMessage.setStatus(HttpStatus.UNAUTHORIZED.value());
-        return new ResponseEntity<>(httpMessage, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(httpMessage, httpMessage.getStatus());
 
     }
 
@@ -101,12 +99,9 @@ public class AuthController {
         if(writablePasswordReset.getPassword().equals(writablePasswordReset.getPasswordConfirmation())){
             user.setPassword(passwordEncoder.encode(writablePasswordReset.getPassword()));
             userService.update(user.getId(),user);
-            HttpMessage httpMessage = new HttpMessage();
-            httpMessage.setError("");
+            HttpMessage httpMessage = new HttpMessage(HttpStatus.OK);
             httpMessage.setMessage("Password changed");
             httpMessage.setPath(((ServletWebRequest)request).getRequest().getRequestURL().toString());
-            httpMessage.setTimestamp(new Date());
-            httpMessage.setStatus(HttpStatus.OK.value());
             return ResponseEntity.ok(httpMessage);
         }
         throw new BadRequestException("Fields not matching");
