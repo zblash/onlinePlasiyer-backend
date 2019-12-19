@@ -1,6 +1,7 @@
 package com.marketing.web.models;
 
 import com.marketing.web.enums.OrderStatus;
+import com.marketing.web.enums.PaymentOption;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,6 +34,8 @@ public class Order implements Serializable  {
 
     @NotNull
     private OrderStatus status;
+
+    private PaymentOption paymentType;
 
     @OneToMany(mappedBy = "order",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
     @OrderBy("id desc")

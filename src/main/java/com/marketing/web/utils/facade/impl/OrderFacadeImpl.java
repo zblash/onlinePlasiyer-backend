@@ -2,10 +2,14 @@ package com.marketing.web.utils.facade.impl;
 
 import com.marketing.web.dtos.order.ReadableOrder;
 import com.marketing.web.dtos.order.WritableOrder;
+import com.marketing.web.enums.CartStatus;
 import com.marketing.web.enums.OrderStatus;
+import com.marketing.web.enums.PaymentOption;
+import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.*;
 import com.marketing.web.services.cart.CartItemService;
 import com.marketing.web.services.cart.CartItemServiceImpl;
+import com.marketing.web.services.cart.CartService;
 import com.marketing.web.services.invoice.InvoiceService;
 import com.marketing.web.services.invoice.InvoiceServiceImpl;
 import com.marketing.web.services.invoice.ObligationService;
@@ -33,6 +37,9 @@ public class OrderFacadeImpl implements OrderFacade {
 
     @Autowired
     private CartItemService cartItemService;
+
+    @Autowired
+    private CartService cartService;
 
     @Autowired
     private OrderItemService orderItemService;
@@ -101,13 +108,22 @@ public class OrderFacadeImpl implements OrderFacade {
                 order.setBuyer(user);
                 order.setSeller(seller);
                 order.setOrderDate(new Date());
-                order.setStatus(OrderStatus.NEW);
                 order.setTotalPrice(orderTotalPrice);
+                order.setPaymentType(cart.getPaymentOption());
+                if(cart.getPaymentOption().equals(PaymentOption.CC) ||
+                        cart.getPaymentOption().equals(PaymentOption.CRD)){
+                    order.setStatus(OrderStatus.PAD);
+                }else {
+                    order.setStatus(OrderStatus.NEW);
+                }
                 orders.add(order);
             }
             orderService.createAll(orders);
 
             cartItemService.deleteAll(cart);
+            cart.setPaymentOption(null);
+            cart.setCartStatus(CartStatus.NEW);
+            cartService.update(cart.getId(), cart);
 
             List<OrderItem> orderItems = new ArrayList<>();
             for (CartItem cartItem : cartItems){

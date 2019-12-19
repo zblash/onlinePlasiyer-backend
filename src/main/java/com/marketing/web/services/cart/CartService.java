@@ -18,7 +18,7 @@ public interface CartService {
 
     Cart create(User user);
 
-    Cart update(Cart cart,Cart updatedCart);
+    Cart update(Long id,Cart updatedCart);
 
     void delete(Cart cart);
 }

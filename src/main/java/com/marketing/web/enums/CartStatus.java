@@ -3,20 +3,20 @@ package com.marketing.web.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum PaymentOption {
-    CRD("CREDIT"),
-    CC("CREDITCART"),
-    COD("COD");
+public enum CartStatus {
+    PND("PENDING"),
+    PRCD("PROCEED"),
+    NEW("NEW");
 
     private String value;
 
-    PaymentOption(String value) {
+    CartStatus(String value) {
         this.value = value;
     }
 
     @JsonCreator
-    public static PaymentOption fromValue(String text) {
-        for (PaymentOption b : PaymentOption.values()) {
+    public static CartStatus fromValue(String text) {
+        for (CartStatus b : CartStatus.values()) {
             if (String.valueOf(b.value).equals(text)) {
                 return b;
             }
@@ -29,4 +29,5 @@ public enum PaymentOption {
     public String toString() {
         return String.valueOf(value);
     }
+
 }

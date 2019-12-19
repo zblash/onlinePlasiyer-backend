@@ -1,5 +1,7 @@
 package com.marketing.web.models;
 
+import com.marketing.web.enums.CartStatus;
+import com.marketing.web.enums.PaymentOption;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,6 +36,9 @@ public class Cart implements Serializable {
     @Fetch(value = FetchMode.SUBSELECT)
     private List<CartItem> items;
 
+    private PaymentOption paymentOption;
+
+    private CartStatus cartStatus;
 
     @PrePersist
     public void autofill() {

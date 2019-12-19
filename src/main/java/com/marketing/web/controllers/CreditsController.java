@@ -1,6 +1,6 @@
 package com.marketing.web.controllers;
 
-import com.marketing.web.dtos.WrapperPagination;
+import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.credit.ReadableCredit;
 import com.marketing.web.dtos.credit.WritableCredit;
 import com.marketing.web.models.Credit;

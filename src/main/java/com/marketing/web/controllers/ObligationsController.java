@@ -1,6 +1,6 @@
 package com.marketing.web.controllers;
 
-import com.marketing.web.dtos.WrapperPagination;
+import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.obligation.ReadableObligation;
 import com.marketing.web.dtos.obligation.ReadableTotalObligation;
 import com.marketing.web.models.User;
