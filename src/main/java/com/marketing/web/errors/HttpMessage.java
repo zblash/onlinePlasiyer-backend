@@ -10,6 +10,7 @@ import org.springframework.validation.ObjectError;
 import javax.validation.ConstraintViolation;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -19,7 +20,7 @@ public class HttpMessage {
     private HttpStatus status;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private LocalDateTime timestamp;
+    private Date timestamp;
 
     private String message;
 
@@ -28,7 +29,7 @@ public class HttpMessage {
     private List<ApiSubError> subErrors;
 
     private HttpMessage() {
-        timestamp = LocalDateTime.now();
+        timestamp = new Date();
     }
 
     public HttpMessage(HttpStatus status) {
