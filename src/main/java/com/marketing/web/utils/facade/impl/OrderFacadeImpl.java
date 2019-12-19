@@ -10,6 +10,7 @@ import com.marketing.web.models.*;
 import com.marketing.web.services.cart.CartItemService;
 import com.marketing.web.services.cart.CartItemServiceImpl;
 import com.marketing.web.services.cart.CartService;
+import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.invoice.InvoiceService;
 import com.marketing.web.services.invoice.InvoiceServiceImpl;
 import com.marketing.web.services.invoice.ObligationService;
@@ -50,37 +51,54 @@ public class OrderFacadeImpl implements OrderFacade {
     @Autowired
     private ObligationService obligationService;
 
+    @Autowired
+    private CreditService creditService;
+
     @Override
     public ReadableOrder saveOrder(WritableOrder writableOrder, Order order) {
         order.setStatus(writableOrder.getStatus());
         order.setWaybillDate(writableOrder.getWaybillDate());
 
-        if (writableOrder.getStatus().equals(OrderStatus.FNS) || order.getStatus().equals(OrderStatus.PAD)){
+        if (writableOrder.getStatus().equals(OrderStatus.FNS)){
 
             double commission = order.getTotalPrice() * 0.01;
             order.setCommission(commission);
 
             Obligation obligation = new Obligation();
-            obligation.setDebt(commission);
-            obligation.setReceivable(0);
-            obligation.setUser(order.getSeller());
-            obligationService.create(obligation);
 
             Invoice invoice = new Invoice();
             invoice.setBuyer(order.getBuyer());
             invoice.setSeller(order.getSeller());
-            double discount = Optional.of(writableOrder.getDiscount()).orElse(0.0);
-            double paidPrice = Optional.of(writableOrder.getPaidPrice()).orElse(order.getTotalPrice());
-            paidPrice = paidPrice > order.getTotalPrice() ? order.getTotalPrice() : paidPrice;
-            discount = discount >= order.getTotalPrice() || discount < 0 ? 0.0 : discount;
-            invoice.setDiscount(discount);
-            invoice.setPaidPrice(paidPrice);
-            invoice.setUnPaidPrice((order.getTotalPrice()-discount)-paidPrice);
+
+            if (order.getPaymentType().equals(PaymentOption.COD)) {
+                double discount = Optional.of(writableOrder.getDiscount()).orElse(0.0);
+                double paidPrice = Optional.of(writableOrder.getPaidPrice()).orElse(order.getTotalPrice());
+                paidPrice = paidPrice > order.getTotalPrice() ? order.getTotalPrice() : paidPrice;
+                discount = discount >= order.getTotalPrice() || discount < 0 ? 0.0 : discount;
+                invoice.setDiscount(discount);
+                invoice.setPaidPrice(paidPrice);
+                invoice.setUnPaidPrice((order.getTotalPrice()-discount)-paidPrice);
+
+                obligation.setDebt(commission);
+                obligation.setReceivable(0);
+            }else {
+                invoice.setDiscount(0);
+                invoice.setPaidPrice(order.getTotalPrice());
+                invoice.setUnPaidPrice(0);
+
+                obligation.setDebt(0);
+                obligation.setReceivable(order.getTotalPrice() - commission);
+            }
+
             invoice.setTotalPrice(order.getTotalPrice());
             invoice.setOrder(order);
             invoice.setBuyer(order.getBuyer());
             invoice.setSeller(order.getSeller());
+
             invoiceService.create(invoice);
+
+            obligation.setUser(order.getSeller());
+            obligationService.create(obligation);
 
             if (invoice.getUnPaidPrice() > 0){
                 Obligation buyerObligation = new Obligation();
@@ -99,6 +117,7 @@ public class OrderFacadeImpl implements OrderFacade {
     public List<ReadableOrder> checkoutCart(User user, Cart cart, List<CartItem> cartItems) {
         {
             List<Order> orders = new ArrayList<>();
+            double ordersTotalPrice = 0;
             List<User> sellers = cartItems.stream().map(cartItem -> cartItem.getProduct().getUser())
                     .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(User::getId))), ArrayList::new));
             for (User seller : sellers){
@@ -116,10 +135,19 @@ public class OrderFacadeImpl implements OrderFacade {
                 }else {
                     order.setStatus(OrderStatus.NEW);
                 }
+                ordersTotalPrice += orderTotalPrice;
                 orders.add(order);
             }
-            orderService.createAll(orders);
+            if (cart.getPaymentOption().equals(PaymentOption.CRD)){
+                Credit credit = creditService.findByUser(user.getId());
+                credit.setTotalDebt(credit.getTotalDebt() + ordersTotalPrice);
+                if (credit.getTotalDebt() > credit.getCreditLimit()) {
+                    throw new BadRequestException("Not enough credit limit");
+                }
+                creditService.update(credit.getUuid().toString(), credit);
+            }
 
+            orderService.createAll(orders);
             cartItemService.deleteAll(cart);
             cart.setPaymentOption(null);
             cart.setCartStatus(CartStatus.NEW);

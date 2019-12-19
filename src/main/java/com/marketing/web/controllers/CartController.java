@@ -7,10 +7,7 @@ import com.marketing.web.dtos.order.ReadableOrder;
 import com.marketing.web.enums.CartStatus;
 import com.marketing.web.enums.PaymentOption;
 import com.marketing.web.errors.BadRequestException;
-import com.marketing.web.models.Cart;
-import com.marketing.web.models.CartItem;
-import com.marketing.web.models.State;
-import com.marketing.web.models.User;
+import com.marketing.web.models.*;
 import com.marketing.web.services.cart.CartItemService;
 import com.marketing.web.services.cart.CartService;
 import com.marketing.web.services.credit.CreditService;
@@ -46,9 +43,6 @@ public class CartController {
 
     @Autowired
     private OrderFacade orderFacade;
-
-    @Autowired
-    private CreditService creditService;
 
     private Logger logger = LoggerFactory.getLogger(CartController.class);
 
@@ -95,6 +89,7 @@ public class CartController {
     public ResponseEntity<List<ReadableOrder>> checkout(){
         User user = userService.getLoggedInUser();
         Cart cart = user.getCart();
+
         if (!cart.getItems().isEmpty()
                 && cart.getItems() != null
                 && Optional.ofNullable(cart.getPaymentOption()).isPresent()
@@ -106,13 +101,10 @@ public class CartController {
 
     @PostMapping("/setPayment")
     public ResponseEntity<ReadableCart> setPayment(@Valid @RequestBody PaymentMethod paymentMethod){
-        Cart cart =  userService.getLoggedInUser().getCart();
+        Cart cart = userService.getLoggedInUser().getCart();
 
-        if (PaymentOption.CC.equals(paymentMethod.getPaymentOption())){
-            cart.setCartStatus(CartStatus.PND);
-        }else {
-            cart.setCartStatus(CartStatus.PRCD);
-        }
+        cart.setCartStatus(PaymentOption.CC.equals(paymentMethod.getPaymentOption())
+                ? CartStatus.PND : CartStatus.PRCD);
         cart.setPaymentOption(paymentMethod.getPaymentOption());
         return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.update(cart.getId(),cart)));
     }
