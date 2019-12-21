@@ -35,8 +35,14 @@ public class NotificationsController {
     @Autowired
     private NotificationProducer notificationProducer;
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<ReadableNotification>> getAllNotifications(){
+        return ResponseEntity.ok(notificationService.findAll().stream()
+                .map(NotificationMapper::notificationToReadableNotification).collect(Collectors.toList()));
+    }
+    @GetMapping("/my")
+    public ResponseEntity<List<ReadableNotification>> getAllUserNotifications(){
         User user = userService.getLoggedInUser();
         return ResponseEntity.ok(notificationService.findAllByUser(user).stream()
                 .map(NotificationMapper::notificationToReadableNotification).collect(Collectors.toList()));

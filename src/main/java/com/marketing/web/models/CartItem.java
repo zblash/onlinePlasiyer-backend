@@ -36,6 +36,7 @@ public class CartItem implements Serializable {
     @NotNull
     private int quantity;
 
+    @NotNull
     private double totalPrice;
 
     @PrePersist

@@ -44,8 +44,11 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Cart update(Cart cart, Cart updatedCart) {
+    public Cart update(Long id, Cart updatedCart) {
+        Cart cart = findById(id);
+        cart.setPaymentOption(updatedCart.getPaymentOption());
         cart.setUser(updatedCart.getUser());
+        cart.setCartStatus(updatedCart.getCartStatus());
         return cartRepository.save(cart);
     }
 

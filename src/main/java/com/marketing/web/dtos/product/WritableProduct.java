@@ -20,11 +20,10 @@ public class WritableProduct implements Serializable {
     private String categoryId;
 
     @NotBlank
-    @Size(min = 3,max = 20)
     private String name;
 
     @NotBlank
-    @Size(min = 8,max = 13)
+    @Size(min = 13,max = 13)
     private String barcode;
 
     @NotNull

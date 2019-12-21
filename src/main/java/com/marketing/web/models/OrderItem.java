@@ -29,13 +29,16 @@ public class OrderItem implements Serializable {
     @JsonIgnore
     private Order order;
 
+    @NotNull
     private double price;
 
+    @NotNull
     private double unitPrice;
 
     @Enumerated(EnumType.STRING)
     private UnitType unitType;
 
+    @NotNull
     private double recommendedRetailPrice;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -49,6 +52,7 @@ public class OrderItem implements Serializable {
     @NotNull
     private int quantity;
 
+    @NotNull
     private double totalPrice;
 
     @PrePersist

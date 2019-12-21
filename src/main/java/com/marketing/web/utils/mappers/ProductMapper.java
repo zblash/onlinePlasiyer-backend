@@ -1,6 +1,6 @@
 package com.marketing.web.utils.mappers;
 
-import com.marketing.web.dtos.WrapperPagination;
+import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.product.*;
 import com.marketing.web.dtos.websockets.WrapperWsProductSpecify;
 import com.marketing.web.enums.WsStatus;
@@ -9,7 +9,6 @@ import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 public final class ProductMapper {

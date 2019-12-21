@@ -1,6 +1,6 @@
 package com.marketing.web.controllers;
 
-import com.marketing.web.dtos.WrapperPagination;
+import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.credit.ReadableCredit;
 import com.marketing.web.dtos.credit.WritableCredit;
 import com.marketing.web.models.Credit;
@@ -37,14 +37,6 @@ public class CreditsController {
     public ResponseEntity<ReadableCredit> getUserCredit(){
         User user = userService.getLoggedInUser();
         return ResponseEntity.ok(CreditMapper.creditToReadableCredit(creditService.findByUser(user.getId())));
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/{userId}")
-    public ResponseEntity<ReadableCredit> createCredit(@PathVariable String userId, @Valid @RequestBody WritableCredit writableCredit){
-        Credit credit = CreditMapper.writableCreditToCredit(writableCredit);
-        credit.setUser(userService.findByUUID(userId));
-        return new ResponseEntity<>(CreditMapper.creditToReadableCredit(creditService.create(credit)), HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

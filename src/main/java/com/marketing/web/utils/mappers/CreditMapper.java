@@ -1,6 +1,6 @@
 package com.marketing.web.utils.mappers;
 
-import com.marketing.web.dtos.WrapperPagination;
+import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.credit.ReadableCredit;
 import com.marketing.web.dtos.credit.WritableCredit;
 import com.marketing.web.models.Credit;
@@ -15,6 +15,7 @@ public final class CreditMapper {
             return null;
         } else {
             ReadableCredit readableCredit = new ReadableCredit();
+            readableCredit.setId(credit.getUuid().toString());
             readableCredit.setCreditLimit(credit.getCreditLimit());
             readableCredit.setTotalDebt(credit.getTotalDebt());
             readableCredit.setUserId(credit.getUser().getUuid().toString());
@@ -29,7 +30,7 @@ public final class CreditMapper {
         } else {
             Credit credit = new Credit();
             credit.setCreditLimit(writableCredit.getCreditLimit());
-            credit.setCreditLimit(writableCredit.getTotalDebt());
+            credit.setTotalDebt(writableCredit.getTotalDebt());
             return credit;
         }
     }

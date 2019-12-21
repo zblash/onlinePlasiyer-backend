@@ -25,13 +25,13 @@ public class Product implements Serializable  {
     private UUID uuid;
 
     @NotBlank
-    @Size(min = 3,max = 20)
     @Column(unique = true)
     private String name;
 
     @NotNull
     private double tax;
 
+    @NotBlank
     private String photoUrl;
 
     @ManyToOne(fetch = FetchType.EAGER)

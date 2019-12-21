@@ -2,6 +2,7 @@ package com.marketing.web.services.user;
 
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Cart;
+import com.marketing.web.models.Credit;
 import com.marketing.web.models.Role;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.models.User;
@@ -10,6 +11,7 @@ import com.marketing.web.repositories.StateRepository;
 import com.marketing.web.repositories.UserRepository;
 import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.services.cart.CartServiceImpl;
+import com.marketing.web.services.credit.CreditService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,6 +35,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private CartServiceImpl cartService;
+
+    @Autowired
+    private CreditService creditService;
 
     @Override
     public User findByUserName(String userName) {
@@ -73,7 +78,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: "+ id));
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     @Override
@@ -87,8 +92,15 @@ public class UserServiceImpl implements UserService {
         user.setRole(role);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User createdUser = userRepository.save(user);
-        Cart cart = cartService.create(createdUser);
-        user.setCart(cart);
+        if (roleType.equals(RoleType.CUSTOMER)) {
+            Cart cart = cartService.create(createdUser);
+            user.setCart(cart);
+            Credit credit = new Credit();
+            credit.setUser(createdUser);
+            credit.setTotalDebt(0);
+            credit.setCreditLimit(0);
+            creditService.create(credit);
+        }
         return createdUser;
     }
 

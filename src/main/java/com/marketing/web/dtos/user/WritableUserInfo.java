@@ -16,7 +16,6 @@ import java.io.Serializable;
 public class WritableUserInfo implements Serializable {
 
     @NotBlank
-    @Size(min = 3,max = 20)
     private String name;
 
     @NotBlank

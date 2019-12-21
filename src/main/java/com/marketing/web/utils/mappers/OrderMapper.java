@@ -1,6 +1,6 @@
 package com.marketing.web.utils.mappers;
 
-import com.marketing.web.dtos.WrapperPagination;
+import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.order.ReadableOrder;
 import com.marketing.web.dtos.order.ReadableOrderItem;
 import com.marketing.web.models.Barcode;
