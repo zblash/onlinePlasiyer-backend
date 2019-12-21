@@ -40,14 +40,6 @@ public class CreditsController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping
-    public ResponseEntity<ReadableCredit> createCredit(@Valid @RequestBody WritableCredit writableCredit){
-        Credit credit = CreditMapper.writableCreditToCredit(writableCredit);
-        credit.setUser(userService.findByUUID(writableCredit.getUserId()));
-        return new ResponseEntity<>(CreditMapper.creditToReadableCredit(creditService.create(credit)), HttpStatus.CREATED);
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{creditId}")
     public ResponseEntity<ReadableCredit> updateCredit(@PathVariable String creditId, @Valid @RequestBody WritableCredit writableCredit){
         Credit credit = CreditMapper.writableCreditToCredit(writableCredit);

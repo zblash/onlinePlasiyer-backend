@@ -13,9 +13,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class WritableCredit implements Serializable {
 
-    @NotBlank
-    private String userId;
-
     @NotNull
     private double totalDebt;
 
