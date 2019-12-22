@@ -56,6 +56,9 @@ public class OrderFacadeImpl implements OrderFacade {
 
     @Override
     public ReadableOrder saveOrder(WritableOrder writableOrder, Order order) {
+        if (OrderStatus.FNS.equals(order.getStatus())) {
+            throw new BadRequestException("Finished order can not be updated");
+        }
         order.setStatus(writableOrder.getStatus());
         order.setWaybillDate(writableOrder.getWaybillDate());
 
@@ -129,8 +132,7 @@ public class OrderFacadeImpl implements OrderFacade {
                 order.setOrderDate(new Date());
                 order.setTotalPrice(orderTotalPrice);
                 order.setPaymentType(cart.getPaymentOption());
-                if(cart.getPaymentOption().equals(PaymentOption.CC) ||
-                        cart.getPaymentOption().equals(PaymentOption.CRD)){
+                if(cart.getPaymentOption().equals(PaymentOption.CRD)){
                     order.setStatus(OrderStatus.PAD);
                 }else {
                     order.setStatus(OrderStatus.NEW);

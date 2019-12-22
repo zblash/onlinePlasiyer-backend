@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum PaymentOption {
     CRD("CREDIT"),
-    CC("CREDITCART"),
     COD("COD");
 
     private String value;
