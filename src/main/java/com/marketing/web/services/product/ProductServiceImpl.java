@@ -28,6 +28,11 @@ public class ProductServiceImpl implements ProductService {
     private Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
 
     @Override
+    public List<Product> simpleFilterByName(String name) {
+       return productRepository.findAllByNameLikeIgnoreCase("%"+name+"%");
+    }
+
+    @Override
     public Page<Product> findAllByStatus(boolean status, int pageNumber, String sortBy, String sortType){
         PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
         Page<Product> resultPage = productRepository.findAllByStatus(status,pageRequest);

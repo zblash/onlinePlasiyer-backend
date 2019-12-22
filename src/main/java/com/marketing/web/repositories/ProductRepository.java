@@ -25,4 +25,6 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     Optional<Product> findByUuid(UUID uuid);
 
     Page<Product> findAllByCategoryInAndStatus(List<Category> categories, boolean status, Pageable pageable);
+
+    List<Product> findAllByNameLikeIgnoreCase(String name);
 }
