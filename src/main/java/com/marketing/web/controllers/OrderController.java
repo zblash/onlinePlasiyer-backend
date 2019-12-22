@@ -75,19 +75,17 @@ public class OrderController {
     }
 
     @PostMapping("/filter")
-    public ResponseEntity<List<ReadableOrder>> getOrdersByFilter(@RequestBody SearchOrder searchOrder) {
+    public ResponseEntity<WrapperPagination<ReadableOrder>> getOrdersByFilter(@RequestBody SearchOrder searchOrder, @RequestParam(defaultValue = "1") Integer pageNumber) {
         User user = userService.getLoggedInUser();
         RoleType userRole = UserMapper.roleToRoleType(user.getRole());
 
         searchOrder.setEndDate((searchOrder.getEndDate() == null) ? new Date() : searchOrder.getEndDate());
 
         if (UserMapper.roleToRoleType(user.getRole()).equals(RoleType.ADMIN)) {
-            return ResponseEntity.ok(orderService.findAllByFilter(searchOrder).stream()
-                    .map(OrderMapper::orderToReadableOrder).collect(Collectors.toList()));
+            return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByFilter(searchOrder, pageNumber)));
         }
 
-        return ResponseEntity.ok(orderService.findAllByFilterAndUser(searchOrder, user).stream()
-                .map(OrderMapper::orderToReadableOrder).collect(Collectors.toList()));
+        return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByFilterAndUser(searchOrder, user, pageNumber)));
     }
 
     @GetMapping("/{id}")
