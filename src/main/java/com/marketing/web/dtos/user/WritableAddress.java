@@ -12,12 +12,12 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class WritableAddress implements Serializable {
 
-    @NotBlank
+    @NotBlank(message = "{validation.notBlank}")
     private String cityId;
 
-    @NotBlank
+    @NotBlank(message = "{validation.notBlank}")
     private String stateId;
 
-    @NotBlank
+    @NotBlank(message = "{validation.notBlank}")
     private String details;
 }

@@ -15,13 +15,13 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class WritableUserInfo implements Serializable {
 
-    @NotBlank
+    @NotBlank(message = "{validation.notBlank}")
     private String name;
 
-    @NotBlank
-    @Email
+    @NotBlank(message = "{validation.notBlank}")
+    @Email(message = "{validation.email}")
     private String email;
 
-    @NotNull
+    @NotNull(message = "{validation.notNull}")
     private WritableAddress address;
 }

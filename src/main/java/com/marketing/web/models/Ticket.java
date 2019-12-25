@@ -1,6 +1,7 @@
 package com.marketing.web.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.marketing.web.enums.ImportanceLevel;
 import com.marketing.web.enums.TicketStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,6 +35,10 @@ public class Ticket implements Serializable {
     @Enumerated(EnumType.STRING)
     private TicketStatus status;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private ImportanceLevel importanceLevel;
+
     @Temporal(TemporalType.DATE)
     private Date addedTime;
 
@@ -43,7 +48,7 @@ public class Ticket implements Serializable {
 
     @JsonIgnore
     @OneToMany(mappedBy = "ticket",cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @OrderBy("id desc")
+    @OrderBy("id asc")
     private List<TicketReply> ticketReplies;
 
     @PrePersist

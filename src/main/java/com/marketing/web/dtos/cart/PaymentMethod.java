@@ -13,7 +13,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class PaymentMethod implements Serializable {
 
-    @NotNull
+    @NotNull(message = "{validation.notNull}")
     private PaymentOption paymentOption;
 
 }

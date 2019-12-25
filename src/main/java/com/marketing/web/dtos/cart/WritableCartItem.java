@@ -14,10 +14,10 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class WritableCartItem implements Serializable {
 
-    @NotNull
+    @NotNull(message = "{validation.notNull}")
     private String productId;
 
-    @NotNull
+    @NotNull(message = "{validation.notNull}")
     private int quantity;
 
 }

@@ -13,10 +13,10 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class WritableCredit implements Serializable {
 
-    @NotNull
+    @NotNull(message = "{validation.notNull}")
     private double totalDebt;
 
-    @NotNull
+    @NotNull(message = "{validation.notNull}")
     private double creditLimit;
 
 }

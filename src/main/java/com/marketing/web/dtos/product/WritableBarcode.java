@@ -13,8 +13,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class WritableBarcode implements Serializable {
 
-    @NotBlank
-    @Size(min = 8,max = 13)
+    @NotBlank(message = "{validation.notBlank}")
+    @Size(min = 8,max = 13, message = "{validation.size}")
     private String barcode;
 
 }

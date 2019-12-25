@@ -16,17 +16,17 @@ import java.util.List;
 @AllArgsConstructor
 public class WritableProduct implements Serializable {
 
-    @NotBlank
+    @NotBlank(message = "{validation.notBlank}")
     private String categoryId;
 
-    @NotBlank
+    @NotBlank(message = "{validation.notBlank}")
     private String name;
 
-    @NotBlank
-    @Size(min = 13,max = 13)
+    @NotBlank(message = "{validation.notBlank}")
+    @Size(min = 13,max = 13, message = "{validation.size}")
     private String barcode;
 
-    @NotNull
+    @NotNull(message = "{validation.notNull}")
     private double tax;
 
     private boolean status;

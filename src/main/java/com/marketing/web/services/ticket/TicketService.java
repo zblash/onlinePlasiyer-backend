@@ -3,20 +3,19 @@ package com.marketing.web.services.ticket;
 import com.marketing.web.enums.TicketStatus;
 import com.marketing.web.models.Ticket;
 import com.marketing.web.models.User;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface TicketService {
 
-    List<Ticket> findAll();
+    Page<Ticket> findAll(int pageNumber, String sortBy, String sortType);
 
     Ticket findById(Long id);
 
     Ticket findByUUID(String uuid);
 
-    List<Ticket> findAllByUser(User user);
-
-    List<Ticket> findAllByUserAndStatus(User user, TicketStatus status);
+    Page<Ticket> findAllByUser(User user, int pageNumber, String sortBy, String sortType);
 
     Ticket findByUserAndUUid(User user,String uuid);
 

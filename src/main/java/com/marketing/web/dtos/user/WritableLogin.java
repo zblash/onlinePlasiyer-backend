@@ -13,9 +13,9 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class WritableLogin implements Serializable {
 
-    @NotBlank
+    @NotBlank(message = "{validation.notBlank}")
     private String username;
 
-    @NotBlank
+    @NotBlank(message = "{validation.notBlank}")
     private String password;
 }

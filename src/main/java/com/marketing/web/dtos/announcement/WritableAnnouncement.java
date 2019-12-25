@@ -15,13 +15,13 @@ import java.util.Date;
 @AllArgsConstructor
 public class WritableAnnouncement implements Serializable {
 
-    @NotBlank
+    @NotBlank(message = "{validation.notBlank}")
     private String title;
 
-    @NotBlank
+    @NotBlank(message = "{validation.notBlank}")
     private String message;
 
-    @NotNull
+    @NotNull(message = "{validation.notNull}")
     @JsonFormat(pattern="dd-MM-yyyy")
     private Date lastDate;
 }
