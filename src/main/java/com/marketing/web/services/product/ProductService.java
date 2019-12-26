@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface ProductService {
 
+    List<Product> simpleFilterByName(String name);
+
     Page<Product> findAllByStatus(boolean status, int pageNumber, String sortBy, String sortType);
 
     Page<Product> findAllByCategory(Category category, int pageNumber, String sortBy, String sortType);

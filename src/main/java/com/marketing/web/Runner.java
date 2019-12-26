@@ -161,7 +161,7 @@ public class Runner implements CommandLineRunner {
                 if (randomForUnitType == 2) {
                     productSpecify.setUnitType(UnitType.KL);
                 }
-                if (randomForUnitType == 2) {
+                if (randomForUnitType > 2) {
                     productSpecify.setUnitType(UnitType.AD);
                 }
                 productSpecify.setContents(rn(15, 1500));

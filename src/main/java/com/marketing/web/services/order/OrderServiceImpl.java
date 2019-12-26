@@ -57,13 +57,23 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> findAllByFilter(SearchOrder searchOrder) {
-        return orderRepository.findAllByOrderDateRange(searchOrder.getStartDate(),searchOrder.getEndDate());
+    public Page<Order> findAllByFilter(SearchOrder searchOrder, int pageNumber) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
+        Page<Order> resultPage = orderRepository.findAllByOrOrderDateBetween(searchOrder.getStartDate(),searchOrder.getEndDate(), pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+        return resultPage;
     }
 
     @Override
-    public List<Order> findAllByFilterAndUser(SearchOrder searchOrder, User user) {
-        return orderRepository.findAllByOrderDateRangeAndUsers(searchOrder.getStartDate(),searchOrder.getEndDate(),user.getId(),user.getId());
+    public Page<Order> findAllByFilterAndUser(SearchOrder searchOrder, User user, int pageNumber) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
+        Page<Order> resultPage = orderRepository.findAllByOrderDateBetweenAndBuyerOrSeller(searchOrder.getStartDate(),searchOrder.getEndDate(),user, user, pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+        return resultPage;
     }
 
     @Override

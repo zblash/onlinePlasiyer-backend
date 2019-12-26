@@ -1,6 +1,6 @@
 package com.marketing.web.controllers;
 
-import com.marketing.web.dtos.WrapperPagination;
+import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.announcement.ReadableAnnouncement;
 import com.marketing.web.dtos.announcement.WritableAnnouncement;
 import com.marketing.web.models.Announcement;

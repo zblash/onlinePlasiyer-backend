@@ -17,4 +17,8 @@ public class ReadableNotification implements Serializable {
     private String title;
 
     private String message;
+
+    private String userId;
+
+    private String userName;
 }

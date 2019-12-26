@@ -28,12 +28,10 @@ public class JWTValidator {
     @Autowired
     private UserService userService;
 
-    Logger logger = LoggerFactory.getLogger(JWTValidator.class);
     private String secret = "D6D317C8F7CEDC7B170B892FE9D3A8C4CD0861BE653203FB6D349C2478D92811";
 
     public User validate(String token) {
         User user;
-        try {
             Claims body = Jwts.parser()
                     .setSigningKey(secret)
                     .parseClaimsJws(token)
@@ -41,10 +39,6 @@ public class JWTValidator {
 
             user = userService.findById(Long.parseLong(body.get("userId").toString()));
 
-        }
-        catch (ExpiredJwtException | SignatureException e) {
-            throw e;
-        }
         return user;
     }
 }

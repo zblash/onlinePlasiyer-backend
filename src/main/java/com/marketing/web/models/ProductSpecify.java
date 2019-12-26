@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
@@ -23,17 +24,23 @@ public class ProductSpecify implements Serializable {
 
     private UUID uuid;
 
+    @NotNull
     private double totalPrice;
 
+    @NotNull
     private double unitPrice;
 
+    @NotNull
     private int quantity;
 
+    @NotNull
     private double contents;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     private UnitType unitType;
 
+    @NotNull
     private double recommendedRetailPrice;
 
     @ManyToOne

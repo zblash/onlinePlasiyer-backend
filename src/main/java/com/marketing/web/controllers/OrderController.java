@@ -1,8 +1,10 @@
 package com.marketing.web.controllers;
 
-import com.marketing.web.dtos.WrapperPagination;
+import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.order.*;
+import com.marketing.web.enums.OrderStatus;
 import com.marketing.web.enums.RoleType;
+import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
@@ -75,19 +77,17 @@ public class OrderController {
     }
 
     @PostMapping("/filter")
-    public ResponseEntity<List<ReadableOrder>> getOrdersByFilter(@RequestBody SearchOrder searchOrder) {
+    public ResponseEntity<WrapperPagination<ReadableOrder>> getOrdersByFilter(@RequestBody SearchOrder searchOrder, @RequestParam(defaultValue = "1") Integer pageNumber) {
         User user = userService.getLoggedInUser();
         RoleType userRole = UserMapper.roleToRoleType(user.getRole());
 
         searchOrder.setEndDate((searchOrder.getEndDate() == null) ? new Date() : searchOrder.getEndDate());
 
         if (UserMapper.roleToRoleType(user.getRole()).equals(RoleType.ADMIN)) {
-            return ResponseEntity.ok(orderService.findAllByFilter(searchOrder).stream()
-                    .map(OrderMapper::orderToReadableOrder).collect(Collectors.toList()));
+            return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByFilter(searchOrder, pageNumber)));
         }
 
-        return ResponseEntity.ok(orderService.findAllByFilterAndUser(searchOrder, user).stream()
-                .map(OrderMapper::orderToReadableOrder).collect(Collectors.toList()));
+        return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByFilterAndUser(searchOrder, user, pageNumber)));
     }
 
     @GetMapping("/{id}")
@@ -135,5 +135,7 @@ public class OrderController {
 
         ReadableOrder readableOrder = orderFacade.saveOrder(writableOrder, order);
         return ResponseEntity.ok(readableOrder);
+
     }
+
 }

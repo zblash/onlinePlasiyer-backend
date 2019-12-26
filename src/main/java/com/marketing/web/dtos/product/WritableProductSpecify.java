@@ -17,28 +17,28 @@ import java.util.List;
 @AllArgsConstructor
 public class WritableProductSpecify implements Serializable {
 
-    @NotBlank
-    @Size(min = 13,max = 100)
+    @NotBlank(message = "{validation.notBlank}")
+    @Size(min = 13,max = 13, message = "{validation.size}")
     private String barcode;
 
-    @NotNull
+    @NotNull(message = "{validation.notNull}")
     private double totalPrice;
 
-    @NotNull
+    @NotNull(message = "{validation.notNull}")
     private double unitPrice;
 
-    @NotNull
+    @NotNull(message = "{validation.notNull}")
     private int quantity;
 
-    @NotNull
+    @NotNull(message = "{validation.notNull}")
     private double contents;
 
-    @NotNull
+    @NotNull(message = "{validation.notNull}")
     private UnitType unitType;
 
-    @NotNull
+    @NotNull(message = "{validation.notNull}")
     private double recommendedRetailPrice;
 
-    @NotNull
+    @NotNull(message = "{validation.notNull}")
     private List<String> stateList;
 }

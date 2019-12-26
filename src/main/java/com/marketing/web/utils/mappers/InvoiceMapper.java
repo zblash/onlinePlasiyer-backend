@@ -1,6 +1,6 @@
 package com.marketing.web.utils.mappers;
 
-import com.marketing.web.dtos.WrapperPagination;
+import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.invoice.ReadableInvoice;
 import com.marketing.web.models.Invoice;
 import org.springframework.data.domain.Page;

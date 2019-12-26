@@ -4,10 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.marketing.web.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -20,7 +19,7 @@ public class WritableOrder implements Serializable {
 
     private double discount;
 
-    @NotBlank
+    @NotNull(message = "{validation.notNull}")
     private OrderStatus status;
 
     @JsonFormat(pattern="dd-MM-yyyy")

@@ -2,7 +2,7 @@ package com.marketing.web.controllers;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.marketing.web.dtos.WrapperPagination;
+import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.product.ReadableProductSpecify;
 import com.marketing.web.dtos.product.WritableProductSpecify;
 import com.marketing.web.enums.RoleType;

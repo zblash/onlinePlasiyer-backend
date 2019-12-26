@@ -13,11 +13,11 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class WritablePasswordReset implements Serializable {
 
-    @NotBlank
-    @Size(min = 5,max = 90)
+    @NotBlank(message = "{validation.notBlank}")
+    @Size(min = 5,max = 90, message = "{validation.size}")
     private String password;
 
-    @NotBlank
-    @Size(min = 5, max = 90)
+    @NotBlank(message = "{validation.notBlank}")
+    @Size(min = 5,max = 90, message = "{validation.size}")
     private String passwordConfirmation;
 }

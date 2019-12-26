@@ -17,35 +17,33 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class WritableRegister implements Serializable {
 
-    @NotBlank
-    @Size(min = 3,max = 20)
+    @NotBlank(message = "{validation.notBlank}")
     private String username;
 
-    @NotBlank
-    @Size(min = 3,max = 20)
+    @NotBlank(message = "{validation.notBlank}")
     private String name;
 
-    @NotBlank
-    @Size(min = 5, max = 90)
+    @NotBlank(message = "{validation.notBlank}")
+    @Size(min = 5,max = 90, message = "{validation.size}")
     private String password;
 
-    @Email
-    @NotBlank
+    @Email(message = "{validation.email}")
+    @NotBlank(message = "{validation.notBlank}")
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "{validation.notBlank}")
     private String taxNumber;
 
-    @NotBlank
+    @NotBlank(message = "{validation.notBlank}")
     private String cityId;
 
-    @NotBlank
+    @NotBlank(message = "{validation.notBlank}")
     private String stateId;
 
-    @NotBlank
+    @NotBlank(message = "{validation.notBlank}")
     private String details;
 
-    @NotNull
+    @NotNull(message = "{validation.notNull}")
     private RoleType roleType;
 
     private boolean status;

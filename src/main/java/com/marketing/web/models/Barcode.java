@@ -23,8 +23,6 @@ public class Barcode implements Serializable {
 
     private UUID uuid;
 
-    @NotBlank
-    @Size(min = 8,max = 13)
     @Column(unique = true)
     private String barcodeNo;
 

@@ -14,14 +14,12 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class WritableNotification implements Serializable {
 
-    @NotBlank
-    @Size(min = 5)
+    @NotBlank(message = "{validation.notBlank}")
     private String title;
 
-    @NotBlank
-    @Size(min = 10)
+    @NotBlank(message = "{validation.notBlank}")
     private String message;
 
-    @NotBlank
+    @NotBlank(message = "{validation.notBlank}")
     private String userId;
 }

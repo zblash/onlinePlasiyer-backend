@@ -14,9 +14,9 @@ public interface OrderService {
 
     OrderSummary groupBy(User user);
 
-    List<Order> findAllByFilter(SearchOrder searchOrder);
+    Page<Order> findAllByFilter(SearchOrder searchOrder, int pageNumber);
 
-    List<Order> findAllByFilterAndUser(SearchOrder searchOrder, User user);
+    Page<Order> findAllByFilterAndUser(SearchOrder searchOrder, User user, int pageNumber);
 
     Page<Order> findAllByUser(User user, int pageNumber, String sortBy, String sortType);
 

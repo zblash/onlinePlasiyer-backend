@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
@@ -22,6 +23,7 @@ public class TicketReply implements Serializable {
 
     private UUID uuid;
 
+    @NotBlank
     private String message;
 
     @OneToOne

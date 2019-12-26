@@ -1,4 +1,4 @@
-package com.marketing.web.dtos;
+package com.marketing.web.dtos.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -13,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "credits")
+@Table(name = "credits",uniqueConstraints={@UniqueConstraint(columnNames={"user_id"})})
 public class Credit implements Serializable {
 
     @Id
@@ -22,16 +23,14 @@ public class Credit implements Serializable {
 
     private UUID uuid;
 
-    private User payer;
+    @OneToOne
+    @JoinColumn(name = "user_id",referencedColumnName = "id")
+    private User user;
 
-    private User creditor;
-
+    @NotNull
     private double totalDebt;
 
-    private double overdueDebt;
-    
-    private double notOverdueDebt;
-
+    @NotNull
     private double creditLimit;
 
     @PrePersist
