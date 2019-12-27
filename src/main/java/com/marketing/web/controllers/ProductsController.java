@@ -178,9 +178,10 @@ public class ProductsController {
             product.setPhotoUrl(fileUrl);
 
         }
+        product.setName(writableProduct.getName());
+        product.setStatus(writableProduct.isStatus());
+        product.setTax(writableProduct.getTax());
         product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
-
-
         return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.update(id,product)));
     }
 
