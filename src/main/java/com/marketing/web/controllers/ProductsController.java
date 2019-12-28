@@ -59,8 +59,12 @@ public class ProductsController {
     private Logger logger = LoggerFactory.getLogger(ProductsController.class);
 
     @GetMapping
-    public ResponseEntity<WrapperPagination<ReadableProduct>> getAll(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
-        return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAll(pageNumber, sortBy, sortType)));
+    public ResponseEntity<?> getAll(@RequestParam(defaultValue = "true") boolean pagination, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
+        if (pagination){
+            return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAll(pageNumber, sortBy, sortType)));
+        }
+
+        return ResponseEntity.ok(productService.findAllWithoutPagination(sortBy,sortType).stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
     }
 
     @GetMapping("/actives")
@@ -116,11 +120,24 @@ public class ProductsController {
     public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAllByProduct(@PathVariable String id, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "totalPrice") String sortBy, @RequestParam(defaultValue = "asc") String sortType){
 
         User user = userService.getLoggedInUser();
-
-        return ResponseEntity.ok(
-                ProductMapper
-                        .pagedProductSpecifyListToWrapperReadableProductSpecify(
-                                productSpecifyService.findAllByProductAndStates(productService.findByUUID(id), Collections.singletonList(user.getAddress().getState()), pageNumber, sortBy, sortType)));
+        RoleType role = UserMapper.roleToRoleType(user.getRole());
+        switch (role){
+            case CUSTOMER:
+                return ResponseEntity.ok(
+                        ProductMapper
+                                .pagedProductSpecifyListToWrapperReadableProductSpecify(
+                                        productSpecifyService.findAllByProductAndStates(productService.findByUUID(id), Collections.singletonList(user.getAddress().getState()), pageNumber, sortBy, sortType)));
+            case MERCHANT:
+                return ResponseEntity.ok(
+                        ProductMapper
+                                .pagedProductSpecifyListToWrapperReadableProductSpecify(
+                                        productSpecifyService.findAllByProductAndUser(productService.findByUUID(id), user, pageNumber, sortBy, sortType)));
+            default:
+                return ResponseEntity.ok(
+                        ProductMapper
+                                .pagedProductSpecifyListToWrapperReadableProductSpecify(
+                                        productSpecifyService.findAllByProduct(productService.findByUUID(id), pageNumber, sortBy, sortType)));
+        }
 
     }
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")

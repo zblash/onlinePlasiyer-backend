@@ -20,6 +20,8 @@ public interface ProductSpecifyService {
 
     List<ProductSpecify> findAllByProductAndStatesLimit(Product product, List<State> states, int limit);
 
+    Page<ProductSpecify> findAllByProductAndUser(Product product, User user, int pageNumber, String sortBy, String sortType);
+
     ProductSpecify findById(Long id);
 
     ProductSpecify findByUUID(String uuid);
