@@ -76,6 +76,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<Product> findAllWithoutPagination(String sortBy, String sortType) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy);
+        return productRepository.findAll(sort);
+    }
+
+    @Override
     public Product findById(Long id) {
         return productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product not found with id: "+id));
     }

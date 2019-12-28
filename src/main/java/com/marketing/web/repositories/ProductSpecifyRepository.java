@@ -24,6 +24,8 @@ public interface ProductSpecifyRepository extends JpaRepository<ProductSpecify,L
 
     Page<ProductSpecify> findAllByProduct(Product product, Pageable pageable);
 
+    Page<ProductSpecify> findAllByProductAndUser(Product product, User user, Pageable pageable);
+
     Page<ProductSpecify> findAllByUser(User user, Pageable pageable);
 
 }

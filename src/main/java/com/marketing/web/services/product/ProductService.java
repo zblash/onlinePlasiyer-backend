@@ -18,6 +18,8 @@ public interface ProductService {
 
     Page<Product> findAll(int pageNumber, String sortBy, String sortType);
 
+    List<Product> findAllWithoutPagination(String sortBy, String sortType);
+
     Product findById(Long id);
 
     Product findByName(String name);
