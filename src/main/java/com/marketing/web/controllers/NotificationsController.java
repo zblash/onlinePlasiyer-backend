@@ -61,7 +61,7 @@ public class NotificationsController {
         WrapperWsNotification wrapperWsNotification = new WrapperWsNotification();
         wrapperWsNotification.setNotification(readableNotification);
         wrapperWsNotification.setUser(notification.getUser());
-        notificationProducer.sendNotification(wrapperWsNotification);
+//        notificationProducer.sendNotification(wrapperWsNotification);
         return new ResponseEntity<>(readableNotification, HttpStatus.CREATED);
     }
 

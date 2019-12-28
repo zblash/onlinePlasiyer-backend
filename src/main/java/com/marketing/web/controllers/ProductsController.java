@@ -87,7 +87,6 @@ public class ProductsController {
     @GetMapping("/barcode/{barcode}")
     public ResponseEntity<ReadableProduct> getByBarcode(@PathVariable String barcode) {
         Barcode productBarcode = barcodeService.findByBarcodeNo(barcode);
-        Product product = productBarcode.getProduct();
         return ResponseEntity.ok(ProductMapper.productToReadableProduct(productBarcode.getProduct()));
     }
 
