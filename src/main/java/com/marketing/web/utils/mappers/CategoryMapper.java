@@ -30,7 +30,7 @@ public final class CategoryMapper {
                 readableCategory.setParentId(category.getParent().getUuid().toString());
                 readableCategory.setSubCategoryCount(0);
             }else {
-                readableCategory.setSubCategoryCount(category.getChilds().size());
+                readableCategory.setSubCategoryCount(category.getChilds() != null ? category.getChilds().size() : 0);
             }
             return readableCategory;
         }

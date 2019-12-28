@@ -31,6 +31,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/products")
@@ -66,6 +68,11 @@ public class ProductsController {
         return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByStatus(true,pageNumber, sortBy,  sortType)));
     }
 
+    @GetMapping("/filter")
+    public ResponseEntity<List<ReadableProduct>> getByFilter(@RequestParam String name){
+       return ResponseEntity.ok(productService.simpleFilterByName(name).stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
+    }
+
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<WrapperPagination<ReadableProduct>> getAllByCategory(@PathVariable String categoryId,@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
         User user = userService.getLoggedInUser();
@@ -80,7 +87,6 @@ public class ProductsController {
     @GetMapping("/barcode/{barcode}")
     public ResponseEntity<ReadableProduct> getByBarcode(@PathVariable String barcode) {
         Barcode productBarcode = barcodeService.findByBarcodeNo(barcode);
-        Product product = productBarcode.getProduct();
         return ResponseEntity.ok(ProductMapper.productToReadableProduct(productBarcode.getProduct()));
     }
 
@@ -171,9 +177,10 @@ public class ProductsController {
             product.setPhotoUrl(fileUrl);
 
         }
+        product.setName(writableProduct.getName());
+        product.setStatus(writableProduct.isStatus());
+        product.setTax(writableProduct.getTax());
         product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
-
-
         return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.update(id,product)));
     }
 

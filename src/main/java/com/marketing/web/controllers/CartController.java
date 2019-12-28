@@ -103,8 +103,7 @@ public class CartController {
     public ResponseEntity<ReadableCart> setPayment(@Valid @RequestBody PaymentMethod paymentMethod){
         Cart cart = userService.getLoggedInUser().getCart();
 
-        cart.setCartStatus(PaymentOption.CC.equals(paymentMethod.getPaymentOption())
-                ? CartStatus.PND : CartStatus.PRCD);
+        cart.setCartStatus(CartStatus.PRCD);
         cart.setPaymentOption(paymentMethod.getPaymentOption());
         return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.update(cart.getId(),cart)));
     }

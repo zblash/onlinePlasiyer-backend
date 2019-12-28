@@ -23,11 +23,9 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     @Query("SELECT o.status AS status, COUNT(o.status) AS cnt FROM Order o WHERE o.buyer = ?1 or o.seller = ?1 GROUP BY o.status")
     List<OrderGroup> groupBy(User user);
 
-    @Query("SELECT o FROM Order o WHERE o.orderDate BETWEEN ?1 AND ?2")
-    List<Order> findAllByOrderDateRange(Date startDate, Date endDate);
+    Page<Order> findAllByOrOrderDateBetween(Date startDate, Date endDate, Pageable pageable);
 
-    @Query("SELECT o FROM Order o WHERE o.orderDate BETWEEN ?1 AND ?2 and o.seller = ?3 or o.buyer = ?4")
-    List<Order> findAllByOrderDateRangeAndUsers(Date startDate, Date endDate, Long sellerId, Long buyerId);
+    Page<Order> findAllByOrderDateBetweenAndBuyerOrSeller(Date startDate, Date endDate,User buyer, User seller, Pageable pageable);
 
     @Query("SELECT o FROM Order o WHERE o.uuid = ?1 and o.seller = ?2 or o.buyer = ?3")
     List<Order> findAllByUuidAndSeller(Long sellerId, Long buyerId);

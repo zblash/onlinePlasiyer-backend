@@ -6,8 +6,12 @@ import com.marketing.web.models.Ticket;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,8 +22,13 @@ public class TicketServiceImpl implements TicketService {
     private TicketRepository ticketRepository;
 
     @Override
-    public List<Ticket> findAll() {
-        return ticketRepository.findAllByOrderByIdDesc();
+    public Page<Ticket> findAll(int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        Page<Ticket> resultPage = ticketRepository.findAll(pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+        return resultPage;
     }
 
     @Override
@@ -33,13 +42,13 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public List<Ticket> findAllByUser(User user) {
-        return ticketRepository.findAllByUser_IdOrderByIdDesc(user.getId());
-    }
-
-    @Override
-    public List<Ticket> findAllByUserAndStatus(User user, TicketStatus status) {
-        return ticketRepository.findAllByUser_IdAndStatusOrderByIdDesc(user.getId(),status);
+    public Page<Ticket> findAllByUser(User user, int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        Page<Ticket> resultPage = ticketRepository.findAllByUser(user, pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+        return resultPage;
     }
 
     @Override

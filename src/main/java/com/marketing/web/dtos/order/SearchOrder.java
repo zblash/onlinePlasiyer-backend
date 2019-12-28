@@ -14,7 +14,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class SearchOrder implements Serializable {
 
-    @NotNull
+    @NotNull(message = "{validation.notNull}")
     private Date startDate;
 
     private Date endDate;

@@ -12,7 +12,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class WritableTicketReply implements Serializable {
 
-    @NotBlank
+    @NotBlank(message = "{validation.notBlank}")
     private String message;
 
 }

@@ -14,10 +14,10 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class WritableCategory implements Serializable {
 
-    @NotBlank
+    @NotBlank(message = "{validation.notBlank}")
     private String name;
 
-    @NotNull
+    @NotNull(message = "{validation.notNull}")
     private boolean subCategory;
 
     private String parentId;

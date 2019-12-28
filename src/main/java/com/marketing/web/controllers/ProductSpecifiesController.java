@@ -99,7 +99,7 @@ public class ProductSpecifiesController {
             throw new BadRequestException("userId request parameter must not blank");
         }
 
-        productProducer.sendProductSpecify(ProductMapper.readableProductSpecifyToWrapperWsProductSpecify(readableProductSpecify, WsStatus.CR));
+//        productProducer.sendProductSpecify(ProductMapper.readableProductSpecifyToWrapperWsProductSpecify(readableProductSpecify, WsStatus.CR));
 
         return new ResponseEntity<>(readableProductSpecify, HttpStatus.CREATED);
     }
@@ -125,7 +125,7 @@ public class ProductSpecifiesController {
         User user = userService.getLoggedInUser();
         ReadableProductSpecify readableProductSpecify = productFacade.updateProductSpecify(id, writableProductSpecify, user);
 
-        productProducer.sendProductSpecify(ProductMapper.readableProductSpecifyToWrapperWsProductSpecify(readableProductSpecify, WsStatus.UP));
+//        productProducer.sendProductSpecify(ProductMapper.readableProductSpecifyToWrapperWsProductSpecify(readableProductSpecify, WsStatus.UP));
         return ResponseEntity.ok(readableProductSpecify);
     }
 }

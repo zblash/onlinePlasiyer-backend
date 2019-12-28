@@ -1,6 +1,7 @@
 package com.marketing.web.services.cart;
 
 import com.marketing.web.dtos.cart.WritableCartItem;
+import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItem;
@@ -104,8 +105,11 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     private CartItem cartItemDTOtoCartItem(WritableCartItem writableCartItem){
-        CartItem cartItem = new CartItem();
         ProductSpecify product = productSpecifyService.findByUUID(writableCartItem.getProductId());
+        if (product.getQuantity() < writableCartItem.getQuantity()){
+            throw new BadRequestException("Cart item quantity must smaller or equal product quantity");
+        }
+        CartItem cartItem = new CartItem();
         cartItem.setProduct(product);
         cartItem.setQuantity(writableCartItem.getQuantity());
         cartItem.setTotalPrice(product.getTotalPrice() * cartItem.getQuantity());

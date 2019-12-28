@@ -11,7 +11,7 @@ public interface TicketReplyRepository extends JpaRepository<TicketReply,Long> {
 
     List<TicketReply> findAllByOrderByIdDesc();
 
-    List<TicketReply> findAllByTicket_IdOrderByIdDesc(Long ticketId);
+    List<TicketReply> findAllByTicket_Id(Long ticketId);
 
     Optional<TicketReply> findByUuid(UUID uuid);
 
