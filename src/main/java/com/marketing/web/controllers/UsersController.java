@@ -110,12 +110,12 @@ public class UsersController {
         }
         throw new BadRequestException("Username or email already registered");
     }
-    @GetMapping("/infos/{id}")
+    @GetMapping("/info/{id}")
     public ResponseEntity<ReadableUserInfo> getUserInfos(@PathVariable String id){
         User user = userService.findByUUID(id);
         return ResponseEntity.ok(UserMapper.userToReadableUserInfo(user));
     }
-    @PutMapping("/infos/{id}")
+    @PutMapping("/info/{id}")
     public ResponseEntity<ReadableUserInfo> updateUser(@PathVariable String id, @Valid @RequestBody WritableUserInfo writableUserInfo) {
         User user = userService.findByUUID(id);
         if (writableUserInfo.getEmail().equals(user.getEmail()) || !userService.checkUserByEmail(writableUserInfo.getEmail())) {

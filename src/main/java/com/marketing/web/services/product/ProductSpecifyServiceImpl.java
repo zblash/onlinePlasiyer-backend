@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductSpecifyServiceImpl implements ProductSpecifyService {
@@ -45,6 +46,12 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
         return resultPage;
+    }
+
+    @Override
+    public List<Product> findAllProductsByUser(User user){
+        List<ProductSpecify> productSpecifies = productSpecifyRepository.findAllByUser(user);
+        return productSpecifies.stream().map(ProductSpecify::getProduct).distinct().collect(Collectors.toList());
     }
 
     @Override

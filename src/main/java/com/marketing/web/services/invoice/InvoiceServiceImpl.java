@@ -29,7 +29,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public Page<Invoice> findAll(int pageNumber, String sortBy, String sortType) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Invoice> resultPage = invoiceRepository.findAll(pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
@@ -56,7 +56,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     // TODO REFACTOR
     @Override
     public Page<Invoice> findAllByUser(User user, int pageNumber, String sortBy, String sortType) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Invoice> resultPage = null;
         if (user.getRole().getName().equals("ROLE_"+RoleType.CUSTOMER.toString())){
             resultPage = invoiceRepository.findAllByBuyer_Id(user.getId(), pageRequest);
@@ -125,5 +125,9 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public void delete(Invoice invoice) {
         invoiceRepository.delete(invoice);
+    }
+
+    private PageRequest getPageRequest(int pageNumber, String sortBy, String sortType){
+        return PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
     }
 }

@@ -150,10 +150,10 @@ public class OrderFacadeImpl implements OrderFacade {
             }
 
             orderService.createAll(orders);
-            cartItemService.deleteAll(cart);
             cart.setPaymentOption(null);
             cart.setCartStatus(CartStatus.NEW);
             cartService.update(cart.getId(), cart);
+            cartItemService.deleteAll(cart);
 
             List<OrderItem> orderItems = new ArrayList<>();
             for (CartItem cartItem : cartItems){
