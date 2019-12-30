@@ -67,6 +67,20 @@ public class ProductsController {
         return ResponseEntity.ok(productService.findAllWithoutPagination(sortBy,sortType).stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
     }
 
+    @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
+    @GetMapping("/byUser")
+    public ResponseEntity<?> getAllByUser(@RequestParam(required = false) String userId){
+        User user = userService.getLoggedInUser();
+        RoleType role = UserMapper.roleToRoleType(user.getRole());
+        if (role.equals(RoleType.ADMIN)){
+            if (!userId.isEmpty()){
+                return ResponseEntity.ok(productSpecifyService.findAllProductsByUser(userService.findByUUID(userId)).stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
+            }
+            return ResponseEntity.ok(productService.findAllWithoutPagination("id","desc").stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
+        }
+        return ResponseEntity.ok(productSpecifyService.findAllProductsByUser(user).stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
+    }
+
     @GetMapping("/actives")
     public ResponseEntity<WrapperPagination<ReadableProduct>> getAllActives(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
         return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByStatus(true,pageNumber, sortBy,  sortType)));

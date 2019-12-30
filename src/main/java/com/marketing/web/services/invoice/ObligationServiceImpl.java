@@ -28,7 +28,7 @@ public class ObligationServiceImpl implements ObligationService {
 
     @Override
     public Page<Obligation> findAll(int pageNumber, String sortBy, String sortType) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Obligation> resultPage = obligationRepository.findAll(pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
@@ -48,7 +48,7 @@ public class ObligationServiceImpl implements ObligationService {
 
     @Override
     public Page<Obligation> findAllByUser(User user, int pageNumber, String sortBy, String sortType) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Obligation> resultPage = obligationRepository.findAllByUser(user,pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
@@ -83,5 +83,9 @@ public class ObligationServiceImpl implements ObligationService {
     @Override
     public void delete(Obligation obligation) {
 
+    }
+
+    private PageRequest getPageRequest(int pageNumber, String sortBy, String sortType){
+        return PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
     }
 }

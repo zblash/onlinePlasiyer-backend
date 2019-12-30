@@ -19,10 +19,4 @@ public class HealthController {
         return ResponseEntity.ok("OK");
     }
 
-    @GetMapping("/refresh")
-    public ResponseEntity<String> refreshDb() throws URISyntaxException {
-        runner.dropTables();
-        runner.populator();
-        return ResponseEntity.ok("Db refreshed");
-    }
 }

@@ -22,6 +22,8 @@ public interface ProductSpecifyService {
 
     Page<ProductSpecify> findAllByProductAndUser(Product product, User user, int pageNumber, String sortBy, String sortType);
 
+    List<Product> findAllProductsByUser(User user);
+
     ProductSpecify findById(Long id);
 
     ProductSpecify findByUUID(String uuid);
