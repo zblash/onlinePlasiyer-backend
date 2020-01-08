@@ -98,11 +98,9 @@ public class OrderController {
             if (userId.isEmpty()) {
                 throw new ResourceNotFoundException("User not found");
             }
-            order = orderService.findByUuidAndUser(id, userService.findByUUID(userId));
+            return ResponseEntity.ok(OrderMapper.orderToReadableOrder(orderService.findByUuidAndUser(id, userService.findByUUID(userId))));
         }
-        order = orderService.findByUuidAndUser(id, user);
-
-        return ResponseEntity.ok(OrderMapper.orderToReadableOrder(order));
+        return ResponseEntity.ok(OrderMapper.orderToReadableOrder(orderService.findByUuidAndUser(id, user)));
     }
 
     @PostMapping("/items/{id}")
