@@ -156,7 +156,7 @@ public class ProductsController {
     }
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping
-    public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct,@ValidImg @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
+    public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct,@ValidImg @RequestParam(required = false) final MultipartFile uploadedFile){
         User user = userService.getLoggedInUser();
 
         Barcode barcode = barcodeService.checkByBarcodeNo(writableProduct.getBarcode());
@@ -164,8 +164,10 @@ public class ProductsController {
             Product product = productService.findByName(writableProduct.getName());
             if (product == null) {
                 product = ProductMapper.writableProductToProduct(writableProduct);
-                String fileUrl = amazonClient.uploadFile(uploadfile);
-                product.setPhotoUrl(fileUrl);
+                if (uploadedFile != null && !uploadedFile.isEmpty()) {
+                    String fileUrl = amazonClient.uploadFile(uploadedFile);
+                    product.setPhotoUrl(fileUrl);
+                }
                 product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
                 if (!user.getRole().getName().equals("ROLE_ADMIN")) {
                     product.setStatus(false);
@@ -200,11 +202,13 @@ public class ProductsController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(value="uploadfile", required = false) MultipartFile uploadfile){
+    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(required = false) MultipartFile uploadedFile){
         Product product = barcodeService.findByBarcodeNo(writableProduct.getBarcode()).getProduct();
-        if (uploadfile != null && !uploadfile.isEmpty()) {
-            amazonClient.deleteFileFromS3Bucket(product.getPhotoUrl());
-            String fileUrl = amazonClient.uploadFile(uploadfile);
+        if (uploadedFile != null && !uploadedFile.isEmpty()) {
+            if(!product.getPhotoUrl().isEmpty()) {
+                amazonClient.deleteFileFromS3Bucket(product.getPhotoUrl());
+            }
+            String fileUrl = amazonClient.uploadFile(uploadedFile);
             product.setPhotoUrl(fileUrl);
 
         }
