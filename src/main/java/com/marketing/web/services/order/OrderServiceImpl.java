@@ -109,7 +109,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order findByUuidAndUser(String uuid,User user) {
-        return orderRepository.findByUuidAndBuyerOrSeller(UUID.fromString(uuid),user,user).orElseThrow(() -> new ResourceNotFoundException("Order not found with id: "+ uuid));
+        return orderRepository.findByBuyerOrSellerAndUuid(user, user, UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Order not found with id: "+ uuid));
     }
 
     @Override
