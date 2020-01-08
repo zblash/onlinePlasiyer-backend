@@ -58,7 +58,7 @@ public class Runner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        populator();
+//        populator();
     }
 
     public void dropTables() {
@@ -149,7 +149,7 @@ public class Runner implements CommandLineRunner {
         List<ProductSpecify> productSpecifies = new ArrayList<>();
 
         for (Product product : products) {
-            for (int i = 0; i < rn(15, 35); i++) {
+            for (int i = 0; i < 5; i++) {
                 List<State> states = new ArrayList<>(user.getActiveStates());
                 ProductSpecify productSpecify = new ProductSpecify();
                 productSpecify.setProduct(product);
@@ -185,7 +185,7 @@ public class Runner implements CommandLineRunner {
         List<Product> productList = new ArrayList<>();
         for (Category category : categories) {
             j++;
-            for (int i = 0; i < rn(15, 35); i++) {
+            for (int i = 0; i < 10; i++) {
                 Product product = new Product();
                 product.setCategory(category);
                 product.setName("Product - " + i + "_" + j);

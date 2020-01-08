@@ -26,7 +26,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     @Override
     public Page<Announcement> findAll(int pageNumber, String sortBy, String sortType) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Announcement> resultPage = announcementRepository.findAll(pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
@@ -62,5 +62,9 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     @Override
     public void delete(Announcement announcement) {
         announcementRepository.delete(announcement);
+    }
+
+    private PageRequest getPageRequest(int pageNumber, String sortBy, String sortType){
+        return PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
     }
 }

@@ -126,13 +126,13 @@ public class AuthController {
         return ResponseEntity.ok(user.getActiveStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
     }
 
-    @GetMapping("/api/user/getinfos")
+    @GetMapping("/api/user/info")
     public ResponseEntity<ReadableUserInfo> getUserInfos(){
         User user = userService.getLoggedInUser();
         return ResponseEntity.ok(UserMapper.userToReadableUserInfo(user));
     }
 
-    @PutMapping("/api/user/infos")
+    @PutMapping("/api/user/info")
     public ResponseEntity<ReadableUserInfo> updateUserInfo(@Valid @RequestBody WritableUserInfo writableUserInfo){
         User user = userService.getLoggedInUser();
         if (writableUserInfo.getEmail().equals(user.getEmail()) || !userService.checkUserByEmail(writableUserInfo.getEmail())){

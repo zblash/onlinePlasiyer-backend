@@ -59,8 +59,26 @@ public class ProductsController {
     private Logger logger = LoggerFactory.getLogger(ProductsController.class);
 
     @GetMapping
-    public ResponseEntity<WrapperPagination<ReadableProduct>> getAll(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
-        return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAll(pageNumber, sortBy, sortType)));
+    public ResponseEntity<?> getAll(@RequestParam(defaultValue = "true") boolean pagination, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
+        if (pagination){
+            return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAll(pageNumber, sortBy, sortType)));
+        }
+
+        return ResponseEntity.ok(productService.findAllWithoutPagination(sortBy,sortType).stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
+    }
+
+    @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
+    @GetMapping("/byUser")
+    public ResponseEntity<?> getAllByUser(@RequestParam(required = false) String userId){
+        User user = userService.getLoggedInUser();
+        RoleType role = UserMapper.roleToRoleType(user.getRole());
+        if (role.equals(RoleType.ADMIN)){
+            if (!userId.isEmpty()){
+                return ResponseEntity.ok(productSpecifyService.findAllProductsByUser(userService.findByUUID(userId)).stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
+            }
+            return ResponseEntity.ok(productService.findAllWithoutPagination("id","desc").stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
+        }
+        return ResponseEntity.ok(productSpecifyService.findAllProductsByUser(user).stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
     }
 
     @GetMapping("/actives")
@@ -116,16 +134,29 @@ public class ProductsController {
     public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAllByProduct(@PathVariable String id, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "totalPrice") String sortBy, @RequestParam(defaultValue = "asc") String sortType){
 
         User user = userService.getLoggedInUser();
-
-        return ResponseEntity.ok(
-                ProductMapper
-                        .pagedProductSpecifyListToWrapperReadableProductSpecify(
-                                productSpecifyService.findAllByProductAndStates(productService.findByUUID(id), Collections.singletonList(user.getAddress().getState()), pageNumber, sortBy, sortType)));
+        RoleType role = UserMapper.roleToRoleType(user.getRole());
+        switch (role){
+            case CUSTOMER:
+                return ResponseEntity.ok(
+                        ProductMapper
+                                .pagedProductSpecifyListToWrapperReadableProductSpecify(
+                                        productSpecifyService.findAllByProductAndStates(productService.findByUUID(id), Collections.singletonList(user.getAddress().getState()), pageNumber, sortBy, sortType)));
+            case MERCHANT:
+                return ResponseEntity.ok(
+                        ProductMapper
+                                .pagedProductSpecifyListToWrapperReadableProductSpecify(
+                                        productSpecifyService.findAllByProductAndUser(productService.findByUUID(id), user, pageNumber, sortBy, sortType)));
+            default:
+                return ResponseEntity.ok(
+                        ProductMapper
+                                .pagedProductSpecifyListToWrapperReadableProductSpecify(
+                                        productSpecifyService.findAllByProduct(productService.findByUUID(id), pageNumber, sortBy, sortType)));
+        }
 
     }
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping
-    public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct,@ValidImg @RequestParam(value="uploadfile", required = true) final MultipartFile uploadfile){
+    public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct,@ValidImg @RequestParam(required = false) final MultipartFile uploadedFile){
         User user = userService.getLoggedInUser();
 
         Barcode barcode = barcodeService.checkByBarcodeNo(writableProduct.getBarcode());
@@ -133,8 +164,10 @@ public class ProductsController {
             Product product = productService.findByName(writableProduct.getName());
             if (product == null) {
                 product = ProductMapper.writableProductToProduct(writableProduct);
-                String fileUrl = amazonClient.uploadFile(uploadfile);
-                product.setPhotoUrl(fileUrl);
+                if (uploadedFile != null && !uploadedFile.isEmpty()) {
+                    String fileUrl = amazonClient.uploadFile(uploadedFile);
+                    product.setPhotoUrl(fileUrl);
+                }
                 product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
                 if (!user.getRole().getName().equals("ROLE_ADMIN")) {
                     product.setStatus(false);
@@ -169,11 +202,13 @@ public class ProductsController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(value="uploadfile", required = false) MultipartFile uploadfile){
+    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(required = false) MultipartFile uploadedFile){
         Product product = barcodeService.findByBarcodeNo(writableProduct.getBarcode()).getProduct();
-        if (uploadfile != null && !uploadfile.isEmpty()) {
-            amazonClient.deleteFileFromS3Bucket(product.getPhotoUrl());
-            String fileUrl = amazonClient.uploadFile(uploadfile);
+        if (uploadedFile != null && !uploadedFile.isEmpty()) {
+            if(!product.getPhotoUrl().isEmpty()) {
+                amazonClient.deleteFileFromS3Bucket(product.getPhotoUrl());
+            }
+            String fileUrl = amazonClient.uploadFile(uploadedFile);
             product.setPhotoUrl(fileUrl);
 
         }

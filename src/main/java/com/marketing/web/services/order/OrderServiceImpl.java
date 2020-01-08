@@ -24,7 +24,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<Order> findAll(int pageNumber, String sortBy, String sortType){
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Order> resultPage = orderRepository.findAll(pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
@@ -58,7 +58,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<Order> findAllByFilter(SearchOrder searchOrder, int pageNumber) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
+        PageRequest pageRequest = getPageRequest(pageNumber, "id", "desc");
         Page<Order> resultPage = orderRepository.findAllByOrOrderDateBetween(searchOrder.getStartDate(),searchOrder.getEndDate(), pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
@@ -68,7 +68,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<Order> findAllByFilterAndUser(SearchOrder searchOrder, User user, int pageNumber) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,15);
+        PageRequest pageRequest = getPageRequest(pageNumber, "id", "desc");
         Page<Order> resultPage = orderRepository.findAllByOrderDateBetweenAndBuyerOrSeller(searchOrder.getStartDate(),searchOrder.getEndDate(),user, user, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
@@ -78,7 +78,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<Order> findAllByUser(User user, int pageNumber, String sortBy, String sortType){
-        PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Order> resultPage = orderRepository.findAllBySellerOrBuyer(user,user,pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
@@ -109,7 +109,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order findByUuidAndUser(String uuid,User user) {
-        return orderRepository.findByUuidAndAndBuyerOrSeller(UUID.fromString(uuid),user,user).orElseThrow(() -> new ResourceNotFoundException("Order not found with id: "+ uuid));
+        return orderRepository.findByUuidAndBuyerOrSeller(UUID.fromString(uuid),user,user).orElseThrow(() -> new ResourceNotFoundException("Order not found with id: "+ uuid));
     }
 
     @Override
@@ -121,4 +121,7 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.save(order);
     }
 
+    private PageRequest getPageRequest(int pageNumber, String sortBy, String sortType){
+        return PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
+    }
 }
