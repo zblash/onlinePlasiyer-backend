@@ -49,11 +49,16 @@ public class OrderController {
 
         User user = userService.getLoggedInUser();
         if (UserMapper.roleToRoleType(user.getRole()).equals(RoleType.ADMIN)) {
+            if (!userId.isEmpty()){
+                User userByUserId = userService.findByUUID(userId);
+                return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(userByUserId, pageNumber, sortBy, sortType)));
+            }
             return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAll(pageNumber, sortBy, sortType)));
         }
         return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(user, pageNumber, sortBy, sortType)));
     }
 
+    // TODO Remove
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/byUser/{userId}")
     public ResponseEntity<WrapperPagination<ReadableOrder>> getOrdersByUser(@PathVariable String userId, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
@@ -91,15 +96,15 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReadableOrder> getUserOrder(@PathVariable String id, @RequestParam(required = false) String userId) {
+    public ResponseEntity<ReadableOrder> getUserOrder(@PathVariable String id) {
         User user = userService.getLoggedInUser();
-        return ResponseEntity.ok(OrderMapper.orderToReadableOrder(orderByUser(user, userId, id)));
+        return ResponseEntity.ok(OrderMapper.orderToReadableOrder(getOrder(user, id)));
     }
 
     @PostMapping("/items/{id}")
-    public ResponseEntity<List<ReadableOrderItem>> getUserOrderDetails(@PathVariable String id, @RequestParam(required = false) String userId) {
+    public ResponseEntity<List<ReadableOrderItem>> getUserOrderDetails(@PathVariable String id) {
         User user = userService.getLoggedInUser();
-        Order order = orderByUser(user, userId, id);
+        Order order = getOrder(user, id);
         return ResponseEntity.ok(orderItemService.findByOrder(order).stream()
                 .map(OrderMapper::orderItemToReadableOrderItem).collect(Collectors.toList()));
     }
@@ -108,31 +113,16 @@ public class OrderController {
     @PutMapping("/{id}")
     public ResponseEntity<ReadableOrder> updateOrder(@PathVariable String id, @Valid @RequestBody WritableOrder writableOrder) {
         User user = userService.getLoggedInUser();
-        RoleType role = UserMapper.roleToRoleType(user.getRole());
-        Order order;
-        if (role.equals(RoleType.ADMIN)){
-            order = orderService.findByUUID(id);
-        }else {
-            order = orderService.findByUuidAndUser(id, user, role);
-        }
-
-        ReadableOrder readableOrder = orderFacade.saveOrder(writableOrder, order);
+        ReadableOrder readableOrder = orderFacade.saveOrder(writableOrder, getOrder(user, id));
         return ResponseEntity.ok(readableOrder);
 
     }
 
-    private Order orderByUser(User user, String userId, String id) {
+    private Order getOrder(User user, String id) {
         RoleType roleType = UserMapper.roleToRoleType(user.getRole());
         if (roleType.equals(RoleType.ADMIN)) {
-            if (userId.isEmpty()) {
-                throw new ResourceNotFoundException("User not found with userId: " + userId);
-            }
-            User foundUser = userService.findByUUID(userId);
-            RoleType foundUserRoleType = UserMapper.roleToRoleType(foundUser.getRole());
-            return orderService.findByUuidAndUser(id, foundUser, foundUserRoleType);
+            return orderService.findByUUID(id);
         }
-        else {
-            return orderService.findByUuidAndUser(id, user, roleType);
-        }
+        return orderService.findByUuidAndUser(id, user, roleType);
     }
 }
