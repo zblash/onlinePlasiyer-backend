@@ -2,6 +2,7 @@ package com.marketing.web.services.order;
 
 import com.marketing.web.dtos.order.OrderSummary;
 import com.marketing.web.dtos.order.SearchOrder;
+import com.marketing.web.enums.RoleType;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 import org.springframework.data.domain.Page;
@@ -28,7 +29,7 @@ public interface OrderService {
 
     List<Order> createAll(List<Order> orders);
 
-    Order findByUuidAndUser(String uuid, User user);
+    Order findByUuidAndUser(String uuid, User user, RoleType roleType);
 
     Order update(String uuid, Order updatedOrder);
 
