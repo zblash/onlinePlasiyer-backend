@@ -29,6 +29,8 @@ public class ReadableProductSpecify implements Serializable {
 
     private double recommendedRetailPrice;
 
+    private double commission;
+
     private String productId;
 
     private String productName;

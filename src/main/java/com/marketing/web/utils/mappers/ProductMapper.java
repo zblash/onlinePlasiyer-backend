@@ -72,6 +72,7 @@ public final class ProductMapper {
             readableProductSpecify.setProductId(productSpecify.getProduct().getUuid().toString());
             readableProductSpecify.setProductName(productSpecify.getProduct().getName());
             readableProductSpecify.setSellerName(productSpecify.getUser().getName());
+            readableProductSpecify.setCommission(productSpecify.getCommission());
             readableProductSpecify.setStates(productSpecify.getStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
             readableProductSpecify.setProductBarcodeList(productSpecify.getProduct().getBarcodes().stream().map(Barcode::getBarcodeNo).collect(Collectors.toList()));
             return readableProductSpecify;

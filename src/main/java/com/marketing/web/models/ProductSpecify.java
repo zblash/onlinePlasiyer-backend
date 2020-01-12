@@ -40,6 +40,8 @@ public class ProductSpecify implements Serializable {
     @Enumerated(EnumType.STRING)
     private UnitType unitType;
 
+    private double commission;
+
     @NotNull
     private double recommendedRetailPrice;
 
