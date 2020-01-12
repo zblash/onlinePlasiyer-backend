@@ -1,6 +1,5 @@
 package com.marketing.web.models;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,8 +13,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "credits",uniqueConstraints={@UniqueConstraint(columnNames={"user_id"})})
-public class Credit implements Serializable {
+@Table(name = "userscredits")
+public class UsersCredit implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,8 +23,12 @@ public class Credit implements Serializable {
     private UUID uuid;
 
     @OneToOne
-    @JoinColumn(name = "user_id",referencedColumnName = "id")
-    private User user;
+    @JoinColumn(name = "merchant_id",referencedColumnName = "id")
+    private User merchant;
+
+    @OneToOne
+    @JoinColumn(name = "customer_id",referencedColumnName = "id")
+    private User customer;
 
     @NotNull
     private double totalDebt;
@@ -37,4 +40,5 @@ public class Credit implements Serializable {
     public void autofill() {
         this.setUuid(UUID.randomUUID());
     }
+
 }

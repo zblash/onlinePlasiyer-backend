@@ -8,16 +8,12 @@ import com.marketing.web.enums.PaymentOption;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.*;
 import com.marketing.web.services.cart.CartItemService;
-import com.marketing.web.services.cart.CartItemServiceImpl;
 import com.marketing.web.services.cart.CartService;
-import com.marketing.web.services.credit.CreditService;
+import com.marketing.web.services.credit.SystemCreditService;
 import com.marketing.web.services.invoice.InvoiceService;
-import com.marketing.web.services.invoice.InvoiceServiceImpl;
 import com.marketing.web.services.invoice.ObligationService;
 import com.marketing.web.services.order.OrderItemService;
-import com.marketing.web.services.order.OrderItemServiceImpl;
 import com.marketing.web.services.order.OrderService;
-import com.marketing.web.services.order.OrderServiceImpl;
 import com.marketing.web.utils.facade.OrderFacade;
 import com.marketing.web.utils.mappers.OrderMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +48,7 @@ public class OrderFacadeImpl implements OrderFacade {
     private ObligationService obligationService;
 
     @Autowired
-    private CreditService creditService;
+    private SystemCreditService systemCreditService;
 
     @Override
     public ReadableOrder saveOrder(WritableOrder writableOrder, Order order) {
@@ -141,12 +137,12 @@ public class OrderFacadeImpl implements OrderFacade {
                 orders.add(order);
             }
             if (cart.getPaymentOption().equals(PaymentOption.CRD)){
-                Credit credit = creditService.findByUser(user.getId());
-                credit.setTotalDebt(credit.getTotalDebt() + ordersTotalPrice);
-                if (credit.getTotalDebt() > credit.getCreditLimit()) {
-                    throw new BadRequestException("Not enough credit limit");
+                SystemCredit systemCredit = systemCreditService.findByUser(user.getId());
+                systemCredit.setTotalDebt(systemCredit.getTotalDebt() + ordersTotalPrice);
+                if (systemCredit.getTotalDebt() > systemCredit.getCreditLimit()) {
+                    throw new BadRequestException("Not enough systemCredit limit");
                 }
-                creditService.update(credit.getUuid().toString(), credit);
+                systemCreditService.update(systemCredit.getUuid().toString(), systemCredit);
             }
 
             orderService.createAll(orders);
