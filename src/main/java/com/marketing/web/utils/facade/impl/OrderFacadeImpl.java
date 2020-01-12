@@ -59,8 +59,8 @@ public class OrderFacadeImpl implements OrderFacade {
         order.setWaybillDate(writableOrder.getWaybillDate());
 
         if (writableOrder.getStatus().equals(OrderStatus.FNS)){
+            double commission = order.getOrderItems().stream().mapToDouble(OrderItem::getCommission).sum();
 
-            double commission = order.getTotalPrice() * 0.01;
             order.setCommission(commission);
 
             Obligation obligation = new Obligation();

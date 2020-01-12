@@ -12,11 +12,17 @@ public interface ProductSpecifyService {
 
     Page<ProductSpecify> findAll(int pageNumber, String sortBy, String sortType);
 
+    List<ProductSpecify> findAllWithoutPagination();
+
     Page<ProductSpecify> findAllByUser(User user, int pageNumber, String sortBy, String sortType);
+
+    List<ProductSpecify> findAllByUserWithoutPagination(User user);
 
     Page<ProductSpecify> findAllByProduct(Product product, int pageNumber, String sortBy, String sortType);
 
-    Page<ProductSpecify> findAllByProductAndStates(Product product, List<State> states, int pageNumber, String sortBy, String sortType);
+    List<ProductSpecify> findAllByProductWithoutPagination(Product product);
+
+        Page<ProductSpecify> findAllByProductAndStates(Product product, List<State> states, int pageNumber, String sortBy, String sortType);
 
     List<ProductSpecify> findAllByProductAndStatesLimit(Product product, List<State> states, int limit);
 
@@ -34,8 +40,11 @@ public interface ProductSpecifyService {
 
     ProductSpecify update(String uuid,ProductSpecify updatedProductSpecify);
 
+    List<ProductSpecify> updateAll(List<ProductSpecify> productSpecifyList);
+
     void delete(ProductSpecify productSpecify);
 
     List<State> allowedStates(User user, List<State> states);
+
 
 }

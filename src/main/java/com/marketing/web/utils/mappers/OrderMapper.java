@@ -26,6 +26,7 @@ public final class OrderMapper {
             orderItem.setSeller(cartItem.getProduct().getUser());
             orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setTotalPrice(cartItem.getTotalPrice());
+            orderItem.setCommission(cartItem.getTotalPrice() * cartItem.getProduct().getCommission());
             return orderItem;
         }
     }
@@ -71,19 +72,19 @@ public final class OrderMapper {
         }
     }
 
-    public static WrapperPagination<ReadableOrder> pagedOrderListToWrapperReadableOrder(Page<Order> pagedOrder){
+    public static WrapperPagination<ReadableOrder> pagedOrderListToWrapperReadableOrder(Page<Order> pagedOrder) {
         if (pagedOrder == null) {
             return null;
         } else {
             WrapperPagination<ReadableOrder> wrapperReadableOrder = new WrapperPagination<>();
             wrapperReadableOrder.setKey("orders");
             wrapperReadableOrder.setTotalPage(pagedOrder.getTotalPages());
-            wrapperReadableOrder.setPageNumber(pagedOrder.getNumber()+1);
+            wrapperReadableOrder.setPageNumber(pagedOrder.getNumber() + 1);
             if (pagedOrder.hasPrevious()) {
                 wrapperReadableOrder.setPreviousPage(pagedOrder.getNumber());
             }
             if (pagedOrder.hasNext()) {
-                wrapperReadableOrder.setNextPage(pagedOrder.getNumber()+2);
+                wrapperReadableOrder.setNextPage(pagedOrder.getNumber() + 2);
             }
             wrapperReadableOrder.setFirst(pagedOrder.isFirst());
             wrapperReadableOrder.setLast(pagedOrder.isLast());
