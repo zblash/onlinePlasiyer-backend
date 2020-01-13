@@ -206,7 +206,6 @@ public class ProductsController {
             }
             String fileUrl = amazonClient.uploadFile(uploadedFile);
             product.setPhotoUrl(fileUrl);
-
         }
         product.setName(writableProduct.getName());
         product.setStatus(writableProduct.isStatus());
@@ -240,7 +239,7 @@ public class ProductsController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("/setCommissions")
+    @PutMapping("/commissions")
     public ResponseEntity<List<ReadableProductSpecify>> setCommissions(@Valid @RequestBody WritableCommission writableCommission) {
         List<ProductSpecify> productSpecifyList = null;
         if (writableCommission.getCommissionType().equals(CommissionType.ALL)) {

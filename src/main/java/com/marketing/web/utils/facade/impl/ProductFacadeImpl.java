@@ -49,6 +49,7 @@ public class ProductFacadeImpl implements ProductFacade {
         productSpecify.setProduct(barcode.getProduct());
         productSpecify.setUser(user);
         productSpecify.setStates(productSpecifyService.allowedStates(user,states));
+        productSpecify.setCommission(user.getCommission());
         return ProductMapper.productSpecifyToReadableProductSpecify(productSpecifyService.create(productSpecify));
     }
 
@@ -71,6 +72,7 @@ public class ProductFacadeImpl implements ProductFacade {
 
         updatedProductSpecify.setStates(productSpecifyService.allowedStates(productSpecify.getUser(),states));
         updatedProductSpecify.setProduct(barcode.getProduct());
+        updatedProductSpecify.setCommission(user.getCommission());
         return ProductMapper.productSpecifyToReadableProductSpecify(productSpecifyService.update(productSpecify.getUuid().toString(), updatedProductSpecify));
     }
 }
