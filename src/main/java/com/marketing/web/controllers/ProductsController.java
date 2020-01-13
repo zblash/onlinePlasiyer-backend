@@ -249,7 +249,13 @@ public class ProductsController {
             if (writableCommission.getCommissionType().equals(CommissionType.PRD)) {
                 productSpecifyList = productSpecifyService.findAllByProductWithoutPagination(productService.findByUUID(writableCommission.getId()));
             } else if (writableCommission.getCommissionType().equals(CommissionType.USER)) {
-                productSpecifyList = productSpecifyService.findAllByUserWithoutPagination(userService.findByUUID(writableCommission.getId()));
+                User user = userService.findByUUID(writableCommission.getId());
+                if (!UserMapper.roleToRoleType(user.getRole()).equals(RoleType.MERCHANT)){
+                    throw new BadRequestException("Commission not available for this user");
+                }
+                user.setCommission(writableCommission.getCommission());
+                userService.update(user.getId(), user);
+                productSpecifyList = productSpecifyService.findAllByUserWithoutPagination(user);
             }
         } else {
             throw new BadRequestException("Commission type or id must not null");
