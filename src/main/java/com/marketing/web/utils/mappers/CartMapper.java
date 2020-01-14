@@ -20,6 +20,7 @@ public final class CartMapper {
         } else {
             List<CartItem> items = cart.getItems();
             double totalPrice = items.stream().mapToDouble(CartItem::getTotalPrice).sum();
+            double discountedTotalPrice = items.stream().mapToDouble(CartItem::getDiscountedTotalPrice).sum();
             int quantity = items.stream().mapToInt(CartItem::getQuantity).sum();
             ReadableCart readableCart = new ReadableCart();
             readableCart.setId(cart.getUuid().toString());
@@ -38,6 +39,7 @@ public final class CartMapper {
                 }
                 readableCart.setItems(cartItemDetails);
             }
+            readableCart.setDiscountedTotalPrice(discountedTotalPrice);
             readableCart.setTotalPrice(totalPrice);
             readableCart.setQuantity(quantity);
             return readableCart;
@@ -62,6 +64,7 @@ public final class CartMapper {
             readableCartItem.setSellerName(cartItem.getProduct().getUser().getName());
             readableCartItem.setQuantity(cartItem.getQuantity());
             readableCartItem.setTotalPrice(cartItem.getTotalPrice());
+            readableCartItem.setDiscountedTotalPrice(cartItem.getDiscountedTotalPrice());
             return readableCartItem;
         }
     }

@@ -76,7 +76,7 @@ public class OrderFacadeImpl implements OrderFacade {
                 discount = discount >= order.getTotalPrice() || discount < 0 ? 0.0 : discount;
                 invoice.setDiscount(discount);
                 invoice.setPaidPrice(paidPrice);
-                invoice.setUnPaidPrice((order.getTotalPrice()-discount)-paidPrice);
+                invoice.setUnPaidPrice((order.getDiscountedTotalPrice()-discount)-paidPrice);
 
                 obligation.setDebt(commission);
                 obligation.setReceivable(0);
@@ -86,7 +86,7 @@ public class OrderFacadeImpl implements OrderFacade {
                 invoice.setUnPaidPrice(0);
 
                 obligation.setDebt(0);
-                obligation.setReceivable(order.getTotalPrice() - commission);
+                obligation.setReceivable(order.getDiscountedTotalPrice() - commission);
             }
 
             invoice.setTotalPrice(order.getTotalPrice());
@@ -122,11 +122,14 @@ public class OrderFacadeImpl implements OrderFacade {
             for (User seller : sellers){
                 double orderTotalPrice = cartItems.stream().filter(cartItem -> cartItem.getProduct().getUser().getId().equals(seller.getId()))
                         .mapToDouble(CartItem::getTotalPrice).sum();
+                double discountedTotalPrice = cartItems.stream().filter(cartItem -> cartItem.getProduct().getUser().getId().equals(seller.getId()))
+                        .mapToDouble(CartItem::getDiscountedTotalPrice).sum();
                 Order order = new Order();
                 order.setBuyer(user);
                 order.setSeller(seller);
                 order.setOrderDate(new Date());
                 order.setTotalPrice(orderTotalPrice);
+                order.setDiscountedTotalPrice(discountedTotalPrice);
                 order.setPaymentType(cart.getPaymentOption());
                 if(cart.getPaymentOption().equals(PaymentOption.CRD)){
                     order.setStatus(OrderStatus.PAD);

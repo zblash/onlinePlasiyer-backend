@@ -57,6 +57,8 @@ public class OrderItem implements Serializable {
     @NotNull
     private double totalPrice;
 
+    private double discountedTotalPrice;
+
     @PrePersist
     public void autofill() {
         this.setUuid(UUID.randomUUID());

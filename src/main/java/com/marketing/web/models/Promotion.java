@@ -27,7 +27,7 @@ public class Promotion implements Serializable {
 
     private String promotionText;
 
-    private double discountPercent;
+    private double discountValue;
 
     private int discountUnit;
 

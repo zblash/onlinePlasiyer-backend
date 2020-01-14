@@ -46,7 +46,7 @@ public class WritableProductSpecify implements Serializable {
     @NotNull(message = "{validation.notNull}")
     private boolean discount;
 
-    private double discountPercent;
+    private double discountValue;
 
     private int discountUnit;
 

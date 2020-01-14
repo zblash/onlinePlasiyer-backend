@@ -19,5 +19,7 @@ public class ReadableCart implements Serializable {
 
     private double totalPrice;
 
+    private double discountedTotalPrice;
+
     private List<ReadableCartItemDetail> items;
 }

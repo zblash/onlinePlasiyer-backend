@@ -2,6 +2,7 @@ package com.marketing.web.utils.facade.impl;
 
 import com.marketing.web.dtos.product.ReadableProductSpecify;
 import com.marketing.web.dtos.product.WritableProductSpecify;
+import com.marketing.web.enums.PromotionType;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.ResourceNotFoundException;
@@ -84,16 +85,27 @@ public class ProductFacadeImpl implements ProductFacade {
     }
 
     private Promotion generatePromotion(ProductSpecify productSpecify, WritableProductSpecify writableProductSpecify){
-        if (writableProductSpecify.isDiscount() && writableProductSpecify.getDiscountPercent() > 0
-                && writableProductSpecify.getPromotionType() != null && !writableProductSpecify.getPromotionText().isEmpty()){
+        if (writableProductSpecify.isDiscount()
+                && writableProductSpecify.getPromotionType() != null
+                && !writableProductSpecify.getPromotionText().isEmpty()
+                && writableProductSpecify.getDiscountValue() > 0)
+        {
             Promotion promotion = productSpecify.getPromotion() != null ? productSpecify.getPromotion() : new Promotion();
-            promotion.setDiscountPercent(writableProductSpecify.getDiscountPercent());
             promotion.setDiscountUnit(writableProductSpecify.getDiscountUnit() > 0 ? writableProductSpecify.getDiscountUnit() : 1);
             promotion.setPromotionType(writableProductSpecify.getPromotionType());
+            promotion.setDiscountValue(calculateDiscountPercent(writableProductSpecify.getPromotionType(), productSpecify.getTotalPrice(), writableProductSpecify.getDiscountValue(), writableProductSpecify.getDiscountUnit()));
             promotion.setPromotionText(writableProductSpecify.getPromotionText());
             return promotionRepository.save(promotion);
         }else {
             throw new BadRequestException("Discount percent, type, text must not null or empty");
         }
+    }
+    private double calculateDiscountPercent(PromotionType promotionType, double price, double discount, int unit) {
+        if (promotionType.equals(PromotionType.PRCNT)){
+            return discount;
+        }else if (discount < price) {
+            return 100 - (((discount / unit) * 100) / price);
+        }
+        throw new BadRequestException("Discount can't calculated");
     }
 }

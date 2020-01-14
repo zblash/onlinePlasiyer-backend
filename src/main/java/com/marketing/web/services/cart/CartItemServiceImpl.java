@@ -6,6 +6,7 @@ import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItem;
 import com.marketing.web.models.ProductSpecify;
+import com.marketing.web.models.Promotion;
 import com.marketing.web.repositories.CartItemRepository;
 import com.marketing.web.services.product.ProductSpecifyServiceImpl;
 import org.slf4j.Logger;
@@ -94,8 +95,8 @@ public class CartItemServiceImpl implements CartItemService {
                     .findFirst();
             if (optionalCartItem.isPresent()) {
                 CartItem foundItem = optionalCartItem.get();
-                cartItem.setQuantity(cartItem.getQuantity());
-                cartItem.setTotalPrice(cartItem.getTotalPrice());
+                cartItem.setQuantity(cartItem.getQuantity() + foundItem.getQuantity());
+                cartItem.setTotalPrice(cartItem.getTotalPrice() + foundItem.getTotalPrice());
                 return update(cart, foundItem, cartItem);
             }
         }
@@ -111,6 +112,17 @@ public class CartItemServiceImpl implements CartItemService {
         }
         CartItem cartItem = new CartItem();
         cartItem.setProduct(product);
+        if (product.getPromotion() != null) {
+            Promotion promotion = product.getPromotion();
+            double totalPrice = product.getTotalPrice();
+            if (writableCartItem.getQuantity() >= promotion.getDiscountUnit()){
+                double notDiscountedPrice = totalPrice * promotion.getDiscountUnit();
+                totalPrice = product.getTotalPrice() - ((notDiscountedPrice * promotion.getDiscountValue()) / 100);
+            }
+            cartItem.setDiscountedTotalPrice(totalPrice);
+            cartItem.setPromotion(product.getPromotion());
+
+        }
         cartItem.setQuantity(writableCartItem.getQuantity());
         cartItem.setTotalPrice(product.getTotalPrice() * cartItem.getQuantity());
         return cartItem;

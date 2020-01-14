@@ -33,11 +33,17 @@ public class CartItem implements Serializable {
     @JoinColumn(name = "product_id",referencedColumnName = "id")
     private ProductSpecify product;
 
+    @OneToOne
+    @JoinColumn(name = "promotion_id", referencedColumnName = "id")
+    private Promotion promotion;
+
     @NotNull
     private int quantity;
 
     @NotNull
     private double totalPrice;
+
+    private double discountedTotalPrice;
 
     @PrePersist
     public void autofill() {
