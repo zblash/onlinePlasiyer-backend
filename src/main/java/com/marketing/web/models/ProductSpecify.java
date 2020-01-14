@@ -56,6 +56,10 @@ public class ProductSpecify implements Serializable {
     @ManyToMany(fetch = FetchType.EAGER)
     private List<State> states;
 
+    @OneToOne
+    @JoinColumn(name = "promotion_id", referencedColumnName = "id")
+    private Promotion promotion;
+
     @PrePersist
     public void autofill() {
         this.setUuid(UUID.randomUUID());

@@ -1,6 +1,7 @@
 package com.marketing.web.dtos.product;
 
 import com.marketing.web.dtos.user.ReadableState;
+import com.marketing.web.enums.PromotionType;
 import com.marketing.web.enums.UnitType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -40,4 +41,9 @@ public class ReadableProductSpecify implements Serializable {
     private List<ReadableState> states;
 
     private List<String> productBarcodeList;
+
+    private boolean discount;
+
+    private ReadablePromotion promotion;
+
 }

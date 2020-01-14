@@ -1,5 +1,6 @@
 package com.marketing.web.dtos.product;
 
+import com.marketing.web.enums.PromotionType;
 import com.marketing.web.enums.UnitType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -41,4 +42,15 @@ public class WritableProductSpecify implements Serializable {
 
     @NotNull(message = "{validation.notNull}")
     private List<String> stateList;
+
+    @NotNull(message = "{validation.notNull}")
+    private boolean discount;
+
+    private double discountPercent;
+
+    private int discountUnit;
+
+    private PromotionType promotionType;
+
+    private String promotionText;
 }

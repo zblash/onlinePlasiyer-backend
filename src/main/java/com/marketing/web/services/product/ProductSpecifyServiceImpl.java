@@ -137,6 +137,7 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
         productSpecify.setUnitPrice(updatedProductSpecify.getUnitPrice());
         productSpecify.setProduct(updatedProductSpecify.getProduct());
         productSpecify.setStates(updatedProductSpecify.getStates());
+        productSpecify.setPromotion(updatedProductSpecify.getPromotion());
         return productSpecifyRepository.save(productSpecify);
     }
 
