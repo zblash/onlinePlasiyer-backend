@@ -71,25 +71,26 @@ public class OrderFacadeImpl implements OrderFacade {
 
             if (order.getPaymentType().equals(PaymentOption.COD)) {
                 double discount = Optional.of(writableOrder.getDiscount()).orElse(0.0);
-                double paidPrice = Optional.of(writableOrder.getPaidPrice()).orElse(order.getTotalPrice());
-                paidPrice = paidPrice > order.getTotalPrice() ? order.getTotalPrice() : paidPrice;
-                discount = discount >= order.getTotalPrice() || discount < 0 ? 0.0 : discount;
+                double paidPrice = Optional.of(writableOrder.getPaidPrice()).orElse(order.getDiscountedTotalPrice());
+                paidPrice = Math.min(paidPrice, order.getDiscountedTotalPrice());
+                discount = discount >= order.getDiscountedTotalPrice() || discount < 0 ? 0.0 : discount;
                 invoice.setDiscount(discount);
                 invoice.setPaidPrice(paidPrice);
+
                 invoice.setUnPaidPrice((order.getDiscountedTotalPrice()-discount)-paidPrice);
 
                 obligation.setDebt(commission);
                 obligation.setReceivable(0);
             }else {
                 invoice.setDiscount(0);
-                invoice.setPaidPrice(order.getTotalPrice());
+                invoice.setPaidPrice(order.getDiscountedTotalPrice());
                 invoice.setUnPaidPrice(0);
 
                 obligation.setDebt(0);
                 obligation.setReceivable(order.getDiscountedTotalPrice() - commission);
             }
 
-            invoice.setTotalPrice(order.getTotalPrice());
+            invoice.setTotalPrice(order.getDiscountedTotalPrice());
             invoice.setOrder(order);
             invoice.setBuyer(order.getBuyer());
             invoice.setSeller(order.getSeller());
@@ -124,6 +125,9 @@ public class OrderFacadeImpl implements OrderFacade {
                         .mapToDouble(CartItem::getTotalPrice).sum();
                 double discountedTotalPrice = cartItems.stream().filter(cartItem -> cartItem.getProduct().getUser().getId().equals(seller.getId()))
                         .mapToDouble(CartItem::getDiscountedTotalPrice).sum();
+                if (discountedTotalPrice == 0){
+                    discountedTotalPrice = orderTotalPrice;
+                }
                 Order order = new Order();
                 order.setBuyer(user);
                 order.setSeller(seller);
@@ -136,7 +140,7 @@ public class OrderFacadeImpl implements OrderFacade {
                 }else {
                     order.setStatus(OrderStatus.NEW);
                 }
-                ordersTotalPrice += orderTotalPrice;
+                ordersTotalPrice += discountedTotalPrice;
                 orders.add(order);
             }
             if (cart.getPaymentOption().equals(PaymentOption.CRD)){

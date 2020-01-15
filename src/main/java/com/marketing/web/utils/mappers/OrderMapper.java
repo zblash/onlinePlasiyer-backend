@@ -27,7 +27,8 @@ public final class OrderMapper {
             orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setTotalPrice(cartItem.getTotalPrice());
             orderItem.setDiscountedTotalPrice(cartItem.getDiscountedTotalPrice());
-            orderItem.setCommission(cartItem.getTotalPrice() * cartItem.getProduct().getCommission());
+            double totalPrice = cartItem.getDiscountedTotalPrice() > 0 ? cartItem.getDiscountedTotalPrice() : cartItem.getTotalPrice();
+            orderItem.setCommission(totalPrice * cartItem.getProduct().getCommission());
             return orderItem;
         }
     }
