@@ -126,7 +126,7 @@ public class CartItemServiceImpl implements CartItemService {
         Promotion promotion = product.getPromotion();
         double totalPrice = 0;
         if (cartItem.getQuantity() >= promotion.getDiscountUnit()) {
-            double notDiscountedPrice = cartItem.getProduct().getTotalPrice() * promotion.getDiscountUnit();
+            double notDiscountedPrice = product.getTotalPrice() * promotion.getDiscountUnit();
             totalPrice = cartItem.getTotalPrice() - ((notDiscountedPrice * promotion.getDiscountValue()) / 100);
         }
         return totalPrice;
