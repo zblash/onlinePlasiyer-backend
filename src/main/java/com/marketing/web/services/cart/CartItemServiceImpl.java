@@ -36,12 +36,12 @@ public class CartItemServiceImpl implements CartItemService {
 
     @Override
     public CartItem findById(Long id) {
-        return cartItemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("CartItem not found with id: "+ id));
+        return cartItemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("CartItem not found with id: " + id));
     }
 
     @Override
     public CartItem findByUUID(String uuid) {
-        return cartItemRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("CartItem not found with id: "+ uuid));
+        return cartItemRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("CartItem not found with id: " + uuid));
     }
 
     @Override
@@ -50,18 +50,14 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
-    public CartItem update(Cart cart, CartItem cartItem, CartItem updatedCartItem) {
-        Optional<CartItem> optionalCartItem = cart.getItems().stream()
-                .filter(c -> c.getId().equals(cartItem.getId()))
-                .findFirst();
-        if (optionalCartItem.isPresent()) {
-            cartItem.setProduct(updatedCartItem.getProduct());
-            cartItem.setQuantity(updatedCartItem.getQuantity());
-            cartItem.setTotalPrice(updatedCartItem.getTotalPrice());
-            return cartItemRepository.save(cartItem);
-        } else {
-            throw new ResourceNotFoundException("CartItem not found");
-        }
+    public CartItem update(String id, CartItem updatedCartItem) {
+        CartItem cartItem = findByUUID(id);
+        cartItem.setProduct(updatedCartItem.getProduct());
+        cartItem.setQuantity(updatedCartItem.getQuantity());
+        cartItem.setTotalPrice(updatedCartItem.getTotalPrice());
+        cartItem.setDiscountedTotalPrice(updatedCartItem.getDiscountedTotalPrice());
+        cartItem.setPromotion(cartItem.getPromotion());
+        return cartItemRepository.save(cartItem);
     }
 
     @Override
@@ -79,14 +75,14 @@ public class CartItemServiceImpl implements CartItemService {
 
     @Override
     public void deleteAll(Cart cart) {
-        for (CartItem cartItem : cart.getItems()){
+        for (CartItem cartItem : cart.getItems()) {
             logger.info(Long.toString(cartItem.getId()));
             cartItemRepository.delete(cartItemRepository.findById(cartItem.getId()).orElse(null));
         }
     }
 
     @Override
-    public CartItem createOrUpdate(Cart cart, WritableCartItem writableCartItem){
+    public CartItem createOrUpdate(Cart cart, WritableCartItem writableCartItem) {
         CartItem cartItem = cartItemDTOtoCartItem(writableCartItem);
 
         if (!cart.getItems().isEmpty() && cart.getItems() != null) {
@@ -97,7 +93,11 @@ public class CartItemServiceImpl implements CartItemService {
                 CartItem foundItem = optionalCartItem.get();
                 cartItem.setQuantity(cartItem.getQuantity() + foundItem.getQuantity());
                 cartItem.setTotalPrice(cartItem.getTotalPrice() + foundItem.getTotalPrice());
-                return update(cart, foundItem, cartItem);
+                if (foundItem.getProduct().getPromotion() != null){
+                    cartItem.setPromotion(cartItem.getProduct().getPromotion());
+                    cartItem.setDiscountedTotalPrice(discountCalculator(cartItem, foundItem.getProduct()));
+                }
+                return update(foundItem.getUuid().toString(), cartItem);
             }
         }
 
@@ -105,26 +105,30 @@ public class CartItemServiceImpl implements CartItemService {
         return create(cartItem);
     }
 
-    private CartItem cartItemDTOtoCartItem(WritableCartItem writableCartItem){
+    private CartItem cartItemDTOtoCartItem(WritableCartItem writableCartItem) {
         ProductSpecify product = productSpecifyService.findByUUID(writableCartItem.getProductId());
-        if (product.getQuantity() < writableCartItem.getQuantity()){
+        if (product.getQuantity() < writableCartItem.getQuantity()) {
             throw new BadRequestException("Cart item quantity must smaller or equal product quantity");
         }
         CartItem cartItem = new CartItem();
         cartItem.setProduct(product);
-        if (product.getPromotion() != null) {
-            Promotion promotion = product.getPromotion();
-            double totalPrice = product.getTotalPrice();
-            if (writableCartItem.getQuantity() >= promotion.getDiscountUnit()){
-                double notDiscountedPrice = totalPrice * promotion.getDiscountUnit();
-                totalPrice = product.getTotalPrice() - ((notDiscountedPrice * promotion.getDiscountValue()) / 100);
-            }
-            cartItem.setDiscountedTotalPrice(totalPrice);
-            cartItem.setPromotion(product.getPromotion());
-
-        }
         cartItem.setQuantity(writableCartItem.getQuantity());
         cartItem.setTotalPrice(product.getTotalPrice() * cartItem.getQuantity());
+        if (product.getPromotion() != null) {
+            cartItem.setDiscountedTotalPrice(discountCalculator(cartItem, product));
+            cartItem.setPromotion(product.getPromotion());
+        }
+
         return cartItem;
+    }
+
+    private double discountCalculator(CartItem cartItem, ProductSpecify product) {
+        Promotion promotion = product.getPromotion();
+        double totalPrice = 0;
+        if (cartItem.getQuantity() >= promotion.getDiscountUnit()) {
+            double notDiscountedPrice = cartItem.getProduct().getTotalPrice() * promotion.getDiscountUnit();
+            totalPrice = cartItem.getTotalPrice() - ((notDiscountedPrice * promotion.getDiscountValue()) / 100);
+        }
+        return totalPrice;
     }
 }
