@@ -30,13 +30,13 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     @Query("SELECT o FROM Order o WHERE o.uuid = ?1 and o.seller = ?2 or o.buyer = ?3")
     List<Order> findAllByUuidAndSeller(Long sellerId, Long buyerId);
 
-    Optional<Order> findBySeller_IdAndUuid(Long sellerId, UUID uuid);
-
     Optional<Order> findByUuid(UUID uuid);
 
     Page<Order> findAllBySellerOrBuyer(User seller, User buyer, Pageable pageable);
 
     List<Order> findAllBySellerOrBuyerOrderByIdDesc(User seller, User buyer);
 
-    Optional<Order> findByUuidAndBuyerOrSeller(UUID uuid,User buyer,User seller);
+    Optional<Order> findBySellerAndUuid(User seller, UUID uuid);
+
+    Optional<Order> findByBuyerAndUuid(User buyer, UUID uuid);
 }

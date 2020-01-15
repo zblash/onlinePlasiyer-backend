@@ -7,6 +7,7 @@ import com.marketing.web.enums.WsStatus;
 import com.marketing.web.models.Barcode;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
+import com.marketing.web.models.Promotion;
 import org.springframework.data.domain.Page;
 
 import java.util.stream.Collectors;
@@ -72,9 +73,27 @@ public final class ProductMapper {
             readableProductSpecify.setProductId(productSpecify.getProduct().getUuid().toString());
             readableProductSpecify.setProductName(productSpecify.getProduct().getName());
             readableProductSpecify.setSellerName(productSpecify.getUser().getName());
+            readableProductSpecify.setCommission(productSpecify.getCommission());
             readableProductSpecify.setStates(productSpecify.getStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
             readableProductSpecify.setProductBarcodeList(productSpecify.getProduct().getBarcodes().stream().map(Barcode::getBarcodeNo).collect(Collectors.toList()));
+            if (productSpecify.getPromotion() != null){
+                readableProductSpecify.setDiscount(true);
+                readableProductSpecify.setPromotion(ProductMapper.promotionToReadablePromotion(productSpecify.getPromotion()));
+            }
             return readableProductSpecify;
+        }
+    }
+
+    public static ReadablePromotion promotionToReadablePromotion(Promotion promotion){
+        if (promotion == null){
+            return null;
+        } else {
+            ReadablePromotion readablePromotion = new ReadablePromotion();
+            readablePromotion.setDiscountPercent(promotion.getDiscountPercent());
+            readablePromotion.setDiscountUnit(promotion.getDiscountUnit());
+            readablePromotion.setPromotionText(promotion.getPromotionText());
+            readablePromotion.setPromotionType(promotion.getPromotionType());
+            return readablePromotion;
         }
     }
 

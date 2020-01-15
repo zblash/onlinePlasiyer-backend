@@ -45,6 +45,8 @@ public class User implements Serializable {
     @NotBlank
     private String taxNumber;
 
+    private double commission;
+
     private boolean status;
 
     @ManyToOne(fetch = FetchType.EAGER)

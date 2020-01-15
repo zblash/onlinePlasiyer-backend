@@ -29,4 +29,6 @@ public class MerchantUser implements Serializable {
     private Address address;
 
     private List<String> activeStates;
+
+    private double commission;
 }

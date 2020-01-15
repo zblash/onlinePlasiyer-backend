@@ -17,7 +17,7 @@ public interface CartItemService {
 
     CartItem create(CartItem cartItem);
 
-    CartItem update(Cart cart, CartItem cartItem,CartItem updatedCartItem);
+    CartItem update(String id, CartItem updatedCartItem);
 
     void delete(Cart cart, CartItem cartItem);
 

@@ -20,6 +20,8 @@ public class ReadableOrder implements Serializable {
 
     private double totalPrice;
 
+    private double discountedTotalPrice;
+
     private OrderStatus status;
 
     private double commission;

@@ -1,16 +1,11 @@
 package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.common.WrapperPagination;
-import com.marketing.web.dtos.product.ReadableProduct;
-import com.marketing.web.dtos.product.ReadableProductSpecify;
-import com.marketing.web.dtos.product.WritableBarcode;
-import com.marketing.web.dtos.product.WritableProduct;
+import com.marketing.web.dtos.product.*;
+import com.marketing.web.enums.CommissionType;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
-import com.marketing.web.models.Barcode;
-import com.marketing.web.models.Category;
-import com.marketing.web.models.Product;
-import com.marketing.web.models.User;
+import com.marketing.web.models.*;
 import com.marketing.web.services.category.CategoryService;
 import com.marketing.web.services.product.BarcodeService;
 import com.marketing.web.services.product.ProductService;
@@ -59,47 +54,47 @@ public class ProductsController {
     private Logger logger = LoggerFactory.getLogger(ProductsController.class);
 
     @GetMapping
-    public ResponseEntity<?> getAll(@RequestParam(defaultValue = "true") boolean pagination, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
-        if (pagination){
+    public ResponseEntity<?> getAll(@RequestParam(defaultValue = "true") boolean pagination, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
+        if (pagination) {
             return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAll(pageNumber, sortBy, sortType)));
         }
 
-        return ResponseEntity.ok(productService.findAllWithoutPagination(sortBy,sortType).stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
+        return ResponseEntity.ok(productService.findAllWithoutPagination(sortBy, sortType).stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @GetMapping("/byUser")
-    public ResponseEntity<?> getAllByUser(@RequestParam(required = false) String userId){
+    public ResponseEntity<?> getAllByUser(@RequestParam(required = false) String userId) {
         User user = userService.getLoggedInUser();
         RoleType role = UserMapper.roleToRoleType(user.getRole());
-        if (role.equals(RoleType.ADMIN)){
-            if (!userId.isEmpty()){
+        if (role.equals(RoleType.ADMIN)) {
+            if (!userId.isEmpty()) {
                 return ResponseEntity.ok(productSpecifyService.findAllProductsByUser(userService.findByUUID(userId)).stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
             }
-            return ResponseEntity.ok(productService.findAllWithoutPagination("id","desc").stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
+            return ResponseEntity.ok(productService.findAllWithoutPagination("id", "desc").stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
         }
         return ResponseEntity.ok(productSpecifyService.findAllProductsByUser(user).stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
     }
 
     @GetMapping("/actives")
-    public ResponseEntity<WrapperPagination<ReadableProduct>> getAllActives(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
-        return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByStatus(true,pageNumber, sortBy,  sortType)));
+    public ResponseEntity<WrapperPagination<ReadableProduct>> getAllActives(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
+        return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByStatus(true, pageNumber, sortBy, sortType)));
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<ReadableProduct>> getByFilter(@RequestParam String name){
-       return ResponseEntity.ok(productService.simpleFilterByName(name).stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
+    public ResponseEntity<List<ReadableProduct>> getByFilter(@RequestParam String name) {
+        return ResponseEntity.ok(productService.simpleFilterByName(name).stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
     }
 
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<WrapperPagination<ReadableProduct>> getAllByCategory(@PathVariable String categoryId,@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
+    public ResponseEntity<WrapperPagination<ReadableProduct>> getAllByCategory(@PathVariable String categoryId, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
         User user = userService.getLoggedInUser();
         RoleType role = UserMapper.roleToRoleType(user.getRole());
         Category category = categoryService.findByUUID(categoryId);
-        if (role.equals(RoleType.ADMIN)){
-            return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByCategory(category,pageNumber, sortBy, sortType)));
+        if (role.equals(RoleType.ADMIN)) {
+            return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByCategory(category, pageNumber, sortBy, sortType)));
         }
-        return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByCategoryAndStatus(category,true,pageNumber, sortBy, sortType)));
+        return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByCategoryAndStatus(category, true, pageNumber, sortBy, sortType)));
     }
 
     @GetMapping("/barcode/{barcode}")
@@ -126,16 +121,16 @@ public class ProductsController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReadableProduct> getById(@PathVariable String id){
+    public ResponseEntity<ReadableProduct> getById(@PathVariable String id) {
         return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.findByUUID(id)));
     }
 
     @GetMapping("/{id}/specifies")
-    public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAllByProduct(@PathVariable String id, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "totalPrice") String sortBy, @RequestParam(defaultValue = "asc") String sortType){
+    public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAllByProduct(@PathVariable String id, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "totalPrice") String sortBy, @RequestParam(defaultValue = "asc") String sortType) {
 
         User user = userService.getLoggedInUser();
         RoleType role = UserMapper.roleToRoleType(user.getRole());
-        switch (role){
+        switch (role) {
             case CUSTOMER:
                 return ResponseEntity.ok(
                         ProductMapper
@@ -154,9 +149,10 @@ public class ProductsController {
         }
 
     }
+
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping
-    public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct,@ValidImg @RequestParam(required = false) final MultipartFile uploadedFile){
+    public ResponseEntity<?> createProduct(@Valid WritableProduct writableProduct, @ValidImg @RequestParam(required = false) final MultipartFile uploadedFile) {
         User user = userService.getLoggedInUser();
 
         Barcode barcode = barcodeService.checkByBarcodeNo(writableProduct.getBarcode());
@@ -177,14 +173,14 @@ public class ProductsController {
                 barcode.setBarcodeNo(writableProduct.getBarcode());
                 barcode.setProduct(product);
                 product.addBarcode(barcodeService.create(barcode));
-            }else{
+            } else {
                 barcode = new Barcode();
                 barcode.setBarcodeNo(writableProduct.getBarcode());
                 barcode.setProduct(product);
                 product.addBarcode(barcodeService.create(barcode));
             }
 
-            return new ResponseEntity<>(ProductMapper.productToReadableProduct(product),HttpStatus.CREATED);
+            return new ResponseEntity<>(ProductMapper.productToReadableProduct(product), HttpStatus.CREATED);
         }
 
         return new ResponseEntity<>("Product already added", HttpStatus.CONFLICT);
@@ -193,7 +189,7 @@ public class ProductsController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<ReadableProduct> deleteProduct(@PathVariable String id){
+    public ResponseEntity<ReadableProduct> deleteProduct(@PathVariable String id) {
         Product product = productService.findByUUID(id);
         amazonClient.deleteFileFromS3Bucket(product.getPhotoUrl());
         productService.delete(product);
@@ -202,44 +198,69 @@ public class ProductsController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(required = false) MultipartFile uploadedFile){
+    public ResponseEntity<ReadableProduct> updateProduct(@PathVariable String id, @Valid WritableProduct writableProduct, @ValidImg @RequestParam(required = false) MultipartFile uploadedFile) {
         Product product = barcodeService.findByBarcodeNo(writableProduct.getBarcode()).getProduct();
         if (uploadedFile != null && !uploadedFile.isEmpty()) {
-            if(!product.getPhotoUrl().isEmpty()) {
+            if (!product.getPhotoUrl().isEmpty()) {
                 amazonClient.deleteFileFromS3Bucket(product.getPhotoUrl());
             }
             String fileUrl = amazonClient.uploadFile(uploadedFile);
             product.setPhotoUrl(fileUrl);
-
         }
         product.setName(writableProduct.getName());
         product.setStatus(writableProduct.isStatus());
         product.setTax(writableProduct.getTax());
         product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
-        return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.update(id,product)));
+        return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.update(id, product)));
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
     @PostMapping("/addBarcode/{id}")
-    public ResponseEntity<ReadableProduct> addBarcode(@PathVariable String id, @Valid @RequestBody WritableBarcode writableBarcode){
+    public ResponseEntity<ReadableProduct> addBarcode(@PathVariable String id, @Valid @RequestBody WritableBarcode writableBarcode) {
         Product product = productService.findByUUID(id);
-        if (barcodeService.checkByBarcodeNo(writableBarcode.getBarcode()) == null){
+        if (barcodeService.checkByBarcodeNo(writableBarcode.getBarcode()) == null) {
             Barcode barcode = new Barcode();
             barcode.setBarcodeNo(writableBarcode.getBarcode());
             barcode.setProduct(product);
             product.addBarcode(barcodeService.create(barcode));
             return ResponseEntity.ok(ProductMapper.productToReadableProduct(product));
         }
-        throw new BadRequestException("This barcode already added : "+writableBarcode.getBarcode());
+        throw new BadRequestException("This barcode already added : " + writableBarcode.getBarcode());
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/removeBarcode/{id}")
-    public ResponseEntity<ReadableProduct> removeBarcode(@PathVariable String id, @Valid @RequestBody WritableBarcode writableBarcode){
+    public ResponseEntity<ReadableProduct> removeBarcode(@PathVariable String id, @Valid @RequestBody WritableBarcode writableBarcode) {
         Product product = productService.findByUUID(id);
         Barcode barcode = barcodeService.findByProductAndBarcodeNo(product, writableBarcode.getBarcode());
         product.removeBarcode(barcode);
         barcodeService.delete(barcode);
         return ResponseEntity.ok(ProductMapper.productToReadableProduct(product));
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("/commissions")
+    public ResponseEntity<List<ReadableProductSpecify>> setCommissions(@Valid @RequestBody WritableCommission writableCommission) {
+        List<ProductSpecify> productSpecifyList = null;
+        if (writableCommission.getCommissionType().equals(CommissionType.ALL)) {
+            productSpecifyList = productSpecifyService.findAllWithoutPagination();
+        } else if (writableCommission.getId() != null) {
+            if (writableCommission.getCommissionType().equals(CommissionType.PRD)) {
+                productSpecifyList = productSpecifyService.findAllByProductWithoutPagination(productService.findByUUID(writableCommission.getId()));
+            } else if (writableCommission.getCommissionType().equals(CommissionType.USER)) {
+                User user = userService.findByUUID(writableCommission.getId());
+                if (!UserMapper.roleToRoleType(user.getRole()).equals(RoleType.MERCHANT)){
+                    throw new BadRequestException("Commission not available for this user");
+                }
+                user.setCommission(writableCommission.getCommission());
+                userService.update(user.getId(), user);
+                productSpecifyList = productSpecifyService.findAllByUserWithoutPagination(user);
+            }
+        } else {
+            throw new BadRequestException("Commission type or id must not null");
+        }
+        productSpecifyList.stream().forEach(productSpecify -> productSpecify.setCommission(writableCommission.getCommission()));
+        return ResponseEntity.ok(productSpecifyService.updateAll(productSpecifyList).stream()
+                .map(ProductMapper::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
     }
 }

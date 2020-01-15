@@ -3,6 +3,7 @@ package com.marketing.web.services.order;
 import com.marketing.web.dtos.order.OrderSummary;
 import com.marketing.web.dtos.order.SearchOrder;
 import com.marketing.web.enums.OrderStatus;
+import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Order;
 import com.marketing.web.repositories.OrderGroup;
@@ -108,9 +109,12 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public Order findByUuidAndUser(String uuid,User user) {
-        return orderRepository.findByUuidAndBuyerOrSeller(UUID.fromString(uuid),user,user).orElseThrow(() -> new ResourceNotFoundException("Order not found with id: "+ uuid));
-    }
+    public Order findByUuidAndUser(String uuid,User user, RoleType roleType) {
+        if (roleType.equals(RoleType.MERCHANT)){
+            return orderRepository.findBySellerAndUuid(user, UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Order not found with id: "+ uuid));
+        }
+        return orderRepository.findByBuyerAndUuid(user, UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Order not found with id: "+ uuid));
+}
 
     @Override
     public Order update(String uuid, Order updatedOrder) {

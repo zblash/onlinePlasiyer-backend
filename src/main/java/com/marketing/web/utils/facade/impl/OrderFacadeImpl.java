@@ -8,16 +8,12 @@ import com.marketing.web.enums.PaymentOption;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.*;
 import com.marketing.web.services.cart.CartItemService;
-import com.marketing.web.services.cart.CartItemServiceImpl;
 import com.marketing.web.services.cart.CartService;
-import com.marketing.web.services.credit.CreditService;
+import com.marketing.web.services.credit.SystemCreditService;
 import com.marketing.web.services.invoice.InvoiceService;
-import com.marketing.web.services.invoice.InvoiceServiceImpl;
 import com.marketing.web.services.invoice.ObligationService;
 import com.marketing.web.services.order.OrderItemService;
-import com.marketing.web.services.order.OrderItemServiceImpl;
 import com.marketing.web.services.order.OrderService;
-import com.marketing.web.services.order.OrderServiceImpl;
 import com.marketing.web.utils.facade.OrderFacade;
 import com.marketing.web.utils.mappers.OrderMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +48,7 @@ public class OrderFacadeImpl implements OrderFacade {
     private ObligationService obligationService;
 
     @Autowired
-    private CreditService creditService;
+    private SystemCreditService systemCreditService;
 
     @Override
     public ReadableOrder saveOrder(WritableOrder writableOrder, Order order) {
@@ -63,8 +59,8 @@ public class OrderFacadeImpl implements OrderFacade {
         order.setWaybillDate(writableOrder.getWaybillDate());
 
         if (writableOrder.getStatus().equals(OrderStatus.FNS)){
+            double commission = order.getOrderItems().stream().mapToDouble(OrderItem::getCommission).sum();
 
-            double commission = order.getTotalPrice() * 0.01;
             order.setCommission(commission);
 
             Obligation obligation = new Obligation();
@@ -75,25 +71,26 @@ public class OrderFacadeImpl implements OrderFacade {
 
             if (order.getPaymentType().equals(PaymentOption.COD)) {
                 double discount = Optional.of(writableOrder.getDiscount()).orElse(0.0);
-                double paidPrice = Optional.of(writableOrder.getPaidPrice()).orElse(order.getTotalPrice());
-                paidPrice = paidPrice > order.getTotalPrice() ? order.getTotalPrice() : paidPrice;
-                discount = discount >= order.getTotalPrice() || discount < 0 ? 0.0 : discount;
+                double paidPrice = Optional.of(writableOrder.getPaidPrice()).orElse(order.getDiscountedTotalPrice());
+                paidPrice = Math.min(paidPrice, order.getDiscountedTotalPrice());
+                discount = discount >= order.getDiscountedTotalPrice() || discount < 0 ? 0.0 : discount;
                 invoice.setDiscount(discount);
                 invoice.setPaidPrice(paidPrice);
-                invoice.setUnPaidPrice((order.getTotalPrice()-discount)-paidPrice);
+
+                invoice.setUnPaidPrice((order.getDiscountedTotalPrice()-discount)-paidPrice);
 
                 obligation.setDebt(commission);
                 obligation.setReceivable(0);
             }else {
                 invoice.setDiscount(0);
-                invoice.setPaidPrice(order.getTotalPrice());
+                invoice.setPaidPrice(order.getDiscountedTotalPrice());
                 invoice.setUnPaidPrice(0);
 
                 obligation.setDebt(0);
-                obligation.setReceivable(order.getTotalPrice() - commission);
+                obligation.setReceivable(order.getDiscountedTotalPrice() - commission);
             }
 
-            invoice.setTotalPrice(order.getTotalPrice());
+            invoice.setTotalPrice(order.getDiscountedTotalPrice());
             invoice.setOrder(order);
             invoice.setBuyer(order.getBuyer());
             invoice.setSeller(order.getSeller());
@@ -126,27 +123,33 @@ public class OrderFacadeImpl implements OrderFacade {
             for (User seller : sellers){
                 double orderTotalPrice = cartItems.stream().filter(cartItem -> cartItem.getProduct().getUser().getId().equals(seller.getId()))
                         .mapToDouble(CartItem::getTotalPrice).sum();
+                double discountedTotalPrice = cartItems.stream().filter(cartItem -> cartItem.getProduct().getUser().getId().equals(seller.getId()))
+                        .mapToDouble(CartItem::getDiscountedTotalPrice).sum();
+                if (discountedTotalPrice == 0){
+                    discountedTotalPrice = orderTotalPrice;
+                }
                 Order order = new Order();
                 order.setBuyer(user);
                 order.setSeller(seller);
                 order.setOrderDate(new Date());
                 order.setTotalPrice(orderTotalPrice);
+                order.setDiscountedTotalPrice(discountedTotalPrice);
                 order.setPaymentType(cart.getPaymentOption());
                 if(cart.getPaymentOption().equals(PaymentOption.CRD)){
                     order.setStatus(OrderStatus.PAD);
                 }else {
                     order.setStatus(OrderStatus.NEW);
                 }
-                ordersTotalPrice += orderTotalPrice;
+                ordersTotalPrice += discountedTotalPrice;
                 orders.add(order);
             }
             if (cart.getPaymentOption().equals(PaymentOption.CRD)){
-                Credit credit = creditService.findByUser(user.getId());
-                credit.setTotalDebt(credit.getTotalDebt() + ordersTotalPrice);
-                if (credit.getTotalDebt() > credit.getCreditLimit()) {
-                    throw new BadRequestException("Not enough credit limit");
+                SystemCredit systemCredit = systemCreditService.findByUser(user.getId());
+                systemCredit.setTotalDebt(systemCredit.getTotalDebt() + ordersTotalPrice);
+                if (systemCredit.getTotalDebt() > systemCredit.getCreditLimit()) {
+                    throw new BadRequestException("Not enough systemCredit limit");
                 }
-                creditService.update(credit.getUuid().toString(), credit);
+                systemCreditService.update(systemCredit.getUuid().toString(), systemCredit);
             }
 
             orderService.createAll(orders);
