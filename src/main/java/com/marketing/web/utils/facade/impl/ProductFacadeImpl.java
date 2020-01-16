@@ -25,7 +25,7 @@ import java.util.List;
 public class ProductFacadeImpl implements ProductFacade {
 
     @Autowired
-    private UserService userService;
+    private ProductService productService;
 
     @Autowired
     private BarcodeService barcodeService;
@@ -46,16 +46,19 @@ public class ProductFacadeImpl implements ProductFacade {
             throw new ResourceNotFoundException("Product not found with barcode: "+writableProductSpecify.getBarcode());
         }
 
+        Product product = barcode.getProduct();
         ProductSpecify productSpecify = ProductMapper.writableProductSpecifyToProductSpecify(writableProductSpecify);
 
         List<State> states = stateService.findAllByUuids(writableProductSpecify.getStateList());
 
-        productSpecify.setProduct(barcode.getProduct());
+        productSpecify.setProduct(product);
         productSpecify.setUser(user);
         productSpecify.setStates(productSpecifyService.allowedStates(user,states));
         productSpecify.setCommission(user.getCommission());
         productSpecify.setPromotion(generatePromotion(productSpecify, writableProductSpecify));
 
+        product.addUser(user);
+        productService.update(product.getUuid().toString(), product);
         return ProductMapper.productSpecifyToReadableProductSpecify(productSpecifyService.create(productSpecify));
     }
 
@@ -72,15 +75,19 @@ public class ProductFacadeImpl implements ProductFacade {
         } else {
             productSpecify = productSpecifyService.findByUUIDAndUser(uuid, user);
         }
+
+        Product product = barcode.getProduct();
         ProductSpecify updatedProductSpecify = ProductMapper.writableProductSpecifyToProductSpecify(writableProductSpecify);
 
         List<State> states = stateService.findAllByUuids(writableProductSpecify.getStateList());
 
         updatedProductSpecify.setStates(productSpecifyService.allowedStates(productSpecify.getUser(),states));
-        updatedProductSpecify.setProduct(barcode.getProduct());
+        updatedProductSpecify.setProduct(product);
         updatedProductSpecify.setCommission(user.getCommission());
         updatedProductSpecify.setPromotion(generatePromotion(productSpecify, writableProductSpecify));
 
+        product.addUser(user);
+        productService.update(product.getUuid().toString(), product);
         return ProductMapper.productSpecifyToReadableProductSpecify(productSpecifyService.update(productSpecify.getUuid().toString(), updatedProductSpecify));
     }
 
@@ -108,4 +115,5 @@ public class ProductFacadeImpl implements ProductFacade {
         }
         throw new BadRequestException("Discount can't calculated");
     }
+
 }

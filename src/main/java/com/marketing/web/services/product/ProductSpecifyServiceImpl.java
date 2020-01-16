@@ -59,12 +59,6 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     }
 
     @Override
-    public List<Product> findAllProductsByUser(User user){
-        List<ProductSpecify> productSpecifies = productSpecifyRepository.findAllByUser(user);
-        return productSpecifies.stream().map(ProductSpecify::getProduct).distinct().collect(Collectors.toList());
-    }
-
-    @Override
     public Page<ProductSpecify> findAllByProduct(Product product, int pageNumber, String sortBy, String sortType) {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByProduct(product, pageRequest);

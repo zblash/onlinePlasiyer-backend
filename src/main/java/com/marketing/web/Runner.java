@@ -77,7 +77,7 @@ public class Runner implements CommandLineRunner {
 
         List<Category> categories = categoryPopulator();
 
-        List<Product> products = productPopulator(categories);
+        List<Product> products = productPopulator(categories, user);
 
         barcodePopulator(products);
 
@@ -180,7 +180,7 @@ public class Runner implements CommandLineRunner {
         return productSpecifies;
     }
 
-    private List<Product> productPopulator(List<Category> categories) {
+    private List<Product> productPopulator(List<Category> categories, User user) {
         int j = 0;
         List<Product> productList = new ArrayList<>();
         for (Category category : categories) {
@@ -192,6 +192,7 @@ public class Runner implements CommandLineRunner {
                 product.setStatus(true);
                 product.setPhotoUrl(randomPhoto());
                 product.setTax(rn(10, 20));
+                product.addUser(user);
                 productRepository.save(product);
                 productList.add(product);
             }

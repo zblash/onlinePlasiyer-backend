@@ -16,7 +16,7 @@ public class ReadablePromotion implements Serializable {
 
     private PromotionType promotionType;
 
-    private double discountPercent;
+    private double discountValue;
 
     private int discountUnit;
 

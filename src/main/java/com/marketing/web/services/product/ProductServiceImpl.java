@@ -4,6 +4,7 @@ import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Category;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.ProductSpecify;
+import com.marketing.web.models.User;
 import com.marketing.web.repositories.ProductRepository;
 import com.marketing.web.services.category.CategoryServiceImpl;
 import org.slf4j.Logger;
@@ -14,10 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -30,6 +28,21 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Product> simpleFilterByName(String name) {
        return productRepository.findAllByNameLikeIgnoreCase("%"+name+"%");
+    }
+
+    @Override
+    public List<Product> findAllByUserWithoutPagination(User user) {
+        return productRepository.findAllByUsers_Id(user.getId());
+    }
+
+    @Override
+    public Page<Product> findAllByUser(User user, int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
+        Page<Product> resultPage = productRepository.findAllByUsers_Id(user.getId(), pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+        return resultPage;
     }
 
     @Override
@@ -109,6 +122,7 @@ public class ProductServiceImpl implements ProductService {
         if (updatedProduct.getPhotoUrl() != null && !updatedProduct.getPhotoUrl().isEmpty()) {
             product.setPhotoUrl(updatedProduct.getPhotoUrl());
         }
+        product.setUsers(updatedProduct.getUsers());
         product.setCategory(updatedProduct.getCategory());
         return productRepository.save(product);
     }
@@ -119,19 +133,25 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> filterByState(List<Product> products, String userState) {
-        for (Product product : products){
-            Set<ProductSpecify> filteredProductSpecifies = new HashSet<>();
-            for (ProductSpecify productSpecify : product.getProductSpecifies()){
-                long stateCount = productSpecify.getStates().stream()
-                        .filter(state -> state.getTitle().equals(userState)).count();
-                if (stateCount > 0){
-                    filteredProductSpecifies.add(productSpecify);
-                }
-            }
-            product.setProductSpecifies(filteredProductSpecifies);
+    public Page<Product> findAllByCategoryAndUser(Category category, User user, Integer pageNumber, String sortBy, String sortType) {
+        List<Category> categories = category.collectLeafChildren();
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
+        Page<Product> resultPage = productRepository.findAllByCategoryInAndUsers_Id(categories, user.getId(), pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
-        return products;
+        return resultPage;
+    }
+
+    @Override
+    public Page<Product> findAllByCategoryAndUserAndStatus(Category category, User user, boolean status, Integer pageNumber, String sortBy, String sortType) {
+        List<Category> categories = category.collectLeafChildren();
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
+        Page<Product> resultPage = productRepository.findAllByCategoryInAndUsers_IdAndStatus(categories, user.getId(), status, pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+        }
+        return resultPage;
     }
 
     private PageRequest getPageRequest(int pageNumber, String sortBy, String sortType){

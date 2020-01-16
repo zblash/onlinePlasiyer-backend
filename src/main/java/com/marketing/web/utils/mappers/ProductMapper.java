@@ -89,7 +89,7 @@ public final class ProductMapper {
             return null;
         } else {
             ReadablePromotion readablePromotion = new ReadablePromotion();
-            readablePromotion.setDiscountPercent(promotion.getDiscountPercent());
+            readablePromotion.setDiscountValue(promotion.getDiscountValue());
             readablePromotion.setDiscountUnit(promotion.getDiscountUnit());
             readablePromotion.setPromotionText(promotion.getPromotionText());
             readablePromotion.setPromotionType(promotion.getPromotionType());
