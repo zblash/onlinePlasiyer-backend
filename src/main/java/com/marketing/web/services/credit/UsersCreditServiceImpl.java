@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -32,8 +33,8 @@ public class UsersCreditServiceImpl implements UsersCreditService {
     }
 
     @Override
-    public UsersCredit findByUser(User user) {
-        return null;
+    public List<UsersCredit> findAllByUser(User user) {
+        return usersCreditRepository.findAllByMerchantOrCustomer(user, user);
     }
 
     @Override
@@ -54,5 +55,10 @@ public class UsersCreditServiceImpl implements UsersCreditService {
     @Override
     public void delete(UsersCredit usersCredit) {
         usersCreditRepository.delete(usersCredit);
+    }
+
+    @Override
+    public UsersCredit findByUUIDAndMerchant(String id, User merchant) {
+       return usersCreditRepository.findByUuidAndMerchant(UUID.fromString(id), merchant).orElseThrow(() -> new ResourceNotFoundException("Credit not found with id: " + id));
     }
 }
