@@ -6,9 +6,11 @@ import com.marketing.web.models.UsersCredit;
 import com.marketing.web.repositories.UsersCreditRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@Service
 public class UsersCreditServiceImpl implements UsersCreditService {
 
     @Autowired
@@ -36,16 +38,21 @@ public class UsersCreditServiceImpl implements UsersCreditService {
 
     @Override
     public UsersCredit create(UsersCredit usersCredit) {
-        return null;
+        return usersCreditRepository.save(usersCredit);
     }
 
     @Override
     public UsersCredit update(String uuid, UsersCredit updatedUsersCredit) {
-        return null;
+        UsersCredit usersCredit = findByUUID(uuid);
+        usersCredit.setTotalDebt(updatedUsersCredit.getTotalDebt());
+        usersCredit.setCreditLimit(updatedUsersCredit.getTotalDebt());
+        usersCredit.setMerchant(updatedUsersCredit.getMerchant());
+        usersCredit.setCustomer(updatedUsersCredit.getCustomer());
+        return usersCreditRepository.save(usersCredit);
     }
 
     @Override
     public void delete(UsersCredit usersCredit) {
-
+        usersCreditRepository.delete(usersCredit);
     }
 }
