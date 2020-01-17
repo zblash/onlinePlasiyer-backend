@@ -114,36 +114,18 @@ public class OrderFacadeImpl implements OrderFacade {
     }
 
     @Override
-    public List<ReadableOrder> checkoutCart(User user, Cart cart, List<CartItem> cartItems) {
+    public List<ReadableOrder> checkoutCart(User user, Cart cart, Long sellerId) {
         {
-            List<Order> orders = new ArrayList<>();
-            double ordersTotalPrice = 0;
-            List<User> sellers = cartItems.stream().map(cartItem -> cartItem.getProduct().getUser())
-                    .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(User::getId))), ArrayList::new));
-            for (User seller : sellers){
-                double orderTotalPrice = cartItems.stream().filter(cartItem -> cartItem.getProduct().getUser().getId().equals(seller.getId()))
-                        .mapToDouble(CartItem::getTotalPrice).sum();
-                double discountedTotalPrice = cartItems.stream().filter(cartItem -> cartItem.getProduct().getUser().getId().equals(seller.getId()))
-                        .mapToDouble(CartItem::getDiscountedTotalPrice).sum();
-                if (discountedTotalPrice == 0){
-                    discountedTotalPrice = orderTotalPrice;
-                }
-                Order order = new Order();
-                order.setBuyer(user);
-                order.setSeller(seller);
-                order.setOrderDate(new Date());
-                order.setTotalPrice(orderTotalPrice);
-                order.setDiscountedTotalPrice(discountedTotalPrice);
-                order.setPaymentType(cart.getPaymentOption());
-                if(cart.getPaymentOption().equals(PaymentOption.CRD)){
-                    order.setStatus(OrderStatus.PAD);
-                }else {
-                    order.setStatus(OrderStatus.NEW);
-                }
-                ordersTotalPrice += discountedTotalPrice;
-                orders.add(order);
+            List<CartItem> cartItemList;
+            if (sellerId > 0){
+                cartItemList = cart.getItems().stream().filter(cartItem -> cartItem.getProduct().getUser().getId().equals(sellerId)).collect(Collectors.toList());
+            }else {
+                cartItemList = cart.getItems();
             }
+            List<Order> orders = ordersPopulator(cart, cartItemList, user);
+
             if (cart.getPaymentOption().equals(PaymentOption.CRD)){
+                double ordersTotalPrice = orders.stream().mapToDouble(Order::getDiscountedTotalPrice).sum();
                 SystemCredit systemCredit = systemCreditService.findByUser(user.getId());
                 systemCredit.setTotalDebt(systemCredit.getTotalDebt() + ordersTotalPrice);
                 if (systemCredit.getTotalDebt() > systemCredit.getCreditLimit()) {
@@ -158,19 +140,52 @@ public class OrderFacadeImpl implements OrderFacade {
             cartService.update(cart.getId(), cart);
             cartItemService.deleteAll(cart);
 
-            List<OrderItem> orderItems = new ArrayList<>();
-            for (CartItem cartItem : cartItems){
-                OrderItem orderItem = OrderMapper.cartItemToOrderItem(cartItem);
-                Optional<Order> optionalOrder = orders.stream().filter(order -> order.getSeller().getId().equals(orderItem.getSeller().getId())).findFirst();
-                optionalOrder.ifPresent(order -> {
-                    orderItem.setOrder(order);
-                    order.addOrderItem(orderItem);
-                });
-                orderItems.add(orderItem);
-            }
+            List<OrderItem> orderItems = orderItemsPopulator(cartItemList, orders);
             orderItemService.createAll(orderItems);
             return orders.stream().map(OrderMapper::orderToReadableOrder).collect(Collectors.toList());
         }
     }
 
+    private List<Order> ordersPopulator(Cart cart, List<CartItem> cartItems, User user) {
+        List<Order> orders = new ArrayList<>();
+        List<User> sellers = cartItems.stream().map(cartItem -> cartItem.getProduct().getUser())
+                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(User::getId))), ArrayList::new));
+        for (User seller : sellers){
+            double orderTotalPrice = cartItems.stream().filter(cartItem -> cartItem.getProduct().getUser().getId().equals(seller.getId()))
+                    .mapToDouble(CartItem::getTotalPrice).sum();
+            double discountedTotalPrice = cartItems.stream().filter(cartItem -> cartItem.getProduct().getUser().getId().equals(seller.getId()))
+                    .mapToDouble(CartItem::getDiscountedTotalPrice).sum();
+            if (discountedTotalPrice == 0){
+                discountedTotalPrice = orderTotalPrice;
+            }
+            Order order = new Order();
+            order.setBuyer(user);
+            order.setSeller(seller);
+            order.setOrderDate(new Date());
+            order.setTotalPrice(orderTotalPrice);
+            order.setDiscountedTotalPrice(discountedTotalPrice);
+            order.setPaymentType(cart.getPaymentOption());
+            if(cart.getPaymentOption().equals(PaymentOption.CRD)){
+                order.setStatus(OrderStatus.PAD);
+            }else {
+                order.setStatus(OrderStatus.NEW);
+            }
+            orders.add(order);
+        }
+        return orders;
+    }
+
+    private List<OrderItem> orderItemsPopulator(List<CartItem> cartItems, List<Order> orders) {
+        List<OrderItem> orderItems = new ArrayList<>();
+        for (CartItem cartItem : cartItems){
+            OrderItem orderItem = OrderMapper.cartItemToOrderItem(cartItem);
+            Optional<Order> optionalOrder = orders.stream().filter(order -> order.getSeller().getId().equals(orderItem.getSeller().getId())).findFirst();
+            optionalOrder.ifPresent(order -> {
+                orderItem.setOrder(order);
+                order.addOrderItem(orderItem);
+            });
+            orderItems.add(orderItem);
+        }
+        return orderItems;
+    }
 }
