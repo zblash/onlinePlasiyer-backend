@@ -21,7 +21,7 @@ public interface CartItemService {
 
     void delete(Cart cart, CartItem cartItem);
 
-    void deleteAll(Cart cart);
+    void deleteAll(List<CartItem> cartItems);
 
     CartItem createOrUpdate(Cart cart, WritableCartItem writableCartItem);
 

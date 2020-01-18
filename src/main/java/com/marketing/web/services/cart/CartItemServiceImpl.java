@@ -27,8 +27,6 @@ public class CartItemServiceImpl implements CartItemService {
     @Autowired
     private CartItemRepository cartItemRepository;
 
-    private Logger logger = LoggerFactory.getLogger(CartItemServiceImpl.class);
-
     @Override
     public List<CartItem> findAll() {
         return cartItemRepository.findAll();
@@ -74,11 +72,8 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
-    public void deleteAll(Cart cart) {
-        for (CartItem cartItem : cart.getItems()) {
-            logger.info(Long.toString(cartItem.getId()));
-            cartItemRepository.delete(cartItemRepository.findById(cartItem.getId()).orElse(null));
-        }
+    public void deleteAll(List<CartItem> cartItems) {
+        cartItemRepository.deleteAll(cartItems);
     }
 
     @Override

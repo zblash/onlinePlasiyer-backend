@@ -138,7 +138,7 @@ public class OrderFacadeImpl implements OrderFacade {
             cart.setPaymentOption(null);
             cart.setCartStatus(CartStatus.NEW);
             cartService.update(cart.getId(), cart);
-            cartItemService.deleteAll(cart);
+            cartItemService.deleteAll(cartItemList);
 
             List<OrderItem> orderItems = orderItemsPopulator(cartItemList, orders);
             orderItemService.createAll(orderItems);
