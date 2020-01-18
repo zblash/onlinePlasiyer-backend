@@ -31,7 +31,8 @@ public final class CartMapper {
                 for (User seller : sellers) {
                     ReadableCartItemDetail cartItemDetail = new ReadableCartItemDetail();
                     cartItemDetail.setId(readableCart.getId() + seller.getId().toString());
-                    cartItemDetail.setSeller(seller.getName());
+                    cartItemDetail.setSellerId(seller.getId());
+                    cartItemDetail.setSellerName(seller.getName());
                     cartItemDetail.setDetails(cart.getItems().stream().filter(x -> x.getProduct().getUser().getName().equals(seller.getName())).map(CartMapper::cartItemToReadableCartItem).collect(Collectors.toList()));
                     cartItemDetail.setTotalPrice(cartItemDetail.getDetails().stream().mapToDouble(ReadableCartItem::getTotalPrice).sum());
                     cartItemDetail.setQuantity(cartItemDetail.getDetails().stream().mapToInt(ReadableCartItem::getQuantity).sum());

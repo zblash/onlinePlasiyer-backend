@@ -1,15 +1,14 @@
 package com.marketing.web.models;
 
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @NoArgsConstructor
@@ -50,6 +49,9 @@ public class Product implements Serializable  {
     @EqualsAndHashCode.Exclude
     private Set<Barcode> barcodes;
 
+    @ManyToMany
+    private List<User> users;
+
     public void addProductSpecify(ProductSpecify productSpecify){
         if (productSpecifies == null){
             productSpecifies = new HashSet<>();
@@ -61,7 +63,6 @@ public class Product implements Serializable  {
         if (productSpecifies != null){
             productSpecifies.remove(productSpecify);
         }
-
     }
 
     public void addBarcode(Barcode barcode){
@@ -75,7 +76,21 @@ public class Product implements Serializable  {
         if (barcodes != null){
             barcodes.remove(barcode);
         }
+    }
 
+    public void addUser(User user){
+        if (users == null){
+            users = new ArrayList<>();
+        }
+            if (!users.contains(user)){
+                users.add(user);
+            }
+    }
+
+    public void removeUser(User user) {
+        if (users != null){
+            users.remove(user);
+        }
     }
 
     @PrePersist

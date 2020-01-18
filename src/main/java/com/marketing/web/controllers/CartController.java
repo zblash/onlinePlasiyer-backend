@@ -84,7 +84,7 @@ public class CartController {
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<List<ReadableOrder>> checkout(){
+    public ResponseEntity<List<ReadableOrder>> checkout(@RequestParam(defaultValue = "0") Long sellerId){
         User user = userService.getLoggedInUser();
         Cart cart = user.getCart();
 
@@ -92,7 +92,7 @@ public class CartController {
                 && cart.getItems() != null
                 && Optional.ofNullable(cart.getPaymentOption()).isPresent()
                 && CartStatus.PRCD.equals(cart.getCartStatus())) {
-            return ResponseEntity.ok(orderFacade.checkoutCart(user,cart,cart.getItems()));
+            return ResponseEntity.ok(orderFacade.checkoutCart(user, cart, sellerId));
         }
         throw new BadRequestException("Can not perform cart");
     }

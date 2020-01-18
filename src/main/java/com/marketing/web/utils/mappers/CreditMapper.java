@@ -2,8 +2,10 @@ package com.marketing.web.utils.mappers;
 
 import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.credit.ReadableCredit;
+import com.marketing.web.dtos.credit.ReadableUsersCredit;
 import com.marketing.web.dtos.credit.WritableCredit;
 import com.marketing.web.models.SystemCredit;
+import com.marketing.web.models.UsersCredit;
 import org.springframework.data.domain.Page;
 
 import java.util.stream.Collectors;
@@ -56,6 +58,21 @@ public final class CreditMapper {
             wrapperReadableCredit.setValues(pagedCredit.getContent().stream()
                     .map(CreditMapper::creditToReadableCredit).collect(Collectors.toList()));
             return wrapperReadableCredit;
+        }
+    }
+
+    public static ReadableUsersCredit usersCreditToReadableUsersCredit(UsersCredit usersCredit){
+        if (usersCredit == null) {
+            return null;
+        } else {
+            ReadableUsersCredit readableUsersCredit = new ReadableUsersCredit();
+            readableUsersCredit.setCreditLimit(usersCredit.getCreditLimit());
+            readableUsersCredit.setTotalDebt(usersCredit.getTotalDebt());
+            readableUsersCredit.setCustomerId(usersCredit.getCustomer().getUuid().toString());
+            readableUsersCredit.setCustomerName(usersCredit.getCustomer().getName());
+            readableUsersCredit.setMerchantId(usersCredit.getMerchant().getUuid().toString());
+            readableUsersCredit.setMerchantName(usersCredit.getMerchant().getName());
+            return readableUsersCredit;
         }
     }
 }
