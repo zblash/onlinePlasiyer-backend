@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
@@ -15,6 +16,7 @@ public class WritableCheckout implements Serializable {
 
     private List<String> sellerIds;
 
+    @NotNull(message = "{validation.notNull}")
     private CheckoutOption checkoutOption;
 
 }
