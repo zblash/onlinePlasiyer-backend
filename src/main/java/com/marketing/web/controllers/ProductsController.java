@@ -55,7 +55,7 @@ public class ProductsController {
 
     @GetMapping
     public ResponseEntity<?> getAll(@RequestParam(required = false) String userId, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
-        if (userId.isEmpty()) {
+        if (userId == null) {
             return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAll(pageNumber, sortBy, sortType)));
         }
         return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByUser(userService.findByUUID(userId), pageNumber, sortBy, sortType)));
@@ -68,7 +68,7 @@ public class ProductsController {
         if (role.equals(RoleType.MERCHANT)){
             return ResponseEntity.ok(productService.findAllByUserWithoutPagination(user).stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
         }
-        if (!userId.isEmpty()) {
+        if (userId != null) {
             return ResponseEntity.ok(productService.findAllByUserWithoutPagination(userService.findByUUID(userId)).stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
         }
         return ResponseEntity.ok(productService.findAllWithoutPagination("id", "desc").stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
@@ -85,17 +85,17 @@ public class ProductsController {
     }
 
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<WrapperPagination<ReadableProduct>> getAllByCategory(@PathVariable String categoryId, @RequestParam(defaultValue = "") String userId, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
+    public ResponseEntity<WrapperPagination<ReadableProduct>> getAllByCategory(@PathVariable String categoryId, @RequestParam(required = false) String userId, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
         User user = userService.getLoggedInUser();
         RoleType role = UserMapper.roleToRoleType(user.getRole());
         Category category = categoryService.findByUUID(categoryId);
         if (role.equals(RoleType.ADMIN)) {
-            if (!userId.isEmpty()){
+            if (userId != null){
                 return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByCategoryAndUser(category, userService.findByUUID(userId), pageNumber, sortBy, sortType)));
             }
             return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByCategory(category, pageNumber, sortBy, sortType)));
         }
-        if (!userId.isEmpty()){
+        if (userId != null){
             return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByCategoryAndUserAndStatus(category, userService.findByUUID(userId), true, pageNumber, sortBy, sortType)));
         }
         return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByCategoryAndStatus(category, true, pageNumber, sortBy, sortType)));
