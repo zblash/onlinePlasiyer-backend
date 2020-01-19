@@ -55,8 +55,9 @@ public class ProductFacadeImpl implements ProductFacade {
         productSpecify.setUser(user);
         productSpecify.setStates(productSpecifyService.allowedStates(user,states));
         productSpecify.setCommission(user.getCommission());
-        productSpecify.setPromotion(generatePromotion(productSpecify, writableProductSpecify));
-
+        if (writableProductSpecify.isDiscount()) {
+            productSpecify.setPromotion(generatePromotion(productSpecify, writableProductSpecify));
+        }
         product.addUser(user);
         productService.update(product.getUuid().toString(), product);
         return ProductMapper.productSpecifyToReadableProductSpecify(productSpecifyService.create(productSpecify));
@@ -84,16 +85,16 @@ public class ProductFacadeImpl implements ProductFacade {
         updatedProductSpecify.setStates(productSpecifyService.allowedStates(productSpecify.getUser(),states));
         updatedProductSpecify.setProduct(product);
         updatedProductSpecify.setCommission(user.getCommission());
-        updatedProductSpecify.setPromotion(generatePromotion(productSpecify, writableProductSpecify));
-
+        if (writableProductSpecify.isDiscount()) {
+            updatedProductSpecify.setPromotion(generatePromotion(productSpecify, writableProductSpecify));
+        }
         product.addUser(user);
         productService.update(product.getUuid().toString(), product);
         return ProductMapper.productSpecifyToReadableProductSpecify(productSpecifyService.update(productSpecify.getUuid().toString(), updatedProductSpecify));
     }
 
     private Promotion generatePromotion(ProductSpecify productSpecify, WritableProductSpecify writableProductSpecify){
-        if (writableProductSpecify.isDiscount()
-                && writableProductSpecify.getPromotionType() != null
+        if (writableProductSpecify.getPromotionType() != null
                 && !writableProductSpecify.getPromotionText().isEmpty()
                 && writableProductSpecify.getDiscountValue() > 0)
         {
