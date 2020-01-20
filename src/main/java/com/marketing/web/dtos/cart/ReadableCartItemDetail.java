@@ -14,7 +14,7 @@ public class ReadableCartItemDetail implements Serializable {
 
     private String id;
 
-    private Long sellerId;
+    private String sellerId;
 
     private String sellerName;
 

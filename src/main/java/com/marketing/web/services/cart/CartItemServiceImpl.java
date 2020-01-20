@@ -106,12 +106,16 @@ public class CartItemServiceImpl implements CartItemService {
             throw new BadRequestException("Cart item quantity must smaller or equal product quantity");
         }
         CartItem cartItem = new CartItem();
+        double totalPrice = product.getTotalPrice() * cartItem.getQuantity();
         cartItem.setProduct(product);
         cartItem.setQuantity(writableCartItem.getQuantity());
-        cartItem.setTotalPrice(product.getTotalPrice() * cartItem.getQuantity());
+        cartItem.setTotalPrice(totalPrice);
         if (product.getPromotion() != null) {
             cartItem.setDiscountedTotalPrice(discountCalculator(cartItem, product));
             cartItem.setPromotion(product.getPromotion());
+        }
+        else {
+            cartItem.setDiscountedTotalPrice(totalPrice);
         }
 
         return cartItem;
