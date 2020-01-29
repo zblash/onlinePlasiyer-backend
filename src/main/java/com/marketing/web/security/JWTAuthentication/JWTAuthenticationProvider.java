@@ -1,9 +1,12 @@
 package com.marketing.web.security.JWTAuthentication;
 
+import com.marketing.web.configs.constants.ApplicationContstants;
 import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.models.User;
 import com.marketing.web.security.JWTAuthToken.JWTAuthToken;
-import com.marketing.web.security.JWTAuthToken.JWTValidator;
+import com.marketing.web.security.JWTAuthToken.JWTGenerator;
+import com.marketing.web.services.user.UserService;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,7 +23,7 @@ import java.util.List;
 public class JWTAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
     @Autowired
-    private JWTValidator validator;
+    private UserService userService;
 
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
@@ -33,7 +36,8 @@ public class JWTAuthenticationProvider extends AbstractUserDetailsAuthentication
         JWTAuthToken jwtAuthenticationToken = (JWTAuthToken) authentication;
         String token = jwtAuthenticationToken.getToken();
 
-        User user = validator.validate(token);
+        Claims body = (Claims) JWTGenerator.validate(token, ApplicationContstants.JWT_SECRET);
+        User user = userService.findById(Long.parseLong(body.get("userId").toString()));
         if (user == null) {
             throw new AuthenticationCredentialsNotFoundException("JWT Token is incorrect");
         }
