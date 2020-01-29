@@ -3,6 +3,7 @@ package com.marketing.web.controllers;
 import com.marketing.web.dtos.cart.PaymentMethod;
 import com.marketing.web.dtos.cart.ReadableCart;
 import com.marketing.web.dtos.cart.WritableCartItem;
+import com.marketing.web.dtos.cart.WritableCheckout;
 import com.marketing.web.dtos.order.ReadableOrder;
 import com.marketing.web.enums.CartStatus;
 import com.marketing.web.errors.BadRequestException;
@@ -79,12 +80,12 @@ public class CartController {
     public ResponseEntity<ReadableCart> clearCart(){
         User user = userService.getLoggedInUser();
 
-        cartItemService.deleteAll(user.getCart());
+        cartItemService.deleteAll(user.getCart().getItems());
         return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.findByUser(user)));
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<List<ReadableOrder>> checkout(@RequestParam(defaultValue = "0") Long sellerId){
+    public ResponseEntity<List<ReadableOrder>> checkout(@Valid @RequestBody WritableCheckout writableCheckout){
         User user = userService.getLoggedInUser();
         Cart cart = user.getCart();
 
@@ -92,7 +93,7 @@ public class CartController {
                 && cart.getItems() != null
                 && Optional.ofNullable(cart.getPaymentOption()).isPresent()
                 && CartStatus.PRCD.equals(cart.getCartStatus())) {
-            return ResponseEntity.ok(orderFacade.checkoutCart(user, cart, sellerId));
+            return ResponseEntity.ok(orderFacade.checkoutCart(user, cart, writableCheckout));
         }
         throw new BadRequestException("Can not perform cart");
     }

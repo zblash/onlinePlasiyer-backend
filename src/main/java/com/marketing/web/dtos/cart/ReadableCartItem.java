@@ -42,4 +42,8 @@ public class ReadableCartItem implements Serializable {
 
     private double totalPrice;
 
+    private boolean isDiscounted;
+
+    private String discountText;
+
 }

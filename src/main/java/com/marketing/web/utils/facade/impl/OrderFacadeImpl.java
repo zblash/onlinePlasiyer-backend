@@ -1,5 +1,6 @@
 package com.marketing.web.utils.facade.impl;
 
+import com.marketing.web.dtos.cart.WritableCheckout;
 import com.marketing.web.dtos.order.ReadableOrder;
 import com.marketing.web.dtos.order.WritableOrder;
 import com.marketing.web.enums.CartStatus;
@@ -114,14 +115,12 @@ public class OrderFacadeImpl implements OrderFacade {
     }
 
     @Override
-    public List<ReadableOrder> checkoutCart(User user, Cart cart, Long sellerId) {
+    public List<ReadableOrder> checkoutCart(User user, Cart cart, WritableCheckout writableCheckout) {
         {
-            List<CartItem> cartItemList;
-            if (sellerId > 0){
-                cartItemList = cart.getItems().stream().filter(cartItem -> cartItem.getProduct().getUser().getId().equals(sellerId)).collect(Collectors.toList());
-            }else {
-                cartItemList = cart.getItems();
-            }
+            List<CartItem> cartItemList = cart.getItems().stream()
+                        .filter(cartItem -> writableCheckout.getSellerIdList().contains(cartItem.getProduct().getUser().getUuid().toString()))
+                        .collect(Collectors.toList());
+
             List<Order> orders = ordersPopulator(cart, cartItemList, user);
 
             if (cart.getPaymentOption().equals(PaymentOption.CRD)){

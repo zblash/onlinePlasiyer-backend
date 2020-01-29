@@ -55,8 +55,9 @@ public class ProductFacadeImpl implements ProductFacade {
         productSpecify.setUser(user);
         productSpecify.setStates(productSpecifyService.allowedStates(user,states));
         productSpecify.setCommission(user.getCommission());
-        productSpecify.setPromotion(generatePromotion(productSpecify, writableProductSpecify));
-
+        if (writableProductSpecify.isDiscount()) {
+            productSpecify.setPromotion(generatePromotion(productSpecify, writableProductSpecify));
+        }
         product.addUser(user);
         productService.update(product.getUuid().toString(), product);
         return ProductMapper.productSpecifyToReadableProductSpecify(productSpecifyService.create(productSpecify));
@@ -84,16 +85,16 @@ public class ProductFacadeImpl implements ProductFacade {
         updatedProductSpecify.setStates(productSpecifyService.allowedStates(productSpecify.getUser(),states));
         updatedProductSpecify.setProduct(product);
         updatedProductSpecify.setCommission(user.getCommission());
-        updatedProductSpecify.setPromotion(generatePromotion(productSpecify, writableProductSpecify));
-
+        if (writableProductSpecify.isDiscount()) {
+            updatedProductSpecify.setPromotion(generatePromotion(productSpecify, writableProductSpecify));
+        }
         product.addUser(user);
         productService.update(product.getUuid().toString(), product);
         return ProductMapper.productSpecifyToReadableProductSpecify(productSpecifyService.update(productSpecify.getUuid().toString(), updatedProductSpecify));
     }
 
     private Promotion generatePromotion(ProductSpecify productSpecify, WritableProductSpecify writableProductSpecify){
-        if (writableProductSpecify.isDiscount()
-                && writableProductSpecify.getPromotionType() != null
+        if (writableProductSpecify.getPromotionType() != null
                 && !writableProductSpecify.getPromotionText().isEmpty()
                 && writableProductSpecify.getDiscountValue() > 0)
         {
@@ -108,9 +109,9 @@ public class ProductFacadeImpl implements ProductFacade {
         }
     }
     private double calculateDiscountPercent(PromotionType promotionType, double price, double discount, int unit) {
-        if (promotionType.equals(PromotionType.PRCNT)){
+        if (promotionType.equals(PromotionType.PRCNT) && discount < 100 && discount > 0){
             return discount;
-        }else if (discount < price) {
+        }else if (promotionType.equals(PromotionType.PROMO) && discount/unit < price) {
             return 100 - (((discount / unit) * 100) / price);
         }
         throw new BadRequestException("Discount can't calculated");

@@ -31,10 +31,11 @@ public final class CartMapper {
                 for (User seller : sellers) {
                     ReadableCartItemDetail cartItemDetail = new ReadableCartItemDetail();
                     cartItemDetail.setId(readableCart.getId() + seller.getId().toString());
-                    cartItemDetail.setSellerId(seller.getId());
+                    cartItemDetail.setSellerId(seller.getUuid().toString());
                     cartItemDetail.setSellerName(seller.getName());
                     cartItemDetail.setDetails(cart.getItems().stream().filter(x -> x.getProduct().getUser().getName().equals(seller.getName())).map(CartMapper::cartItemToReadableCartItem).collect(Collectors.toList()));
                     cartItemDetail.setTotalPrice(cartItemDetail.getDetails().stream().mapToDouble(ReadableCartItem::getTotalPrice).sum());
+                    cartItemDetail.setDiscountedTotalPrice(cartItemDetail.getDetails().stream().mapToDouble(ReadableCartItem::getDiscountedTotalPrice).sum());
                     cartItemDetail.setQuantity(cartItemDetail.getDetails().stream().mapToInt(ReadableCartItem::getQuantity).sum());
                     cartItemDetails.add(cartItemDetail);
                 }
@@ -66,6 +67,11 @@ public final class CartMapper {
             readableCartItem.setQuantity(cartItem.getQuantity());
             readableCartItem.setTotalPrice(cartItem.getTotalPrice());
             readableCartItem.setDiscountedTotalPrice(cartItem.getDiscountedTotalPrice());
+            boolean isDiscounted = cartItem.getPromotion() != null;
+            readableCartItem.setDiscounted(isDiscounted);
+            if (isDiscounted) {
+                readableCartItem.setDiscountText(cartItem.getPromotion().getPromotionText());
+            }
             return readableCartItem;
         }
     }

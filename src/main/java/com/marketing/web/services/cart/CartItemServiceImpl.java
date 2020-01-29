@@ -27,6 +27,8 @@ public class CartItemServiceImpl implements CartItemService {
     @Autowired
     private CartItemRepository cartItemRepository;
 
+    Logger logger = LoggerFactory.getLogger(CartItemServiceImpl.class);
+
     @Override
     public List<CartItem> findAll() {
         return cartItemRepository.findAll();
@@ -84,6 +86,7 @@ public class CartItemServiceImpl implements CartItemService {
             Optional<CartItem> optionalCartItem = cart.getItems().stream()
                     .filter(c -> c.getProduct().getId().equals(cartItem.getProduct().getId()))
                     .findFirst();
+            logger.info(Boolean.toString(optionalCartItem.isPresent()));
             if (optionalCartItem.isPresent()) {
                 CartItem foundItem = optionalCartItem.get();
                 cartItem.setQuantity(cartItem.getQuantity() + foundItem.getQuantity());
@@ -106,12 +109,16 @@ public class CartItemServiceImpl implements CartItemService {
             throw new BadRequestException("Cart item quantity must smaller or equal product quantity");
         }
         CartItem cartItem = new CartItem();
+        double totalPrice = product.getTotalPrice() * writableCartItem.getQuantity();
         cartItem.setProduct(product);
         cartItem.setQuantity(writableCartItem.getQuantity());
-        cartItem.setTotalPrice(product.getTotalPrice() * cartItem.getQuantity());
+        cartItem.setTotalPrice(totalPrice);
         if (product.getPromotion() != null) {
             cartItem.setDiscountedTotalPrice(discountCalculator(cartItem, product));
             cartItem.setPromotion(product.getPromotion());
+        }
+        else {
+            cartItem.setDiscountedTotalPrice(totalPrice);
         }
 
         return cartItem;
