@@ -2,16 +2,14 @@ package com.marketing.web.services.user;
 
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Cart;
-import com.marketing.web.models.Credit;
+import com.marketing.web.models.SystemCredit;
 import com.marketing.web.models.Role;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.models.User;
-import com.marketing.web.repositories.CityRepository;
-import com.marketing.web.repositories.StateRepository;
 import com.marketing.web.repositories.UserRepository;
 import com.marketing.web.security.CustomPrincipal;
 import com.marketing.web.services.cart.CartServiceImpl;
-import com.marketing.web.services.credit.CreditService;
+import com.marketing.web.services.credit.SystemCreditService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,7 +35,7 @@ public class UserServiceImpl implements UserService {
     private CartServiceImpl cartService;
 
     @Autowired
-    private CreditService creditService;
+    private SystemCreditService systemCreditService;
 
     @Override
     public User findByUserName(String userName) {
@@ -95,11 +93,11 @@ public class UserServiceImpl implements UserService {
         if (roleType.equals(RoleType.CUSTOMER)) {
             Cart cart = cartService.create(createdUser);
             user.setCart(cart);
-            Credit credit = new Credit();
-            credit.setUser(createdUser);
-            credit.setTotalDebt(0);
-            credit.setCreditLimit(0);
-            creditService.create(credit);
+            SystemCredit systemCredit = new SystemCredit();
+            systemCredit.setUser(createdUser);
+            systemCredit.setTotalDebt(0);
+            systemCredit.setCreditLimit(0);
+            systemCreditService.create(systemCredit);
         }
         return createdUser;
     }

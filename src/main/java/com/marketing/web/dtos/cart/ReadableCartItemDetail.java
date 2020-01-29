@@ -14,11 +14,15 @@ public class ReadableCartItemDetail implements Serializable {
 
     private String id;
 
-    private String seller;
+    private String sellerId;
+
+    private String sellerName;
 
     private int quantity;
 
     private double totalPrice;
+
+    private double discountedTotalPrice;
 
     private List<ReadableCartItem> details;
 }

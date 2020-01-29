@@ -53,6 +53,7 @@ public final class UserMapper {
             merchantUser.setTaxNumber(user.getTaxNumber());
             merchantUser.setUsername(user.getUsername());
             merchantUser.setActiveStates(user.getActiveStates().stream().map(State::getTitle).collect(Collectors.toList()));
+            merchantUser.setCommission(user.getCommission());
             return merchantUser;
         }
     }

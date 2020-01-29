@@ -40,6 +40,8 @@ public class ProductSpecify implements Serializable {
     @Enumerated(EnumType.STRING)
     private UnitType unitType;
 
+    private double commission;
+
     @NotNull
     private double recommendedRetailPrice;
 
@@ -53,6 +55,10 @@ public class ProductSpecify implements Serializable {
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<State> states;
+
+    @OneToOne
+    @JoinColumn(name = "promotion_id", referencedColumnName = "id")
+    private Promotion promotion;
 
     @PrePersist
     public void autofill() {

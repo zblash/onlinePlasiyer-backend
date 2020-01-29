@@ -39,6 +39,11 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     }
 
     @Override
+    public List<ProductSpecify> findAllWithoutPagination() {
+       return productSpecifyRepository.findAll();
+    }
+
+    @Override
     public Page<ProductSpecify> findAllByUser(User user, int pageNumber, String sortBy, String sortType) {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByUser(user, pageRequest);
@@ -49,9 +54,8 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     }
 
     @Override
-    public List<Product> findAllProductsByUser(User user){
-        List<ProductSpecify> productSpecifies = productSpecifyRepository.findAllByUser(user);
-        return productSpecifies.stream().map(ProductSpecify::getProduct).distinct().collect(Collectors.toList());
+    public List<ProductSpecify> findAllByUserWithoutPagination(User user) {
+       return productSpecifyRepository.findAllByUser(user);
     }
 
     @Override
@@ -62,6 +66,11 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
             throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
         }
         return resultPage;
+    }
+
+    @Override
+    public List<ProductSpecify> findAllByProductWithoutPagination(Product product){
+        return productSpecifyRepository.findAllByProduct(product);
     }
 
     @Override
@@ -122,7 +131,13 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
         productSpecify.setUnitPrice(updatedProductSpecify.getUnitPrice());
         productSpecify.setProduct(updatedProductSpecify.getProduct());
         productSpecify.setStates(updatedProductSpecify.getStates());
+        productSpecify.setPromotion(updatedProductSpecify.getPromotion());
         return productSpecifyRepository.save(productSpecify);
+    }
+
+    @Override
+    public List<ProductSpecify> updateAll(List<ProductSpecify> productSpecifyList) {
+        return productSpecifyRepository.saveAll(productSpecifyList);
     }
 
     @Override

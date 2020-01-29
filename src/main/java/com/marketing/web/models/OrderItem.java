@@ -38,6 +38,8 @@ public class OrderItem implements Serializable {
     @Enumerated(EnumType.STRING)
     private UnitType unitType;
 
+    private double commission;
+
     @NotNull
     private double recommendedRetailPrice;
 
@@ -54,6 +56,8 @@ public class OrderItem implements Serializable {
 
     @NotNull
     private double totalPrice;
+
+    private double discountedTotalPrice;
 
     @PrePersist
     public void autofill() {

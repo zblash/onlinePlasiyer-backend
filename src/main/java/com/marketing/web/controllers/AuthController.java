@@ -1,5 +1,6 @@
 package com.marketing.web.controllers;
 
+import com.marketing.web.configs.constants.ApplicationContstants;
 import com.marketing.web.dtos.user.*;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.HttpMessage;
@@ -25,7 +26,9 @@ import org.springframework.web.context.request.WebRequest;
 
 import javax.validation.Valid;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -46,12 +49,17 @@ public class AuthController {
 
     @Autowired
     private CityService cityService;
+
     @PostMapping("/signin")
     public ResponseEntity<?> login(@RequestBody WritableLogin writableLogin, WebRequest request){
         User userDetails = userService.findByUserName(writableLogin.getUsername());
 
         if (userDetails.isStatus() && passwordEncoder.matches(writableLogin.getPassword(),userDetails.getPassword())){
-            String jwt= JWTGenerator.generate(userDetails);
+            Map<String, Object> body = new HashMap<>();
+            body.put("role", userDetails.getRole().getName());
+            body.put("userId", userDetails.getId());
+            String jwt = JWTGenerator.generate(ApplicationContstants.JWT_SECRET, null, 86_400_000, body);
+
             ReadableLogin.LoginDTOBuilder loginDTOBuilder = new ReadableLogin.LoginDTOBuilder(jwt);
             loginDTOBuilder.email(userDetails.getEmail());
             loginDTOBuilder.name(userDetails.getName());
