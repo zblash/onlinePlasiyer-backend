@@ -4,7 +4,6 @@ import com.marketing.web.dtos.cart.WritableCheckout;
 import com.marketing.web.dtos.order.ReadableOrder;
 import com.marketing.web.dtos.order.WritableOrder;
 import com.marketing.web.enums.CartStatus;
-import com.marketing.web.enums.CheckoutOption;
 import com.marketing.web.enums.OrderStatus;
 import com.marketing.web.enums.PaymentOption;
 import com.marketing.web.errors.BadRequestException;
@@ -118,14 +117,10 @@ public class OrderFacadeImpl implements OrderFacade {
     @Override
     public List<ReadableOrder> checkoutCart(User user, Cart cart, WritableCheckout writableCheckout) {
         {
-            List<CartItem> cartItemList;
-            if (writableCheckout.getCheckoutOption().equals(CheckoutOption.LIST) && (!writableCheckout.getSellerIds().isEmpty() || writableCheckout.getSellerIds() != null)){
-                cartItemList = cart.getItems().stream()
-                        .filter(cartItem -> writableCheckout.getSellerIds().contains(cartItem.getProduct().getUser().getUuid().toString()))
+            List<CartItem> cartItemList = cart.getItems().stream()
+                        .filter(cartItem -> writableCheckout.getSellerIdList().contains(cartItem.getProduct().getUser().getUuid().toString()))
                         .collect(Collectors.toList());
-            }else {
-                cartItemList = cart.getItems();
-            }
+
             List<Order> orders = ordersPopulator(cart, cartItemList, user);
 
             if (cart.getPaymentOption().equals(PaymentOption.CRD)){

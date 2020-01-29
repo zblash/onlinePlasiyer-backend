@@ -22,5 +22,7 @@ public class ReadableCartItemDetail implements Serializable {
 
     private double totalPrice;
 
+    private double discountedTotalPrice;
+
     private List<ReadableCartItem> details;
 }

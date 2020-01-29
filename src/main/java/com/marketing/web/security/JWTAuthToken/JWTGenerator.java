@@ -12,6 +12,7 @@ import java.util.Date;
 
 @Component
 public class JWTGenerator {
+
     public static String generate(User jwtUser) {
 
         Claims claims = Jwts.claims()

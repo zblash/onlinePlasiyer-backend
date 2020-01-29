@@ -1,6 +1,5 @@
 package com.marketing.web.dtos.cart;
 
-import com.marketing.web.enums.CheckoutOption;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,9 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class WritableCheckout implements Serializable {
 
-    private List<String> sellerIds;
-
     @NotNull(message = "{validation.notNull}")
-    private CheckoutOption checkoutOption;
+    private List<String> sellerIdList;
 
 }

@@ -85,7 +85,7 @@ public class CartController {
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<List<ReadableOrder>> checkout(@RequestBody WritableCheckout writableCheckout){
+    public ResponseEntity<List<ReadableOrder>> checkout(@Valid @RequestBody WritableCheckout writableCheckout){
         User user = userService.getLoggedInUser();
         Cart cart = user.getCart();
 
