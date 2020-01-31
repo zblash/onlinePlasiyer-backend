@@ -110,6 +110,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Product findByUUIDAndUser(String uuid, User user) {
+        return productRepository.findByUuidAndUsers_Id(UUID.fromString(uuid), user.getId()).orElseThrow(() -> new ResourceNotFoundException("Product not found with id: "+uuid));
+    }
+
+    @Override
     public Product create(Product product) {
         return productRepository.save(product);
     }

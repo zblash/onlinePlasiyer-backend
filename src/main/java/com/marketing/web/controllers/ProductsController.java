@@ -65,7 +65,7 @@ public class ProductsController {
     public ResponseEntity<?> getAllByUser(@RequestParam(required = false) String userId) {
         User user = userService.getLoggedInUser();
         RoleType role = UserMapper.roleToRoleType(user.getRole());
-        if (role.equals(RoleType.MERCHANT)){
+        if (role.equals(RoleType.MERCHANT)) {
             return ResponseEntity.ok(productService.findAllByUserWithoutPagination(user).stream().map(ProductMapper::productToReadableProduct).collect(Collectors.toList()));
         }
         if (userId != null) {
@@ -90,12 +90,12 @@ public class ProductsController {
         RoleType role = UserMapper.roleToRoleType(user.getRole());
         Category category = categoryService.findByUUID(categoryId);
         if (role.equals(RoleType.ADMIN)) {
-            if (userId != null){
+            if (userId != null) {
                 return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByCategoryAndUser(category, userService.findByUUID(userId), pageNumber, sortBy, sortType)));
             }
             return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByCategory(category, pageNumber, sortBy, sortType)));
         }
-        if (userId != null){
+        if (userId != null) {
             return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByCategoryAndUserAndStatus(category, userService.findByUUID(userId), true, pageNumber, sortBy, sortType)));
         }
         return ResponseEntity.ok(ProductMapper.pagedProductListToWrapperReadableProduct(productService.findAllByCategoryAndStatus(category, true, pageNumber, sortBy, sortType)));
@@ -104,14 +104,6 @@ public class ProductsController {
     @GetMapping("/barcode/{barcode}")
     public ResponseEntity<ReadableProduct> getByBarcode(@PathVariable String barcode) {
         Barcode productBarcode = barcodeService.findByBarcodeNo(barcode);
-        return ResponseEntity.ok(ProductMapper.productToReadableProduct(productBarcode.getProduct()));
-    }
-
-    //TODO degistirilecek
-    @PostMapping("/checkProduct/{barcode}")
-    public ResponseEntity<?> checkProductByBarcode(@PathVariable String barcode) {
-        Barcode productBarcode = barcodeService.findByBarcodeNo(barcode);
-        Product product = productBarcode.getProduct();
         return ResponseEntity.ok(ProductMapper.productToReadableProduct(productBarcode.getProduct()));
     }
 
@@ -130,26 +122,35 @@ public class ProductsController {
     }
 
     @GetMapping("/{id}/specifies")
-    public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAllByProduct(@PathVariable String id, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "totalPrice") String sortBy, @RequestParam(defaultValue = "asc") String sortType) {
+    public ResponseEntity<WrapperPagination<ReadableProductSpecify>> getAllByProduct(@PathVariable String id, @RequestParam(required = false) String userId, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "totalPrice") String sortBy, @RequestParam(defaultValue = "asc") String sortType) {
 
         User user = userService.getLoggedInUser();
         RoleType role = UserMapper.roleToRoleType(user.getRole());
-        switch (role) {
-            case CUSTOMER:
+        if (RoleType.CUSTOMER.equals(role)) {
+            if (userId != null) {
+                User merchant = userService.findByUUID(userId);
+                return ResponseEntity.ok(ProductMapper.pagedProductSpecifyListToWrapperReadableProductSpecify(
+                        productSpecifyService.findAllByProductAndUser(
+                                productService.findByUUIDAndUser(id, merchant
+                                )
+                                , merchant, pageNumber, sortBy, sortType)
+                ));
+            } else {
                 return ResponseEntity.ok(
                         ProductMapper
                                 .pagedProductSpecifyListToWrapperReadableProductSpecify(
                                         productSpecifyService.findAllByProductAndStates(productService.findByUUID(id), Collections.singletonList(user.getAddress().getState()), pageNumber, sortBy, sortType)));
-            case MERCHANT:
-                return ResponseEntity.ok(
-                        ProductMapper
-                                .pagedProductSpecifyListToWrapperReadableProductSpecify(
-                                        productSpecifyService.findAllByProductAndUser(productService.findByUUID(id), user, pageNumber, sortBy, sortType)));
-            default:
-                return ResponseEntity.ok(
-                        ProductMapper
-                                .pagedProductSpecifyListToWrapperReadableProductSpecify(
-                                        productSpecifyService.findAllByProduct(productService.findByUUID(id), pageNumber, sortBy, sortType)));
+            }
+        } else if (RoleType.MERCHANT.equals(role)) {
+            return ResponseEntity.ok(
+                    ProductMapper
+                            .pagedProductSpecifyListToWrapperReadableProductSpecify(
+                                    productSpecifyService.findAllByProductAndUser(productService.findByUUID(id), user, pageNumber, sortBy, sortType)));
+        } else {
+            return ResponseEntity.ok(
+                    ProductMapper
+                            .pagedProductSpecifyListToWrapperReadableProductSpecify(
+                                    productSpecifyService.findAllByProduct(productService.findByUUID(id), pageNumber, sortBy, sortType)));
         }
 
     }
@@ -253,7 +254,7 @@ public class ProductsController {
                 productSpecifyList = productSpecifyService.findAllByProductWithoutPagination(productService.findByUUID(writableCommission.getId()));
             } else if (writableCommission.getCommissionType().equals(CommissionType.USER)) {
                 User user = userService.findByUUID(writableCommission.getId());
-                if (!UserMapper.roleToRoleType(user.getRole()).equals(RoleType.MERCHANT)){
+                if (!UserMapper.roleToRoleType(user.getRole()).equals(RoleType.MERCHANT)) {
                     throw new BadRequestException("Commission not available for this user");
                 }
                 user.setCommission(writableCommission.getCommission());

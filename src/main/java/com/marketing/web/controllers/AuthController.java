@@ -2,6 +2,7 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.configs.constants.ApplicationContstants;
 import com.marketing.web.dtos.user.*;
+import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.HttpMessage;
 import com.marketing.web.models.Address;
@@ -156,5 +157,13 @@ public class AuthController {
             return ResponseEntity.ok(UserMapper.userToReadableUserInfo(userService.update(user.getId(),user)));
         }
         throw new BadRequestException("Email already registered");
+    }
+
+    @GetMapping("/api/merchants")
+    public ResponseEntity<List<MerchantUser>> getAllMerchants(){
+        List<User> users = userService.findAllByRoleAndStatus(RoleType.MERCHANT, true);
+        return ResponseEntity.ok(users.stream()
+                .map(UserMapper::userToMerchant)
+                .collect(Collectors.toList()));
     }
 }
