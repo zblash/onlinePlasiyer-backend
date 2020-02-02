@@ -32,6 +32,8 @@ public interface ProductService {
 
     Product findByUUID(String uuid);
 
+    Product findByUUIDAndUser(String uuid, User user);
+
     Product create(Product product);
 
     Product update(String uuid,Product updatedProduct);

@@ -30,7 +30,6 @@ public class Product implements Serializable  {
     @NotNull
     private double tax;
 
-    @NotBlank
     private String photoUrl;
 
     @ManyToOne(fetch = FetchType.EAGER)
