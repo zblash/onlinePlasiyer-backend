@@ -86,19 +86,10 @@ public class CartItemServiceImpl implements CartItemService {
             Optional<CartItem> optionalCartItem = cart.getItems().stream()
                     .filter(c -> c.getProduct().getId().equals(cartItem.getProduct().getId()))
                     .findFirst();
-            logger.info(Boolean.toString(optionalCartItem.isPresent()));
             if (optionalCartItem.isPresent()) {
-                CartItem foundItem = optionalCartItem.get();
-                cartItem.setQuantity(cartItem.getQuantity() + foundItem.getQuantity());
-                cartItem.setTotalPrice(cartItem.getTotalPrice() + foundItem.getTotalPrice());
-                if (foundItem.getProduct().getPromotion() != null){
-                    cartItem.setPromotion(cartItem.getProduct().getPromotion());
-                    cartItem.setDiscountedTotalPrice(discountCalculator(cartItem, foundItem.getProduct()));
-                }
-                return update(foundItem.getUuid().toString(), cartItem);
+                return update(optionalCartItem.get().getUuid().toString(), cartItem);
             }
         }
-
         cartItem.setCart(cart);
         return create(cartItem);
     }

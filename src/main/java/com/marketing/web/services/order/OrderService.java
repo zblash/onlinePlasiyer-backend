@@ -7,6 +7,7 @@ import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 import org.springframework.data.domain.Page;
 
+import java.util.Date;
 import java.util.List;
 
 public interface OrderService {
@@ -15,9 +16,9 @@ public interface OrderService {
 
     OrderSummary groupBy(User user);
 
-    Page<Order> findAllByFilter(SearchOrder searchOrder, int pageNumber);
+    Page<Order> findAllByFilter(Date startDate, Date endDate, int pageNumber);
 
-    Page<Order> findAllByFilterAndUser(SearchOrder searchOrder, User user, int pageNumber);
+    Page<Order> findAllByFilterAndUser(Date startDate, Date endDate, User user, int pageNumber);
 
     Page<Order> findAllByUser(User user, int pageNumber, String sortBy, String sortType);
 
