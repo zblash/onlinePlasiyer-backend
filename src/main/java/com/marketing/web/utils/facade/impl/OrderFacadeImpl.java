@@ -8,13 +8,16 @@ import com.marketing.web.enums.OrderStatus;
 import com.marketing.web.enums.PaymentOption;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.*;
+import com.marketing.web.services.cart.CartItemHolderService;
 import com.marketing.web.services.cart.CartItemService;
 import com.marketing.web.services.cart.CartService;
 import com.marketing.web.services.credit.SystemCreditService;
+import com.marketing.web.services.credit.UsersCreditService;
 import com.marketing.web.services.invoice.InvoiceService;
 import com.marketing.web.services.invoice.ObligationService;
 import com.marketing.web.services.order.OrderItemService;
 import com.marketing.web.services.order.OrderService;
+import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.facade.OrderFacade;
 import com.marketing.web.utils.mappers.OrderMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +37,10 @@ public class OrderFacadeImpl implements OrderFacade {
     private OrderService orderService;
 
     @Autowired
-    private CartItemService cartItemService;
+    private UserService userService;
+
+    @Autowired
+    private CartItemHolderService cartItemHolderService;
 
     @Autowired
     private CartService cartService;
@@ -51,6 +57,9 @@ public class OrderFacadeImpl implements OrderFacade {
     @Autowired
     private SystemCreditService systemCreditService;
 
+    @Autowired
+    private UsersCreditService usersCreditService;
+
     @Override
     public ReadableOrder saveOrder(WritableOrder writableOrder, Order order) {
         if (OrderStatus.FNS.equals(order.getStatus())) {
@@ -59,7 +68,7 @@ public class OrderFacadeImpl implements OrderFacade {
         order.setStatus(writableOrder.getStatus());
         order.setWaybillDate(writableOrder.getWaybillDate());
 
-        if (writableOrder.getStatus().equals(OrderStatus.FNS)){
+        if (writableOrder.getStatus().equals(OrderStatus.FNS)) {
             double commission = order.getOrderItems().stream().mapToDouble(OrderItem::getCommission).sum();
 
             order.setCommission(commission);
@@ -78,11 +87,11 @@ public class OrderFacadeImpl implements OrderFacade {
                 invoice.setDiscount(discount);
                 invoice.setPaidPrice(paidPrice);
 
-                invoice.setUnPaidPrice((order.getDiscountedTotalPrice()-discount)-paidPrice);
+                invoice.setUnPaidPrice((order.getDiscountedTotalPrice() - discount) - paidPrice);
 
                 obligation.setDebt(commission);
                 obligation.setReceivable(0);
-            }else {
+            } else {
                 invoice.setDiscount(0);
                 invoice.setPaidPrice(order.getDiscountedTotalPrice());
                 invoice.setUnPaidPrice(0);
@@ -101,7 +110,7 @@ public class OrderFacadeImpl implements OrderFacade {
             obligation.setUser(order.getSeller());
             obligationService.create(obligation);
 
-            if (invoice.getUnPaidPrice() > 0){
+            if (invoice.getUnPaidPrice() > 0) {
                 Obligation buyerObligation = new Obligation();
                 buyerObligation.setDebt(invoice.getUnPaidPrice());
                 buyerObligation.setReceivable(0);
@@ -109,7 +118,7 @@ public class OrderFacadeImpl implements OrderFacade {
                 obligationService.create(buyerObligation);
             }
         }
-        return OrderMapper.orderToReadableOrder(orderService.update(order.getUuid().toString(),order));
+        return OrderMapper.orderToReadableOrder(orderService.update(order.getUuid().toString(), order));
 
 
     }
@@ -117,74 +126,84 @@ public class OrderFacadeImpl implements OrderFacade {
     @Override
     public List<ReadableOrder> checkoutCart(User user, Cart cart, WritableCheckout writableCheckout) {
         {
-            List<CartItem> cartItemList = cart.getItems().stream()
-                        .filter(cartItem -> writableCheckout.getSellerIdList().contains(cartItem.getProduct().getUser().getUuid().toString()))
-                        .collect(Collectors.toList());
 
-            List<Order> orders = ordersPopulator(cart, cartItemList, user);
+            List<CartItemHolder> cartItemHolderList = cart.getItems().stream()
+                    .filter(cartItemHolder -> writableCheckout.getSellerIdList().contains(cartItemHolder.getUuid().toString()))
+                    .collect(Collectors.toList());
+            List<CartItem> cartItemList = cartItemHolderList.stream().flatMap(c -> c.getCartItems().stream())
+                    .collect(Collectors.toList());
+            List<Order> orders = ordersPopulator(cartItemHolderList, user);
 
-            if (cart.getPaymentOption().equals(PaymentOption.CRD)){
-                double ordersTotalPrice = orders.stream().mapToDouble(Order::getDiscountedTotalPrice).sum();
-                SystemCredit systemCredit = systemCreditService.findByUser(user.getId());
-                systemCredit.setTotalDebt(systemCredit.getTotalDebt() + ordersTotalPrice);
-                if (systemCredit.getTotalDebt() > systemCredit.getCreditLimit()) {
-                    throw new BadRequestException("Not enough systemCredit limit");
-                }
-                systemCreditService.update(systemCredit.getUuid().toString(), systemCredit);
-            }
 
-            orderService.createAll(orders);
-            cart.setPaymentOption(null);
+                cartItemHolderList.forEach(cartItemHolder -> {
+                    PaymentOption paymentOption = cartItemHolder.getPaymentOption();
+                    double ordersTotalPrice = cartItemHolder.getCartItems().stream().mapToDouble(CartItem::getDiscountedTotalPrice).sum();
+                    switch (paymentOption) {
+                        case SCRD:
+                            SystemCredit systemCredit = systemCreditService.findByUser(user.getId());
+                            systemCredit.setTotalDebt(systemCredit.getTotalDebt() + ordersTotalPrice);
+                            if (systemCredit.getTotalDebt() > systemCredit.getCreditLimit()) {
+                                throw new BadRequestException("Not enough systemCredit limit");
+                            }
+                            systemCreditService.update(systemCredit.getUuid().toString(), systemCredit);
+                            break;
+                        case MCRD:
+                            UsersCredit usersCredit = usersCreditService.findByCustomerAndMerchant(user, userService.findByUUID(cartItemHolder.getSellerId()));
+                            usersCredit.setTotalDebt(ordersTotalPrice);
+                            if (usersCredit.getTotalDebt() > usersCredit.getCreditLimit()) {
+                                throw new BadRequestException("Not enough credit limit");
+                            }
+                            usersCreditService.update(usersCredit.getUuid().toString(),usersCredit);
+                    }
+
+                });
+
+
             cart.setCartStatus(CartStatus.NEW);
             cartService.update(cart.getId(), cart);
-            cartItemService.deleteAll(cartItemList);
+            cartItemHolderService.deleteAll(cartItemHolderList);
 
-            List<OrderItem> orderItems = orderItemsPopulator(cartItemList, orders);
-            orderItemService.createAll(orderItems);
             return orders.stream().map(OrderMapper::orderToReadableOrder).collect(Collectors.toList());
         }
     }
 
-    private List<Order> ordersPopulator(Cart cart, List<CartItem> cartItems, User user) {
+    private List<Order> ordersPopulator(List<CartItemHolder> cartItemHolders, User user) {
         List<Order> orders = new ArrayList<>();
-        List<User> sellers = cartItems.stream().map(cartItem -> cartItem.getProduct().getUser())
-                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(User::getId))), ArrayList::new));
-        for (User seller : sellers){
-            double orderTotalPrice = cartItems.stream().filter(cartItem -> cartItem.getProduct().getUser().getId().equals(seller.getId()))
-                    .mapToDouble(CartItem::getTotalPrice).sum();
-            double discountedTotalPrice = cartItems.stream().filter(cartItem -> cartItem.getProduct().getUser().getId().equals(seller.getId()))
-                    .mapToDouble(CartItem::getDiscountedTotalPrice).sum();
-            if (discountedTotalPrice == 0){
+        for (CartItemHolder cartItemHolder : cartItemHolders) {
+            double orderTotalPrice = cartItemHolder.getCartItems().stream().mapToDouble(CartItem::getTotalPrice).sum();
+            double discountedTotalPrice = cartItemHolder.getCartItems().stream().mapToDouble(CartItem::getDiscountedTotalPrice).sum();
+            if (discountedTotalPrice == 0) {
                 discountedTotalPrice = orderTotalPrice;
             }
             Order order = new Order();
             order.setBuyer(user);
-            order.setSeller(seller);
+            order.setSeller(userService.findByUUID(cartItemHolder.getSellerId()));
             order.setOrderDate(new Date());
             order.setTotalPrice(orderTotalPrice);
             order.setDiscountedTotalPrice(discountedTotalPrice);
-            order.setPaymentType(cart.getPaymentOption());
-            if(cart.getPaymentOption().equals(PaymentOption.CRD)){
+            order.setPaymentType(cartItemHolder.getPaymentOption());
+            if (cartItemHolder.getPaymentOption().equals(PaymentOption.SCRD) || cartItemHolder.getPaymentOption().equals(PaymentOption.MCRD)) {
                 order.setStatus(OrderStatus.PAD);
-            }else {
+            } else {
                 order.setStatus(OrderStatus.NEW);
             }
+
+            orderItemsPopulator(cartItemHolder.getCartItems(), order);
             orders.add(order);
         }
-        return orders;
+        return orderService.createAll(orders);
     }
 
-    private List<OrderItem> orderItemsPopulator(List<CartItem> cartItems, List<Order> orders) {
+    private List<OrderItem> orderItemsPopulator(List<CartItem> cartItems, Order order) {
         List<OrderItem> orderItems = new ArrayList<>();
-        for (CartItem cartItem : cartItems){
+        for (CartItem cartItem : cartItems) {
             OrderItem orderItem = OrderMapper.cartItemToOrderItem(cartItem);
-            Optional<Order> optionalOrder = orders.stream().filter(order -> order.getSeller().getId().equals(orderItem.getSeller().getId())).findFirst();
-            optionalOrder.ifPresent(order -> {
-                orderItem.setOrder(order);
-                order.addOrderItem(orderItem);
-            });
+
+            orderItem.setOrder(order);
+            order.addOrderItem(orderItem);
             orderItems.add(orderItem);
         }
-        return orderItems;
+
+        return orderItemService.createAll(orderItems);
     }
 }

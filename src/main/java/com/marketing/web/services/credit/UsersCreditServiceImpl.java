@@ -38,6 +38,11 @@ public class UsersCreditServiceImpl implements UsersCreditService {
     }
 
     @Override
+    public UsersCredit findByCustomerAndMerchant(User customer, User merchant) {
+        return usersCreditRepository.findByCustomerAndMerchant(customer, merchant).orElseThrow(() -> new ResourceNotFoundException("Credit not found"));
+    }
+
+    @Override
     public UsersCredit create(UsersCredit usersCredit) {
         return usersCreditRepository.save(usersCredit);
     }

@@ -15,6 +15,8 @@ public interface UsersCreditService {
 
     List<UsersCredit> findAllByUser(User user);
 
+    UsersCredit findByCustomerAndMerchant(User customer, User merchant);
+
     UsersCredit create(UsersCredit usersCredit);
 
     UsersCredit update(String uuid, UsersCredit updatedUsersCredit);
