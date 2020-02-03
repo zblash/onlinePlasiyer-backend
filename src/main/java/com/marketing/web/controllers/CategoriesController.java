@@ -47,7 +47,7 @@ public class CategoriesController {
     }
 
     @GetMapping("/{id}/subCategories")
-    public ResponseEntity<List<ReadableCategory>> getAllSubCategories(@PathVariable String id){
+    public ResponseEntity<List<ReadableCategory>> getSubCategoriesById(@PathVariable String id){
         Category category = categoryService.findByUUID(id);
         if (!category.isSubCategory()){
             return ResponseEntity.ok(category.getChilds().stream()

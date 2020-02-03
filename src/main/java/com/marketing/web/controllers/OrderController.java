@@ -17,6 +17,7 @@ import com.marketing.web.utils.mappers.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -45,15 +46,25 @@ public class OrderController {
     private Logger logger = LoggerFactory.getLogger(OrderController.class);
 
     @GetMapping
-    public ResponseEntity<WrapperPagination<ReadableOrder>> getOrders(@RequestParam(required = false) String userId, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
+    public ResponseEntity<WrapperPagination<ReadableOrder>> getOrders(@RequestParam(required = false) String userId, @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd") Date startDate, @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd") Date endDate, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
 
         User user = userService.getLoggedInUser();
+        endDate = (endDate != null) ? endDate : new Date();
         if (UserMapper.roleToRoleType(user.getRole()).equals(RoleType.ADMIN)) {
             if (!userId.isEmpty()){
                 User userByUserId = userService.findByUUID(userId);
+                if (startDate != null) {
+                    return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByFilterAndUser(startDate, endDate, userByUserId, pageNumber)));
+                }
                 return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(userByUserId, pageNumber, sortBy, sortType)));
+            } else if (startDate == null) {
+                return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAll(pageNumber, sortBy, sortType)));
+            } else {
+                return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByFilter(startDate, endDate, pageNumber)));
             }
-            return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAll(pageNumber, sortBy, sortType)));
+        }
+        if (startDate != null) {
+            return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByFilterAndUser(startDate, endDate, user, pageNumber)));
         }
         return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(user, pageNumber, sortBy, sortType)));
     }
@@ -79,20 +90,6 @@ public class OrderController {
     public ResponseEntity<OrderSummary> getUserOrderSummary(@PathVariable String userId) {
         User user = userService.findByUUID(userId);
         return ResponseEntity.ok(orderService.groupBy(user));
-    }
-
-    @PostMapping("/filter")
-    public ResponseEntity<WrapperPagination<ReadableOrder>> getOrdersByFilter(@RequestBody SearchOrder searchOrder, @RequestParam(defaultValue = "1") Integer pageNumber) {
-        User user = userService.getLoggedInUser();
-        RoleType userRole = UserMapper.roleToRoleType(user.getRole());
-
-        searchOrder.setEndDate((searchOrder.getEndDate() == null) ? new Date() : searchOrder.getEndDate());
-
-        if (UserMapper.roleToRoleType(user.getRole()).equals(RoleType.ADMIN)) {
-            return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByFilter(searchOrder, pageNumber)));
-        }
-
-        return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByFilterAndUser(searchOrder, user, pageNumber)));
     }
 
     @GetMapping("/{id}")
