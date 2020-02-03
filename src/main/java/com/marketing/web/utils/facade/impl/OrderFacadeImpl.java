@@ -130,8 +130,7 @@ public class OrderFacadeImpl implements OrderFacade {
             List<CartItemHolder> cartItemHolderList = cart.getItems().stream()
                     .filter(cartItemHolder -> writableCheckout.getSellerIdList().contains(cartItemHolder.getUuid().toString()))
                     .collect(Collectors.toList());
-            List<CartItem> cartItemList = cartItemHolderList.stream().flatMap(c -> c.getCartItems().stream())
-                    .collect(Collectors.toList());
+
             List<Order> orders = ordersPopulator(cartItemHolderList, user);
 
 
