@@ -35,6 +35,8 @@ public class Category implements Serializable {
 
     private boolean subCategory;
 
+    private double commission;
+
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne
     @JoinColumn(name = "parent_id")

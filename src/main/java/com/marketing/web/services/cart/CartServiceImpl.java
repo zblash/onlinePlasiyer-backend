@@ -28,12 +28,12 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart findById(Long id) {
-        return cartRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: "+ id));
+        return cartRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: " + id));
     }
 
     @Override
     public Cart findByUUID(String uuid) {
-        return cartRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: "+ uuid));
+        return cartRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: " + uuid));
     }
 
     @Override
@@ -46,7 +46,6 @@ public class CartServiceImpl implements CartService {
     @Override
     public Cart update(Long id, Cart updatedCart) {
         Cart cart = findById(id);
-        cart.setPaymentOption(updatedCart.getPaymentOption());
         cart.setUser(updatedCart.getUser());
         cart.setCartStatus(updatedCart.getCartStatus());
         return cartRepository.save(cart);

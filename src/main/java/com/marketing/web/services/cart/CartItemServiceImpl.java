@@ -1,14 +1,9 @@
 package com.marketing.web.services.cart;
 
-import com.marketing.web.dtos.cart.WritableCartItem;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.ResourceNotFoundException;
-import com.marketing.web.models.Cart;
-import com.marketing.web.models.CartItem;
-import com.marketing.web.models.ProductSpecify;
-import com.marketing.web.models.Promotion;
+import com.marketing.web.models.*;
 import com.marketing.web.repositories.CartItemRepository;
-import com.marketing.web.services.product.ProductSpecifyServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +15,6 @@ import java.util.UUID;
 
 @Service
 public class CartItemServiceImpl implements CartItemService {
-
-    @Autowired
-    private ProductSpecifyServiceImpl productSpecifyService;
 
     @Autowired
     private CartItemRepository cartItemRepository;
@@ -63,9 +55,7 @@ public class CartItemServiceImpl implements CartItemService {
     @Override
     public void delete(Cart cart, CartItem cartItem) {
 
-        Optional<CartItem> optionalCartItem = cart.getItems().stream()
-                .filter(c -> c.getUuid().toString().equals(cartItem.getUuid().toString()))
-                .findFirst();
+        Optional<CartItem> optionalCartItem = cartItemRepository.findByCart_IdAndProduct_Uuid(cart.getId(), cartItem.getProduct().getUuid());
         if (optionalCartItem.isPresent()) {
             cartItemRepository.delete(optionalCartItem.get());
         } else {
@@ -74,35 +64,33 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
-    public void deleteAll(List<CartItem> cartItems) {
-        cartItemRepository.deleteAll(cartItems);
+    public void deleteAllByCart(Cart cart) {
+        cartItemRepository.deleteAllByCart(cart);
     }
 
     @Override
-    public CartItem createOrUpdate(Cart cart, WritableCartItem writableCartItem) {
-        CartItem cartItem = cartItemDTOtoCartItem(writableCartItem);
+    public CartItem createOrUpdate(CartItemHolder cartItemHolder, int quantity, ProductSpecify productSpecify) {
+        CartItem cartItem = cartItemDTOtoCartItem(quantity, productSpecify);
 
-        if (!cart.getItems().isEmpty() && cart.getItems() != null) {
-            Optional<CartItem> optionalCartItem = cart.getItems().stream()
-                    .filter(c -> c.getProduct().getId().equals(cartItem.getProduct().getId()))
-                    .findFirst();
+        if (!cartItemHolder.getCartItems().isEmpty() && cartItemHolder.getCartItems() != null) {
+            Optional<CartItem> optionalCartItem = cartItemRepository.findByCart_IdAndProduct_Uuid(cartItemHolder.getCart().getId(), productSpecify.getUuid());
             if (optionalCartItem.isPresent()) {
                 return update(optionalCartItem.get().getUuid().toString(), cartItem);
             }
         }
-        cartItem.setCart(cart);
+        cartItem.setCart(cartItemHolder.getCart());
+        cartItem.setCartItemHolder(cartItemHolder);
         return create(cartItem);
     }
 
-    private CartItem cartItemDTOtoCartItem(WritableCartItem writableCartItem) {
-        ProductSpecify product = productSpecifyService.findByUUID(writableCartItem.getProductId());
-        if (product.getQuantity() < writableCartItem.getQuantity()) {
+    private CartItem cartItemDTOtoCartItem(int quantity, ProductSpecify product) {
+        if (product.getQuantity() < quantity) {
             throw new BadRequestException("Cart item quantity must smaller or equal product quantity");
         }
         CartItem cartItem = new CartItem();
-        double totalPrice = product.getTotalPrice() * writableCartItem.getQuantity();
+        double totalPrice = product.getTotalPrice() * quantity;
         cartItem.setProduct(product);
-        cartItem.setQuantity(writableCartItem.getQuantity());
+        cartItem.setQuantity(quantity);
         cartItem.setTotalPrice(totalPrice);
         if (product.getPromotion() != null) {
             cartItem.setDiscountedTotalPrice(discountCalculator(cartItem, product));

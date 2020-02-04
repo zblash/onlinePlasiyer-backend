@@ -184,7 +184,11 @@ public class ProductsController {
                 barcode.setProduct(product);
                 product.addBarcode(barcodeService.create(barcode));
             }
-
+            if (writableProduct.getCommission() != null) {
+                product.setCommission(writableProduct.getCommission());
+            }else {
+                product.setCommission(product.getCategory().getCommission());
+            }
             return new ResponseEntity<>(ProductMapper.productToReadableProduct(product), HttpStatus.CREATED);
         }
 
@@ -216,6 +220,9 @@ public class ProductsController {
         product.setStatus(writableProduct.isStatus());
         product.setTax(writableProduct.getTax());
         product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
+        if (writableProduct.getCommission() != null) {
+            product.setCommission(writableProduct.getCommission());
+        }
         return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.update(id, product)));
     }
 

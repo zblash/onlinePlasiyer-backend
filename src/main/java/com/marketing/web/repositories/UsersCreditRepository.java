@@ -15,4 +15,6 @@ public interface UsersCreditRepository extends JpaRepository<UsersCredit, Long> 
     List<UsersCredit> findAllByMerchantOrCustomer(User merchant, User customer);
 
     Optional<UsersCredit> findByUuidAndMerchant(UUID uuid, User merchant);
+
+    Optional<UsersCredit> findByCustomerAndMerchant(User customer, User merchant);
 }

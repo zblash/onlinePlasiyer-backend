@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum PaymentOption {
-    CRD("CREDIT"),
+    SCRD("SYSTEM_CREDIT"),
+    MCRD("MERCHANT_CREDIT"),
     COD("COD");
 
     private String value;

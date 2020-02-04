@@ -54,7 +54,8 @@ public class ProductFacadeImpl implements ProductFacade {
         productSpecify.setProduct(product);
         productSpecify.setUser(user);
         productSpecify.setStates(productSpecifyService.allowedStates(user,states));
-        productSpecify.setCommission(user.getCommission());
+        double commission = user.getCommission() != 0.0 ? user.getCommission() : (product.getCommission() != 0.0 ? product.getCommission() : product.getCategory().getCommission());
+        productSpecify.setCommission(commission);
         if (writableProductSpecify.isDiscount()) {
             productSpecify.setPromotion(generatePromotion(productSpecify, writableProductSpecify));
         }
@@ -84,7 +85,8 @@ public class ProductFacadeImpl implements ProductFacade {
 
         updatedProductSpecify.setStates(productSpecifyService.allowedStates(productSpecify.getUser(),states));
         updatedProductSpecify.setProduct(product);
-        updatedProductSpecify.setCommission(user.getCommission());
+        double commission = user.getCommission() != 0.0 ? user.getCommission() : (product.getCommission() != 0.0 ? product.getCommission() : product.getCategory().getCommission());
+        updatedProductSpecify.setCommission(commission);
         if (writableProductSpecify.isDiscount()) {
             updatedProductSpecify.setPromotion(generatePromotion(productSpecify, writableProductSpecify));
         }

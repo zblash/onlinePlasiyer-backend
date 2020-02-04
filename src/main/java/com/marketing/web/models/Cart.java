@@ -34,9 +34,7 @@ public class Cart implements Serializable {
     @OneToMany(mappedBy = "cart",cascade = CascadeType.REMOVE,orphanRemoval = true,fetch = FetchType.EAGER)
     @OrderBy("id desc")
     @Fetch(value = FetchMode.SUBSELECT)
-    private List<CartItem> items;
-
-    private PaymentOption paymentOption;
+    private List<CartItemHolder> items;
 
     private CartStatus cartStatus;
 
