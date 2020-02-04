@@ -101,10 +101,9 @@ public class CartController {
     public ResponseEntity<List<ReadableOrder>> checkout(@Valid @RequestBody WritableCheckout writableCheckout) {
         User user = userService.getLoggedInUser();
         Cart cart = user.getCart();
-
         if (!cart.getItems().isEmpty()
                 && cart.getItems() != null
-                && Optional.ofNullable(cart.getPaymentOption()).isPresent()
+                && cart.getItems().stream().allMatch(cartItemHolder -> cartItemHolder.getPaymentOption() != null)
                 && CartStatus.PRCD.equals(cart.getCartStatus())) {
             return ResponseEntity.ok(orderFacade.checkoutCart(user, cart, writableCheckout));
         }
@@ -116,7 +115,6 @@ public class CartController {
         Cart cart = userService.getLoggedInUser().getCart();
         cartItemHolderService.findByCartAndUuid(cart, paymentMethod.getHolderId());
         cart.setCartStatus(CartStatus.PRCD);
-        cart.setPaymentOption(paymentMethod.getPaymentOption());
         return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.update(cart.getId(), cart)));
     }
 

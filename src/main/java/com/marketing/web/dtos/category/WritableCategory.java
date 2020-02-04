@@ -22,5 +22,7 @@ public class WritableCategory implements Serializable {
 
     private String parentId;
 
+    private Double commission;
+
 
 }

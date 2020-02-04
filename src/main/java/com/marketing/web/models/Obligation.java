@@ -26,6 +26,10 @@ public class Obligation implements Serializable {
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "order_id", referencedColumnName = "id")
+    private Order order;
+
     @NotNull
     private double debt;
 

@@ -188,16 +188,27 @@ public class OrderFacadeImpl implements OrderFacade {
             }
 
             orderItemsPopulator(cartItemHolder.getCartItems(), order);
+            obligationPopulator(order);
             orders.add(order);
         }
         return orderService.createAll(orders);
+    }
+
+    private void obligationPopulator(Order order) {
+       Obligation obligation = new Obligation();
+        double commission = order.getOrderItems().stream().mapToDouble(OrderItem::getCommission).sum();
+        boolean paymentType = order.getPaymentType().equals(PaymentOption.COD) || order.getPaymentType().equals(PaymentOption.MCRD);
+        obligation.setDebt(paymentType ? commission : 0);
+        obligation.setReceivable(paymentType ? 0 : order.getDiscountedTotalPrice() - commission);
+        obligation.setUser(order.getSeller());
+        obligation.setOrder(order);
+        obligationService.create(obligation);
     }
 
     private List<OrderItem> orderItemsPopulator(List<CartItem> cartItems, Order order) {
         List<OrderItem> orderItems = new ArrayList<>();
         for (CartItem cartItem : cartItems) {
             OrderItem orderItem = OrderMapper.cartItemToOrderItem(cartItem);
-
             orderItem.setOrder(order);
             order.addOrderItem(orderItem);
             orderItems.add(orderItem);

@@ -65,13 +65,16 @@ public class CategoriesController {
     @PostMapping
     public ResponseEntity<ReadableCategory> createCategory(@Valid WritableCategory writableCategory, @RequestParam MultipartFile uploadfile){
             Category category = CategoryMapper.writableCategorytoCategory(writableCategory);
+            if (writableCategory.getCommission() == null) {
+                throw new BadRequestException("Commission can not null");
+            }
             String fileUrl = amazonClient.uploadFile(uploadfile);
             category.setPhotoUrl(fileUrl);
 
             if (category.isSubCategory()){
                 category.setParent(categoryService.findByUUID(writableCategory.getParentId()));
             }
-
+            category.setCommission(writableCategory.getCommission());
             Category savedCategory = categoryService.create(category);
 
         return new ResponseEntity<>(CategoryMapper.categoryToReadableCategory(savedCategory), HttpStatus.CREATED);
@@ -97,6 +100,9 @@ public class CategoriesController {
         }
         if (category.isSubCategory()){
             category.setParent(categoryService.findByUUID(updatedCategory.getParentId()));
+        }
+        if (updatedCategory.getCommission() != null) {
+            category.setCommission(updatedCategory.getCommission());
         }
         return ResponseEntity.ok(CategoryMapper.categoryToReadableCategory(categoryService.update(id,category)));
     }

@@ -30,4 +30,6 @@ public class WritableProduct implements Serializable {
     private double tax;
 
     private boolean status;
+
+    private Double commission;
 }
