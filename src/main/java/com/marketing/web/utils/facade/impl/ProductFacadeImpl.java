@@ -85,7 +85,8 @@ public class ProductFacadeImpl implements ProductFacade {
 
         updatedProductSpecify.setStates(productSpecifyService.allowedStates(productSpecify.getUser(),states));
         updatedProductSpecify.setProduct(product);
-        updatedProductSpecify.setCommission(user.getCommission());
+        double commission = user.getCommission() != 0.0 ? user.getCommission() : (product.getCommission() != 0.0 ? product.getCommission() : product.getCategory().getCommission());
+        updatedProductSpecify.setCommission(commission);
         if (writableProductSpecify.isDiscount()) {
             updatedProductSpecify.setPromotion(generatePromotion(productSpecify, writableProductSpecify));
         }
