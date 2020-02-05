@@ -4,15 +4,14 @@ import com.marketing.web.enums.CartStatus;
 import com.marketing.web.enums.PaymentOption;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @NoArgsConstructor
@@ -34,12 +33,26 @@ public class Cart implements Serializable {
     @OneToMany(mappedBy = "cart",cascade = CascadeType.REMOVE,orphanRemoval = true,fetch = FetchType.EAGER)
     @OrderBy("id desc")
     @Fetch(value = FetchMode.SUBSELECT)
-    private List<CartItemHolder> items;
+    @EqualsAndHashCode.Exclude
+    private Set<CartItemHolder> items;
 
     private CartStatus cartStatus;
 
     @PrePersist
     public void autofill() {
         this.setUuid(UUID.randomUUID());
+    }
+
+    public void addItem(CartItemHolder cartItemHolder){
+        if (items == null){
+            items = new HashSet<>();
+        }
+        items.add(cartItemHolder);
+    }
+
+    public void removeItem(CartItemHolder cartItemHolder){
+        if (items != null){
+            items.remove(cartItemHolder);
+        }
     }
 }

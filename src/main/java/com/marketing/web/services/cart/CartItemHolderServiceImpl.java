@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -38,8 +39,8 @@ public class CartItemHolderServiceImpl implements CartItemHolderService {
     }
 
     @Override
-    public Optional<CartItemHolder> findByCartAndSeller(Long cartId, String userId) {
-       return cartItemHolderRepository.findByCart_IdAndSellerId(cartId, userId);
+    public Optional<CartItemHolder> findByCartAndSeller(Cart cart, String userId) {
+       return cartItemHolderRepository.findByCartAndSellerId(cart, userId);
     }
 
     @Override
@@ -60,7 +61,7 @@ public class CartItemHolderServiceImpl implements CartItemHolderService {
 
     @Override
     public void delete(Cart cart, CartItemHolder cartItemHolder) {
-        Optional<CartItemHolder> optionalCartItemHolder = cartItemHolderRepository.findByCart_IdAndSellerId(cart.getId(),cartItemHolder.getSellerId());
+        Optional<CartItemHolder> optionalCartItemHolder = cartItemHolderRepository.findByCartAndSellerId(cart,cartItemHolder.getSellerId());
         if (optionalCartItemHolder.isPresent()) {
             cartItemHolderRepository.delete(optionalCartItemHolder.get());
         } else {
@@ -69,7 +70,7 @@ public class CartItemHolderServiceImpl implements CartItemHolderService {
     }
 
     @Override
-    public void deleteAll(List<CartItemHolder> cartItemHolders) {
+    public void deleteAll(Set<CartItemHolder> cartItemHolders) {
         cartItemHolderRepository.deleteAll(cartItemHolders);
     }
 }

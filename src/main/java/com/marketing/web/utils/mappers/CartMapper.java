@@ -4,18 +4,22 @@ import com.marketing.web.dtos.cart.ReadableCart;
 import com.marketing.web.dtos.cart.ReadableCartItem;
 import com.marketing.web.dtos.cart.ReadableCartItemDetail;
 import com.marketing.web.models.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class CartMapper {
 
+    private final static Logger logger = LoggerFactory.getLogger(CartMapper.class);
     public static ReadableCart cartToReadableCart(Cart cart) {
         if (cart == null) {
             return null;
         } else {
-            List<CartItemHolder> holderItems = cart.getItems();
+            Set<CartItemHolder> holderItems = cart.getItems();
             List<CartItem> items = new ArrayList<>();
             holderItems.stream().map(CartItemHolder::getCartItems).forEach(items::addAll);
 

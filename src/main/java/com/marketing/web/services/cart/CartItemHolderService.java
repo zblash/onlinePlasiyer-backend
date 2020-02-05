@@ -5,6 +5,7 @@ import com.marketing.web.models.CartItemHolder;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface CartItemHolderService {
 
@@ -16,7 +17,7 @@ public interface CartItemHolderService {
 
     CartItemHolder findByCartAndUuid(Cart cart, String holderId);
 
-    Optional<CartItemHolder> findByCartAndSeller(Long cartId, String userId);
+    Optional<CartItemHolder> findByCartAndSeller(Cart cart, String userId);
 
     CartItemHolder create(CartItemHolder cartItemHolder);
 
@@ -24,5 +25,5 @@ public interface CartItemHolderService {
 
     void delete(Cart cart, CartItemHolder cartItemHolder);
 
-    void deleteAll(List<CartItemHolder> cartItemHolders);
+    void deleteAll(Set<CartItemHolder> cartItemHolders);
 }

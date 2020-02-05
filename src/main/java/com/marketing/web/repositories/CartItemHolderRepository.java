@@ -13,7 +13,7 @@ public interface CartItemHolderRepository extends JpaRepository<CartItemHolder, 
 
     Optional<CartItemHolder> findByUuid(UUID uuid);
 
-    Optional<CartItemHolder> findByCart_IdAndSellerId(Long cartId, String userId);
+    Optional<CartItemHolder> findByCartAndSellerId(Cart cart, String sellerId);
 
     Optional<CartItemHolder> findByCartAndUuid(Cart cart, UUID uuid);
 }
