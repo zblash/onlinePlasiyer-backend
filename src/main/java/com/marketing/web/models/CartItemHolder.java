@@ -2,17 +2,13 @@ package com.marketing.web.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.marketing.web.enums.PaymentOption;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.io.Serializable;
+import java.util.*;
 
 @Entity
 @NoArgsConstructor
@@ -20,12 +16,15 @@ import java.util.UUID;
 @Data
 @Table(name = "cartitemholders")
 @Builder
-public class CartItemHolder {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class CartItemHolder implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @EqualsAndHashCode.Include
     private Long id;
 
+    @EqualsAndHashCode.Include
     private UUID uuid;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -36,7 +35,7 @@ public class CartItemHolder {
     @OneToMany(mappedBy = "cartItemHolder",cascade = CascadeType.REMOVE,orphanRemoval = true,fetch = FetchType.EAGER)
     @OrderBy("id desc")
     @Fetch(value = FetchMode.SUBSELECT)
-    private List<CartItem> cartItems;
+    private Set<CartItem> cartItems;
 
     private PaymentOption paymentOption;
 
@@ -51,7 +50,7 @@ public class CartItemHolder {
 
     public void addCartItem(CartItem cartItem){
         if (cartItems == null){
-            cartItems = new ArrayList<>();
+            cartItems = new HashSet<>();
         }
         cartItems.add(cartItem);
     }

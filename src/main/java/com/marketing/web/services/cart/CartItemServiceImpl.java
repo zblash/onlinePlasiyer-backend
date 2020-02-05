@@ -72,11 +72,10 @@ public class CartItemServiceImpl implements CartItemService {
     public CartItem createOrUpdate(CartItemHolder cartItemHolder, int quantity, ProductSpecify productSpecify) {
         CartItem cartItem = cartItemDTOtoCartItem(quantity, productSpecify);
 
-        if (!cartItemHolder.getCartItems().isEmpty() && cartItemHolder.getCartItems() != null) {
-            Optional<CartItem> optionalCartItem = cartItemRepository.findByCart_IdAndProduct_Uuid(cartItemHolder.getCart().getId(), productSpecify.getUuid());
-            if (optionalCartItem.isPresent()) {
-                return update(optionalCartItem.get().getUuid().toString(), cartItem);
-            }
+        Optional<CartItem> optionalCartItem = cartItemRepository.findByCart_IdAndProduct_Uuid(cartItemHolder.getCart().getId(), productSpecify.getUuid());
+        if (optionalCartItem.isPresent()) {
+            logger.info(optionalCartItem.get().getUuid().toString());
+            return update(optionalCartItem.get().getUuid().toString(), cartItem);
         }
         cartItem.setCart(cartItemHolder.getCart());
         cartItem.setCartItemHolder(cartItemHolder);
@@ -95,8 +94,7 @@ public class CartItemServiceImpl implements CartItemService {
         if (product.getPromotion() != null) {
             cartItem.setDiscountedTotalPrice(discountCalculator(cartItem, product));
             cartItem.setPromotion(product.getPromotion());
-        }
-        else {
+        } else {
             cartItem.setDiscountedTotalPrice(totalPrice);
         }
 

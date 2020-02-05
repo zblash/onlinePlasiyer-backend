@@ -3,6 +3,7 @@ package com.marketing.web.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -15,12 +16,15 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Table(name = "cartitems")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class CartItem implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @EqualsAndHashCode.Include
     private Long id;
 
+    @EqualsAndHashCode.Include
     private UUID uuid;
 
     @ManyToOne(fetch = FetchType.LAZY)

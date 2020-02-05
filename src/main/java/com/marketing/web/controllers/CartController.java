@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -65,10 +66,10 @@ public class CartController {
             List<State> productStates = productSpecifyService.findByUUID(writableCartItem.getProductId()).getStates();
             if (productStates.contains(user.getAddress().getState())) {
                 ProductSpecify productSpecify = productSpecifyService.findByUUID(writableCartItem.getProductId());
-                CartItemHolder cartItemHolder = cartItemHolderService.findByCartAndSeller(cart.getId(), productSpecify.getUser().getUuid().toString())
-                        .orElse(cartItemHolderService.create(CartItemHolder.builder().cart(cart).sellerId(productSpecify.getUser().getUuid().toString()).sellerName(productSpecify.getUser().getName()).build()));
-
-                cartItemService.createOrUpdate(cartItemHolder, writableCartItem.getQuantity(), productSpecify);
+                CartItemHolder cartItemHolder = cartItemHolderService.findByCartAndSeller(cart, productSpecify.getUser().getUuid().toString())
+                        .orElseGet(() -> cartItemHolderService.create(CartItemHolder.builder().cart(cart).sellerId(productSpecify.getUser().getUuid().toString()).sellerName(productSpecify.getUser().getName()).build()));
+                CartItem cartItem = cartItemService.createOrUpdate(cartItemHolder, writableCartItem.getQuantity(), productSpecify);
+                cartItemHolder.addCartItem(cartItem);
 
                 return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.findByUser(user)));
             }
@@ -80,11 +81,14 @@ public class CartController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ReadableCart> removeItem(@PathVariable String id) {
         User user = userService.getLoggedInUser();
-        cartItemService.delete(user.getCart(), cartItemService.findByUUID(id));
-        List<CartItemHolder> cartItemHolders = user.getCart().getItems().stream().filter(c ->
-                c.getCartItems().isEmpty() && c.getCartItems() == null
-        ).collect(Collectors.toList());
-        cartItemHolderService.deleteAll(cartItemHolders);
+        Cart cart = user.getCart();
+        CartItem cartItem = cartItemService.findByUUID(id);
+        if (cartItem.getCartItemHolder().getCartItems().size() == 1) {
+            cartItemHolderService.delete(cart, cartItem.getCartItemHolder());
+        } else {
+            cartItem.getCartItemHolder().removeCartItem(cartItem);
+            cartItemService.delete(cart, cartItemService.findByUUID(id));
+        }
         return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.findByUser(user)));
     }
 
@@ -92,7 +96,7 @@ public class CartController {
     @DeleteMapping
     public ResponseEntity<ReadableCart> clearCart() {
         User user = userService.getLoggedInUser();
-
+        Cart cart = user.getCart();
         cartItemHolderService.deleteAll(user.getCart().getItems());
         return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.findByUser(user)));
     }
@@ -113,7 +117,8 @@ public class CartController {
     @PostMapping("/setPayment")
     public ResponseEntity<ReadableCart> setPayment(@Valid @RequestBody PaymentMethod paymentMethod) {
         Cart cart = userService.getLoggedInUser().getCart();
-        cartItemHolderService.findByCartAndUuid(cart, paymentMethod.getHolderId());
+        CartItemHolder cartItemHolder = cartItemHolderService.findByCartAndUuid(cart, paymentMethod.getHolderId());
+        cartItemHolder.setPaymentOption(paymentMethod.getPaymentOption());
         cart.setCartStatus(CartStatus.PRCD);
         return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.update(cart.getId(), cart)));
     }

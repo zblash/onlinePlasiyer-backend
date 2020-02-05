@@ -127,9 +127,9 @@ public class OrderFacadeImpl implements OrderFacade {
     public List<ReadableOrder> checkoutCart(User user, Cart cart, WritableCheckout writableCheckout) {
         {
 
-            List<CartItemHolder> cartItemHolderList = cart.getItems().stream()
+            Set<CartItemHolder> cartItemHolderList = cart.getItems().stream()
                     .filter(cartItemHolder -> writableCheckout.getSellerIdList().contains(cartItemHolder.getUuid().toString()))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toSet());
 
             List<Order> orders = ordersPopulator(cartItemHolderList, user);
 
@@ -166,7 +166,7 @@ public class OrderFacadeImpl implements OrderFacade {
         }
     }
 
-    private List<Order> ordersPopulator(List<CartItemHolder> cartItemHolders, User user) {
+    private List<Order> ordersPopulator(Set<CartItemHolder> cartItemHolders, User user) {
         List<Order> orders = new ArrayList<>();
         for (CartItemHolder cartItemHolder : cartItemHolders) {
             double orderTotalPrice = cartItemHolder.getCartItems().stream().mapToDouble(CartItem::getTotalPrice).sum();
@@ -205,7 +205,7 @@ public class OrderFacadeImpl implements OrderFacade {
         obligationService.create(obligation);
     }
 
-    private List<OrderItem> orderItemsPopulator(List<CartItem> cartItems, Order order) {
+    private List<OrderItem> orderItemsPopulator(Set<CartItem> cartItems, Order order) {
         List<OrderItem> orderItems = new ArrayList<>();
         for (CartItem cartItem : cartItems) {
             OrderItem orderItem = OrderMapper.cartItemToOrderItem(cartItem);
