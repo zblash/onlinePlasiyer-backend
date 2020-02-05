@@ -72,6 +72,11 @@ public class ObligationServiceImpl implements ObligationService {
     }
 
     @Override
+    public List<Obligation> createAll(List<Obligation> obligations) {
+        return obligationRepository.saveAll(obligations);
+    }
+
+    @Override
     public Obligation update(String uuid, Obligation updatedObligation) {
         Obligation obligation = findByUuid(uuid);
         obligation.setUser(updatedObligation.getUser());
