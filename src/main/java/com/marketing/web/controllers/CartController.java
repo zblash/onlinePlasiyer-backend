@@ -117,7 +117,8 @@ public class CartController {
     @PostMapping("/setPayment")
     public ResponseEntity<ReadableCart> setPayment(@Valid @RequestBody PaymentMethod paymentMethod) {
         Cart cart = userService.getLoggedInUser().getCart();
-        cartItemHolderService.findByCartAndUuid(cart, paymentMethod.getHolderId());
+        CartItemHolder cartItemHolder = cartItemHolderService.findByCartAndUuid(cart, paymentMethod.getHolderId());
+        cartItemHolder.setPaymentOption(paymentMethod.getPaymentOption());
         cart.setCartStatus(CartStatus.PRCD);
         return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.update(cart.getId(), cart)));
     }
