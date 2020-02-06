@@ -1,5 +1,6 @@
 package com.marketing.web.services.ticket;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.enums.TicketStatus;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Ticket;
@@ -26,19 +27,19 @@ public class TicketServiceImpl implements TicketService {
         PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
         Page<Ticket> resultPage = ticketRepository.findAll(pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", String.valueOf(pageNumber));
         }
         return resultPage;
     }
 
     @Override
     public Ticket findById(Long id) {
-        return ticketRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: "+id));
+        return ticketRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"ticket",id.toString()));
     }
 
     @Override
     public Ticket findByUUID(String uuid) {
-        return ticketRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: "+uuid));
+        return ticketRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"ticket",uuid));
     }
 
     @Override
@@ -46,14 +47,14 @@ public class TicketServiceImpl implements TicketService {
         PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
         Page<Ticket> resultPage = ticketRepository.findAllByUser(user, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", String.valueOf(pageNumber));
         }
         return resultPage;
     }
 
     @Override
     public Ticket findByUserAndUUid(User user,String uuid) {
-        return ticketRepository.findByUuidAndUser_Id(UUID.fromString(uuid),user.getId()).orElseThrow(() -> new ResourceNotFoundException("You have not ticket with id: "+uuid));
+        return ticketRepository.findByUuidAndUser_Id(UUID.fromString(uuid),user.getId()).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"ticket",uuid));
     }
 
     @Override

@@ -1,10 +1,10 @@
-package com.marketing.web.security.JWTAuthentication;
+package com.marketing.web.configs.security.JWTAuthentication;
 
 import com.marketing.web.configs.constants.ApplicationContstants;
-import com.marketing.web.security.CustomPrincipal;
+import com.marketing.web.configs.security.CustomPrincipal;
+import com.marketing.web.configs.security.JWTAuthToken.JWTAuthToken;
+import com.marketing.web.configs.security.JWTAuthToken.JWTGenerator;
 import com.marketing.web.models.User;
-import com.marketing.web.security.JWTAuthToken.JWTAuthToken;
-import com.marketing.web.security.JWTAuthToken.JWTGenerator;
 import com.marketing.web.services.user.UserService;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;

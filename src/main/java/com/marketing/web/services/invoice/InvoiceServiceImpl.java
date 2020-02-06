@@ -1,5 +1,6 @@
 package com.marketing.web.services.invoice;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Invoice;
@@ -32,25 +33,25 @@ public class InvoiceServiceImpl implements InvoiceService {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Invoice> resultPage = invoiceRepository.findAll(pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
         }
         return resultPage;
     }
 
     @Override
     public Invoice findById(Long id) {
-        return invoiceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: "+ id));
+        return invoiceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"invoice", id.toString()));
     }
 
     @Override
     public Invoice findByUUID(String uuid) {
-        return invoiceRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: "+ uuid));
+        return invoiceRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"invoice", uuid));
     }
 
     @Override
     public Invoice findByOrder(String orderId) {
         Order order = orderService.findByUUID(orderId);
-        return invoiceRepository.findByOrder(order).orElseThrow(() -> new ResourceNotFoundException("Invoice not found with given orderId: "+ orderId));
+        return invoiceRepository.findByOrder(order).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"invoice", orderId));
     }
 
     // TODO REFACTOR
@@ -67,7 +68,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
 
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
         }
 
         return resultPage;
@@ -85,7 +86,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             optionalInvoice =  invoiceRepository.findByOrder(order);
         }
 
-        return optionalInvoice.orElseThrow(() -> new ResourceNotFoundException("Invoice not found with given orderId: "+ orderId));
+        return optionalInvoice.orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"invoice", orderId));
     }
 
     @Override
@@ -99,7 +100,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             optionalInvoice =  invoiceRepository.findByUuid(UUID.fromString(uuid));
         }
 
-        return optionalInvoice.orElseThrow(() -> new ResourceNotFoundException("Invoice not found with given id: "+ uuid));
+        return optionalInvoice.orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"invoice", uuid));
 
     }
 

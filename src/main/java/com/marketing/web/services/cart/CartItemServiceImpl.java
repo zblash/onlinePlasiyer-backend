@@ -1,5 +1,6 @@
 package com.marketing.web.services.cart;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.*;
@@ -28,12 +29,12 @@ public class CartItemServiceImpl implements CartItemService {
 
     @Override
     public CartItem findById(Long id) {
-        return cartItemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("CartItem not found with id: " + id));
+        return cartItemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart.item", id.toString()));
     }
 
     @Override
     public CartItem findByUUID(String uuid) {
-        return cartItemRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("CartItem not found with id: " + uuid));
+        return cartItemRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart.item", uuid));
     }
 
     @Override
@@ -59,7 +60,7 @@ public class CartItemServiceImpl implements CartItemService {
         if (optionalCartItem.isPresent()) {
             cartItemRepository.delete(optionalCartItem.get());
         } else {
-            throw new ResourceNotFoundException("CartItem not found");
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart.item","");
         }
     }
 

@@ -3,6 +3,10 @@ package com.marketing.web.controllers;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.HttpMessage;
 import com.marketing.web.errors.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
@@ -14,15 +18,19 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
 import javax.validation.ConstraintViolationException;
+import java.util.Locale;
 import java.util.Objects;
 
 @RestControllerAdvice
 public class ExceptionHandlerController {
 
+    @Autowired
+    private MessageSource messageSource;
+
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<?> handleResourceNotFoundException(RuntimeException ex, WebRequest request){
+    public ResponseEntity<?> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request, Locale locale){
         HttpMessage error = new HttpMessage(HttpStatus.NOT_FOUND);
-        error.setMessage(ex.getMessage());
+        error.setMessage(messageSource.getMessage(ex.getMessage(),new Object[] {"1"}, locale));
         return buildResponseEntity(error, (ServletWebRequest) request);
     }
 

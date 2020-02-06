@@ -1,13 +1,10 @@
-package com.marketing.web.security.JWTAuthentication;
+package com.marketing.web.configs.security.JWTAuthentication;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.marketing.web.security.JWTAuthToken.JWTAuthToken;
+import com.marketing.web.configs.security.JWTAuthToken.JWTAuthToken;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.SignatureException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;

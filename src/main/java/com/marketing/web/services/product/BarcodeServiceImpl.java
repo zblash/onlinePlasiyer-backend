@@ -1,5 +1,6 @@
 package com.marketing.web.services.product;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Barcode;
 import com.marketing.web.models.Product;
@@ -28,12 +29,12 @@ public class BarcodeServiceImpl implements BarcodeService {
 
     @Override
     public Barcode findByProductAndBarcodeNo(Product product, String barcodeNo) {
-        return barcodeRepository.findByProductAndBarcodeNo(product, barcodeNo).orElseThrow(() -> new ResourceNotFoundException("Barcode not found : "+barcodeNo));
+        return barcodeRepository.findByProductAndBarcodeNo(product, barcodeNo).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"product.barcode",barcodeNo));
     }
 
     @Override
     public Barcode findByBarcodeNo(String barcodeNo) {
-        return barcodeRepository.findByBarcodeNo(barcodeNo).orElseThrow(() -> new ResourceNotFoundException("Barcode not found : "+barcodeNo));
+        return barcodeRepository.findByBarcodeNo(barcodeNo).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"product.barcode",barcodeNo));
     }
 
     @Override
@@ -43,12 +44,12 @@ public class BarcodeServiceImpl implements BarcodeService {
 
     @Override
     public Barcode findById(Long id) {
-        return barcodeRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Barcode not found with id: "+id));
+        return barcodeRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"product.barcode",id.toString()));
     }
 
     @Override
     public Barcode findByUuid(String uuid) {
-        return barcodeRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Barcode not found with id: "+uuid));
+        return barcodeRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"product.barcode",uuid));
     }
 
     @Override

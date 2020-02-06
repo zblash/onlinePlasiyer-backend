@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -36,11 +37,12 @@ import java.util.Arrays;
 public class WebApplication {
 
 	@Bean
-	public MessageSource messageSource() {
-		ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-		messageSource.setBasename("classpath:messages");
-		messageSource.setDefaultEncoding("UTF-8");
-		return messageSource;
+	public ResourceBundleMessageSource messageSource() {
+		ResourceBundleMessageSource rs = new ResourceBundleMessageSource();
+		rs.setBasename("messages");
+		rs.setDefaultEncoding("UTF-8");
+		rs.setUseCodeAsDefaultMessage(true);
+		return rs;
 	}
 
 	@Bean

@@ -1,5 +1,6 @@
 package com.marketing.web.services.cart;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItemHolder;
@@ -25,17 +26,17 @@ public class CartItemHolderServiceImpl implements CartItemHolderService {
 
     @Override
     public CartItemHolder findById(Long id) {
-        return cartItemHolderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("CartItem Holder not found with id: " + id));
+        return cartItemHolderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart.item.holder", id.toString()));
     }
 
     @Override
     public CartItemHolder findByUUID(String uuid) {
-        return cartItemHolderRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("CartItem Holder not found with id: " + uuid));
+        return cartItemHolderRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart.item.holder", uuid));
     }
 
     @Override
     public CartItemHolder findByCartAndUuid(Cart cart, String holderId) {
-        return cartItemHolderRepository.findByCartAndUuid(cart, UUID.fromString(holderId)).orElseThrow(() -> new ResourceNotFoundException("CartItem Holder not found with id: " + holderId));
+        return cartItemHolderRepository.findByCartAndUuid(cart, UUID.fromString(holderId)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart.item.holder", holderId));
     }
 
     @Override
@@ -65,7 +66,7 @@ public class CartItemHolderServiceImpl implements CartItemHolderService {
         if (optionalCartItemHolder.isPresent()) {
             cartItemHolderRepository.delete(optionalCartItemHolder.get());
         } else {
-            throw new ResourceNotFoundException("CartItem Holder not found");
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart.item.holder", "");
         }
     }
 

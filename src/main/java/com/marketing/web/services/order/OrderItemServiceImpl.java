@@ -1,5 +1,6 @@
 package com.marketing.web.services.order;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.OrderItem;
@@ -23,7 +24,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     public OrderItem findByUUID(String uuid) {
-        return orderItemRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("OrderItem not found with id: "+uuid));
+        return orderItemRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"order.item",uuid));
     }
 
     @Override

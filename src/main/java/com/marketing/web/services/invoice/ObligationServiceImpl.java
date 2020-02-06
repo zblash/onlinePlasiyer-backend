@@ -1,5 +1,6 @@
 package com.marketing.web.services.invoice;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.dtos.obligation.ReadableTotalObligation;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Obligation;
@@ -31,19 +32,19 @@ public class ObligationServiceImpl implements ObligationService {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Obligation> resultPage = obligationRepository.findAll(pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
         }
         return resultPage;
     }
 
     @Override
     public Obligation findById(Long id) {
-        return obligationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Obligation not found with id: "+ id));
+        return obligationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"obligation",id.toString()));
     }
 
     @Override
     public Obligation findByUuid(String uuid) {
-        return obligationRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Obligation not found with id: "+ uuid));
+        return obligationRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"obligation", uuid));
     }
 
     @Override
@@ -51,7 +52,7 @@ public class ObligationServiceImpl implements ObligationService {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Obligation> resultPage = obligationRepository.findAllByUser(user,pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
         }
         return resultPage;
     }

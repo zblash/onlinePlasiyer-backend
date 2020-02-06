@@ -1,5 +1,6 @@
 package com.marketing.web.services.credit;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.SystemCredit;
 import com.marketing.web.repositories.SystemCreditRepository;
@@ -22,24 +23,24 @@ public class SystemCreditServiceImpl implements SystemCreditService {
         PageRequest pageRequest = PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
         Page<SystemCredit> resultPage = systemCreditRepository.findAll(pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
         }
         return resultPage;
     }
 
     @Override
     public SystemCredit findById(Long id) {
-        return systemCreditRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("SystemCredit not found with id: " + id));
+        return systemCreditRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit", id.toString()));
     }
 
     @Override
     public SystemCredit findByUUID(String uuid) {
-        return systemCreditRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("SystemCredit not found with id: " + uuid));
+        return systemCreditRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit", uuid));
     }
 
     @Override
     public SystemCredit findByUser(Long userId) {
-        return systemCreditRepository.findByUser_Id(userId).orElseThrow(() -> new ResourceNotFoundException("SystemCredit not found"));
+        return systemCreditRepository.findByUser_Id(userId).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit",""));
     }
 
     @Override

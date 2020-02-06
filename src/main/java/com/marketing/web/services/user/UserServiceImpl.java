@@ -1,5 +1,6 @@
 package com.marketing.web.services.user;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.SystemCredit;
@@ -7,7 +8,7 @@ import com.marketing.web.models.Role;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.UserRepository;
-import com.marketing.web.security.CustomPrincipal;
+import com.marketing.web.configs.security.CustomPrincipal;
 import com.marketing.web.services.cart.CartServiceImpl;
 import com.marketing.web.services.credit.SystemCreditService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByUserName(String userName) {
-        return userRepository.findByUsername(userName).orElseThrow(() -> new ResourceNotFoundException("User not found with username: "+ userName));
+        return userRepository.findByUsername(userName).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"user.name",userName));
     }
 
     @Override
@@ -76,12 +77,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"user",""));
     }
 
     @Override
     public User findByUUID(String uuid) {
-        return userRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("User not found with id: "+ uuid));
+        return userRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"user", uuid));
     }
 
     @Override
