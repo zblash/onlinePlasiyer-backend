@@ -19,6 +19,8 @@ public class OrderSummary implements Serializable {
 
     private int cancelledCount;
 
-    private int paidCount;
+    private int cancelRequestCount;
+
+    private int submittedCount;
 
 }

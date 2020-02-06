@@ -30,7 +30,7 @@ public class ExceptionHandlerController {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<?> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request, Locale locale){
         HttpMessage error = new HttpMessage(HttpStatus.NOT_FOUND);
-        error.setMessage(messageSource.getMessage(ex.getMessage(),new Object[] {"1"}, locale));
+        error.setMessage(messageSource.getMessage(ex.getMessage(),new Object[] {ex.getId()}, locale));
         return buildResponseEntity(error, (ServletWebRequest) request);
     }
 

@@ -187,11 +187,7 @@ public class OrderFacadeImpl implements OrderFacade {
             order.setTotalPrice(orderTotalPrice);
             order.setDiscountedTotalPrice(discountedTotalPrice);
             order.setPaymentType(cartItemHolder.getPaymentOption());
-            if (cartItemHolder.getPaymentOption().equals(PaymentOption.SCRD) || cartItemHolder.getPaymentOption().equals(PaymentOption.MCRD)) {
-                order.setStatus(OrderStatus.PAD);
-            } else {
-                order.setStatus(OrderStatus.NEW);
-            }
+            order.setStatus(OrderStatus.NEW);
         return order;
     }
 
