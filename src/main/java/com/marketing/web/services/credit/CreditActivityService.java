@@ -3,13 +3,14 @@ package com.marketing.web.services.credit;
 import com.marketing.web.models.Credit;
 import com.marketing.web.models.CreditActivity;
 import com.marketing.web.models.Order;
+import com.marketing.web.models.User;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface CreditActivityService {
 
-    Page<CreditActivity> findAll(int pageNumber, String sortBy, String sortType);
+    Page<CreditActivity> findAllByUser(User user, int pageNumber, String sortBy, String sortType);
 
     CreditActivity findById(Long id);
 
@@ -27,4 +28,5 @@ public interface CreditActivityService {
 
     void deleteByOrder(Order order);
 
+    void saveAll(List<CreditActivity> creditActivities);
 }

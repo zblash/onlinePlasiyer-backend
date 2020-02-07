@@ -6,6 +6,7 @@ import com.marketing.web.models.Credit;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CreditService {
     Page<Credit> findAll(int pageNumber, String sortBy, String sortType, CreditType creditType);
@@ -16,7 +17,7 @@ public interface CreditService {
 
     List<Credit> findAllByUser(User user);
 
-    Credit findByCustomerAndMerchant(User customer, User merchant);
+    Optional<Credit> findByCustomerAndMerchant(User customer, User merchant);
 
     Credit create(Credit credit);
 
@@ -27,4 +28,6 @@ public interface CreditService {
     Credit findByUUIDAndMerchant(String id, User merchant);
 
     Credit findSystemCreditByUser(User user);
+
+    void saveAll(List<Credit> credits);
 }

@@ -1,15 +1,14 @@
 package com.marketing.web.utils.facade.impl;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.dtos.cart.WritableCheckout;
 import com.marketing.web.dtos.order.ReadableOrder;
 import com.marketing.web.dtos.order.WritableConfirmOrder;
 import com.marketing.web.dtos.order.WritableConfirmOrderItem;
 import com.marketing.web.dtos.order.WritableOrder;
-import com.marketing.web.enums.CartStatus;
-import com.marketing.web.enums.CreditActivityType;
-import com.marketing.web.enums.OrderStatus;
-import com.marketing.web.enums.PaymentOption;
+import com.marketing.web.enums.*;
 import com.marketing.web.errors.BadRequestException;
+import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.*;
 import com.marketing.web.services.cart.CartItemHolderService;
 import com.marketing.web.services.cart.CartService;
@@ -64,35 +63,49 @@ public class OrderFacadeImpl implements OrderFacade {
             order.setWaybillDate(writableOrder.getWaybillDate());
 
             if (PaymentOption.MCRD.equals(order.getPaymentType()) && writableOrder.getPaidPrice() > 0) {
-                Credit credit = creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller());
+                Credit credit = creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller())
+                        .orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit.user",""));
                 credit.setTotalDebt(credit.getTotalDebt() - writableOrder.getPaidPrice());
-                CreditActivity creditActivity = new CreditActivity();
-                creditActivity.setCreditActivityType(CreditActivityType.CRDT);
-                creditActivity.setPriceValue(writableOrder.getPaidPrice());
-                creditActivity.setCredit(credit);
-                creditActivity.setOrder(order);
+
+                CreditActivity creditActivity = creditActivityPopulator(order,credit,writableOrder.getPaidPrice(),CreditActivityType.CRDT);
                 creditService.update(credit.getUuid().toString(), credit);
                 creditActivityService.create(creditActivity);
             } else if (PaymentOption.COD.equals(order.getPaymentType()) && writableOrder.getPaidPrice() > order.getTotalPrice()) {
                 double totalPrice = writableOrder.getPaidPrice() - order.getTotalPrice();
-                Credit credit = creditService.create(Credit.builder()
-                        .creditLimit(totalPrice)
-                        .customer(order.getBuyer()).merchant(order.getSeller()).totalDebt(0).build());
-                CreditActivity creditActivity = new CreditActivity();
-                creditActivity.setCreditActivityType(CreditActivityType.CRDT);
-                creditActivity.setPriceValue(totalPrice);
-                creditActivity.setCredit(credit);
-                creditActivity.setOrder(order);
+                Optional<Credit> creditOptional = creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller());
+                Credit credit;
+                if (creditOptional.isPresent()) {
+                    credit = creditOptional.get();
+                    if (credit.getTotalDebt() >= totalPrice) {
+                        credit.setTotalDebt(credit.getTotalDebt() - totalPrice);
+                    } else {
+                        double creditLimit = totalPrice - credit.getTotalDebt();
+                        credit.setCreditLimit(credit.getCreditLimit() + creditLimit);
+                    }
+                    creditService.update(credit.getUuid().toString(), credit);
+                } else {
+                     credit = creditService.create(Credit.builder()
+                            .creditLimit(totalPrice)
+                            .customer(order.getBuyer()).merchant(order.getSeller()).totalDebt(0).build());
+                }
+                CreditActivity creditActivity = creditActivityPopulator(order,credit,totalPrice,CreditActivityType.CRDT);
+                creditActivityService.create(creditActivity);
+            } else if (PaymentOption.SCRD.equals(order.getPaymentType()) && writableOrder.getPaidPrice() > 0) {
+                Credit credit = creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller())
+                        .orElseGet(() -> Credit.builder().creditLimit(writableOrder.getPaidPrice()).customer(order.getBuyer()).merchant(order.getSeller()).creditType(CreditType.SCRD).totalDebt(0).build());
+                CreditActivity creditActivity = creditActivityPopulator(order, credit, writableOrder.getPaidPrice(), CreditActivityType.CRDT);
                 creditActivityService.create(creditActivity);
             }
-        } else {
-            order.setStatus(writableOrder.getStatus());
-            if (OrderStatus.CNCL.equals(writableOrder.getStatus())) {
+        } else if (OrderStatus.CNCL.equals(writableOrder.getStatus())) {
                 obligationService.delete(obligationService.findByOrder(order));
-                if (PaymentOption.MCRD.equals(order.getPaymentType()) || PaymentOption.SCRD.equals(order.getPaymentType())) {
+                Credit credit = PaymentOption.MCRD.equals(order.getPaymentType()) ? creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller())
+                        .orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit.user",""))
+                        : (PaymentOption.SCRD.equals(order.getPaymentType()) ? creditService.findSystemCreditByUser(order.getBuyer()) : null);
+                if (credit != null) {
+                    credit.setTotalDebt(credit.getTotalDebt() - order.getTotalPrice());
                     creditActivityService.deleteByOrder(order);
+                    creditService.update(credit.getUuid().toString(), credit);
                 }
-            }
         }
 
         order.setStatus(writableOrder.getStatus());
@@ -120,8 +133,34 @@ public class OrderFacadeImpl implements OrderFacade {
             orderItemService.deleteAllByUuid(removedItems);
             order.setStatus(OrderStatus.CNFRM);
             order.setCommission(updatedItems.stream().mapToDouble(OrderItem::getCommission).sum());
+            double orderOldTotalPrice = order.getTotalPrice();
             order.setTotalPrice(updatedItems.stream().mapToDouble(OrderItem::getTotalPrice).sum());
+            if (!PaymentOption.COD.equals(order.getPaymentType())) {
 
+
+                Optional<Credit> creditOptional = creditActivityService.findAllByOrder(order).stream().findAny().map(CreditActivity::getCredit);
+                if (creditOptional.isPresent()) {
+                    Credit credit = creditOptional.get();
+                    CreditActivity creditActivity = new CreditActivity();
+                    double activityPrice = Math.abs(order.getTotalPrice() - orderOldTotalPrice);
+                    if (order.getTotalPrice() > orderOldTotalPrice) {
+                        creditActivity.setCreditActivityType(CreditActivityType.CRDT);
+                        credit.setTotalDebt(credit.getTotalDebt() + (order.getTotalPrice() - orderOldTotalPrice));
+                    } else if (order.getTotalPrice() < orderOldTotalPrice){
+                        creditActivity.setCreditActivityType(CreditActivityType.DEBT);
+                        credit.setTotalDebt(credit.getTotalDebt() - activityPrice);
+                    }
+                    creditActivity.setCustomer(order.getBuyer());
+                    if (PaymentOption.MCRD.equals(order.getPaymentType())) {
+                        creditActivity.setMerchant(order.getBuyer());
+                    }
+                    creditActivity.setCredit(credit);
+                    creditActivity.setOrder(order);
+                    creditActivity.setPriceValue(activityPrice);
+                    creditActivityService.create(creditActivity);
+                    creditService.update(credit.getUuid().toString(), credit);
+                }
+            }
             obligationService.update(obligationService.findByOrder(order).getUuid().toString(), obligationPopulator(order));
 
             return OrderMapper.orderToReadableOrder(orderService.update(order.getUuid().toString(), order));
@@ -138,12 +177,10 @@ public class OrderFacadeImpl implements OrderFacade {
             List<Order> orders = new ArrayList<>();
             List<OrderItem> orderItems = new ArrayList<>();
             List<Obligation> obligations = new ArrayList<>();
-            CreditActivity creditActivity = new CreditActivity();
-            Credit credit = null;
+            List<CreditActivity> creditActivities = new ArrayList<>();
+            List<Credit> credits = new ArrayList<>();
             for (CartItemHolder cartItemHolder : cartItemHolderList) {
                 PaymentOption paymentOption = cartItemHolder.getPaymentOption();
-                double ordersTotalPrice = cartItemHolder.getCartItems().stream().mapToDouble(CartItem::getDiscountedTotalPrice).sum();
-
                 Order order = ordersPopulator(cartItemHolder, user);
                 order.setOrderItems(orderItemsPopulator(cartItemHolder.getCartItems(), order));
                 orders.add(order);
@@ -151,18 +188,27 @@ public class OrderFacadeImpl implements OrderFacade {
                 orderItems.addAll(order.getOrderItems());
 
                 if (PaymentOption.MCRD.equals(paymentOption) || PaymentOption.SCRD.equals(paymentOption)) {
-                    credit = paymentOption.equals(PaymentOption.MCRD)
+                    Credit credit = paymentOption.equals(PaymentOption.MCRD)
                             ? creditService.findByCustomerAndMerchant(user, userService.findByUUID(cartItemHolder.getSellerId()))
+                            .orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit.user",""))
                             :  creditService.findSystemCreditByUser(user);
-                    credit.setTotalDebt(ordersTotalPrice);
+                    credit.setTotalDebt(cartItemHolder.getCartItems().stream().mapToDouble(CartItem::getDiscountedTotalPrice).sum());
                     if (credit.getTotalDebt() > credit.getCreditLimit()) {
                         throw new BadRequestException("Not enough credit limit");
                     }
+                    CreditActivity creditActivity = new CreditActivity();
                     creditActivity.setCreditActivityType(CreditActivityType.DEBT);
-                    creditActivity.setPriceValue(order.getTotalPrice());
+                    creditActivity.setCustomer(credit.getCustomer());
                     creditActivity.setCredit(credit);
+                    if (CreditType.MCRD.equals(credit.getCreditType())) {
+                        creditActivity.setMerchant(credit.getMerchant());
+                    }
+                    creditActivity.setPriceValue(order.getTotalPrice());
                     creditActivity.setOrder(order);
+                    credits.add(credit);
+                    creditActivities.add(creditActivity);
                 }
+
             }
 
             cart.setCartStatus(CartStatus.NEW);
@@ -172,10 +218,10 @@ public class OrderFacadeImpl implements OrderFacade {
             orderService.createAll(orders);
             orderItemService.saveAll(orderItems);
             obligationService.createAll(obligations);
-            if (credit != null) {
-                creditService.update(credit.getUuid().toString(), credit);
-                creditActivityService.create(creditActivity);
-            }
+
+            creditService.saveAll(credits);
+            creditActivityService.saveAll(creditActivities);
+
             return orders.stream().map(OrderMapper::orderToReadableOrder).collect(Collectors.toList());
         }
     }
@@ -224,5 +270,16 @@ public class OrderFacadeImpl implements OrderFacade {
         orderItem.setTotalPrice(orderItem.getPrice() * writableConfirmOrderItem.getQuantity());
         orderItem.setCommission(orderItem.getTotalPrice() * orderItem.getProductSpecify().getCommission());
         return orderItem;
+    }
+
+    private CreditActivity creditActivityPopulator(Order order, Credit credit, double totalPrice, CreditActivityType creditActivityType) {
+        CreditActivity creditActivity = new CreditActivity();
+        creditActivity.setCreditActivityType(creditActivityType);
+        creditActivity.setPriceValue(totalPrice);
+        creditActivity.setCredit(credit);
+        creditActivity.setMerchant(order.getSeller());
+        creditActivity.setCustomer(order.getBuyer());
+        creditActivity.setOrder(order);
+        return creditActivity;
     }
 }
