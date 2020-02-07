@@ -3,9 +3,10 @@ package com.marketing.web.controllers;
 import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.credit.ReadableCredit;
 import com.marketing.web.dtos.credit.WritableCredit;
-import com.marketing.web.models.SystemCredit;
+import com.marketing.web.enums.CreditType;
+import com.marketing.web.models.Credit;
 import com.marketing.web.models.User;
-import com.marketing.web.services.credit.SystemCreditService;
+import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.CreditMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ import javax.validation.Valid;
 public class CreditsController {
 
     @Autowired
-    private SystemCreditService systemCreditService;
+    private CreditService creditService;
 
     @Autowired
     private UserService userService;
@@ -29,34 +30,34 @@ public class CreditsController {
     @GetMapping
     public ResponseEntity<WrapperPagination<ReadableCredit>> getAll(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "totalDebt") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
         return ResponseEntity.ok(CreditMapper
-                .pagedOrderListToWrapperReadableOrder(systemCreditService.findAll(pageNumber, sortBy, sortType)));
+                .pagedOrderListToWrapperReadableOrder(creditService.findAll(pageNumber, sortBy, sortType, CreditType.SCRD)));
     }
 
     @GetMapping("/my")
     public ResponseEntity<ReadableCredit> getUserCredit(){
         User user = userService.getLoggedInUser();
-        return ResponseEntity.ok(CreditMapper.creditToReadableCredit(systemCreditService.findByUser(user.getId())));
+        return ResponseEntity.ok(CreditMapper.creditToReadableCredit(creditService.findSystemCreditByUser(user)));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/byUser/{userId}")
     public ResponseEntity<ReadableCredit> getCreditByUser(@PathVariable String userId){
         User user = userService.findByUUID(userId);
-        return ResponseEntity.ok(CreditMapper.creditToReadableCredit(systemCreditService.findByUser(user.getId())));
+        return ResponseEntity.ok(CreditMapper.creditToReadableCredit(creditService.findSystemCreditByUser(user)));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{creditId}")
     public ResponseEntity<ReadableCredit> updateCredit(@PathVariable String creditId, @Valid @RequestBody WritableCredit writableCredit){
-        SystemCredit systemCredit = CreditMapper.writableCreditToCredit(writableCredit);
-        return ResponseEntity.ok(CreditMapper.creditToReadableCredit(systemCreditService.update(creditId, systemCredit)));
+        Credit credit = CreditMapper.writableCreditToCredit(writableCredit);
+        return ResponseEntity.ok(CreditMapper.creditToReadableCredit(creditService.update(creditId, credit)));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{creditId}")
     public ResponseEntity<ReadableCredit> deleteCategory(@PathVariable String creditId){
-        SystemCredit systemCredit = systemCreditService.findByUUID(creditId);
-        systemCreditService.delete(systemCredit);
+        Credit systemCredit = creditService.findByUUID(creditId);
+        creditService.delete(systemCredit);
         return ResponseEntity.ok(CreditMapper.creditToReadableCredit(systemCredit));
     }
 }

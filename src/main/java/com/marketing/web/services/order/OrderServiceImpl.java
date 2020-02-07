@@ -52,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
                 case CNCL:
                     orderSummary.setCancelledCount(orderGroup.getCnt().intValue());
                     break;
-                case SBMT:
+                case CNFRM:
                     orderSummary.setSubmittedCount(orderGroup.getCnt().intValue());
             }
         }

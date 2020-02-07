@@ -17,8 +17,6 @@ public class WritableOrder implements Serializable {
 
     private double paidPrice;
 
-    private double discount;
-
     @NotNull(message = "{validation.notNull}")
     private OrderStatus status;
 

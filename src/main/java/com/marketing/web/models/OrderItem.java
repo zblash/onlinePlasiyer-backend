@@ -47,17 +47,19 @@ public class OrderItem implements Serializable {
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User seller;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "product_id",referencedColumnName = "id")
     private Product product;
+
+    @ManyToOne
+    @JoinColumn(name = "product_specify_id", referencedColumnName = "id")
+    private ProductSpecify productSpecify;
 
     @NotNull
     private int quantity;
 
     @NotNull
     private double totalPrice;
-
-    private double discountedTotalPrice;
 
     @PrePersist
     public void autofill() {

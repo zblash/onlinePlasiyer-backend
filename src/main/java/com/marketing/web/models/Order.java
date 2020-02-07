@@ -30,8 +30,6 @@ public class Order implements Serializable  {
     @NotNull
     private double totalPrice;
 
-    private double discountedTotalPrice;
-
     private double commission;
 
     @NotNull

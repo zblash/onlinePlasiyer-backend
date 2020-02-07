@@ -3,22 +3,19 @@ package com.marketing.web.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum OrderStatus {
-    FNS("FINISHED"),
-    NEW("NEW"),
-    CNFRM("CONFIRMED"),
-    CNCL("CANCELLED"),
-    CNRQ("CANCEL_REQUEST");
+public enum CreditActivityType {
+    DEBT("DEBT"),
+    CRDT("CREDIT");
 
     private String value;
 
-    OrderStatus(String value) {
+    CreditActivityType(String value) {
         this.value = value;
     }
 
     @JsonCreator
-    public static OrderStatus fromValue(String text) {
-        for (OrderStatus b : OrderStatus.values()) {
+    public static CreditActivityType fromValue(String text) {
+        for (CreditActivityType b : CreditActivityType.values()) {
             if (String.valueOf(b.value).equals(text)) {
                 return b;
             }

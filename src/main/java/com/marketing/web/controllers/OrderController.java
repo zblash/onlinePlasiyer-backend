@@ -7,6 +7,7 @@ import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Order;
+import com.marketing.web.models.OrderItem;
 import com.marketing.web.models.User;
 import com.marketing.web.services.order.OrderItemService;
 import com.marketing.web.services.order.OrderService;
@@ -23,6 +24,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -112,7 +114,14 @@ public class OrderController {
         User user = userService.getLoggedInUser();
         ReadableOrder readableOrder = orderFacade.saveOrder(writableOrder, getOrder(user, id));
         return ResponseEntity.ok(readableOrder);
+    }
 
+    @PreAuthorize("hasRole('ROLE_MERCHANT') or hasRole('ROLE_ADMIN')")
+    @PostMapping("confirm/{id}")
+    public ResponseEntity<ReadableOrder> confirmOrder(@PathVariable String id, @Valid @RequestBody WritableConfirmOrder writableConfirmOrder) {
+        User user = userService.getLoggedInUser();
+        Order order = getOrder(user, id);
+        return ResponseEntity.ok(orderFacade.confirmOrder(writableConfirmOrder, order));
     }
 
     private Order getOrder(User user, String id) {

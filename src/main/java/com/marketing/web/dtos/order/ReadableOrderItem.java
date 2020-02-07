@@ -38,5 +38,4 @@ public class ReadableOrderItem implements Serializable {
 
     private double totalPrice;
 
-    private double discountedTotalPrice;
 }
