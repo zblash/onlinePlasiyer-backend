@@ -1,21 +1,24 @@
 package com.marketing.web.models;
 
-
+import com.marketing.web.enums.CreditType;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "systemcredits",uniqueConstraints={@UniqueConstraint(columnNames={"user_id"})})
-public class SystemCredit implements Serializable {
+@Table(name = "userscredits")
+@Builder
+public class Credit implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,8 +27,12 @@ public class SystemCredit implements Serializable {
     private UUID uuid;
 
     @OneToOne
-    @JoinColumn(name = "user_id",referencedColumnName = "id")
-    private User user;
+    @JoinColumn(name = "merchant_id",referencedColumnName = "id")
+    private User merchant;
+
+    @OneToOne
+    @JoinColumn(name = "customer_id",referencedColumnName = "id")
+    private User customer;
 
     @NotNull
     private double totalDebt;
@@ -33,8 +40,16 @@ public class SystemCredit implements Serializable {
     @NotNull
     private double creditLimit;
 
+    @NotNull
+    private CreditType creditType;
+
+    @OneToMany(mappedBy = "credit",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
+    @OrderBy("id desc")
+    private List<CreditActivity> creditActivities;
+
     @PrePersist
     public void autofill() {
         this.setUuid(UUID.randomUUID());
     }
+
 }

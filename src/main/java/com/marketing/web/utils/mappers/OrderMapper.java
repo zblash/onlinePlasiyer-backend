@@ -23,10 +23,10 @@ public final class OrderMapper {
             orderItem.setUnitType(cartItem.getProduct().getUnitType());
             orderItem.setRecommendedRetailPrice(cartItem.getProduct().getRecommendedRetailPrice());
             orderItem.setProduct(cartItem.getProduct().getProduct());
+            orderItem.setProductSpecify(cartItem.getProduct());
             orderItem.setSeller(cartItem.getProduct().getUser());
             orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setTotalPrice(cartItem.getTotalPrice());
-            orderItem.setDiscountedTotalPrice(cartItem.getDiscountedTotalPrice());
             double totalPrice = cartItem.getDiscountedTotalPrice() > 0 ? cartItem.getDiscountedTotalPrice() : cartItem.getTotalPrice();
             orderItem.setCommission(totalPrice * cartItem.getProduct().getCommission());
             return orderItem;
@@ -44,7 +44,6 @@ public final class OrderMapper {
             readableOrder.setOrderDate(order.getOrderDate());
             readableOrder.setWaybillDate(order.getWaybillDate());
             readableOrder.setTotalPrice(order.getTotalPrice());
-            readableOrder.setDiscountedTotalPrice(order.getDiscountedTotalPrice());
             readableOrder.setStatus(order.getStatus());
             readableOrder.setCommission(order.getCommission());
             readableOrder.setOrderItems(order.getOrderItems().stream()
@@ -71,7 +70,6 @@ public final class OrderMapper {
             readableOrderItem.setSellerName(orderItem.getSeller().getName());
             readableOrderItem.setQuantity(orderItem.getQuantity());
             readableOrderItem.setTotalPrice(orderItem.getTotalPrice());
-            readableOrderItem.setDiscountedTotalPrice(orderItem.getDiscountedTotalPrice());
             return readableOrderItem;
         }
     }

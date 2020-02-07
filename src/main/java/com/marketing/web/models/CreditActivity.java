@@ -1,5 +1,6 @@
 package com.marketing.web.models;
 
+import com.marketing.web.enums.CreditActivityType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,8 +14,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "userscredits")
-public class UsersCredit implements Serializable {
+@Table(name = "creditactivities")
+public class CreditActivity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -22,23 +23,20 @@ public class UsersCredit implements Serializable {
 
     private UUID uuid;
 
-    @OneToOne
-    @JoinColumn(name = "merchant_id",referencedColumnName = "id")
-    private User merchant;
+    private double priceValue;
 
-    @OneToOne
-    @JoinColumn(name = "customer_id",referencedColumnName = "id")
-    private User customer;
+    private CreditActivityType creditActivityType;
 
-    @NotNull
-    private double totalDebt;
+    @ManyToOne
+    @JoinColumn(name = "credit_id", referencedColumnName = "id")
+    private Credit credit;
 
-    @NotNull
-    private double creditLimit;
+    @ManyToOne
+    @JoinColumn(name = "order_id", referencedColumnName = "id")
+    private Order order;
 
     @PrePersist
     public void autofill() {
         this.setUuid(UUID.randomUUID());
     }
-
 }

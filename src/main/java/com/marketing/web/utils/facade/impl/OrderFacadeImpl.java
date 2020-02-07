@@ -2,18 +2,19 @@ package com.marketing.web.utils.facade.impl;
 
 import com.marketing.web.dtos.cart.WritableCheckout;
 import com.marketing.web.dtos.order.ReadableOrder;
+import com.marketing.web.dtos.order.WritableConfirmOrder;
+import com.marketing.web.dtos.order.WritableConfirmOrderItem;
 import com.marketing.web.dtos.order.WritableOrder;
 import com.marketing.web.enums.CartStatus;
+import com.marketing.web.enums.CreditActivityType;
 import com.marketing.web.enums.OrderStatus;
 import com.marketing.web.enums.PaymentOption;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.*;
 import com.marketing.web.services.cart.CartItemHolderService;
-import com.marketing.web.services.cart.CartItemService;
 import com.marketing.web.services.cart.CartService;
-import com.marketing.web.services.credit.SystemCreditService;
-import com.marketing.web.services.credit.UsersCreditService;
-import com.marketing.web.services.invoice.InvoiceService;
+import com.marketing.web.services.credit.CreditActivityService;
+import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.invoice.ObligationService;
 import com.marketing.web.services.order.OrderItemService;
 import com.marketing.web.services.order.OrderService;
@@ -25,10 +26,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.util.Comparator.comparingLong;
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toCollection;
 
 @Service(value = "orderFacade")
 public class OrderFacadeImpl implements OrderFacade {
@@ -49,78 +46,85 @@ public class OrderFacadeImpl implements OrderFacade {
     private OrderItemService orderItemService;
 
     @Autowired
-    private InvoiceService invoiceService;
-
-    @Autowired
     private ObligationService obligationService;
 
     @Autowired
-    private SystemCreditService systemCreditService;
+    private CreditService creditService;
 
     @Autowired
-    private UsersCreditService usersCreditService;
+    private CreditActivityService creditActivityService;
 
     @Override
     public ReadableOrder saveOrder(WritableOrder writableOrder, Order order) {
-        if (OrderStatus.FNS.equals(order.getStatus())) {
-            throw new BadRequestException("Finished order can not be updated");
+
+        if (OrderStatus.CNFRM.equals(order.getStatus())
+                && OrderStatus.FNS.equals(writableOrder.getStatus())
+                && writableOrder.getWaybillDate() != null) {
+
+            order.setWaybillDate(writableOrder.getWaybillDate());
+
+            if (PaymentOption.MCRD.equals(order.getPaymentType()) && writableOrder.getPaidPrice() > 0) {
+                Credit credit = creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller());
+                credit.setTotalDebt(credit.getTotalDebt() - writableOrder.getPaidPrice());
+                CreditActivity creditActivity = new CreditActivity();
+                creditActivity.setCreditActivityType(CreditActivityType.CRDT);
+                creditActivity.setPriceValue(writableOrder.getPaidPrice());
+                creditActivity.setCredit(credit);
+                creditActivity.setOrder(order);
+                creditService.update(credit.getUuid().toString(), credit);
+                creditActivityService.create(creditActivity);
+            } else if (PaymentOption.COD.equals(order.getPaymentType()) && writableOrder.getPaidPrice() > order.getTotalPrice()) {
+                double totalPrice = writableOrder.getPaidPrice() - order.getTotalPrice();
+                Credit credit = creditService.create(Credit.builder()
+                        .creditLimit(totalPrice)
+                        .customer(order.getBuyer()).merchant(order.getSeller()).totalDebt(0).build());
+                CreditActivity creditActivity = new CreditActivity();
+                creditActivity.setCreditActivityType(CreditActivityType.CRDT);
+                creditActivity.setPriceValue(totalPrice);
+                creditActivity.setCredit(credit);
+                creditActivity.setOrder(order);
+                creditActivityService.create(creditActivity);
+            }
+        } else {
+            order.setStatus(writableOrder.getStatus());
+            if (OrderStatus.CNCL.equals(writableOrder.getStatus())) {
+                obligationService.delete(obligationService.findByOrder(order));
+                if (PaymentOption.MCRD.equals(order.getPaymentType()) || PaymentOption.SCRD.equals(order.getPaymentType())) {
+                    creditActivityService.deleteByOrder(order);
+                }
+            }
         }
+
         order.setStatus(writableOrder.getStatus());
-        order.setWaybillDate(writableOrder.getWaybillDate());
 
-        if (writableOrder.getStatus().equals(OrderStatus.FNS)) {
-            double commission = order.getOrderItems().stream().mapToDouble(OrderItem::getCommission).sum();
-
-            order.setCommission(commission);
-
-            Obligation obligation = new Obligation();
-
-            Invoice invoice = new Invoice();
-            invoice.setBuyer(order.getBuyer());
-            invoice.setSeller(order.getSeller());
-
-            if (order.getPaymentType().equals(PaymentOption.COD)) {
-                double discount = Optional.of(writableOrder.getDiscount()).orElse(0.0);
-                double paidPrice = Optional.of(writableOrder.getPaidPrice()).orElse(order.getDiscountedTotalPrice());
-                paidPrice = Math.min(paidPrice, order.getDiscountedTotalPrice());
-                discount = discount >= order.getDiscountedTotalPrice() || discount < 0 ? 0.0 : discount;
-                invoice.setDiscount(discount);
-                invoice.setPaidPrice(paidPrice);
-
-                invoice.setUnPaidPrice((order.getDiscountedTotalPrice() - discount) - paidPrice);
-
-                obligation.setDebt(commission);
-                obligation.setReceivable(0);
-            } else {
-                invoice.setDiscount(0);
-                invoice.setPaidPrice(order.getDiscountedTotalPrice());
-                invoice.setUnPaidPrice(0);
-
-                obligation.setDebt(0);
-                obligation.setReceivable(order.getDiscountedTotalPrice() - commission);
-            }
-
-            invoice.setTotalPrice(order.getDiscountedTotalPrice());
-            invoice.setOrder(order);
-            invoice.setBuyer(order.getBuyer());
-            invoice.setSeller(order.getSeller());
-
-            invoiceService.create(invoice);
-
-            obligation.setUser(order.getSeller());
-            obligationService.create(obligation);
-
-            if (invoice.getUnPaidPrice() > 0) {
-                Obligation buyerObligation = new Obligation();
-                buyerObligation.setDebt(invoice.getUnPaidPrice());
-                buyerObligation.setReceivable(0);
-                buyerObligation.setUser(order.getBuyer());
-                obligationService.create(buyerObligation);
-            }
-        }
         return OrderMapper.orderToReadableOrder(orderService.update(order.getUuid().toString(), order));
+    }
 
+    @Override
+    public ReadableOrder confirmOrder(WritableConfirmOrder writableConfirmOrder, Order order) {
+        if (writableConfirmOrder.getItems().stream().allMatch(WritableConfirmOrderItem::isRemoved)) {
+            throw new BadRequestException("You can not remove all orders");
+        }
+        List<OrderItem> removedItems = new ArrayList<>();
+        List<OrderItem> updatedItems = new ArrayList<>();
+        for (WritableConfirmOrderItem writableConfirmOrderItem : writableConfirmOrder.getItems()) {
+            OrderItem orderItem = orderItemService.findByUUIDAndOrder(writableConfirmOrderItem.getId(), order);
+            if (writableConfirmOrderItem.isRemoved()) {
+                removedItems.add(orderItem);
+            } else {
+                    OrderItem updatedOrderItem = calculateOrderItem(orderItem, writableConfirmOrderItem);
+                    updatedItems.add(updatedOrderItem);
+                }
+            }
+            orderItemService.saveAll(updatedItems);
+            orderItemService.deleteAllByUuid(removedItems);
+            order.setStatus(OrderStatus.CNFRM);
+            order.setCommission(updatedItems.stream().mapToDouble(OrderItem::getCommission).sum());
+            order.setTotalPrice(updatedItems.stream().mapToDouble(OrderItem::getTotalPrice).sum());
 
+            obligationService.update(obligationService.findByOrder(order).getUuid().toString(), obligationPopulator(order));
+
+            return OrderMapper.orderToReadableOrder(orderService.update(order.getUuid().toString(), order));
     }
 
     @Override
@@ -134,42 +138,44 @@ public class OrderFacadeImpl implements OrderFacade {
             List<Order> orders = new ArrayList<>();
             List<OrderItem> orderItems = new ArrayList<>();
             List<Obligation> obligations = new ArrayList<>();
-
+            CreditActivity creditActivity = new CreditActivity();
+            Credit credit = null;
             for (CartItemHolder cartItemHolder : cartItemHolderList) {
                 PaymentOption paymentOption = cartItemHolder.getPaymentOption();
                 double ordersTotalPrice = cartItemHolder.getCartItems().stream().mapToDouble(CartItem::getDiscountedTotalPrice).sum();
-                switch (paymentOption) {
-                    case SCRD:
-                        SystemCredit systemCredit = systemCreditService.findByUser(user.getId());
-                        systemCredit.setTotalDebt(systemCredit.getTotalDebt() + ordersTotalPrice);
-                        if (systemCredit.getTotalDebt() > systemCredit.getCreditLimit()) {
-                            throw new BadRequestException("Not enough systemCredit limit");
-                        }
-                        systemCreditService.update(systemCredit.getUuid().toString(), systemCredit);
-                        break;
-                    case MCRD:
-                        UsersCredit usersCredit = usersCreditService.findByCustomerAndMerchant(user, userService.findByUUID(cartItemHolder.getSellerId()));
-                        usersCredit.setTotalDebt(ordersTotalPrice);
-                        if (usersCredit.getTotalDebt() > usersCredit.getCreditLimit()) {
-                            throw new BadRequestException("Not enough credit limit");
-                        }
-                        usersCreditService.update(usersCredit.getUuid().toString(), usersCredit);
-                }
+
                 Order order = ordersPopulator(cartItemHolder, user);
                 order.setOrderItems(orderItemsPopulator(cartItemHolder.getCartItems(), order));
                 orders.add(order);
                 obligations.add(obligationPopulator(order));
                 orderItems.addAll(order.getOrderItems());
-            }
 
+                if (PaymentOption.MCRD.equals(paymentOption) || PaymentOption.SCRD.equals(paymentOption)) {
+                    credit = paymentOption.equals(PaymentOption.MCRD)
+                            ? creditService.findByCustomerAndMerchant(user, userService.findByUUID(cartItemHolder.getSellerId()))
+                            :  creditService.findSystemCreditByUser(user);
+                    credit.setTotalDebt(ordersTotalPrice);
+                    if (credit.getTotalDebt() > credit.getCreditLimit()) {
+                        throw new BadRequestException("Not enough credit limit");
+                    }
+                    creditActivity.setCreditActivityType(CreditActivityType.DEBT);
+                    creditActivity.setPriceValue(order.getTotalPrice());
+                    creditActivity.setCredit(credit);
+                    creditActivity.setOrder(order);
+                }
+            }
 
             cart.setCartStatus(CartStatus.NEW);
             cartService.update(cart.getId(), cart);
             cartItemHolderService.deleteAll(new HashSet<>(cartItemHolderList));
 
             orderService.createAll(orders);
-            orderItemService.createAll(orderItems);
+            orderItemService.saveAll(orderItems);
             obligationService.createAll(obligations);
+            if (credit != null) {
+                creditService.update(credit.getUuid().toString(), credit);
+                creditActivityService.create(creditActivity);
+            }
             return orders.stream().map(OrderMapper::orderToReadableOrder).collect(Collectors.toList());
         }
     }
@@ -184,14 +190,9 @@ public class OrderFacadeImpl implements OrderFacade {
             order.setBuyer(user);
             order.setSeller(userService.findByUUID(cartItemHolder.getSellerId()));
             order.setOrderDate(new Date());
-            order.setTotalPrice(orderTotalPrice);
-            order.setDiscountedTotalPrice(discountedTotalPrice);
+            order.setTotalPrice(discountedTotalPrice);
             order.setPaymentType(cartItemHolder.getPaymentOption());
-            if (cartItemHolder.getPaymentOption().equals(PaymentOption.SCRD) || cartItemHolder.getPaymentOption().equals(PaymentOption.MCRD)) {
-                order.setStatus(OrderStatus.PAD);
-            } else {
-                order.setStatus(OrderStatus.NEW);
-            }
+            order.setStatus(OrderStatus.NEW);
         return order;
     }
 
@@ -200,7 +201,7 @@ public class OrderFacadeImpl implements OrderFacade {
         double commission = order.getOrderItems().stream().mapToDouble(OrderItem::getCommission).sum();
         boolean paymentType = order.getPaymentType().equals(PaymentOption.COD) || order.getPaymentType().equals(PaymentOption.MCRD);
         obligation.setDebt(paymentType ? commission : 0);
-        obligation.setReceivable(paymentType ? 0 : order.getDiscountedTotalPrice() - commission);
+        obligation.setReceivable(paymentType ? 0 : order.getTotalPrice() - commission);
         obligation.setUser(order.getSeller());
         obligation.setOrder(order);
         return obligation;
@@ -216,5 +217,12 @@ public class OrderFacadeImpl implements OrderFacade {
         }
 
         return orderItems;
+    }
+
+    private OrderItem calculateOrderItem(OrderItem orderItem, WritableConfirmOrderItem writableConfirmOrderItem) {
+        orderItem.setQuantity(writableConfirmOrderItem.getQuantity());
+        orderItem.setTotalPrice(orderItem.getPrice() * writableConfirmOrderItem.getQuantity());
+        orderItem.setCommission(orderItem.getTotalPrice() * orderItem.getProductSpecify().getCommission());
+        return orderItem;
     }
 }

@@ -18,7 +18,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     private OrderItemRepository orderItemRepository;
 
     @Override
-    public List<OrderItem> createAll(List<OrderItem> orderItems) {
+    public List<OrderItem> saveAll(List<OrderItem> orderItems) {
        return orderItemRepository.saveAll(orderItems);
     }
 
@@ -29,6 +29,16 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     public List<OrderItem> findByOrder(Order order) {
-        return orderItemRepository.findByOrOrder(order);
+        return orderItemRepository.findByOrder(order);
+    }
+
+    @Override
+    public void deleteAllByUuid(List<OrderItem> removedItems) {
+        orderItemRepository.deleteAll(removedItems);
+    }
+
+    @Override
+    public OrderItem findByUUIDAndOrder(String uuid, Order order) {
+        return orderItemRepository.findByUuidAndOrder(UUID.fromString(uuid), order).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"order.item",uuid));
     }
 }

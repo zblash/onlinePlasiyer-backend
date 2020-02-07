@@ -46,12 +46,14 @@ public class OrderServiceImpl implements OrderService {
                 case FNS:
                     orderSummary.setFinishedCount(orderGroup.getCnt().intValue());
                     break;
-                case PAD:
-                    orderSummary.setPaidCount(orderGroup.getCnt().intValue());
+                case CNRQ:
+                    orderSummary.setCancelRequestCount(orderGroup.getCnt().intValue());
                     break;
                 case CNCL:
                     orderSummary.setCancelledCount(orderGroup.getCnt().intValue());
                     break;
+                case CNFRM:
+                    orderSummary.setSubmittedCount(orderGroup.getCnt().intValue());
             }
         }
         orderSummary.setId(user.getId() + "ordersummary".hashCode() + user.getUuid().toString());

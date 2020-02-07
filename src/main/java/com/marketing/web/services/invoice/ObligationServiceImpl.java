@@ -4,6 +4,7 @@ import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.dtos.obligation.ReadableTotalObligation;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Obligation;
+import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.ObligationRepository;
 import org.slf4j.Logger;
@@ -45,6 +46,11 @@ public class ObligationServiceImpl implements ObligationService {
     @Override
     public Obligation findByUuid(String uuid) {
         return obligationRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"obligation", uuid));
+    }
+
+    @Override
+    public Obligation findByOrder(Order order) {
+        return obligationRepository.findByOrder(order).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"obligation", ""));
     }
 
     @Override

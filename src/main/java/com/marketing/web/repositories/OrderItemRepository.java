@@ -12,5 +12,9 @@ public interface OrderItemRepository extends JpaRepository<OrderItem,Long> {
 
     Optional<OrderItem> findByUuid(UUID uuid);
 
-    List<OrderItem> findByOrOrder(Order order);
+    List<OrderItem> findByOrder(Order order);
+
+    Optional<OrderItem> findByUuidAndOrder(UUID uuid, Order order);
+
+
 }

@@ -1,13 +1,12 @@
 package com.marketing.web.controllers;
 
-import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.credit.ReadableUsersCredit;
 import com.marketing.web.dtos.credit.WritableUserCredit;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.User;
-import com.marketing.web.models.UsersCredit;
-import com.marketing.web.services.credit.UsersCreditService;
+import com.marketing.web.models.Credit;
+import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.CreditMapper;
 import com.marketing.web.utils.mappers.UserMapper;
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
 public class UsersCreditsController {
 
     @Autowired
-    private UsersCreditService usersCreditService;
+    private CreditService creditService;
 
     @Autowired
     private UserService userService;
@@ -34,7 +33,7 @@ public class UsersCreditsController {
     public ResponseEntity<List<ReadableUsersCredit>> getAllCredits(@RequestParam(required = false) String userId){
         User loggedInUser = userService.getLoggedInUser();
         User user = UserMapper.roleToRoleType(loggedInUser.getRole()).equals(RoleType.ADMIN) ? userService.findByUUID(userId) : loggedInUser;
-        return ResponseEntity.ok(usersCreditService.findAllByUser(user).stream().map(CreditMapper::usersCreditToReadableUsersCredit).collect(Collectors.toList()));
+        return ResponseEntity.ok(creditService.findAllByUser(user).stream().map(CreditMapper::usersCreditToReadableUsersCredit).collect(Collectors.toList()));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MERCHANT')")
@@ -44,12 +43,12 @@ public class UsersCreditsController {
         User customer = userService.findByUUID(writableUserCredit.getCustomerId());
         User merchant = UserMapper.roleToRoleType(loggedInUser.getRole()).equals(RoleType.MERCHANT) ? loggedInUser : userService.findByUUID(writableUserCredit.getMerchantId());
         if (UserMapper.roleToRoleType(customer.getRole()).equals(RoleType.CUSTOMER)) {
-            UsersCredit usersCredit = new UsersCredit();
-            usersCredit.setCreditLimit(writableUserCredit.getCreditLimit());
-            usersCredit.setCustomer(customer);
-            usersCredit.setMerchant(merchant);
-            usersCredit.setTotalDebt(writableUserCredit.getTotalDebt());
-            return new ResponseEntity<>(CreditMapper.usersCreditToReadableUsersCredit(usersCreditService.create(usersCredit)), HttpStatus.CREATED);
+            Credit credit = new Credit();
+            credit.setCreditLimit(writableUserCredit.getCreditLimit());
+            credit.setCustomer(customer);
+            credit.setMerchant(merchant);
+            credit.setTotalDebt(writableUserCredit.getTotalDebt());
+            return new ResponseEntity<>(CreditMapper.usersCreditToReadableUsersCredit(creditService.create(credit)), HttpStatus.CREATED);
         }
         throw new BadRequestException("You can only create credit to CUSTOMER users");
     }
@@ -61,11 +60,11 @@ public class UsersCreditsController {
         User customer = userService.findByUUID(writableUserCredit.getCustomerId());
         User merchant = UserMapper.roleToRoleType(loggedInUser.getRole()).equals(RoleType.MERCHANT) ? loggedInUser : userService.findByUUID(writableUserCredit.getMerchantId());
         if (UserMapper.roleToRoleType(customer.getRole()).equals(RoleType.CUSTOMER)) {
-            UsersCredit usersCredit = usersCreditService.findByUUIDAndMerchant(id, merchant);
-            usersCredit.setCreditLimit(writableUserCredit.getCreditLimit());
-            usersCredit.setCustomer(customer);
-            usersCredit.setTotalDebt(writableUserCredit.getTotalDebt());
-            return ResponseEntity.ok(CreditMapper.usersCreditToReadableUsersCredit(usersCreditService.create(usersCredit)));
+            Credit credit = creditService.findByUUIDAndMerchant(id, merchant);
+            credit.setCreditLimit(writableUserCredit.getCreditLimit());
+            credit.setCustomer(customer);
+            credit.setTotalDebt(writableUserCredit.getTotalDebt());
+            return ResponseEntity.ok(CreditMapper.usersCreditToReadableUsersCredit(creditService.create(credit)));
         }
         throw new BadRequestException("You can only create credit to CUSTOMER users");
     }
@@ -74,13 +73,13 @@ public class UsersCreditsController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ReadableUsersCredit> deleteCredit(@PathVariable String id){
         User loggedInUser = userService.getLoggedInUser();
-        UsersCredit usersCredit;
+        Credit credit;
         if (UserMapper.roleToRoleType(loggedInUser.getRole()).equals(RoleType.ADMIN)){
-            usersCredit = usersCreditService.findByUUID(id);
+            credit = creditService.findByUUID(id);
         } else {
-            usersCredit = usersCreditService.findByUUIDAndMerchant(id, loggedInUser);
+            credit = creditService.findByUUIDAndMerchant(id, loggedInUser);
         }
-        usersCreditService.delete(usersCredit);
-        return ResponseEntity.ok(CreditMapper.usersCreditToReadableUsersCredit(usersCredit));
+        creditService.delete(credit);
+        return ResponseEntity.ok(CreditMapper.usersCreditToReadableUsersCredit(credit));
     }
 }

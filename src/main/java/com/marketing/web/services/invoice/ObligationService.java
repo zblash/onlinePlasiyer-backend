@@ -2,6 +2,7 @@ package com.marketing.web.services.invoice;
 
 import com.marketing.web.dtos.obligation.ReadableTotalObligation;
 import com.marketing.web.models.Obligation;
+import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 import org.springframework.data.domain.Page;
 
@@ -15,6 +16,8 @@ public interface ObligationService {
     Obligation findById(Long id);
 
     Obligation findByUuid(String uuid);
+
+    Obligation findByOrder(Order order);
 
     Page<Obligation> findAllByUser(User user, int pageNumber, String sortBy, String sortType);
 
