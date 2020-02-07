@@ -11,6 +11,7 @@ import com.marketing.web.models.*;
 import com.marketing.web.services.cart.CartItemHolderService;
 import com.marketing.web.services.cart.CartItemService;
 import com.marketing.web.services.cart.CartService;
+import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.facade.OrderFacade;
@@ -48,6 +49,9 @@ public class CartController {
 
     @Autowired
     private OrderFacade orderFacade;
+
+    @Autowired
+    private CreditService creditService;
 
     private Logger logger = LoggerFactory.getLogger(CartController.class);
 
@@ -96,7 +100,6 @@ public class CartController {
     @DeleteMapping
     public ResponseEntity<ReadableCart> clearCart() {
         User user = userService.getLoggedInUser();
-        Cart cart = user.getCart();
         cartItemHolderService.deleteAll(user.getCart().getItems());
         return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.findByUser(user)));
     }
@@ -119,8 +122,11 @@ public class CartController {
 
     @PostMapping("/setPayment")
     public ResponseEntity<ReadableCart> setPayment(@Valid @RequestBody PaymentMethod paymentMethod) {
-        Cart cart = userService.getLoggedInUser().getCart();
+        User loggedInUser = userService.getLoggedInUser();
+        Cart cart = loggedInUser.getCart();
         CartItemHolder cartItemHolder = cartItemHolderService.findByCartAndUuid(cart, paymentMethod.getHolderId());
+        creditService.findByCustomerAndMerchant(loggedInUser, userService.findByUUID(cartItemHolder.getSellerId()))
+                .orElseThrow(() -> new BadRequestException("You have not credit from this merchant"));
         cartItemHolder.setPaymentOption(paymentMethod.getPaymentOption());
         cart.setCartStatus(CartStatus.PRCD);
         return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.update(cart.getId(), cart)));
