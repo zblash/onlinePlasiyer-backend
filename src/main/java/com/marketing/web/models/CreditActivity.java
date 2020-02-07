@@ -35,6 +35,14 @@ public class CreditActivity implements Serializable {
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     private Order order;
 
+    @ManyToOne
+    @JoinColumn(name = "merchant_id",referencedColumnName = "id")
+    private User merchant;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_id",referencedColumnName = "id")
+    private User customer;
+
     @PrePersist
     public void autofill() {
         this.setUuid(UUID.randomUUID());

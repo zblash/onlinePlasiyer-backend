@@ -24,4 +24,6 @@ public interface CreditRepository extends JpaRepository<Credit, Long> {
     Optional<Credit> findByCustomerAndMerchant(User customer, User merchant);
 
     Optional<Credit> findByCustomerAndCreditType(User customer, CreditType creditType);
+
+    Page<Credit> findAllByCustomerOrMerchant(User customer, User merchant, Pageable pageable);
 }

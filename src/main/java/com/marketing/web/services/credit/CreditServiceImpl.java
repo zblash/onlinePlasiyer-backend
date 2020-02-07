@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -47,8 +48,8 @@ public class CreditServiceImpl implements CreditService {
     }
 
     @Override
-    public Credit findByCustomerAndMerchant(User customer, User merchant) {
-        return creditRepository.findByCustomerAndMerchant(customer, merchant).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit.user",""));
+    public Optional<Credit> findByCustomerAndMerchant(User customer, User merchant) {
+        return creditRepository.findByCustomerAndMerchant(customer, merchant);
     }
 
     @Override
@@ -84,6 +85,11 @@ public class CreditServiceImpl implements CreditService {
     @Override
     public Credit findSystemCreditByUser(User user) {
         return creditRepository.findByCustomerAndCreditType(user, CreditType.SCRD).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit", ""));
+    }
+
+    @Override
+    public void saveAll(List<Credit> credits) {
+        creditRepository.saveAll(credits);
     }
 
     private PageRequest getPageRequest(int pageNumber, String sortBy, String sortType){

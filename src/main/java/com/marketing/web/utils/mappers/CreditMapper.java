@@ -2,9 +2,11 @@ package com.marketing.web.utils.mappers;
 
 import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.credit.ReadableCredit;
+import com.marketing.web.dtos.credit.ReadableCreditActivity;
 import com.marketing.web.dtos.credit.ReadableUsersCredit;
 import com.marketing.web.dtos.credit.WritableCredit;
 import com.marketing.web.models.Credit;
+import com.marketing.web.models.CreditActivity;
 import org.springframework.data.domain.Page;
 
 import java.util.stream.Collectors;
@@ -36,7 +38,39 @@ public final class CreditMapper {
         }
     }
 
-    public static WrapperPagination<ReadableCredit> pagedOrderListToWrapperReadableOrder(Page<Credit> pagedCredit){
+    public static ReadableUsersCredit usersCreditToReadableUsersCredit(Credit credit){
+        if (credit == null) {
+            return null;
+        } else {
+            ReadableUsersCredit readableUsersCredit = new ReadableUsersCredit();
+            readableUsersCredit.setCreditLimit(credit.getCreditLimit());
+            readableUsersCredit.setTotalDebt(credit.getTotalDebt());
+            readableUsersCredit.setCustomerId(credit.getCustomer().getUuid().toString());
+            readableUsersCredit.setCustomerName(credit.getCustomer().getName());
+            readableUsersCredit.setMerchantId(credit.getMerchant().getUuid().toString());
+            readableUsersCredit.setMerchantName(credit.getMerchant().getName());
+            return readableUsersCredit;
+        }
+    }
+
+    public static ReadableCreditActivity creditActivityToReadableCreditActivity(CreditActivity creditActivity) {
+        if (creditActivity == null) {
+            return null;
+        } else {
+            ReadableCreditActivity readableCreditActivity = new ReadableCreditActivity();
+            readableCreditActivity.setId(creditActivity.getUuid().toString());
+            readableCreditActivity.setPrice(creditActivity.getPriceValue());
+            readableCreditActivity.setCreditActivityType(creditActivity.getCreditActivityType());
+            readableCreditActivity.setCreditType(creditActivity.getCredit().getCreditType());
+            readableCreditActivity.setCustomerId(creditActivity.getCustomer().getUuid().toString());
+            readableCreditActivity.setCustomerName(creditActivity.getCustomer().getName());
+            readableCreditActivity.setMerchantId(creditActivity.getMerchant().getUuid().toString());
+            readableCreditActivity.setMerchantName(creditActivity.getMerchant().getName());
+            return readableCreditActivity;
+        }
+    }
+
+    public static WrapperPagination<ReadableCredit> pagedCreditListToWrapperReadableCredit(Page<Credit> pagedCredit){
         if (pagedCredit == null) {
             return null;
         } else {
@@ -60,18 +94,28 @@ public final class CreditMapper {
         }
     }
 
-    public static ReadableUsersCredit usersCreditToReadableUsersCredit(Credit credit){
-        if (credit == null) {
+    public static WrapperPagination<ReadableCreditActivity> pagedCreditActivityListToWrapperReadableCredityActivity(Page<CreditActivity> pagedCreditActivity){
+        if (pagedCreditActivity == null) {
             return null;
         } else {
-            ReadableUsersCredit readableUsersCredit = new ReadableUsersCredit();
-            readableUsersCredit.setCreditLimit(credit.getCreditLimit());
-            readableUsersCredit.setTotalDebt(credit.getTotalDebt());
-            readableUsersCredit.setCustomerId(credit.getCustomer().getUuid().toString());
-            readableUsersCredit.setCustomerName(credit.getCustomer().getName());
-            readableUsersCredit.setMerchantId(credit.getMerchant().getUuid().toString());
-            readableUsersCredit.setMerchantName(credit.getMerchant().getName());
-            return readableUsersCredit;
+            WrapperPagination<ReadableCreditActivity> wrapperReadableCreditActivity = new WrapperPagination<>();
+            wrapperReadableCreditActivity.setKey("creditactivities");
+            wrapperReadableCreditActivity.setTotalPage(pagedCreditActivity.getTotalPages());
+            wrapperReadableCreditActivity.setPageNumber(pagedCreditActivity.getNumber()+1);
+            if (pagedCreditActivity.hasPrevious()) {
+                wrapperReadableCreditActivity.setPreviousPage(pagedCreditActivity.getNumber());
+            }
+            if (pagedCreditActivity.hasNext()) {
+                wrapperReadableCreditActivity.setNextPage(pagedCreditActivity.getNumber()+2);
+            }
+            wrapperReadableCreditActivity.setFirst(pagedCreditActivity.isFirst());
+            wrapperReadableCreditActivity.setLast(pagedCreditActivity.isLast());
+            wrapperReadableCreditActivity.setElementCountOfPage(pagedCreditActivity.getNumberOfElements());
+            wrapperReadableCreditActivity.setTotalElements(pagedCreditActivity.getTotalElements());
+            wrapperReadableCreditActivity.setValues(pagedCreditActivity.getContent().stream()
+                    .map(CreditMapper::creditActivityToReadableCreditActivity).collect(Collectors.toList()));
+            return wrapperReadableCreditActivity;
         }
     }
+
 }

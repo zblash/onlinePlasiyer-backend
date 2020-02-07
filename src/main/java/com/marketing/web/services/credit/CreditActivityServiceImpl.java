@@ -5,9 +5,12 @@ import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Credit;
 import com.marketing.web.models.CreditActivity;
 import com.marketing.web.models.Order;
+import com.marketing.web.models.User;
 import com.marketing.web.repositories.CreditActivityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,8 +23,13 @@ public class CreditActivityServiceImpl implements CreditActivityService {
     private CreditActivityRepository creditActivityRepository;
 
     @Override
-    public Page<CreditActivity> findAll(int pageNumber, String sortBy, String sortType) {
-        return null;
+    public Page<CreditActivity> findAllByUser(User user, int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
+        Page<CreditActivity> resultPage = creditActivityRepository.findAllByCustomerOrMerchant(user, user, pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
+        }
+        return resultPage;
     }
 
     @Override
@@ -66,5 +74,14 @@ public class CreditActivityServiceImpl implements CreditActivityService {
     @Override
     public void deleteByOrder(Order order) {
         creditActivityRepository.deleteByOrder(order);
+    }
+
+    @Override
+    public void saveAll(List<CreditActivity> creditActivities) {
+        creditActivityRepository.saveAll(creditActivities);
+    }
+
+    private PageRequest getPageRequest(int pageNumber, String sortBy, String sortType){
+        return PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
     }
 }

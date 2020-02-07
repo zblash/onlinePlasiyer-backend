@@ -26,11 +26,11 @@ public class Credit implements Serializable {
 
     private UUID uuid;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "merchant_id",referencedColumnName = "id")
     private User merchant;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "customer_id",referencedColumnName = "id")
     private User customer;
 
