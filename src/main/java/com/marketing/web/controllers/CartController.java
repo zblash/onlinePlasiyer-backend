@@ -6,6 +6,7 @@ import com.marketing.web.dtos.cart.WritableCartItem;
 import com.marketing.web.dtos.cart.WritableCheckout;
 import com.marketing.web.dtos.order.ReadableOrder;
 import com.marketing.web.enums.CartStatus;
+import com.marketing.web.enums.PaymentOption;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.*;
 import com.marketing.web.services.cart.CartItemHolderService;
@@ -125,8 +126,10 @@ public class CartController {
         User loggedInUser = userService.getLoggedInUser();
         Cart cart = loggedInUser.getCart();
         CartItemHolder cartItemHolder = cartItemHolderService.findByCartAndUuid(cart, paymentMethod.getHolderId());
-        creditService.findByCustomerAndMerchant(loggedInUser, userService.findByUUID(cartItemHolder.getSellerId()))
-                .orElseThrow(() -> new BadRequestException("You have not credit from this merchant"));
+        if (PaymentOption.MCRD.equals(paymentMethod.getPaymentOption())) {
+            creditService.findByCustomerAndMerchant(loggedInUser, userService.findByUUID(cartItemHolder.getSellerId()))
+                    .orElseThrow(() -> new BadRequestException("You have not credit from this merchant"));
+        }
         cartItemHolder.setPaymentOption(paymentMethod.getPaymentOption());
         cart.setCartStatus(CartStatus.PRCD);
         return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.update(cart.getId(), cart)));
