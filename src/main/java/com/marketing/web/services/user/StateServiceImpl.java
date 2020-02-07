@@ -1,5 +1,6 @@
 package com.marketing.web.services.user;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.City;
 import com.marketing.web.models.State;
@@ -34,17 +35,17 @@ public class StateServiceImpl implements StateService {
 
     @Override
     public State findById(Long id) {
-        return stateRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("State not found with id: "+id));
+        return stateRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"state",id.toString()));
     }
 
     @Override
     public State findByUuid(String uuid) {
-        return stateRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("State not found with id: "+uuid));
+        return stateRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"state",uuid));
     }
 
     @Override
     public State findByUuidAndCity(String uuid, City city) {
-        return stateRepository.findByUuidAndCity(UUID.fromString(uuid), city).orElseThrow(() -> new ResourceNotFoundException("State not found with id: "+uuid));
+        return stateRepository.findByUuidAndCity(UUID.fromString(uuid), city).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"state",uuid));
     }
 
     @Override

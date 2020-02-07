@@ -1,4 +1,4 @@
-package com.marketing.web.security.JWTAuthToken;
+package com.marketing.web.configs.security.JWTAuthToken;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marketing.web.models.User;

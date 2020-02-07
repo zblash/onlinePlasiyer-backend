@@ -9,7 +9,7 @@ import com.marketing.web.models.Address;
 import com.marketing.web.models.City;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
-import com.marketing.web.security.JWTAuthToken.JWTGenerator;
+import com.marketing.web.configs.security.JWTAuthToken.JWTGenerator;
 import com.marketing.web.services.user.AddressService;
 import com.marketing.web.services.user.CityService;
 import com.marketing.web.services.user.StateService;
@@ -26,7 +26,6 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
 import javax.validation.Valid;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

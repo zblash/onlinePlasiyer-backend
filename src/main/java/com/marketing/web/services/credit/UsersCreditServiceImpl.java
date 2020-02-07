@@ -1,5 +1,6 @@
 package com.marketing.web.services.credit;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.User;
 import com.marketing.web.models.UsersCredit;
@@ -24,12 +25,12 @@ public class UsersCreditServiceImpl implements UsersCreditService {
 
     @Override
     public UsersCredit findById(Long id) {
-        return usersCreditRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Credit not found with id: " + id));
+        return usersCreditRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit.user",id.toString()));
     }
 
     @Override
     public UsersCredit findByUUID(String uuid) {
-        return usersCreditRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Credit not found with id: " + uuid));
+        return usersCreditRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit.user", uuid));
     }
 
     @Override
@@ -39,7 +40,7 @@ public class UsersCreditServiceImpl implements UsersCreditService {
 
     @Override
     public UsersCredit findByCustomerAndMerchant(User customer, User merchant) {
-        return usersCreditRepository.findByCustomerAndMerchant(customer, merchant).orElseThrow(() -> new ResourceNotFoundException("Credit not found"));
+        return usersCreditRepository.findByCustomerAndMerchant(customer, merchant).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit.user",""));
     }
 
     @Override
@@ -64,6 +65,6 @@ public class UsersCreditServiceImpl implements UsersCreditService {
 
     @Override
     public UsersCredit findByUUIDAndMerchant(String id, User merchant) {
-       return usersCreditRepository.findByUuidAndMerchant(UUID.fromString(id), merchant).orElseThrow(() -> new ResourceNotFoundException("Credit not found with id: " + id));
+       return usersCreditRepository.findByUuidAndMerchant(UUID.fromString(id), merchant).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit.user", id));
     }
 }

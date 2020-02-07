@@ -2,7 +2,7 @@ package com.marketing.web.configs.websockets;
 
 import com.marketing.web.configs.constants.ApplicationContstants;
 import com.marketing.web.models.User;
-import com.marketing.web.security.JWTAuthToken.JWTGenerator;
+import com.marketing.web.configs.security.JWTAuthToken.JWTGenerator;
 import com.marketing.web.services.user.UserService;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,5 +1,6 @@
 package com.marketing.web.services.announcement;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Announcement;
 import com.marketing.web.repositories.AnnouncementRepository;
@@ -29,19 +30,19 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Announcement> resultPage = announcementRepository.findAll(pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", String.valueOf(pageNumber));
         }
         return resultPage;
     }
 
     @Override
     public Announcement findById(Long id) {
-        return announcementRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Announcement not found with id: "+id));
+        return announcementRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"announcement",id.toString()));
     }
 
     @Override
     public Announcement findByUUID(String uuid) {
-        return announcementRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Announcement not found with id: "+uuid));
+        return announcementRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"announcement",uuid));
     }
 
     @Override

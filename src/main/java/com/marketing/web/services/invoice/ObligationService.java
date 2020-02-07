@@ -22,6 +22,8 @@ public interface ObligationService {
 
     Obligation create(Obligation obligation);
 
+    List<Obligation> createAll(List<Obligation> obligations);
+
     Obligation update(String uuid, Obligation updatedObligation);
 
     void delete(Obligation obligation);

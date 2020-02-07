@@ -1,12 +1,16 @@
 package com.marketing.web.errors;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 public class ResourceNotFoundException extends RuntimeException {
 
-    public ResourceNotFoundException(String message){
+    private String id;
+
+    public ResourceNotFoundException(String message, String id){
         super(message);
+        this.id = id;
     }
 
+    public String getId() {
+        return this.id;
+    }
 }

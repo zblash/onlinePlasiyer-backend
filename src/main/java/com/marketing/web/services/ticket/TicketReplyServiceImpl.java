@@ -1,5 +1,6 @@
 package com.marketing.web.services.ticket;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Ticket;
 import com.marketing.web.models.TicketReply;
@@ -23,12 +24,12 @@ public class TicketReplyServiceImpl implements TicketReplyService {
 
     @Override
     public TicketReply findById(Long id) {
-        return ticketReplyRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Ticket Reply not found with id: "+id));
+        return ticketReplyRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"ticket.reply",id.toString()));
     }
 
     @Override
     public TicketReply findByUUID(String uuid) {
-        return ticketReplyRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Ticket Reply not found with id: "+uuid));
+        return ticketReplyRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"ticket.reply",uuid));
     }
 
     @Override

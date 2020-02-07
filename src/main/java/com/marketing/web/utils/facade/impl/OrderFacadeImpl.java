@@ -127,48 +127,54 @@ public class OrderFacadeImpl implements OrderFacade {
     public List<ReadableOrder> checkoutCart(User user, Cart cart, WritableCheckout writableCheckout) {
         {
 
-            Set<CartItemHolder> cartItemHolderList = cart.getItems().stream()
+            List<CartItemHolder> cartItemHolderList = cart.getItems().stream()
                     .filter(cartItemHolder -> writableCheckout.getSellerIdList().contains(cartItemHolder.getUuid().toString()))
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toList());
 
-            List<Order> orders = ordersPopulator(cartItemHolderList, user);
+            List<Order> orders = new ArrayList<>();
+            List<OrderItem> orderItems = new ArrayList<>();
+            List<Obligation> obligations = new ArrayList<>();
 
-
-                cartItemHolderList.forEach(cartItemHolder -> {
-                    PaymentOption paymentOption = cartItemHolder.getPaymentOption();
-                    double ordersTotalPrice = cartItemHolder.getCartItems().stream().mapToDouble(CartItem::getDiscountedTotalPrice).sum();
-                    switch (paymentOption) {
-                        case SCRD:
-                            SystemCredit systemCredit = systemCreditService.findByUser(user.getId());
-                            systemCredit.setTotalDebt(systemCredit.getTotalDebt() + ordersTotalPrice);
-                            if (systemCredit.getTotalDebt() > systemCredit.getCreditLimit()) {
-                                throw new BadRequestException("Not enough systemCredit limit");
-                            }
-                            systemCreditService.update(systemCredit.getUuid().toString(), systemCredit);
-                            break;
-                        case MCRD:
-                            UsersCredit usersCredit = usersCreditService.findByCustomerAndMerchant(user, userService.findByUUID(cartItemHolder.getSellerId()));
-                            usersCredit.setTotalDebt(ordersTotalPrice);
-                            if (usersCredit.getTotalDebt() > usersCredit.getCreditLimit()) {
-                                throw new BadRequestException("Not enough credit limit");
-                            }
-                            usersCreditService.update(usersCredit.getUuid().toString(),usersCredit);
-                    }
-
-                });
+            for (CartItemHolder cartItemHolder : cartItemHolderList) {
+                PaymentOption paymentOption = cartItemHolder.getPaymentOption();
+                double ordersTotalPrice = cartItemHolder.getCartItems().stream().mapToDouble(CartItem::getDiscountedTotalPrice).sum();
+                switch (paymentOption) {
+                    case SCRD:
+                        SystemCredit systemCredit = systemCreditService.findByUser(user.getId());
+                        systemCredit.setTotalDebt(systemCredit.getTotalDebt() + ordersTotalPrice);
+                        if (systemCredit.getTotalDebt() > systemCredit.getCreditLimit()) {
+                            throw new BadRequestException("Not enough systemCredit limit");
+                        }
+                        systemCreditService.update(systemCredit.getUuid().toString(), systemCredit);
+                        break;
+                    case MCRD:
+                        UsersCredit usersCredit = usersCreditService.findByCustomerAndMerchant(user, userService.findByUUID(cartItemHolder.getSellerId()));
+                        usersCredit.setTotalDebt(ordersTotalPrice);
+                        if (usersCredit.getTotalDebt() > usersCredit.getCreditLimit()) {
+                            throw new BadRequestException("Not enough credit limit");
+                        }
+                        usersCreditService.update(usersCredit.getUuid().toString(), usersCredit);
+                }
+                Order order = ordersPopulator(cartItemHolder, user);
+                order.setOrderItems(orderItemsPopulator(cartItemHolder.getCartItems(), order));
+                orders.add(order);
+                obligations.add(obligationPopulator(order));
+                orderItems.addAll(order.getOrderItems());
+            }
 
 
             cart.setCartStatus(CartStatus.NEW);
             cartService.update(cart.getId(), cart);
-            cartItemHolderService.deleteAll(cartItemHolderList);
+            cartItemHolderService.deleteAll(new HashSet<>(cartItemHolderList));
 
+            orderService.createAll(orders);
+            orderItemService.createAll(orderItems);
+            obligationService.createAll(obligations);
             return orders.stream().map(OrderMapper::orderToReadableOrder).collect(Collectors.toList());
         }
     }
 
-    private List<Order> ordersPopulator(Set<CartItemHolder> cartItemHolders, User user) {
-        List<Order> orders = new ArrayList<>();
-        for (CartItemHolder cartItemHolder : cartItemHolders) {
+    private Order ordersPopulator(CartItemHolder cartItemHolder, User user) {
             double orderTotalPrice = cartItemHolder.getCartItems().stream().mapToDouble(CartItem::getTotalPrice).sum();
             double discountedTotalPrice = cartItemHolder.getCartItems().stream().mapToDouble(CartItem::getDiscountedTotalPrice).sum();
             if (discountedTotalPrice == 0) {
@@ -186,23 +192,18 @@ public class OrderFacadeImpl implements OrderFacade {
             } else {
                 order.setStatus(OrderStatus.NEW);
             }
-
-            orderItemsPopulator(cartItemHolder.getCartItems(), order);
-            obligationPopulator(order);
-            orders.add(order);
-        }
-        return orderService.createAll(orders);
+        return order;
     }
 
-    private void obligationPopulator(Order order) {
-       Obligation obligation = new Obligation();
+    private Obligation obligationPopulator(Order order) {
+        Obligation obligation = new Obligation();
         double commission = order.getOrderItems().stream().mapToDouble(OrderItem::getCommission).sum();
         boolean paymentType = order.getPaymentType().equals(PaymentOption.COD) || order.getPaymentType().equals(PaymentOption.MCRD);
         obligation.setDebt(paymentType ? commission : 0);
         obligation.setReceivable(paymentType ? 0 : order.getDiscountedTotalPrice() - commission);
         obligation.setUser(order.getSeller());
         obligation.setOrder(order);
-        obligationService.create(obligation);
+        return obligation;
     }
 
     private List<OrderItem> orderItemsPopulator(Set<CartItem> cartItems, Order order) {
@@ -214,6 +215,6 @@ public class OrderFacadeImpl implements OrderFacade {
             orderItems.add(orderItem);
         }
 
-        return orderItemService.createAll(orderItems);
+        return orderItems;
     }
 }

@@ -1,5 +1,6 @@
 package com.marketing.web.services.order;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.dtos.order.OrderSummary;
 import com.marketing.web.dtos.order.SearchOrder;
 import com.marketing.web.enums.OrderStatus;
@@ -28,7 +29,7 @@ public class OrderServiceImpl implements OrderService {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Order> resultPage = orderRepository.findAll(pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
         }
         return resultPage;
     }
@@ -62,7 +63,7 @@ public class OrderServiceImpl implements OrderService {
         PageRequest pageRequest = getPageRequest(pageNumber, "id", "desc");
         Page<Order> resultPage = orderRepository.findAllByOrOrderDateBetween(startDate, endDate, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
         }
         return resultPage;
     }
@@ -72,7 +73,7 @@ public class OrderServiceImpl implements OrderService {
         PageRequest pageRequest = getPageRequest(pageNumber, "id", "desc");
         Page<Order> resultPage = orderRepository.findAllByOrderDateBetweenAndBuyerOrSeller(startDate,endDate, user, user, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
         }
         return resultPage;
     }
@@ -82,7 +83,7 @@ public class OrderServiceImpl implements OrderService {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Order> resultPage = orderRepository.findAllBySellerOrBuyer(user,user,pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException("Not Found Page Number:" + pageNumber);
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
         }
         return resultPage;
     }
@@ -94,12 +95,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order findById(Long id) {
-        return orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order not found with id:" + id));
+        return orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"order", id.toString()));
     }
 
     @Override
     public Order findByUUID(String uuid) {
-        return orderRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Order not found with id:" + uuid));
+        return orderRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"order", uuid));
     }
 
     @Override
@@ -111,9 +112,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order findByUuidAndUser(String uuid,User user, RoleType roleType) {
         if (roleType.equals(RoleType.MERCHANT)){
-            return orderRepository.findBySellerAndUuid(user, UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Order not found with id: "+ uuid));
+            return orderRepository.findBySellerAndUuid(user, UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"order",uuid));
         }
-        return orderRepository.findByBuyerAndUuid(user, UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Order not found with id: "+ uuid));
+        return orderRepository.findByBuyerAndUuid(user, UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"order", uuid));
 }
 
     @Override
