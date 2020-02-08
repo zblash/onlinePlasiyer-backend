@@ -10,8 +10,6 @@ import com.marketing.web.enums.*;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.*;
-import com.marketing.web.services.cart.CartItemHolderService;
-import com.marketing.web.services.cart.CartService;
 import com.marketing.web.services.credit.CreditActivityService;
 import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.invoice.ObligationService;
@@ -34,12 +32,6 @@ public class OrderFacadeImpl implements OrderFacade {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private CartItemHolderService cartItemHolderService;
-
-    @Autowired
-    private CartService cartService;
 
     @Autowired
     private OrderItemService orderItemService;
@@ -166,12 +158,8 @@ public class OrderFacadeImpl implements OrderFacade {
     }
 
     @Override
-    public List<ReadableOrder> checkoutCart(User user, Cart cart, WritableCheckout writableCheckout) {
+    public List<ReadableOrder> checkoutCart(User user, Set<CartItemHolder> cartItemHolderList, WritableCheckout writableCheckout) {
         {
-
-            List<CartItemHolder> cartItemHolderList = cart.getItems().stream()
-                    .filter(cartItemHolder -> writableCheckout.getSellerIdList().contains(cartItemHolder.getUuid().toString()))
-                    .collect(Collectors.toList());
 
             List<Order> orders = new ArrayList<>();
             List<OrderItem> orderItems = new ArrayList<>();
@@ -209,10 +197,6 @@ public class OrderFacadeImpl implements OrderFacade {
                 }
 
             }
-
-            cart.setCartStatus(CartStatus.NEW);
-            cartService.update(cart.getId(), cart);
-            cartItemHolderService.deleteAll(new HashSet<>(cartItemHolderList));
 
             orderService.createAll(orders);
             orderItemService.saveAll(orderItems);
