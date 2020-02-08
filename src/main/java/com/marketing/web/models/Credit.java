@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "userscredits")
+@Table(name = "credits")
 @Builder
 public class Credit implements Serializable {
 

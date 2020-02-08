@@ -20,6 +20,8 @@ import com.marketing.web.services.order.OrderService;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.facade.OrderFacade;
 import com.marketing.web.utils.mappers.OrderMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,13 +57,11 @@ public class OrderFacadeImpl implements OrderFacade {
 
     @Override
     public ReadableOrder saveOrder(WritableOrder writableOrder, Order order) {
-
         if (OrderStatus.CNFRM.equals(order.getStatus())
                 && OrderStatus.FNS.equals(writableOrder.getStatus())
                 && writableOrder.getWaybillDate() != null) {
 
             order.setWaybillDate(writableOrder.getWaybillDate());
-
             if (PaymentOption.MCRD.equals(order.getPaymentType()) && writableOrder.getPaidPrice() > 0) {
                 Credit credit = creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller())
                         .orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit.user",""));
@@ -86,13 +86,14 @@ public class OrderFacadeImpl implements OrderFacade {
                 } else {
                      credit = creditService.create(Credit.builder()
                             .creditLimit(totalPrice)
+                             .creditType(CreditType.MCRD)
                             .customer(order.getBuyer()).merchant(order.getSeller()).totalDebt(0).build());
                 }
                 CreditActivity creditActivity = creditActivityPopulator(order,credit,totalPrice,CreditActivityType.CRDT);
                 creditActivityService.create(creditActivity);
             } else if (PaymentOption.SCRD.equals(order.getPaymentType()) && writableOrder.getPaidPrice() > 0) {
                 Credit credit = creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller())
-                        .orElseGet(() -> Credit.builder().creditLimit(writableOrder.getPaidPrice()).customer(order.getBuyer()).merchant(order.getSeller()).creditType(CreditType.SCRD).totalDebt(0).build());
+                        .orElseGet(() -> creditService.create(Credit.builder().creditLimit(writableOrder.getPaidPrice()).customer(order.getBuyer()).merchant(order.getSeller()).creditType(CreditType.MCRD).totalDebt(0).build()));
                 CreditActivity creditActivity = creditActivityPopulator(order, credit, writableOrder.getPaidPrice(), CreditActivityType.CRDT);
                 creditActivityService.create(creditActivity);
             }
