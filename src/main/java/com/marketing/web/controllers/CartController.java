@@ -127,8 +127,12 @@ public class CartController {
         Cart cart = loggedInUser.getCart();
         CartItemHolder cartItemHolder = cartItemHolderService.findByCartAndUuid(cart, paymentMethod.getHolderId());
         if (PaymentOption.MCRD.equals(paymentMethod.getPaymentOption())) {
-            creditService.findByCustomerAndMerchant(loggedInUser, userService.findByUUID(cartItemHolder.getSellerId()))
+            Credit credit = creditService.findByCustomerAndMerchant(loggedInUser, userService.findByUUID(cartItemHolder.getSellerId()))
                     .orElseThrow(() -> new BadRequestException("You have not credit from this merchant"));
+            double holderTotalPrice = cartItemHolder.getCartItems().stream().mapToDouble(CartItem::getDiscountedTotalPrice).sum();
+            if (credit.getTotalDebt() + holderTotalPrice > credit.getCreditLimit()) {
+                throw new BadRequestException("Insufficient credit");
+            }
         }
         cartItemHolder.setPaymentOption(paymentMethod.getPaymentOption());
         cart.setCartStatus(CartStatus.PRCD);
