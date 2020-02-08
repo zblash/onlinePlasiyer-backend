@@ -24,6 +24,7 @@ public class CreditActivity implements Serializable {
 
     private double priceValue;
 
+    @Enumerated(EnumType.STRING)
     private CreditActivityType creditActivityType;
 
     @ManyToOne

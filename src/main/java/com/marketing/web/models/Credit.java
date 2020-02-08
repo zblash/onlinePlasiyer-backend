@@ -41,6 +41,7 @@ public class Credit implements Serializable {
     private double creditLimit;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private CreditType creditType;
 
     @OneToMany(mappedBy = "credit",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
