@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,6 +56,7 @@ public class CreditActivityServiceImpl implements CreditActivityService {
 
     @Override
     public CreditActivity create(CreditActivity creditActivity) {
+        creditActivity.setDate(new Date());
         return creditActivityRepository.save(creditActivity);
     }
 
@@ -63,6 +65,7 @@ public class CreditActivityServiceImpl implements CreditActivityService {
         CreditActivity creditActivity = findByUUID(uuid);
         creditActivity.setCreditActivityType(updatedCreditActivity.getCreditActivityType());
         creditActivity.setPriceValue(updatedCreditActivity.getPriceValue());
+        creditActivity.setDate(new Date());
         return creditActivity;
     }
 

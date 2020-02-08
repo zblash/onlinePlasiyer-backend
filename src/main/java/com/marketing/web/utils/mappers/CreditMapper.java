@@ -5,6 +5,7 @@ import com.marketing.web.dtos.credit.ReadableCredit;
 import com.marketing.web.dtos.credit.ReadableCreditActivity;
 import com.marketing.web.dtos.credit.ReadableUsersCredit;
 import com.marketing.web.dtos.credit.WritableCredit;
+import com.marketing.web.enums.CreditType;
 import com.marketing.web.models.Credit;
 import com.marketing.web.models.CreditActivity;
 import org.springframework.data.domain.Page;
@@ -60,12 +61,18 @@ public final class CreditMapper {
             ReadableCreditActivity readableCreditActivity = new ReadableCreditActivity();
             readableCreditActivity.setId(creditActivity.getUuid().toString());
             readableCreditActivity.setPrice(creditActivity.getPriceValue());
+            readableCreditActivity.setCreditLimit(creditActivity.getCredit().getCreditLimit());
+            readableCreditActivity.setTotalDebt(creditActivity.getCredit().getTotalDebt());
             readableCreditActivity.setCreditActivityType(creditActivity.getCreditActivityType());
             readableCreditActivity.setCreditType(creditActivity.getCredit().getCreditType());
+            readableCreditActivity.setDocumentNo(creditActivity.getId());
             readableCreditActivity.setCustomerId(creditActivity.getCustomer().getUuid().toString());
             readableCreditActivity.setCustomerName(creditActivity.getCustomer().getName());
-            readableCreditActivity.setMerchantId(creditActivity.getMerchant().getUuid().toString());
-            readableCreditActivity.setMerchantName(creditActivity.getMerchant().getName());
+            if (creditActivity.getMerchant() != null) {
+                readableCreditActivity.setMerchantId(creditActivity.getMerchant().getUuid().toString());
+                readableCreditActivity.setMerchantName(creditActivity.getMerchant().getName());
+            }
+            readableCreditActivity.setDate(creditActivity.getDate());
             return readableCreditActivity;
         }
     }

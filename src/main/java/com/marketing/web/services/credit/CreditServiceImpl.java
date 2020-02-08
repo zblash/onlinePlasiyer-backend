@@ -61,7 +61,7 @@ public class CreditServiceImpl implements CreditService {
     public Credit update(String uuid, Credit updatedCredit) {
         Credit credit = findByUUID(uuid);
         credit.setTotalDebt(updatedCredit.getTotalDebt());
-        credit.setCreditLimit(updatedCredit.getTotalDebt());
+        credit.setCreditLimit(updatedCredit.getCreditLimit());
         if (updatedCredit.getCustomer() != null) {
             credit.setCustomer(updatedCredit.getCustomer());
         }
