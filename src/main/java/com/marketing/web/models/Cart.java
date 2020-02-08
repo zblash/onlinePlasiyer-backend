@@ -36,6 +36,7 @@ public class Cart implements Serializable {
     @EqualsAndHashCode.Exclude
     private Set<CartItemHolder> items;
 
+    @Enumerated(EnumType.STRING)
     private CartStatus cartStatus;
 
     @PrePersist

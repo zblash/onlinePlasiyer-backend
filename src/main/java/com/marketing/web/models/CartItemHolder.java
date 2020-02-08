@@ -37,6 +37,7 @@ public class CartItemHolder implements Serializable {
     @Fetch(value = FetchMode.SUBSELECT)
     private Set<CartItem> cartItems;
 
+    @Enumerated(EnumType.STRING)
     private PaymentOption paymentOption;
 
     private String sellerId;

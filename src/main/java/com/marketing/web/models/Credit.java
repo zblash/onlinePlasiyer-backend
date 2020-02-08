@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "userscredits")
+@Table(name = "credits")
 @Builder
 public class Credit implements Serializable {
 
@@ -41,6 +41,7 @@ public class Credit implements Serializable {
     private double creditLimit;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private CreditType creditType;
 
     @OneToMany(mappedBy = "credit",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)

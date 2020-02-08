@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -25,6 +24,7 @@ public class CreditActivity implements Serializable {
 
     private double priceValue;
 
+    @Enumerated(EnumType.STRING)
     private CreditActivityType creditActivityType;
 
     @ManyToOne
