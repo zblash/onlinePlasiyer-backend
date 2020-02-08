@@ -39,7 +39,7 @@ public class CreditsController {
     @GetMapping
     public ResponseEntity<WrapperPagination<ReadableCredit>> getAll(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "totalDebt") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
         return ResponseEntity.ok(CreditMapper
-                .pagedCreditListToWrapperReadableCredit(creditService.findAll(pageNumber, sortBy, sortType, CreditType.SCRD)));
+                .pagedCreditListToWrapperReadableCredit(creditService.findAllByCreditType(pageNumber, sortBy, sortType, CreditType.SCRD)));
     }
 
     @GetMapping("/my")

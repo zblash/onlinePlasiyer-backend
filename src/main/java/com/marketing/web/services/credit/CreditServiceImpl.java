@@ -23,7 +23,7 @@ public class CreditServiceImpl implements CreditService {
     private CreditRepository creditRepository;
 
     @Override
-    public Page<Credit> findAll(int pageNumber, String sortBy, String sortType, CreditType creditType) {
+    public Page<Credit> findAllByCreditType(int pageNumber, String sortBy, String sortType, CreditType creditType) {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Credit> resultPage = creditRepository.findAllByCreditType(creditType, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {

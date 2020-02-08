@@ -101,8 +101,9 @@ public class CategoriesController {
         if (category.isSubCategory()){
             category.setParent(categoryService.findByUUID(updatedCategory.getParentId()));
         }
-        if (updatedCategory.getCommission() != null) {
+        if (updatedCategory.getCommission() != null && category.getCommission() != updatedCategory.getCommission()) {
             category.setCommission(updatedCategory.getCommission());
+
         }
         return ResponseEntity.ok(CategoryMapper.categoryToReadableCategory(categoryService.update(id,category)));
     }
