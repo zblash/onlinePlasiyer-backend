@@ -1,12 +1,12 @@
 package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.user.*;
+import com.marketing.web.enums.CreditType;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
-import com.marketing.web.models.Address;
-import com.marketing.web.models.City;
-import com.marketing.web.models.State;
-import com.marketing.web.models.User;
+import com.marketing.web.models.*;
+import com.marketing.web.services.cart.CartServiceImpl;
+import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.invoice.ObligationService;
 import com.marketing.web.services.order.OrderService;
 import com.marketing.web.services.product.ProductSpecifyService;
@@ -41,6 +41,15 @@ public class UsersController {
 
     @Autowired
     private StateService stateService;
+
+    @Autowired
+    private CartServiceImpl cartService;
+
+    @Autowired
+    private CreditService creditService;
+
+    @Autowired
+    private ObligationService obligationService;
 
     private Logger logger = LoggerFactory.getLogger(UsersController.class);
 
@@ -105,8 +114,25 @@ public class UsersController {
 
             user.setStatus(writableRegister.isStatus());
             user.setAddress(addressService.create(address));
-            ReadableRegister readableRegister = UserMapper.userToReadableRegister(userService.create(user, writableRegister.getRoleType()));
-            return new ResponseEntity<>(readableRegister, HttpStatus.CREATED);
+            User createdUser = userService.create(user, writableRegister.getRoleType());
+            RoleType roleType = UserMapper.roleToRoleType(createdUser.getRole());
+            if (roleType.equals(RoleType.CUSTOMER)) {
+                Cart cart = cartService.create(createdUser);
+                user.setCart(cart);
+                Credit credit = new Credit();
+                credit.setCustomer(createdUser);
+                credit.setTotalDebt(0);
+                credit.setCreditLimit(0);
+                credit.setCreditType(CreditType.SCRD);
+                creditService.create(credit);
+            } else if (roleType.equals(RoleType.MERCHANT)) {
+                Obligation obligation = new Obligation();
+                obligation.setUser(createdUser);
+                obligation.setReceivable(0);
+                obligation.setReceivable(0);
+                obligationService.create(obligation);
+            }
+            return new ResponseEntity<>(UserMapper.userToReadableRegister(createdUser), HttpStatus.CREATED);
         }
         throw new BadRequestException("Username or email already registered");
     }

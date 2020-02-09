@@ -9,16 +9,10 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReadableObligation implements Serializable {
+public class WritableObligation implements Serializable {
 
-    private String id;
+    private Double debt;
 
-    private double debt;
-
-    private double receivable;
-
-    private String userId;
-
-    private String userName;
+    private Double receivable;
 
 }

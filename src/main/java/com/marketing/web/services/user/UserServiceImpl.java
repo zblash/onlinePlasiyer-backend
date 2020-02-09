@@ -3,11 +3,8 @@ package com.marketing.web.services.user;
 import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.enums.CreditType;
 import com.marketing.web.errors.ResourceNotFoundException;
-import com.marketing.web.models.Cart;
-import com.marketing.web.models.Credit;
-import com.marketing.web.models.Role;
+import com.marketing.web.models.*;
 import com.marketing.web.enums.RoleType;
-import com.marketing.web.models.User;
 import com.marketing.web.repositories.UserRepository;
 import com.marketing.web.configs.security.CustomPrincipal;
 import com.marketing.web.services.cart.CartServiceImpl;
@@ -33,11 +30,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private RoleServiceImpl roleService;
 
-    @Autowired
-    private CartServiceImpl cartService;
-
-    @Autowired
-    private CreditService creditService;
 
     @Override
     public User findByUserName(String userName) {
@@ -91,18 +83,7 @@ public class UserServiceImpl implements UserService {
         Role role = roleService.createOrFind("ROLE_"+roleType.toString());
         user.setRole(role);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        User createdUser = userRepository.save(user);
-        if (roleType.equals(RoleType.CUSTOMER)) {
-            Cart cart = cartService.create(createdUser);
-            user.setCart(cart);
-            Credit credit = new Credit();
-            credit.setCustomer(createdUser);
-            credit.setTotalDebt(0);
-            credit.setCreditLimit(0);
-            credit.setCreditType(CreditType.SCRD);
-            creditService.create(credit);
-        }
-        return createdUser;
+        return userRepository.save(user);
     }
 
     @Override
