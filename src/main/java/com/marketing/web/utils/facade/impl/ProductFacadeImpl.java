@@ -40,6 +40,9 @@ public class ProductFacadeImpl implements ProductFacade {
     @Autowired
     private StateService stateService;
 
+
+
+
     @Override
     public ReadableProductSpecify createProductSpecify(WritableProductSpecify writableProductSpecify, User user) {
         Barcode barcode = barcodeService.findByBarcodeNo(writableProductSpecify.getBarcode());

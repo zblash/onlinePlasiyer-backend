@@ -1,5 +1,6 @@
 package com.marketing.web.controllers;
 
+import com.marketing.web.dtos.product.WritableCommission;
 import com.marketing.web.dtos.user.*;
 import com.marketing.web.enums.CreditType;
 import com.marketing.web.enums.RoleType;
@@ -50,6 +51,9 @@ public class UsersController {
 
     @Autowired
     private ObligationService obligationService;
+
+    @Autowired
+    private ProductSpecifyService productSpecifyService;
 
     private Logger logger = LoggerFactory.getLogger(UsersController.class);
 
@@ -175,5 +179,20 @@ public class UsersController {
         return ResponseEntity.ok(user.getActiveStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
     }
 
-
+    @PutMapping("/commissions")
+    public ResponseEntity<ReadableUserInfo> setCommissions(@Valid @RequestBody WritableCommission writableCommission) {
+        User user = userService.findByUUID(writableCommission.getId());
+        RoleType roleType = UserMapper.roleToRoleType(user.getRole());
+        if (roleType.equals(RoleType.MERCHANT)) {
+            user.setCommission(writableCommission.getCommission());
+            List<ProductSpecify> productSpecifies = productSpecifyService.findAllByUserWithoutPagination(user)
+                    .stream()
+                    .peek(productSpecify -> productSpecify.setCommission(writableCommission.getCommission()))
+                    .collect(Collectors.toList());
+            productSpecifyService.updateAll(productSpecifies);
+            userService.update(user.getId(), user);
+            return ResponseEntity.ok(UserMapper.userToReadableUserInfo(user));
+        }
+        throw new BadRequestException("Only merchant user's commission editable");
+    }
 }

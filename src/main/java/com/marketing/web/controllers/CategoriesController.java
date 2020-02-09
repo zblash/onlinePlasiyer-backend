@@ -4,7 +4,11 @@ import com.marketing.web.dtos.category.ReadableCategory;
 import com.marketing.web.dtos.category.WritableCategory;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.Category;
+import com.marketing.web.models.Product;
+import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.services.category.CategoryService;
+import com.marketing.web.services.product.ProductService;
+import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.services.storage.AmazonClient;
 import com.marketing.web.utils.mappers.CategoryMapper;
 import org.slf4j.Logger;
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +34,12 @@ public class CategoriesController {
 
     @Autowired
     private AmazonClient amazonClient;
+
+    @Autowired
+    private ProductService productService;
+
+    @Autowired
+    private ProductSpecifyService productSpecifyService;
 
     private Logger logger = LoggerFactory.getLogger(CategoriesController.class);
 
@@ -103,7 +114,14 @@ public class CategoriesController {
         }
         if (updatedCategory.getCommission() != null && category.getCommission() != updatedCategory.getCommission()) {
             category.setCommission(updatedCategory.getCommission());
-
+            List<Product> products = category.getProducts().stream().peek(product -> product.setCommission(updatedCategory.getCommission())).collect(Collectors.toList());
+            List<ProductSpecify> productSpecifies = products.stream()
+                    .map(Product::getProductSpecifies)
+                    .flatMap(Collection::stream)
+                    .peek(productSpecify -> productSpecify.setCommission(updatedCategory.getCommission()))
+                    .collect(Collectors.toList());
+            productService.saveAll(products);
+            productSpecifyService.updateAll(productSpecifies);
         }
         return ResponseEntity.ok(CategoryMapper.categoryToReadableCategory(categoryService.update(id,category)));
     }

@@ -121,6 +121,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<Product> saveAll(List<Product> products) {
+        return productRepository.saveAll(products);
+    }
+
+    @Override
     public Product update(String uuid,Product updatedProduct) {
         Product product = findByUUID(uuid);
         product.setBarcodes(updatedProduct.getBarcodes());

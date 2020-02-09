@@ -220,8 +220,13 @@ public class ProductsController {
         product.setStatus(writableProduct.isStatus());
         product.setTax(writableProduct.getTax());
         product.setCategory(categoryService.findByUUID(writableProduct.getCategoryId()));
-        if (writableProduct.getCommission() != null) {
+        if (writableProduct.getCommission() != null && product.getCommission() != writableProduct.getCommission()) {
             product.setCommission(writableProduct.getCommission());
+            List<ProductSpecify> productSpecifies = product.getProductSpecifies().stream()
+                    .peek(productSpecify -> productSpecify.setCommission(1))
+                    .collect(Collectors.toList());
+            productSpecifyService.updateAll(productSpecifies);
+
         }
         return ResponseEntity.ok(ProductMapper.productToReadableProduct(productService.update(id, product)));
     }
@@ -250,29 +255,4 @@ public class ProductsController {
         return ResponseEntity.ok(ProductMapper.productToReadableProduct(product));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("/commissions")
-    public ResponseEntity<List<ReadableProductSpecify>> setCommissions(@Valid @RequestBody WritableCommission writableCommission) {
-        List<ProductSpecify> productSpecifyList = null;
-        if (writableCommission.getCommissionType().equals(CommissionType.ALL)) {
-            productSpecifyList = productSpecifyService.findAllWithoutPagination();
-        } else if (writableCommission.getId() != null) {
-            if (writableCommission.getCommissionType().equals(CommissionType.PRD)) {
-                productSpecifyList = productSpecifyService.findAllByProductWithoutPagination(productService.findByUUID(writableCommission.getId()));
-            } else if (writableCommission.getCommissionType().equals(CommissionType.USER)) {
-                User user = userService.findByUUID(writableCommission.getId());
-                if (!UserMapper.roleToRoleType(user.getRole()).equals(RoleType.MERCHANT)) {
-                    throw new BadRequestException("Commission not available for this user");
-                }
-                user.setCommission(writableCommission.getCommission());
-                userService.update(user.getId(), user);
-                productSpecifyList = productSpecifyService.findAllByUserWithoutPagination(user);
-            }
-        } else {
-            throw new BadRequestException("Commission type or id must not null");
-        }
-        productSpecifyList.stream().forEach(productSpecify -> productSpecify.setCommission(writableCommission.getCommission()));
-        return ResponseEntity.ok(productSpecifyService.updateAll(productSpecifyList).stream()
-                .map(ProductMapper::productSpecifyToReadableProductSpecify).collect(Collectors.toList()));
-    }
 }

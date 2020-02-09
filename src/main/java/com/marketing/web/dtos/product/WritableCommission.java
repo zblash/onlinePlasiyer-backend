@@ -15,9 +15,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class WritableCommission implements Serializable {
 
-    @NotNull(message = "{validation.notNull}")
-    private CommissionType commissionType;
-
+    @NotNull(message = "{validation.notBlank}")
     private String id;
 
     @Enumerated(EnumType.STRING)

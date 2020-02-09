@@ -44,5 +44,4 @@ public interface ProductSpecifyService {
 
     List<State> allowedStates(User user, List<State> states);
 
-
 }
