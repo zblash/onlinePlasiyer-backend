@@ -18,7 +18,6 @@ public class WritableCommission implements Serializable {
     @NotNull(message = "{validation.notBlank}")
     private String id;
 
-    @Enumerated(EnumType.STRING)
     @NotNull(message = "{validation.notNull}")
     private double commission;
 
