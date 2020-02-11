@@ -6,8 +6,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum OrderStatus {
     FNS("FINISHED"),
     NEW("NEW"),
+    CNFRM("CONFIRMED"),
     CNCL("CANCELLED"),
-    PAD("PAID");
+    CNRQ("CANCEL_REQUEST");
 
     private String value;
 

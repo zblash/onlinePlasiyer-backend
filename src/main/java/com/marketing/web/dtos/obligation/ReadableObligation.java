@@ -17,4 +17,8 @@ public class ReadableObligation implements Serializable {
 
     private double receivable;
 
+    private String userId;
+
+    private String userName;
+
 }

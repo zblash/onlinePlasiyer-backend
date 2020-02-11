@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -25,6 +26,10 @@ public class Obligation implements Serializable {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;
+
+    @OneToMany(mappedBy = "obligation",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
+    @OrderBy("id desc")
+    private List<ObligationActivity> obligationActivities;
 
     @NotNull
     private double debt;

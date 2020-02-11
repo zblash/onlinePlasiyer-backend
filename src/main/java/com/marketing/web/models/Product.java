@@ -38,6 +38,8 @@ public class Product implements Serializable  {
 
     private boolean status;
 
+    private double commission;
+
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL,orphanRemoval = true)
     @OrderBy("id desc")
     @EqualsAndHashCode.Exclude

@@ -1,12 +1,13 @@
 package com.marketing.web.controllers;
 
+import com.marketing.web.dtos.product.WritableCommission;
 import com.marketing.web.dtos.user.*;
+import com.marketing.web.enums.CreditType;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
-import com.marketing.web.models.Address;
-import com.marketing.web.models.City;
-import com.marketing.web.models.State;
-import com.marketing.web.models.User;
+import com.marketing.web.models.*;
+import com.marketing.web.services.cart.CartServiceImpl;
+import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.invoice.ObligationService;
 import com.marketing.web.services.order.OrderService;
 import com.marketing.web.services.product.ProductSpecifyService;
@@ -42,6 +43,18 @@ public class UsersController {
     @Autowired
     private StateService stateService;
 
+    @Autowired
+    private CartServiceImpl cartService;
+
+    @Autowired
+    private CreditService creditService;
+
+    @Autowired
+    private ObligationService obligationService;
+
+    @Autowired
+    private ProductSpecifyService productSpecifyService;
+
     private Logger logger = LoggerFactory.getLogger(UsersController.class);
 
     @GetMapping
@@ -76,7 +89,7 @@ public class UsersController {
         }
     }
 
-    @PostMapping("/changeStatus/{id}/{status}")
+    @PostMapping("/status/{id}/{status}")
     public ResponseEntity<?> changeUserStatus(@PathVariable String id, @PathVariable boolean status) {
         User user = userService.findByUUID(id);
         user.setStatus(status);
@@ -105,8 +118,25 @@ public class UsersController {
 
             user.setStatus(writableRegister.isStatus());
             user.setAddress(addressService.create(address));
-            ReadableRegister readableRegister = UserMapper.userToReadableRegister(userService.create(user, writableRegister.getRoleType()));
-            return new ResponseEntity<>(readableRegister, HttpStatus.CREATED);
+            User createdUser = userService.create(user, writableRegister.getRoleType());
+            RoleType roleType = UserMapper.roleToRoleType(createdUser.getRole());
+            if (roleType.equals(RoleType.CUSTOMER)) {
+                Cart cart = cartService.create(createdUser);
+                user.setCart(cart);
+                Credit credit = new Credit();
+                credit.setCustomer(createdUser);
+                credit.setTotalDebt(0);
+                credit.setCreditLimit(0);
+                credit.setCreditType(CreditType.SCRD);
+                creditService.create(credit);
+            } else if (roleType.equals(RoleType.MERCHANT)) {
+                Obligation obligation = new Obligation();
+                obligation.setUser(createdUser);
+                obligation.setReceivable(0);
+                obligation.setReceivable(0);
+                obligationService.create(obligation);
+            }
+            return new ResponseEntity<>(UserMapper.userToReadableRegister(createdUser), HttpStatus.CREATED);
         }
         throw new BadRequestException("Username or email already registered");
     }
@@ -149,5 +179,20 @@ public class UsersController {
         return ResponseEntity.ok(user.getActiveStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
     }
 
-
+    @PutMapping("/commissions")
+    public ResponseEntity<ReadableUserInfo> setCommissions(@Valid @RequestBody WritableCommission writableCommission) {
+        User user = userService.findByUUID(writableCommission.getId());
+        RoleType roleType = UserMapper.roleToRoleType(user.getRole());
+        if (roleType.equals(RoleType.MERCHANT)) {
+            user.setCommission(writableCommission.getCommission());
+            List<ProductSpecify> productSpecifies = productSpecifyService.findAllByUserWithoutPagination(user)
+                    .stream()
+                    .peek(productSpecify -> productSpecify.setCommission(writableCommission.getCommission()))
+                    .collect(Collectors.toList());
+            productSpecifyService.updateAll(productSpecifies);
+            userService.update(user.getId(), user);
+            return ResponseEntity.ok(UserMapper.userToReadableUserInfo(user));
+        }
+        throw new BadRequestException("Only merchant user's commission editable");
+    }
 }

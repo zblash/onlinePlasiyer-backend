@@ -30,13 +30,13 @@ public class Order implements Serializable  {
     @NotNull
     private double totalPrice;
 
-    private double discountedTotalPrice;
-
     private double commission;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
+    @Enumerated(EnumType.STRING)
     private PaymentOption paymentType;
 
     @OneToMany(mappedBy = "order",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)

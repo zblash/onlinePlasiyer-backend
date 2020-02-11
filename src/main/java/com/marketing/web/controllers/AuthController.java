@@ -2,14 +2,15 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.configs.constants.ApplicationContstants;
 import com.marketing.web.dtos.user.*;
+import com.marketing.web.enums.CreditType;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.HttpMessage;
-import com.marketing.web.models.Address;
-import com.marketing.web.models.City;
-import com.marketing.web.models.State;
-import com.marketing.web.models.User;
-import com.marketing.web.security.JWTAuthToken.JWTGenerator;
+import com.marketing.web.models.*;
+import com.marketing.web.configs.security.JWTAuthToken.JWTGenerator;
+import com.marketing.web.services.cart.CartServiceImpl;
+import com.marketing.web.services.credit.CreditService;
+import com.marketing.web.services.invoice.ObligationService;
 import com.marketing.web.services.user.AddressService;
 import com.marketing.web.services.user.CityService;
 import com.marketing.web.services.user.StateService;
@@ -26,7 +27,6 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
 import javax.validation.Valid;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +50,15 @@ public class AuthController {
 
     @Autowired
     private CityService cityService;
+
+    @Autowired
+    private CartServiceImpl cartService;
+
+    @Autowired
+    private CreditService creditService;
+
+    @Autowired
+    private ObligationService obligationService;
 
     @PostMapping("/signin")
     public ResponseEntity<?> login(@RequestBody WritableLogin writableLogin, WebRequest request){
@@ -94,8 +103,25 @@ public class AuthController {
 
             user.setStatus(true);
             user.setAddress(addressService.create(address));
-            ReadableRegister readableRegister = UserMapper.userToReadableRegister(userService.create(user, writableRegister.getRoleType()));
-            return ResponseEntity.ok(readableRegister);
+            User createdUser = userService.create(user, writableRegister.getRoleType());
+            RoleType roleType = UserMapper.roleToRoleType(createdUser.getRole());
+            if (roleType.equals(RoleType.CUSTOMER)) {
+                Cart cart = cartService.create(createdUser);
+                user.setCart(cart);
+                Credit credit = new Credit();
+                credit.setCustomer(createdUser);
+                credit.setTotalDebt(0);
+                credit.setCreditLimit(0);
+                credit.setCreditType(CreditType.SCRD);
+                creditService.create(credit);
+            } else if (roleType.equals(RoleType.MERCHANT)) {
+                Obligation obligation = new Obligation();
+                obligation.setUser(createdUser);
+                obligation.setReceivable(0);
+                obligation.setReceivable(0);
+                obligationService.create(obligation);
+            }
+            return ResponseEntity.ok(UserMapper.userToReadableRegister(createdUser));
         }
         throw new BadRequestException("Username or email already registered");
     }

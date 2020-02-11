@@ -1,4 +1,4 @@
-package com.marketing.web.security;
+package com.marketing.web.configs.security;
 
 import com.marketing.web.models.User;
 import org.springframework.security.core.GrantedAuthority;

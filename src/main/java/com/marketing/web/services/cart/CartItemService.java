@@ -1,9 +1,10 @@
 package com.marketing.web.services.cart;
 
 
-import com.marketing.web.dtos.cart.WritableCartItem;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItem;
+import com.marketing.web.models.CartItemHolder;
+import com.marketing.web.models.ProductSpecify;
 
 import java.util.List;
 
@@ -21,8 +22,8 @@ public interface CartItemService {
 
     void delete(Cart cart, CartItem cartItem);
 
-    void deleteAll(List<CartItem> cartItems);
+    void deleteAllByCart(Cart cart);
 
-    CartItem createOrUpdate(Cart cart, WritableCartItem writableCartItem);
+    CartItem createOrUpdate(CartItemHolder cartItemHolder, int quantity, ProductSpecify productSpecify);
 
 }

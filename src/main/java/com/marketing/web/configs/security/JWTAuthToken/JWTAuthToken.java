@@ -1,4 +1,4 @@
-package com.marketing.web.security.JWTAuthToken;
+package com.marketing.web.configs.security.JWTAuthToken;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 

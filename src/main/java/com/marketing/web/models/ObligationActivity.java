@@ -1,21 +1,21 @@
 package com.marketing.web.models;
 
-
+import com.marketing.web.enums.CreditActivityType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "systemcredits",uniqueConstraints={@UniqueConstraint(columnNames={"user_id"})})
-public class SystemCredit implements Serializable {
+@Table(name = "obligationactivities")
+public class ObligationActivity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,15 +23,18 @@ public class SystemCredit implements Serializable {
 
     private UUID uuid;
 
-    @OneToOne
-    @JoinColumn(name = "user_id",referencedColumnName = "id")
-    private User user;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "obligation_id",referencedColumnName = "id")
+    private Obligation obligation;
+
+    @Temporal(TemporalType.DATE)
+    private Date date;
+
+    @Enumerated(EnumType.STRING)
+    private CreditActivityType creditActivityType;
 
     @NotNull
-    private double totalDebt;
-
-    @NotNull
-    private double creditLimit;
+    private double priceValue;
 
     @PrePersist
     public void autofill() {

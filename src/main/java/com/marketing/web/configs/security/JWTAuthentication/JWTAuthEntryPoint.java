@@ -1,4 +1,4 @@
-package com.marketing.web.security.JWTAuthentication;
+package com.marketing.web.configs.security.JWTAuthentication;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;

@@ -1,10 +1,10 @@
-package com.marketing.web.security;
+package com.marketing.web.configs.security;
 
 
-import com.marketing.web.security.JWTAuthentication.JWTAuthEntryPoint;
-import com.marketing.web.security.JWTAuthentication.JWTAuthenticationFilter;
-import com.marketing.web.security.JWTAuthentication.JWTAuthenticationProvider;
-import com.marketing.web.security.JWTAuthentication.JWTSuccessHandler;
+import com.marketing.web.configs.security.JWTAuthentication.JWTAuthEntryPoint;
+import com.marketing.web.configs.security.JWTAuthentication.JWTAuthenticationFilter;
+import com.marketing.web.configs.security.JWTAuthentication.JWTSuccessHandler;
+import com.marketing.web.configs.security.JWTAuthentication.JWTAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

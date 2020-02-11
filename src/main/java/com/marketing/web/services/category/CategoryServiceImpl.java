@@ -1,5 +1,6 @@
 package com.marketing.web.services.category;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Category;
 import com.marketing.web.models.Product;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,11 +35,11 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category findById(Long id) {
-        return categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category not found with id: "+ id));
+        return categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"category",id.toString()));
     }
 
     public Category findByUUID(String uuid) {
-        return categoryRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Category not found with id: "+ uuid));
+        return categoryRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart", uuid));
     }
 
     @Override
@@ -62,7 +64,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void delete(Category category) {
         category.collectLeafChildren();
-        List<Product> products = productRepository.findAllByCategoryIn(Arrays.asList(category));
+        List<Product> products = productRepository.findAllByCategoryIn(Collections.singletonList(category));
         for (Product product:products){
             product.setCategory(null);
         }

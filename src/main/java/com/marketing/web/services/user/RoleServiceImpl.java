@@ -1,5 +1,6 @@
 package com.marketing.web.services.user;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Role;
 import com.marketing.web.repositories.RoleRepository;
@@ -23,7 +24,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public Role findByName(String name) {
-        return roleRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Role not found with given name: "+ name));
+        return roleRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"role", name));
     }
 
     @Override

@@ -2,42 +2,82 @@ package com.marketing.web.utils.mappers;
 
 import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.credit.ReadableCredit;
+import com.marketing.web.dtos.credit.ReadableCreditActivity;
 import com.marketing.web.dtos.credit.ReadableUsersCredit;
 import com.marketing.web.dtos.credit.WritableCredit;
-import com.marketing.web.models.SystemCredit;
-import com.marketing.web.models.UsersCredit;
+import com.marketing.web.enums.CreditType;
+import com.marketing.web.models.Credit;
+import com.marketing.web.models.CreditActivity;
 import org.springframework.data.domain.Page;
 
 import java.util.stream.Collectors;
 
 public final class CreditMapper {
 
-    public static ReadableCredit creditToReadableCredit(SystemCredit systemCredit) {
-        if (systemCredit == null) {
+    public static ReadableCredit creditToReadableCredit(Credit credit) {
+        if (credit == null) {
             return null;
         } else {
             ReadableCredit readableCredit = new ReadableCredit();
-            readableCredit.setId(systemCredit.getUuid().toString());
-            readableCredit.setCreditLimit(systemCredit.getCreditLimit());
-            readableCredit.setTotalDebt(systemCredit.getTotalDebt());
-            readableCredit.setUserId(systemCredit.getUser().getUuid().toString());
-            readableCredit.setUserName(systemCredit.getUser().getUsername());
+            readableCredit.setId(credit.getUuid().toString());
+            readableCredit.setCreditLimit(credit.getCreditLimit());
+            readableCredit.setTotalDebt(credit.getTotalDebt());
+            readableCredit.setUserId(credit.getCustomer().getUuid().toString());
+            readableCredit.setUserName(credit.getCustomer().getUsername());
             return readableCredit;
         }
     }
 
-    public static SystemCredit writableCreditToCredit(WritableCredit writableCredit){
+    public static Credit writableCreditToCredit(WritableCredit writableCredit){
         if (writableCredit == null){
             return null;
         } else {
-            SystemCredit systemCredit = new SystemCredit();
+            Credit systemCredit = new Credit();
             systemCredit.setCreditLimit(writableCredit.getCreditLimit());
             systemCredit.setTotalDebt(writableCredit.getTotalDebt());
             return systemCredit;
         }
     }
 
-    public static WrapperPagination<ReadableCredit> pagedOrderListToWrapperReadableOrder(Page<SystemCredit> pagedCredit){
+    public static ReadableUsersCredit usersCreditToReadableUsersCredit(Credit credit){
+        if (credit == null) {
+            return null;
+        } else {
+            ReadableUsersCredit readableUsersCredit = new ReadableUsersCredit();
+            readableUsersCredit.setCreditLimit(credit.getCreditLimit());
+            readableUsersCredit.setTotalDebt(credit.getTotalDebt());
+            readableUsersCredit.setCustomerId(credit.getCustomer().getUuid().toString());
+            readableUsersCredit.setCustomerName(credit.getCustomer().getName());
+            readableUsersCredit.setMerchantId(credit.getMerchant().getUuid().toString());
+            readableUsersCredit.setMerchantName(credit.getMerchant().getName());
+            return readableUsersCredit;
+        }
+    }
+
+    public static ReadableCreditActivity creditActivityToReadableCreditActivity(CreditActivity creditActivity) {
+        if (creditActivity == null) {
+            return null;
+        } else {
+            ReadableCreditActivity readableCreditActivity = new ReadableCreditActivity();
+            readableCreditActivity.setId(creditActivity.getUuid().toString());
+            readableCreditActivity.setPrice(creditActivity.getPriceValue());
+            readableCreditActivity.setCreditLimit(creditActivity.getCredit().getCreditLimit());
+            readableCreditActivity.setTotalDebt(creditActivity.getCredit().getTotalDebt());
+            readableCreditActivity.setCreditActivityType(creditActivity.getCreditActivityType());
+            readableCreditActivity.setCreditType(creditActivity.getCredit().getCreditType());
+            readableCreditActivity.setDocumentNo(creditActivity.getId());
+            readableCreditActivity.setCustomerId(creditActivity.getCustomer().getUuid().toString());
+            readableCreditActivity.setCustomerName(creditActivity.getCustomer().getName());
+            if (creditActivity.getMerchant() != null) {
+                readableCreditActivity.setMerchantId(creditActivity.getMerchant().getUuid().toString());
+                readableCreditActivity.setMerchantName(creditActivity.getMerchant().getName());
+            }
+            readableCreditActivity.setDate(creditActivity.getDate());
+            return readableCreditActivity;
+        }
+    }
+
+    public static WrapperPagination<ReadableCredit> pagedCreditListToWrapperReadableCredit(Page<Credit> pagedCredit){
         if (pagedCredit == null) {
             return null;
         } else {
@@ -61,18 +101,28 @@ public final class CreditMapper {
         }
     }
 
-    public static ReadableUsersCredit usersCreditToReadableUsersCredit(UsersCredit usersCredit){
-        if (usersCredit == null) {
+    public static WrapperPagination<ReadableCreditActivity> pagedCreditActivityListToWrapperReadableCredityActivity(Page<CreditActivity> pagedCreditActivity){
+        if (pagedCreditActivity == null) {
             return null;
         } else {
-            ReadableUsersCredit readableUsersCredit = new ReadableUsersCredit();
-            readableUsersCredit.setCreditLimit(usersCredit.getCreditLimit());
-            readableUsersCredit.setTotalDebt(usersCredit.getTotalDebt());
-            readableUsersCredit.setCustomerId(usersCredit.getCustomer().getUuid().toString());
-            readableUsersCredit.setCustomerName(usersCredit.getCustomer().getName());
-            readableUsersCredit.setMerchantId(usersCredit.getMerchant().getUuid().toString());
-            readableUsersCredit.setMerchantName(usersCredit.getMerchant().getName());
-            return readableUsersCredit;
+            WrapperPagination<ReadableCreditActivity> wrapperReadableCreditActivity = new WrapperPagination<>();
+            wrapperReadableCreditActivity.setKey("creditactivities");
+            wrapperReadableCreditActivity.setTotalPage(pagedCreditActivity.getTotalPages());
+            wrapperReadableCreditActivity.setPageNumber(pagedCreditActivity.getNumber()+1);
+            if (pagedCreditActivity.hasPrevious()) {
+                wrapperReadableCreditActivity.setPreviousPage(pagedCreditActivity.getNumber());
+            }
+            if (pagedCreditActivity.hasNext()) {
+                wrapperReadableCreditActivity.setNextPage(pagedCreditActivity.getNumber()+2);
+            }
+            wrapperReadableCreditActivity.setFirst(pagedCreditActivity.isFirst());
+            wrapperReadableCreditActivity.setLast(pagedCreditActivity.isLast());
+            wrapperReadableCreditActivity.setElementCountOfPage(pagedCreditActivity.getNumberOfElements());
+            wrapperReadableCreditActivity.setTotalElements(pagedCreditActivity.getTotalElements());
+            wrapperReadableCreditActivity.setValues(pagedCreditActivity.getContent().stream()
+                    .map(CreditMapper::creditActivityToReadableCreditActivity).collect(Collectors.toList()));
+            return wrapperReadableCreditActivity;
         }
     }
+
 }

@@ -1,5 +1,6 @@
 package com.marketing.web.services.user;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.City;
 import com.marketing.web.repositories.CityRepository;
@@ -22,17 +23,17 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public City findById(Long id) {
-        return cityRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("City not found with id: "+id));
+        return cityRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"city",id.toString()));
     }
 
     @Override
     public City findByUuid(String uuid) {
-        return cityRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("City not found with id: "+uuid));
+        return cityRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"city",uuid));
     }
 
     @Override
     public City findByTitle(String title) {
-        return cityRepository.findByTitle(title).orElseThrow(() -> new ResourceNotFoundException("City not found with title: "+title));
+        return cityRepository.findByTitle(title).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"city",title));
     }
 
     @Override

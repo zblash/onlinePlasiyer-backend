@@ -1,6 +1,7 @@
 package com.marketing.web.repositories;
 
 import com.marketing.web.models.Obligation;
+import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +18,5 @@ public interface ObligationRepository extends JpaRepository<Obligation, Long> {
 
     Optional<Obligation> findByUuid(UUID uuid);
 
-    List<Obligation> findAllByUserOrderByIdDesc(User user);
-
-    Page<Obligation> findAllByUser(User user,Pageable pageable);
+    Optional<Obligation> findByUser(User user);
 }

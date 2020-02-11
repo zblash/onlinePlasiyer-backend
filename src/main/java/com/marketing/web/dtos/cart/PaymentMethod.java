@@ -16,4 +16,7 @@ public class PaymentMethod implements Serializable {
     @NotNull(message = "{validation.notNull}")
     private PaymentOption paymentOption;
 
+    @NotNull(message = "{validation.notNull}")
+    private String holderId;
+
 }

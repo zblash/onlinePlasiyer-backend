@@ -1,5 +1,6 @@
 package com.marketing.web.services.cart;
 
+import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.User;
@@ -23,17 +24,17 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart findByUser(User user) {
-        return cartRepository.findByUser(user).orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+        return cartRepository.findByUser(user).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart",""));
     }
 
     @Override
     public Cart findById(Long id) {
-        return cartRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: "+ id));
+        return cartRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart", id.toString()));
     }
 
     @Override
     public Cart findByUUID(String uuid) {
-        return cartRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException("Cart not found with id: "+ uuid));
+        return cartRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart", uuid));
     }
 
     @Override
@@ -46,7 +47,6 @@ public class CartServiceImpl implements CartService {
     @Override
     public Cart update(Long id, Cart updatedCart) {
         Cart cart = findById(id);
-        cart.setPaymentOption(updatedCart.getPaymentOption());
         cart.setUser(updatedCart.getUser());
         cart.setCartStatus(updatedCart.getCartStatus());
         return cartRepository.save(cart);

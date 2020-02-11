@@ -36,6 +36,8 @@ public interface ProductService {
 
     Product create(Product product);
 
+    List<Product> saveAll(List<Product> products);
+
     Product update(String uuid,Product updatedProduct);
 
     void delete(Product product);

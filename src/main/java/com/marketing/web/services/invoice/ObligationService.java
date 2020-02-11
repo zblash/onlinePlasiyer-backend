@@ -2,6 +2,7 @@ package com.marketing.web.services.invoice;
 
 import com.marketing.web.dtos.obligation.ReadableTotalObligation;
 import com.marketing.web.models.Obligation;
+import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 import org.springframework.data.domain.Page;
 
@@ -16,11 +17,11 @@ public interface ObligationService {
 
     Obligation findByUuid(String uuid);
 
-    Page<Obligation> findAllByUser(User user, int pageNumber, String sortBy, String sortType);
-
-    ReadableTotalObligation getTotalObligationByUser(User user);
+    Obligation findByUser(User user);
 
     Obligation create(Obligation obligation);
+
+    List<Obligation> createAll(List<Obligation> obligations);
 
     Obligation update(String uuid, Obligation updatedObligation);
 
