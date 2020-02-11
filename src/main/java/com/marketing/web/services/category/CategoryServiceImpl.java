@@ -57,6 +57,9 @@ public class CategoryServiceImpl implements CategoryService {
         if (updatedCategory.getPhotoUrl() != null && !updatedCategory.getPhotoUrl().isEmpty()){
             category.setPhotoUrl(updatedCategory.getPhotoUrl());
         }
+        if (updatedCategory.getCommission() > 0 && updatedCategory.getCommission() != category.getCommission()) {
+            category.setCommission(updatedCategory.getCommission());
+        }
         category.setName(updatedCategory.getName());
         return categoryRepository.save(category);
     }

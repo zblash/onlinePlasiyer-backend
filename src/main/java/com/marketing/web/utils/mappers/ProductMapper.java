@@ -53,6 +53,7 @@ public final class ProductMapper {
             readableProduct.setCategoryId(product.getCategory().getUuid().toString());
             readableProduct.setName(product.getName());
             readableProduct.setPhotoUrl(product.getPhotoUrl());
+            readableProduct.setCommission(product.getCommission());
             readableProduct.setTax(product.getTax());
             return readableProduct;
         }

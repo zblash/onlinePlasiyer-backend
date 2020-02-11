@@ -14,6 +14,8 @@ public interface ProductService {
 
     List<Product> findAllByUserWithoutPagination(User user);
 
+    List<Product> findAllByCategoryId(Long categoryId);
+
     Page<Product> findAllByUser(User user, int pageNumber, String sortBy, String sortType);
 
     Page<Product> findAllByStatus(boolean status, int pageNumber, String sortBy, String sortType);

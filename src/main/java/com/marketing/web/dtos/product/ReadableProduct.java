@@ -28,4 +28,6 @@ public class ReadableProduct implements Serializable {
 
     private double tax;
 
+    private double commission;
+
 }
