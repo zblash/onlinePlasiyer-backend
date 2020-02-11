@@ -4,7 +4,11 @@ import com.marketing.web.dtos.category.ReadableCategory;
 import com.marketing.web.dtos.category.WritableCategory;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.Category;
+import com.marketing.web.models.Product;
+import com.marketing.web.models.ProductSpecify;
 import com.marketing.web.services.category.CategoryService;
+import com.marketing.web.services.product.ProductService;
+import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.services.storage.AmazonClient;
 import com.marketing.web.utils.mappers.CategoryMapper;
 import org.slf4j.Logger;
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,59 +35,64 @@ public class CategoriesController {
     @Autowired
     private AmazonClient amazonClient;
 
+    @Autowired
+    private ProductService productService;
+
+    @Autowired
+    private ProductSpecifyService productSpecifyService;
+
     private Logger logger = LoggerFactory.getLogger(CategoriesController.class);
 
 
     @GetMapping
     public ResponseEntity<List<ReadableCategory>> getAll(@RequestParam(required = false) boolean filter,
-                                                 @RequestParam(required = false) boolean sub){
+                                                         @RequestParam(required = false) boolean sub) {
         List<Category> categories;
-        if (filter){
+        if (filter) {
             categories = categoryService.findBySubCategory(sub);
-        }else{
+        } else {
             categories = categoryService.findAll();
         }
-       return ResponseEntity.ok(categories.stream()
-               .map(CategoryMapper::categoryToReadableCategory).collect(Collectors.toList()));
+        return ResponseEntity.ok(categories.stream()
+                .map(CategoryMapper::categoryToReadableCategory).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}/subCategories")
-    public ResponseEntity<List<ReadableCategory>> getSubCategoriesById(@PathVariable String id){
+    public ResponseEntity<List<ReadableCategory>> getSubCategoriesById(@PathVariable String id) {
         Category category = categoryService.findByUUID(id);
-        if (!category.isSubCategory()){
+        if (!category.isSubCategory()) {
             return ResponseEntity.ok(category.getChilds().stream()
                     .map(CategoryMapper::categoryToReadableCategory).collect(Collectors.toList()));
         }
-        throw new BadRequestException("This category is not main: "+id);
+        throw new BadRequestException("This category is not main: " + id);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReadableCategory> findByUUID(@PathVariable String id){
+    public ResponseEntity<ReadableCategory> findByUUID(@PathVariable String id) {
         return ResponseEntity.ok(CategoryMapper.categoryToReadableCategory(categoryService.findByUUID(id)));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
-    public ResponseEntity<ReadableCategory> createCategory(@Valid WritableCategory writableCategory, @RequestParam MultipartFile uploadfile){
-            Category category = CategoryMapper.writableCategorytoCategory(writableCategory);
-            if (writableCategory.getCommission() == null) {
-                throw new BadRequestException("Commission can not null");
-            }
-            String fileUrl = amazonClient.uploadFile(uploadfile);
-            category.setPhotoUrl(fileUrl);
+    public ResponseEntity<ReadableCategory> createCategory(@Valid WritableCategory writableCategory, @RequestParam MultipartFile uploadfile) {
+        if (writableCategory.getCommission() == null) {
+            throw new BadRequestException("Commission can not null");
+        }
+        Category category = CategoryMapper.writableCategorytoCategory(writableCategory);
+        String fileUrl = amazonClient.uploadFile(uploadfile);
+        category.setPhotoUrl(fileUrl);
 
-            if (category.isSubCategory()){
-                category.setParent(categoryService.findByUUID(writableCategory.getParentId()));
-            }
-            category.setCommission(writableCategory.getCommission());
-            Category savedCategory = categoryService.create(category);
+        if (category.isSubCategory()) {
+            category.setParent(categoryService.findByUUID(writableCategory.getParentId()));
+        }
+        Category savedCategory = categoryService.create(category);
 
         return new ResponseEntity<>(CategoryMapper.categoryToReadableCategory(savedCategory), HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<ReadableCategory> deleteCategory(@PathVariable String id){
+    public ResponseEntity<ReadableCategory> deleteCategory(@PathVariable String id) {
         Category category = categoryService.findByUUID(id);
         amazonClient.deleteFileFromS3Bucket(category.getPhotoUrl());
         categoryService.delete(category);
@@ -91,20 +101,29 @@ public class CategoriesController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<ReadableCategory> updateCategory(@PathVariable String id, @Valid WritableCategory updatedCategory, @RequestParam(value="uploadfile", required = false) MultipartFile uploadfile){
+    public ResponseEntity<ReadableCategory> updateCategory(@PathVariable String id, @Valid WritableCategory updatedCategory, @RequestParam(value = "uploadfile", required = false) MultipartFile uploadfile) {
         Category category = CategoryMapper.writableCategorytoCategory(updatedCategory);
+
         if (uploadfile != null && !uploadfile.isEmpty()) {
             amazonClient.deleteFileFromS3Bucket(category.getPhotoUrl());
             String fileUrl = amazonClient.uploadFile(uploadfile);
             category.setPhotoUrl(fileUrl);
         }
-        if (category.isSubCategory()){
+        if (category.isSubCategory()) {
             category.setParent(categoryService.findByUUID(updatedCategory.getParentId()));
         }
-        if (updatedCategory.getCommission() != null) {
-            category.setCommission(updatedCategory.getCommission());
+        category = categoryService.update(id, category);
+        if (category.getCommission() > 0) {
+            List<Product> products = productService.findAllByCategoryId(category.getId()).stream().peek(product -> product.setCommission(updatedCategory.getCommission())).collect(Collectors.toList());
+            List<ProductSpecify> productSpecifies = products.stream()
+                    .map(Product::getProductSpecifies)
+                    .flatMap(Collection::stream)
+                    .peek(productSpecify -> productSpecify.setCommission(updatedCategory.getCommission()))
+                    .collect(Collectors.toList());
+            productService.saveAll(products);
+            productSpecifyService.updateAll(productSpecifies);
         }
-        return ResponseEntity.ok(CategoryMapper.categoryToReadableCategory(categoryService.update(id,category)));
+        return ResponseEntity.ok(CategoryMapper.categoryToReadableCategory(category));
     }
 
 }

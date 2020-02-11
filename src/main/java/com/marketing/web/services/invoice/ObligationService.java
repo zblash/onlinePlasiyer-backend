@@ -17,11 +17,7 @@ public interface ObligationService {
 
     Obligation findByUuid(String uuid);
 
-    Obligation findByOrder(Order order);
-
-    Page<Obligation> findAllByUser(User user, int pageNumber, String sortBy, String sortType);
-
-    ReadableTotalObligation getTotalObligationByUser(User user);
+    Obligation findByUser(User user);
 
     Obligation create(Obligation obligation);
 

@@ -23,7 +23,7 @@ public class CreditServiceImpl implements CreditService {
     private CreditRepository creditRepository;
 
     @Override
-    public Page<Credit> findAll(int pageNumber, String sortBy, String sortType, CreditType creditType) {
+    public Page<Credit> findAllByCreditType(int pageNumber, String sortBy, String sortType, CreditType creditType) {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Credit> resultPage = creditRepository.findAllByCreditType(creditType, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
@@ -61,7 +61,7 @@ public class CreditServiceImpl implements CreditService {
     public Credit update(String uuid, Credit updatedCredit) {
         Credit credit = findByUUID(uuid);
         credit.setTotalDebt(updatedCredit.getTotalDebt());
-        credit.setCreditLimit(updatedCredit.getTotalDebt());
+        credit.setCreditLimit(updatedCredit.getCreditLimit());
         if (updatedCredit.getCustomer() != null) {
             credit.setCustomer(updatedCredit.getCustomer());
         }

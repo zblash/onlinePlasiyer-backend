@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CreditService {
-    Page<Credit> findAll(int pageNumber, String sortBy, String sortType, CreditType creditType);
+    Page<Credit> findAllByCreditType(int pageNumber, String sortBy, String sortType, CreditType creditType);
 
     Credit findById(Long id);
 

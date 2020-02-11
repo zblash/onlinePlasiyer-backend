@@ -23,4 +23,6 @@ public class ReadableCategory implements Serializable {
     private String parentId;
 
     private int subCategoryCount;
+
+    private double commission;
 }

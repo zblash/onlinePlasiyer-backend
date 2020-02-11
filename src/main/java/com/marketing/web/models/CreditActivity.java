@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -42,6 +43,9 @@ public class CreditActivity implements Serializable {
     @ManyToOne
     @JoinColumn(name = "customer_id",referencedColumnName = "id")
     private User customer;
+
+    @Temporal(TemporalType.DATE)
+    private Date date;
 
     @PrePersist
     public void autofill() {

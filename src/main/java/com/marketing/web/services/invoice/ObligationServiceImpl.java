@@ -49,28 +49,9 @@ public class ObligationServiceImpl implements ObligationService {
     }
 
     @Override
-    public Obligation findByOrder(Order order) {
-        return obligationRepository.findByOrder(order).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"obligation", ""));
-    }
+    public Obligation findByUser(User user) {
+        return obligationRepository.findByUser(user).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"obligation", ""));
 
-    @Override
-    public Page<Obligation> findAllByUser(User user, int pageNumber, String sortBy, String sortType) {
-        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
-        Page<Obligation> resultPage = obligationRepository.findAllByUser(user,pageRequest);
-        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
-        }
-        return resultPage;
-    }
-
-    @Override
-    public ReadableTotalObligation getTotalObligationByUser(User user) {
-        List<Obligation> obligations = obligationRepository.findAllByUserOrderByIdDesc(user);
-        ReadableTotalObligation readableTotalObligation = new ReadableTotalObligation();
-        readableTotalObligation.setId(user.getUuid().toString()+user.getId().toString());
-        readableTotalObligation.setTotalDebts(obligations.stream().flatMapToDouble(obligation -> DoubleStream.of(obligation.getDebt())).sum());
-        readableTotalObligation.setTotalReceivables(obligations.stream().flatMapToDouble(obligation -> DoubleStream.of(obligation.getReceivable())).sum());
-        return readableTotalObligation;
     }
 
     @Override
@@ -96,7 +77,6 @@ public class ObligationServiceImpl implements ObligationService {
     public void delete(Obligation obligation) {
 
     }
-
     private PageRequest getPageRequest(int pageNumber, String sortBy, String sortType){
         return PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
     }

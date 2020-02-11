@@ -123,6 +123,7 @@ public final class UserMapper {
             userInfoBuilder.role(role);
             userInfoBuilder.address(UserMapper.addressToReadableAddress(user.getAddress()));
             userInfoBuilder.activeStates(user.getActiveStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
+            userInfoBuilder.commission(user.getCommission());
             return userInfoBuilder.build();
         }
     }

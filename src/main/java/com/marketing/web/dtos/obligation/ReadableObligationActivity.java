@@ -1,4 +1,4 @@
-package com.marketing.web.dtos.credit;
+package com.marketing.web.dtos.obligation;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.marketing.web.enums.CreditActivityType;
@@ -13,31 +13,24 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReadableCreditActivity implements Serializable {
+public class ReadableObligationActivity implements Serializable {
 
     private String id;
 
-    private Long documentNo;
-
     private double price;
 
-    private double creditLimit;
+    private Long documentNo;
 
     private double totalDebt;
 
-    private CreditActivityType creditActivityType;
+    private double totalReceivable;
 
-    private CreditType creditType;
+    private CreditActivityType obligationActivityType;
 
-    private String customerId;
+    private String userId;
 
-    private String customerName;
-
-    private String merchantId;
-
-    private String merchantName;
+    private String userName;
 
     @JsonFormat(pattern="dd-MM-yyyy")
     private Date date;
-
 }

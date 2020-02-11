@@ -39,7 +39,7 @@ public class CreditsController {
     @GetMapping
     public ResponseEntity<WrapperPagination<ReadableCredit>> getAll(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "totalDebt") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
         return ResponseEntity.ok(CreditMapper
-                .pagedCreditListToWrapperReadableCredit(creditService.findAll(pageNumber, sortBy, sortType, CreditType.SCRD)));
+                .pagedCreditListToWrapperReadableCredit(creditService.findAllByCreditType(pageNumber, sortBy, sortType, CreditType.SCRD)));
     }
 
     @GetMapping("/my")
@@ -59,6 +59,7 @@ public class CreditsController {
     @PutMapping("/{creditId}")
     public ResponseEntity<ReadableCredit> updateCredit(@PathVariable String creditId, @Valid @RequestBody WritableCredit writableCredit) {
         Credit credit = CreditMapper.writableCreditToCredit(writableCredit);
+        credit.setCreditType(CreditType.SCRD);
         return ResponseEntity.ok(CreditMapper.creditToReadableCredit(creditService.update(creditId, credit)));
     }
 
@@ -106,7 +107,7 @@ public class CreditsController {
             credit.setCreditLimit(writableUserCredit.getCreditLimit());
             credit.setCustomer(customer);
             credit.setTotalDebt(writableUserCredit.getTotalDebt());
-            return ResponseEntity.ok(CreditMapper.usersCreditToReadableUsersCredit(creditService.create(credit)));
+            return ResponseEntity.ok(CreditMapper.usersCreditToReadableUsersCredit(creditService.update(credit.getUuid().toString(),credit)));
         }
         throw new BadRequestException("You can only create credit to CUSTOMER users");
     }

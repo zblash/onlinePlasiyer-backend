@@ -1,12 +1,9 @@
 package com.marketing.web.dtos.product;
 
-import com.marketing.web.enums.CommissionType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
@@ -15,12 +12,9 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class WritableCommission implements Serializable {
 
-    @NotNull(message = "{validation.notNull}")
-    private CommissionType commissionType;
-
+    @NotNull(message = "{validation.notBlank}")
     private String id;
 
-    @Enumerated(EnumType.STRING)
     @NotNull(message = "{validation.notNull}")
     private double commission;
 

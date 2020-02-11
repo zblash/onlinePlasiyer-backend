@@ -24,6 +24,8 @@ public class ReadableUserInfo implements Serializable {
 
     private ReadableAddress address;
 
+    private double commission;
+
     private List<ReadableState> activeStates;
 
     private ReadableUserInfo(Builder builder){
@@ -34,6 +36,7 @@ public class ReadableUserInfo implements Serializable {
         this.role = builder.role;
         this.address = builder.address;
         this.activeStates = builder.activeStates;
+        this.commission = builder.commission;
     }
 
     public static class Builder {
@@ -49,6 +52,8 @@ public class ReadableUserInfo implements Serializable {
         private String role;
 
         private ReadableAddress address;
+
+        private double commission;
 
         private List<ReadableState> activeStates;
 
@@ -78,6 +83,11 @@ public class ReadableUserInfo implements Serializable {
 
         public Builder address(ReadableAddress address){
             this.address = address;
+            return this;
+        }
+
+        public Builder commission(double commission) {
+            this.commission = commission;
             return this;
         }
 

@@ -27,6 +27,7 @@ import javax.validation.Valid;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -116,7 +117,18 @@ public class CartController {
                 .filter(cartItemHolder -> writableCheckout.getSellerIdList().contains(cartItemHolder.getUuid().toString()))
                 .allMatch(cartItemHolder -> cartItemHolder.getPaymentOption() != null)
                 && CartStatus.PRCD.equals(cart.getCartStatus())) {
-            return ResponseEntity.ok(orderFacade.checkoutCart(user, cart, writableCheckout));
+
+            Set<CartItemHolder> cartItemHolderList = cart.getItems().stream()
+                    .filter(cartItemHolder -> writableCheckout.getSellerIdList().contains(cartItemHolder.getUuid().toString()))
+                    .collect(Collectors.toSet());
+
+            List<ReadableOrder> order = orderFacade.checkoutCart(user, cartItemHolderList, writableCheckout);
+
+            cart.setCartStatus(CartStatus.NEW);
+            cartService.update(cart.getId(), cart);
+            cartItemHolderService.deleteAll(cartItemHolderList);
+
+            return ResponseEntity.ok(order);
         }
         throw new BadRequestException("Can not perform cart");
     }

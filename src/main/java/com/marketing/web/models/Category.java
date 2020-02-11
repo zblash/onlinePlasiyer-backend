@@ -47,7 +47,7 @@ public class Category implements Serializable {
     private List<Category> childs;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "category",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "category",cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     @OrderBy("id desc")
     private List<Product> products;
 
