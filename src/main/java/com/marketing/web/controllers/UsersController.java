@@ -89,7 +89,7 @@ public class UsersController {
         }
     }
 
-    @PostMapping("/changeStatus/{id}/{status}")
+    @PostMapping("/status/{id}/{status}")
     public ResponseEntity<?> changeUserStatus(@PathVariable String id, @PathVariable boolean status) {
         User user = userService.findByUUID(id);
         user.setStatus(status);
