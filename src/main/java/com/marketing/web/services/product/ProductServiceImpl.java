@@ -37,6 +37,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<Product> findAllByCategoryId(Long categoryId) {
+       return productRepository.findAllByCategoryId(categoryId);
+    }
+
+    @Override
     public Page<Product> findAllByUser(User user, int pageNumber, String sortBy, String sortType) {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Product> resultPage = productRepository.findAllByUsers_Id(user.getId(), pageRequest);

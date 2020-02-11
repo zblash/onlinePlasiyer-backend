@@ -13,6 +13,9 @@ public final class CategoryMapper {
             Category category = new Category();
             category.setSubCategory(writableCategory.isSubCategory());
             category.setName(writableCategory.getName());
+            if (writableCategory.getCommission() != null) {
+                category.setCommission(writableCategory.getCommission());
+            }
             return category;
         }
     }
@@ -26,10 +29,11 @@ public final class CategoryMapper {
             readableCategory.setName(category.getName());
             readableCategory.setPhotoUrl(category.getPhotoUrl());
             readableCategory.setSubCategory(category.isSubCategory());
+            readableCategory.setCommission(category.getCommission());
             if (category.isSubCategory()) {
                 readableCategory.setParentId(category.getParent().getUuid().toString());
                 readableCategory.setSubCategoryCount(0);
-            }else {
+            } else {
                 readableCategory.setSubCategoryCount(category.getChilds() != null ? category.getChilds().size() : 0);
             }
             return readableCategory;
