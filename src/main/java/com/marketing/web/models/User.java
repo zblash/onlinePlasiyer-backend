@@ -11,6 +11,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,6 +49,10 @@ public class User implements Serializable {
     private double commission;
 
     private boolean status;
+
+    private String passwordResetToken;
+
+    private Date resetTokenExpireTime;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id",referencedColumnName = "id")

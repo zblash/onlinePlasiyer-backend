@@ -6,15 +6,11 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.io.Serializable;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class WritablePasswordReset implements Serializable {
-
-    @NotBlank(message = "{validation.notBlank}")
-    private String token;
+public class WritablePasswordChange {
 
     @NotBlank(message = "{validation.notBlank}")
     @Size(min = 5,max = 90, message = "{validation.size}")

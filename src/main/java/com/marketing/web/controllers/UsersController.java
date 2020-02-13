@@ -5,6 +5,7 @@ import com.marketing.web.dtos.user.*;
 import com.marketing.web.enums.CreditType;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
+import com.marketing.web.errors.HttpMessage;
 import com.marketing.web.models.*;
 import com.marketing.web.services.cart.CartServiceImpl;
 import com.marketing.web.services.credit.CreditService;
@@ -21,6 +22,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.context.request.WebRequest;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -194,5 +197,19 @@ public class UsersController {
             return ResponseEntity.ok(UserMapper.userToReadableUserInfo(user));
         }
         throw new BadRequestException("Only merchant user's commission editable");
+    }
+
+    @PostMapping("/changePassword/{id}")
+    public ResponseEntity<HttpMessage> changeUserPassword(@PathVariable String id, @Valid @RequestBody WritablePasswordChange writablePasswordReset, WebRequest request){
+        User user = userService.findByUUID(id);
+
+        if(writablePasswordReset.getPassword().equals(writablePasswordReset.getPasswordConfirmation())){
+            userService.changePassword(user, writablePasswordReset.getPassword());
+            HttpMessage httpMessage = new HttpMessage(HttpStatus.OK);
+            httpMessage.setMessage("Password changed");
+            httpMessage.setPath(((ServletWebRequest)request).getRequest().getRequestURL().toString());
+            return ResponseEntity.ok(httpMessage);
+        }
+        throw new BadRequestException("Fields not matching");
     }
 }

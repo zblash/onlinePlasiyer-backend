@@ -9,6 +9,10 @@ public interface UserService {
 
     User findByUserName(String userName);
 
+    User findByEmail(String email);
+
+    User findByResetToken(String token);
+
     boolean checkUserByEmail(String email);
 
     boolean canRegister(User user);
@@ -32,4 +36,8 @@ public interface UserService {
     void delete(User user);
 
     User getLoggedInUser();
+
+    User changePassword(User user, String password);
+
+    boolean loginControl(String username, String password);
 }
