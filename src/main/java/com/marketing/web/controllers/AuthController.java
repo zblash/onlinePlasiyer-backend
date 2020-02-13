@@ -15,18 +15,22 @@ import com.marketing.web.services.user.AddressService;
 import com.marketing.web.services.user.CityService;
 import com.marketing.web.services.user.StateService;
 import com.marketing.web.services.user.UserService;
+import com.marketing.web.utils.RandomStringGenerator;
 import com.marketing.web.utils.mappers.CityMapper;
 import com.marketing.web.utils.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,9 +42,6 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private AddressService addressService;
@@ -64,7 +65,7 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody WritableLogin writableLogin, WebRequest request){
         User userDetails = userService.findByUserName(writableLogin.getUsername());
 
-        if (userDetails.isStatus() && passwordEncoder.matches(writableLogin.getPassword(),userDetails.getPassword())){
+        if (userService.loginControl(writableLogin.getUsername(), writableLogin.getPassword())){
             Map<String, Object> body = new HashMap<>();
             body.put("role", userDetails.getRole().getName());
             body.put("userId", userDetails.getId());
@@ -126,14 +127,48 @@ public class AuthController {
         throw new BadRequestException("Username or email already registered");
     }
 
+    @PutMapping("/forgot-password")
+    public ResponseEntity<HttpMessage> forgottenPassword(@RequestBody WritableForgotPassword writableForgotPassword, WebRequest request) {
+        User user;
+        if (!writableForgotPassword.getEmail().isEmpty()) {
+            user = userService.findByEmail(writableForgotPassword.getEmail());
+        } else if (!writableForgotPassword.getUsername().isEmpty()) {
+            user = userService.findByUserName(writableForgotPassword.getUsername());
+        } else {
+            throw new BadRequestException("One of username or email is required");
+        }
+        user.setPasswordResetToken(RandomStringGenerator.generateId());
+        user.setResetTokenExpireTime(
+                Date.from(LocalDateTime.now().plus(1, ChronoUnit.DAYS).atZone(ZoneId.systemDefault()).toInstant()));
+//        email service
+        userService.update(user.getId(), user);
+        HttpMessage httpMessage = new HttpMessage(HttpStatus.OK);
+        httpMessage.setMessage("Password reset token has been sent to to your email");
+        httpMessage.setPath(((ServletWebRequest)request).getRequest().getRequestURL().toString());
+        return ResponseEntity.ok(httpMessage);
+    }
+
+    @PostMapping("/password-reset")
+    public ResponseEntity<HttpMessage> passwordReset(@Valid @RequestBody WritablePasswordReset writablePasswordReset, WebRequest request) {
+        User user = userService.findByResetToken(writablePasswordReset.getToken());
+        Date now = new Date();
+        if(now.compareTo(user.getResetTokenExpireTime()) < 0 &&
+        writablePasswordReset.getPassword().equals(writablePasswordReset.getPasswordConfirmation())){
+            userService.changePassword(user, writablePasswordReset.getPassword());
+            HttpMessage httpMessage = new HttpMessage(HttpStatus.OK);
+            httpMessage.setMessage("Password changed");
+            httpMessage.setPath(((ServletWebRequest)request).getRequest().getRequestURL().toString());
+            return ResponseEntity.ok(httpMessage);
+        }
+        throw new BadRequestException("Fields not matching");
+    }
 
     @PostMapping("/api/user/changePassword")
-    public ResponseEntity<HttpMessage> changeUserPassword(@Valid @RequestBody WritablePasswordReset writablePasswordReset, WebRequest request){
+    public ResponseEntity<HttpMessage> changeUserPassword(@Valid @RequestBody WritablePasswordChange writablePasswordReset, WebRequest request){
         User user = userService.getLoggedInUser();
 
         if(writablePasswordReset.getPassword().equals(writablePasswordReset.getPasswordConfirmation())){
-            user.setPassword(passwordEncoder.encode(writablePasswordReset.getPassword()));
-            userService.update(user.getId(),user);
+            userService.changePassword(user, writablePasswordReset.getPassword());
             HttpMessage httpMessage = new HttpMessage(HttpStatus.OK);
             httpMessage.setMessage("Password changed");
             httpMessage.setPath(((ServletWebRequest)request).getRequest().getRequestURL().toString());
