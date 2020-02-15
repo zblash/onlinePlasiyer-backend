@@ -15,6 +15,7 @@ import com.marketing.web.services.user.AddressService;
 import com.marketing.web.services.user.CityService;
 import com.marketing.web.services.user.StateService;
 import com.marketing.web.services.user.UserService;
+import com.marketing.web.utils.MailUtil;
 import com.marketing.web.utils.RandomStringGenerator;
 import com.marketing.web.utils.mappers.CityMapper;
 import com.marketing.web.utils.mappers.UserMapper;
@@ -30,10 +31,7 @@ import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -61,11 +59,14 @@ public class AuthController {
     @Autowired
     private ObligationService obligationService;
 
+    @Autowired
+    private MailUtil mailUtil;
+
     @PostMapping("/signin")
-    public ResponseEntity<?> login(@RequestBody WritableLogin writableLogin, WebRequest request){
+    public ResponseEntity<?> login(@RequestBody WritableLogin writableLogin, WebRequest request) {
         User userDetails = userService.findByUserName(writableLogin.getUsername());
 
-        if (userService.loginControl(writableLogin.getUsername(), writableLogin.getPassword())){
+        if (userService.loginControl(writableLogin.getUsername(), writableLogin.getPassword())) {
             Map<String, Object> body = new HashMap<>();
             body.put("role", userDetails.getRole().getName());
             body.put("userId", userDetails.getId());
@@ -86,23 +87,24 @@ public class AuthController {
 
         HttpMessage httpMessage = new HttpMessage(HttpStatus.UNAUTHORIZED);
         httpMessage.setMessage("Given username or password incorrect");
-        httpMessage.setPath(((ServletWebRequest)request).getRequest().getRequestURL().toString());
+        httpMessage.setPath(((ServletWebRequest) request).getRequest().getRequestURL().toString());
         return new ResponseEntity<>(httpMessage, httpMessage.getStatus());
 
     }
 
     @PostMapping("/sign-up")
-    public ResponseEntity<ReadableRegister> signUp(@Valid @RequestBody WritableRegister writableRegister){
+    public ResponseEntity<ReadableRegister> signUp(@Valid @RequestBody WritableRegister writableRegister) {
         User user = UserMapper.writableRegisterToUser(writableRegister);
-        if(userService.canRegister(user)) {
+        if (userService.canRegister(user)) {
 
             Address address = new Address();
             City city = cityService.findByUuid(writableRegister.getCityId());
             address.setCity(city);
-            address.setState(stateService.findByUuidAndCity(writableRegister.getStateId(),city));
+            address.setState(stateService.findByUuidAndCity(writableRegister.getStateId(), city));
             address.setDetails(writableRegister.getDetails());
 
             user.setStatus(true);
+            user.setActivationToken(RandomStringGenerator.generateId());
             user.setAddress(addressService.create(address));
             User createdUser = userService.create(user, writableRegister.getRoleType());
             RoleType roleType = UserMapper.roleToRoleType(createdUser.getRole());
@@ -128,7 +130,7 @@ public class AuthController {
     }
 
     @PutMapping("/forgot-password")
-    public ResponseEntity<HttpMessage> forgottenPassword(@RequestBody WritableForgotPassword writableForgotPassword, WebRequest request) {
+    public ResponseEntity<HttpMessage> forgottenPassword(@RequestBody WritableForgotPassword writableForgotPassword, WebRequest request, Locale locale) {
         User user;
         if (!writableForgotPassword.getEmail().isEmpty()) {
             user = userService.findByEmail(writableForgotPassword.getEmail());
@@ -140,11 +142,11 @@ public class AuthController {
         user.setPasswordResetToken(RandomStringGenerator.generateId());
         user.setResetTokenExpireTime(
                 Date.from(LocalDateTime.now().plus(1, ChronoUnit.DAYS).atZone(ZoneId.systemDefault()).toInstant()));
-//        email service
+        mailUtil.sendPasswordResetMail(user.getEmail(), user.getPasswordResetToken(), locale);
         userService.update(user.getId(), user);
         HttpMessage httpMessage = new HttpMessage(HttpStatus.OK);
         httpMessage.setMessage("Password reset token has been sent to to your email");
-        httpMessage.setPath(((ServletWebRequest)request).getRequest().getRequestURL().toString());
+        httpMessage.setPath(((ServletWebRequest) request).getRequest().getRequestURL().toString());
         return ResponseEntity.ok(httpMessage);
     }
 
@@ -152,26 +154,33 @@ public class AuthController {
     public ResponseEntity<HttpMessage> passwordReset(@Valid @RequestBody WritablePasswordReset writablePasswordReset, WebRequest request) {
         User user = userService.findByResetToken(writablePasswordReset.getToken());
         Date now = new Date();
-        if(now.compareTo(user.getResetTokenExpireTime()) < 0 &&
-        writablePasswordReset.getPassword().equals(writablePasswordReset.getPasswordConfirmation())){
+        if (now.compareTo(user.getResetTokenExpireTime()) < 0 &&
+                writablePasswordReset.getPassword().equals(writablePasswordReset.getPasswordConfirmation())) {
             userService.changePassword(user, writablePasswordReset.getPassword());
             HttpMessage httpMessage = new HttpMessage(HttpStatus.OK);
             httpMessage.setMessage("Password changed");
-            httpMessage.setPath(((ServletWebRequest)request).getRequest().getRequestURL().toString());
+            httpMessage.setPath(((ServletWebRequest) request).getRequest().getRequestURL().toString());
             return ResponseEntity.ok(httpMessage);
         }
         throw new BadRequestException("Fields not matching");
     }
 
+    @PutMapping("/activation")
+    public ResponseEntity<ReadableUserInfo> userActivation(@Valid @RequestBody WritableActivation writableActivation) {
+        User user = userService.findByActivationToken(writableActivation.getActivationToken());
+        user.setStatus(true);
+        return ResponseEntity.ok(UserMapper.userToReadableUserInfo(userService.update(user.getId(), user)));
+    }
+
     @PostMapping("/api/user/changePassword")
-    public ResponseEntity<HttpMessage> changeUserPassword(@Valid @RequestBody WritablePasswordChange writablePasswordReset, WebRequest request){
+    public ResponseEntity<HttpMessage> changeUserPassword(@Valid @RequestBody WritablePasswordChange writablePasswordReset, WebRequest request) {
         User user = userService.getLoggedInUser();
 
-        if(writablePasswordReset.getPassword().equals(writablePasswordReset.getPasswordConfirmation())){
+        if (writablePasswordReset.getPassword().equals(writablePasswordReset.getPasswordConfirmation())) {
             userService.changePassword(user, writablePasswordReset.getPassword());
             HttpMessage httpMessage = new HttpMessage(HttpStatus.OK);
             httpMessage.setMessage("Password changed");
-            httpMessage.setPath(((ServletWebRequest)request).getRequest().getRequestURL().toString());
+            httpMessage.setPath(((ServletWebRequest) request).getRequest().getRequestURL().toString());
             return ResponseEntity.ok(httpMessage);
         }
         throw new BadRequestException("Fields not matching");
@@ -179,33 +188,33 @@ public class AuthController {
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
     @PostMapping("/api/user/activeStates")
-    public ResponseEntity<List<ReadableState>> addActiveState(@RequestBody List<String> states){
+    public ResponseEntity<List<ReadableState>> addActiveState(@RequestBody List<String> states) {
         User user = userService.getLoggedInUser();
         List<State> stateList = stateService.findAllByUuids(states);
         List<State> addedList = user.getActiveStates();
         addedList.addAll(stateList);
         user.setActiveStates(addedList.stream().distinct().collect(Collectors.toList()));
-        userService.update(user.getId(),user);
+        userService.update(user.getId(), user);
         return ResponseEntity.ok(addedList.stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
     @GetMapping("/api/user/activeStates")
-    public ResponseEntity<List<ReadableState>> getActiveStates(){
+    public ResponseEntity<List<ReadableState>> getActiveStates() {
         User user = userService.getLoggedInUser();
         return ResponseEntity.ok(user.getActiveStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
     }
 
     @GetMapping("/api/user/info")
-    public ResponseEntity<ReadableUserInfo> getUserInfos(){
+    public ResponseEntity<ReadableUserInfo> getUserInfos() {
         User user = userService.getLoggedInUser();
         return ResponseEntity.ok(UserMapper.userToReadableUserInfo(user));
     }
 
     @PutMapping("/api/user/info")
-    public ResponseEntity<ReadableUserInfo> updateUserInfo(@Valid @RequestBody WritableUserInfo writableUserInfo){
+    public ResponseEntity<ReadableUserInfo> updateUserInfo(@Valid @RequestBody WritableUserInfo writableUserInfo) {
         User user = userService.getLoggedInUser();
-        if (writableUserInfo.getEmail().equals(user.getEmail()) || !userService.checkUserByEmail(writableUserInfo.getEmail())){
+        if (writableUserInfo.getEmail().equals(user.getEmail()) || !userService.checkUserByEmail(writableUserInfo.getEmail())) {
             user.setName(writableUserInfo.getName());
             user.setEmail(writableUserInfo.getEmail());
             Address address = user.getAddress();
@@ -214,14 +223,14 @@ public class AuthController {
             address.setState(state);
             address.setCity(city);
             address.setDetails(writableUserInfo.getAddress().getDetails());
-            user.setAddress(addressService.update(address.getId(),address));
-            return ResponseEntity.ok(UserMapper.userToReadableUserInfo(userService.update(user.getId(),user)));
+            user.setAddress(addressService.update(address.getId(), address));
+            return ResponseEntity.ok(UserMapper.userToReadableUserInfo(userService.update(user.getId(), user)));
         }
         throw new BadRequestException("Email already registered");
     }
 
     @GetMapping("/api/merchants")
-    public ResponseEntity<List<MerchantUser>> getAllMerchants(){
+    public ResponseEntity<List<MerchantUser>> getAllMerchants() {
         List<User> users = userService.findAllByRoleAndStatus(RoleType.MERCHANT, true);
         return ResponseEntity.ok(users.stream()
                 .map(UserMapper::userToMerchant)
