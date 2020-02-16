@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    password: vAKj9GgWLLh3Y1MHIEA4
+    url: jdbc:postgresql://onlineplasiyerpostgres.c8pqewmiooar.eu-central-1.rds.amazonaws.com:5432/marketing
+    username: onlineplasiyer
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  redis:
+    host: localhost
+    password: ''
+    port: 3131
+    ssl: false
+  mail:
+    debug: true
+    host: your.mail.host
+    port: 111
+    username: your.mail.username
+    password: your.mail.password
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
