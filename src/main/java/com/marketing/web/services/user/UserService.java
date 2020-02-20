@@ -40,4 +40,6 @@ public interface UserService {
     User changePassword(User user, String password);
 
     boolean loginControl(String username, String password);
+
+    User findByActivationToken(String activationToken);
 }

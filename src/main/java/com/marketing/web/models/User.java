@@ -50,6 +50,8 @@ public class User implements Serializable {
 
     private boolean status;
 
+    private String activationToken;
+
     private String passwordResetToken;
 
     private Date resetTokenExpireTime;
