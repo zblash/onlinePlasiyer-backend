@@ -70,7 +70,7 @@ public class CartController {
         Cart cart = user.getCart();
         if (writableCartItem.getQuantity() > 0) {
             List<State> productStates = productSpecifyService.findByUUID(writableCartItem.getProductId()).getStates();
-            if (productStates.contains(user.getAddress().getState())) {
+            if (productStates.contains(user.getState())) {
                 ProductSpecify productSpecify = productSpecifyService.findByUUID(writableCartItem.getProductId());
                 CartItemHolder cartItemHolder = cartItemHolderService.findByCartAndSeller(cart, productSpecify.getUser().getUuid().toString())
                         .orElseGet(() -> cartItemHolderService.create(CartItemHolder.builder().cart(cart).sellerId(productSpecify.getUser().getUuid().toString()).sellerName(productSpecify.getUser().getName()).build()));

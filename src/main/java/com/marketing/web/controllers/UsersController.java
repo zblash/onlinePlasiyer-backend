@@ -10,7 +10,6 @@ import com.marketing.web.models.*;
 import com.marketing.web.services.cart.CartServiceImpl;
 import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.invoice.ObligationService;
-import com.marketing.web.services.order.OrderService;
 import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.services.user.*;
 import com.marketing.web.utils.mappers.CityMapper;
@@ -36,9 +35,6 @@ public class UsersController {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private AddressService addressService;
 
     @Autowired
     private CityService cityService;
@@ -113,14 +109,11 @@ public class UsersController {
         User user = UserMapper.writableRegisterToUser(writableRegister);
 
         if (userService.canRegister(user)) {
-            Address address = new Address();
-            City city = cityService.findByUuid(writableRegister.getCityId());
-            address.setCity(city);
-            address.setState(stateService.findByUuidAndCity(writableRegister.getStateId(), city));
-            address.setDetails(writableRegister.getDetails());
-
             user.setStatus(writableRegister.isStatus());
-            user.setAddress(addressService.create(address));
+            City city = cityService.findByUuid(writableRegister.getCityId());
+            user.setCity(city);
+            user.setState(stateService.findByUuidAndCity(writableRegister.getStateId(), city));
+            user.setAddressDetails(writableRegister.getDetails());
             User createdUser = userService.create(user, writableRegister.getRoleType());
             RoleType roleType = UserMapper.roleToRoleType(createdUser.getRole());
             if (roleType.equals(RoleType.CUSTOMER)) {
@@ -154,13 +147,11 @@ public class UsersController {
         if (writableUserInfo.getEmail().equals(user.getEmail()) || !userService.checkUserByEmail(writableUserInfo.getEmail())) {
             user.setName(writableUserInfo.getName());
             user.setEmail(writableUserInfo.getEmail());
-            Address address = user.getAddress();
             State state = stateService.findByUuid(writableUserInfo.getAddress().getStateId());
             City city = cityService.findByUuid(writableUserInfo.getAddress().getCityId());
-            address.setState(state);
-            address.setCity(city);
-            address.setDetails(writableUserInfo.getAddress().getDetails());
-            user.setAddress(addressService.update(address.getId(), address));
+            user.setState(state);
+            user.setCity(city);
+            user.setAddressDetails(writableUserInfo.getAddress().getDetails());
             return ResponseEntity.ok(UserMapper.userToReadableUserInfo(userService.update(user.getId(), user)));
         }
         throw new BadRequestException("Email already registered");

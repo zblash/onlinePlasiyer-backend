@@ -2,7 +2,7 @@ package com.marketing.web.utils.mappers;
 
 import com.marketing.web.dtos.user.*;
 import com.marketing.web.enums.RoleType;
-import com.marketing.web.models.Address;
+import com.marketing.web.models.City;
 import com.marketing.web.models.Role;
 import com.marketing.web.models.State;
 import com.marketing.web.models.User;
@@ -54,6 +54,7 @@ public final class UserMapper {
             merchantUser.setUsername(user.getUsername());
             merchantUser.setActiveStates(user.getActiveStates().stream().map(State::getTitle).collect(Collectors.toList()));
             merchantUser.setCommission(user.getCommission());
+            merchantUser.setAddress(UserMapper.addressToReadableAddress(user.getCity(),user.getState(),user.getAddressDetails()));
             return merchantUser;
         }
     }
@@ -69,7 +70,7 @@ public final class UserMapper {
             customerUser.setStatus(user.isStatus());
             customerUser.setTaxNumber(user.getTaxNumber());
             customerUser.setUsername(user.getUsername());
-            customerUser.setAddress(user.getAddress());
+            customerUser.setAddress(UserMapper.addressToReadableAddress(user.getCity(),user.getState(),user.getAddressDetails()));
             return customerUser;
         }
     }
@@ -96,17 +97,16 @@ public final class UserMapper {
         }
     }
 
-    public static ReadableAddress addressToReadableAddress(Address address){
-        if (address == null){
+    public static ReadableAddress addressToReadableAddress(City city, State state, String details){
+        if (city == null || state == null || details.isEmpty()){
             return null;
         } else {
             ReadableAddress readableAddress = new ReadableAddress();
-            readableAddress.setId(address.getUuid().toString());
-            readableAddress.setCityId(address.getCity().getUuid().toString());
-            readableAddress.setCityName(address.getCity().getTitle());
-            readableAddress.setStateId(address.getState().getUuid().toString());
-            readableAddress.setStateName(address.getState().getTitle());
-            readableAddress.setDetails(address.getDetails());
+            readableAddress.setCityId(city.getUuid().toString());
+            readableAddress.setCityName(city.getTitle());
+            readableAddress.setStateId(state.getUuid().toString());
+            readableAddress.setStateName(state.getTitle());
+            readableAddress.setDetails(details);
             return readableAddress;
         }
     }
@@ -121,7 +121,7 @@ public final class UserMapper {
             userInfoBuilder.name(user.getName());
             String role = user.getRole().getName().split("_")[1];
             userInfoBuilder.role(role);
-            userInfoBuilder.address(UserMapper.addressToReadableAddress(user.getAddress()));
+            userInfoBuilder.address(UserMapper.addressToReadableAddress(user.getCity(),user.getState(),user.getAddressDetails()));
             userInfoBuilder.activeStates(user.getActiveStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
             userInfoBuilder.commission(user.getCommission());
             return userInfoBuilder.build();

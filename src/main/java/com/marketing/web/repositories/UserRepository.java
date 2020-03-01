@@ -1,6 +1,7 @@
 package com.marketing.web.repositories;
 
 import com.marketing.web.models.Role;
+import com.marketing.web.models.State;
 import com.marketing.web.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -29,4 +30,6 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Optional<User> findByPasswordResetToken(String passwordResetToken);
 
     Optional<User> findByActivationToken(String activationToken);
+
+    List<User> findAllByStateInAndRole(List<State> states, Role role);
 }

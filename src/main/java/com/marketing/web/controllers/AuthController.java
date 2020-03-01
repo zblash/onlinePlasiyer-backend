@@ -11,7 +11,6 @@ import com.marketing.web.configs.security.JWTAuthToken.JWTGenerator;
 import com.marketing.web.services.cart.CartServiceImpl;
 import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.invoice.ObligationService;
-import com.marketing.web.services.user.AddressService;
 import com.marketing.web.services.user.CityService;
 import com.marketing.web.services.user.StateService;
 import com.marketing.web.services.user.UserService;
@@ -42,9 +41,6 @@ public class AuthController {
     private UserService userService;
 
     @Autowired
-    private AddressService addressService;
-
-    @Autowired
     private StateService stateService;
 
     @Autowired
@@ -72,13 +68,20 @@ public class AuthController {
             body.put("userId", userDetails.getId());
             String jwt = JWTGenerator.generate(ApplicationContstants.JWT_SECRET, null, 86_400_000, body);
 
+            ReadableAddress address = new ReadableAddress();
+            address.setCityId(userDetails.getCity().getUuid().toString());
+            address.setCityName(userDetails.getCity().getTitle());
+            address.setStateId(userDetails.getState().getUuid().toString());
+            address.setStateName(userDetails.getState().getTitle());
+            address.setDetails(userDetails.getAddressDetails());
+
             ReadableLogin.LoginDTOBuilder loginDTOBuilder = new ReadableLogin.LoginDTOBuilder(jwt);
             loginDTOBuilder.email(userDetails.getEmail());
             loginDTOBuilder.name(userDetails.getName());
             loginDTOBuilder.userName(userDetails.getUsername());
             String role = userDetails.getRole().getName().split("_")[1];
             loginDTOBuilder.role(role);
-            loginDTOBuilder.address(userDetails.getAddress());
+            loginDTOBuilder.address(address);
             loginDTOBuilder.activeStates(userDetails.getActiveStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
             ReadableLogin readableLogin = loginDTOBuilder
                     .build();
@@ -97,15 +100,14 @@ public class AuthController {
         User user = UserMapper.writableRegisterToUser(writableRegister);
         if (userService.canRegister(user)) {
 
-            Address address = new Address();
             City city = cityService.findByUuid(writableRegister.getCityId());
-            address.setCity(city);
-            address.setState(stateService.findByUuidAndCity(writableRegister.getStateId(), city));
-            address.setDetails(writableRegister.getDetails());
 
             user.setStatus(true);
             user.setActivationToken(RandomStringGenerator.generateId());
-            user.setAddress(addressService.create(address));
+            user.setCity(city);
+            user.setState(stateService.findByUuidAndCity(writableRegister.getStateId(), city));
+            user.setAddressDetails(writableRegister.getDetails());
+
             User createdUser = userService.create(user, writableRegister.getRoleType());
             RoleType roleType = UserMapper.roleToRoleType(createdUser.getRole());
             if (roleType.equals(RoleType.CUSTOMER)) {
@@ -217,13 +219,11 @@ public class AuthController {
         if (writableUserInfo.getEmail().equals(user.getEmail()) || !userService.checkUserByEmail(writableUserInfo.getEmail())) {
             user.setName(writableUserInfo.getName());
             user.setEmail(writableUserInfo.getEmail());
-            Address address = user.getAddress();
             State state = stateService.findByUuid(writableUserInfo.getAddress().getStateId());
             City city = cityService.findByUuid(writableUserInfo.getAddress().getCityId());
-            address.setState(state);
-            address.setCity(city);
-            address.setDetails(writableUserInfo.getAddress().getDetails());
-            user.setAddress(addressService.update(address.getId(), address));
+            user.setState(state);
+            user.setCity(city);
+            user.setAddressDetails(writableUserInfo.getAddress().getDetails());
             return ResponseEntity.ok(UserMapper.userToReadableUserInfo(userService.update(user.getId(), user)));
         }
         throw new BadRequestException("Email already registered");
@@ -234,6 +234,15 @@ public class AuthController {
         List<User> users = userService.findAllByRoleAndStatus(RoleType.MERCHANT, true);
         return ResponseEntity.ok(users.stream()
                 .map(UserMapper::userToMerchant)
+                .collect(Collectors.toList()));
+    }
+    @GetMapping("/api/customers")
+    @PreAuthorize("hasRole('ROLE_MERCHANT')")
+    public ResponseEntity<List<CustomerUser>> getAllCustomersByActiveStates() {
+        User loggedInUser = userService.getLoggedInUser();
+
+        return ResponseEntity.ok(userService.findAllByStatesAndRole(loggedInUser.getActiveStates(), RoleType.CUSTOMER).stream()
+                .map(UserMapper::userToCustomer)
                 .collect(Collectors.toList()));
     }
 }

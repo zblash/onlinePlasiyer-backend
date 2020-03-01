@@ -11,8 +11,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class ReadableAddress implements Serializable {
 
-    private String id;
-
     private String cityId;
 
     private String cityName;

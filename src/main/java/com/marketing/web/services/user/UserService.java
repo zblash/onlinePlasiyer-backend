@@ -1,8 +1,10 @@
 package com.marketing.web.services.user;
 
 import com.marketing.web.enums.RoleType;
+import com.marketing.web.models.State;
 import com.marketing.web.models.User;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface UserService {
@@ -42,4 +44,6 @@ public interface UserService {
     boolean loginControl(String username, String password);
 
     User findByActivationToken(String activationToken);
+
+    List<User> findAllByStatesAndRole(List<State> activeStates, RoleType roleType);
 }

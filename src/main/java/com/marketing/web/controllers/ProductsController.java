@@ -139,7 +139,7 @@ public class ProductsController {
                 return ResponseEntity.ok(
                         ProductMapper
                                 .pagedProductSpecifyListToWrapperReadableProductSpecify(
-                                        productSpecifyService.findAllByProductAndStates(productService.findByUUID(id), Collections.singletonList(user.getAddress().getState()), pageNumber, sortBy, sortType)));
+                                        productSpecifyService.findAllByProductAndStates(productService.findByUUID(id), Collections.singletonList(user.getState()), pageNumber, sortBy, sortType)));
             }
         } else if (RoleType.MERCHANT.equals(role)) {
             return ResponseEntity.ok(

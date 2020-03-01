@@ -4,6 +4,7 @@ import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.models.Role;
+import com.marketing.web.models.State;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.UserRepository;
 import com.marketing.web.configs.security.CustomPrincipal;
@@ -105,7 +106,9 @@ public class UserServiceImpl implements UserService {
         user.setStatus(updatedUser.isStatus());
         user.setRole(updatedUser.getRole());
         user.setActiveStates(updatedUser.getActiveStates());
-        user.setAddress(updatedUser.getAddress());
+        user.setCity(updatedUser.getCity());
+        user.setState(updatedUser.getState());
+        user.setAddressDetails(updatedUser.getAddressDetails());
         user.setPasswordResetToken(updatedUser.getPasswordResetToken());
         if (updatedUser.getResetTokenExpireTime() != null) {
             user.setResetTokenExpireTime(updatedUser.getResetTokenExpireTime());
@@ -140,4 +143,11 @@ public class UserServiceImpl implements UserService {
     public User findByActivationToken(String activationToken) {
         return userRepository.findByActivationToken(activationToken).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"user", activationToken));
     }
+
+    @Override
+    public List<User> findAllByStatesAndRole(List<State> activeStates, RoleType roleType) {
+        Role role = roleService.createOrFind("ROLE_"+roleType.toString());
+        return userRepository.findAllByStateInAndRole(activeStates, role);
+    }
+
 }
