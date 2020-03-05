@@ -1,4 +1,4 @@
-package com.marketing.web.controllers;
+package com.marketing.web.controllers.admin;
 
 import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.announcement.ReadableAnnouncement;
@@ -10,6 +10,7 @@ import com.marketing.web.utils.mappers.AnnouncementMapper;
 import com.marketing.web.validations.ValidImg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,18 +42,17 @@ public class AnnouncementsController {
         binder.registerCustomEditor(Date.class, null,  new CustomDateEditor(dateFormat, false));
     }
 
-    @GetMapping
-    public ResponseEntity<List<ReadableAnnouncement>> getAll(){
-        List<Announcement> announcements = announcementService.findAllActives(new Date());
-        return ResponseEntity.ok(announcements.stream()
-                .map(AnnouncementMapper::announcementToReadableAnnouncement).collect(Collectors.toList()));
-    }
-
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/all")
-    public ResponseEntity<WrapperPagination<ReadableAnnouncement>> getAllWithInactives(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
+    @GetMapping
+    public ResponseEntity<WrapperPagination<ReadableAnnouncement>> getAll(@RequestParam(defaultValue = "false") boolean active, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
+        Page<Announcement> pagedAnnouncements;
+        if (active) {
+            pagedAnnouncements = announcementService.findAllActives(pageNumber,sortBy,sortType);
+        } else {
+            pagedAnnouncements = announcementService.findAllInActives(pageNumber,sortBy,sortType);
+        }
 
-        return ResponseEntity.ok(AnnouncementMapper.pagedAnnouncementListToWrapperReadableAnnouncement(announcementService.findAll(pageNumber, sortBy, sortType)));
+        return ResponseEntity.ok(AnnouncementMapper.pagedAnnouncementListToWrapperReadableAnnouncement(pagedAnnouncements));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

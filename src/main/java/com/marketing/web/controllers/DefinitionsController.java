@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/definitions")
 public class DefinitionsController {
 
     @Autowired
@@ -28,33 +27,38 @@ public class DefinitionsController {
     @Autowired
     StateService stateService;
 
-    @GetMapping("/roles")
+    @GetMapping("/definitions/roles")
     public ResponseEntity<?> getRoles(){
         return ResponseEntity.ok(RoleType.values());
     }
 
-    @GetMapping("/unitTypes")
+    @GetMapping("/definitions/unitTypes")
     public  ResponseEntity<?> getUnitTypes(){
         return ResponseEntity.ok(UnitType.values());
     }
 
-    @GetMapping("/cities")
+    @GetMapping("/definitions/cities")
     public ResponseEntity<List<ReadableCity>> getCities(){
         return ResponseEntity.ok(cityService.findAll().stream()
                 .map(CityMapper::cityToReadableCity).collect(Collectors.toList()));
     }
 
-    @GetMapping("/cities/{id}/states")
+    @GetMapping("/definitions/cities/{id}/states")
     public ResponseEntity<List<ReadableState>> getStatesByCity(@PathVariable String id){
         City city = cityService.findByUuid(id);
         return ResponseEntity.ok(stateService.findAllByCity(city).stream()
                 .map(CityMapper::stateToReadableState).collect(Collectors.toList()));
     }
 
-    @GetMapping("/states")
+    @GetMapping("/definitions/states")
     public ResponseEntity<List<ReadableState>> getStates(){
         return ResponseEntity.ok(stateService.findAll().stream()
                 .map(CityMapper::stateToReadableState).collect(Collectors.toList()));
+    }
+
+    @GetMapping("/health")
+    public ResponseEntity<?> getMap(){
+        return ResponseEntity.ok("OK");
     }
 
 }

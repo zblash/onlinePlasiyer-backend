@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/cart")
+@PreAuthorize("hasRole('ROLE_CUSTOMER')")
 public class CartController {
 
     @Autowired
@@ -70,7 +72,7 @@ public class CartController {
         Cart cart = user.getCart();
         if (writableCartItem.getQuantity() > 0) {
             List<State> productStates = productSpecifyService.findByUUID(writableCartItem.getProductId()).getStates();
-            if (productStates.contains(user.getAddress().getState())) {
+            if (productStates.contains(user.getState())) {
                 ProductSpecify productSpecify = productSpecifyService.findByUUID(writableCartItem.getProductId());
                 CartItemHolder cartItemHolder = cartItemHolderService.findByCartAndSeller(cart, productSpecify.getUser().getUuid().toString())
                         .orElseGet(() -> cartItemHolderService.create(CartItemHolder.builder().cart(cart).sellerId(productSpecify.getUser().getUuid().toString()).sellerName(productSpecify.getUser().getName()).build()));

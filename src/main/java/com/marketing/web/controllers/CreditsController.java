@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -70,7 +71,21 @@ public class CreditsController {
         creditService.delete(systemCredit);
         return ResponseEntity.ok(CreditMapper.creditToReadableCredit(systemCredit));
     }
-
+    @PreAuthorize("hasRole('ROLE_CUSTOMER') or hasRole('ROLE_MERCHANT')")
+    @GetMapping("/users/byUser/{userId}")
+    public ResponseEntity<ReadableUsersCredit> getByUser(@PathVariable String userId) {
+        User loggedInUser = userService.getLoggedInUser();
+        User user = userService.findByUUID(userId);
+        RoleType roleType = UserMapper.roleToRoleType(loggedInUser.getRole());
+        Optional<Credit> optionalCredit = creditService.findByCustomerAndMerchant(
+                RoleType.CUSTOMER.equals(roleType) ? loggedInUser : user,
+                RoleType.MERCHANT.equals(roleType) ? loggedInUser : user
+        );
+        if (optionalCredit.isPresent()) {
+            return ResponseEntity.ok(CreditMapper.usersCreditToReadableUsersCredit(optionalCredit.get()));
+        }
+        throw new BadRequestException("There is no credit");
+    }
 
     @GetMapping("/users")
     public ResponseEntity<List<ReadableUsersCredit>> getAllCredits(@RequestParam(required = false) String userId) {

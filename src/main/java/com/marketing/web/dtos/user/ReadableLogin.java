@@ -1,9 +1,7 @@
 package com.marketing.web.dtos.user;
 
-import com.marketing.web.models.Address;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
@@ -24,7 +22,7 @@ public class ReadableLogin implements Serializable {
 
     private String token;
 
-    private Address address;
+    private ReadableAddress address;
 
     private List<ReadableState> activeStates;
 
@@ -50,7 +48,7 @@ public class ReadableLogin implements Serializable {
 
         private String token;
 
-        private Address address;
+        private ReadableAddress address;
 
         private List<ReadableState> activeStates;
 
@@ -78,7 +76,7 @@ public class ReadableLogin implements Serializable {
             return this;
         }
 
-        public LoginDTOBuilder address(Address address){
+        public LoginDTOBuilder address(ReadableAddress address){
             this.address = address;
             return this;
         }
