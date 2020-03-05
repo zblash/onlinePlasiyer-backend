@@ -123,16 +123,9 @@ public class TicketsController {
         return ResponseEntity.ok(TicketMapper.ticketToReadableTicket(ticketService.update(id,ticket)));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/{id}")
     public ResponseEntity<ReadableTicket> updateTicket(@PathVariable String id,@RequestBody WritableTicket writableTicket){
-        User loggedInUser = userService.getLoggedInUser();
-        Ticket ticket;
-
-        if (loggedInUser.getRole().getName().equals("ROLE_ADMIN")){
-            ticket = ticketService.findByUUID(id);
-        }else{
-            ticket = ticketService.findByUserAndUUid(loggedInUser,id);
-        }
         Ticket updatedTicket = TicketMapper.writableTicketToTicket(writableTicket);
         return ResponseEntity.ok(TicketMapper.ticketToReadableTicket(ticketService.update(id,updatedTicket)));
     }

@@ -1,6 +1,8 @@
 package com.marketing.web.controllers;
 
 import com.marketing.web.configs.constants.ApplicationContstants;
+import com.marketing.web.dtos.announcement.ReadableAnnouncement;
+import com.marketing.web.dtos.category.ReadableCategory;
 import com.marketing.web.dtos.user.*;
 import com.marketing.web.enums.CreditType;
 import com.marketing.web.enums.RoleType;
@@ -8,14 +10,17 @@ import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.HttpMessage;
 import com.marketing.web.models.*;
 import com.marketing.web.configs.security.JWTAuthToken.JWTGenerator;
+import com.marketing.web.services.announcement.AnnouncementService;
 import com.marketing.web.services.cart.CartServiceImpl;
 import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.invoice.ObligationService;
+import com.marketing.web.services.product.ProductService;
 import com.marketing.web.services.user.CityService;
 import com.marketing.web.services.user.StateService;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.MailUtil;
 import com.marketing.web.utils.RandomStringGenerator;
+import com.marketing.web.utils.mappers.AnnouncementMapper;
 import com.marketing.web.utils.mappers.CityMapper;
 import com.marketing.web.utils.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +39,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-public class AuthController {
+public class UserController {
 
 
     @Autowired
@@ -57,6 +62,9 @@ public class AuthController {
 
     @Autowired
     private MailUtil mailUtil;
+
+    @Autowired
+    private AnnouncementService announcementService;
 
     @PostMapping("/signin")
     public ResponseEntity<?> login(@RequestBody WritableLogin writableLogin, WebRequest request) {
@@ -106,7 +114,6 @@ public class AuthController {
             user.setActivationToken(RandomStringGenerator.generateId());
             user.setCity(city);
             user.setState(stateService.findByUuidAndCity(writableRegister.getStateId(), city));
-            user.setAddressDetails(writableRegister.getDetails());
 
             User createdUser = userService.create(user, writableRegister.getRoleType());
             RoleType roleType = UserMapper.roleToRoleType(createdUser.getRole());
@@ -231,11 +238,13 @@ public class AuthController {
 
     @GetMapping("/api/merchants")
     public ResponseEntity<List<MerchantUser>> getAllMerchants() {
-        List<User> users = userService.findAllByRoleAndStatus(RoleType.MERCHANT, true);
+        User loggedInUser = userService.getLoggedInUser();
+        List<User> users = userService.findAllByRoleAndStateAndStatus(RoleType.MERCHANT, loggedInUser.getState(), true);
         return ResponseEntity.ok(users.stream()
                 .map(UserMapper::userToMerchant)
                 .collect(Collectors.toList()));
     }
+
     @GetMapping("/api/customers")
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
     public ResponseEntity<List<CustomerUser>> getAllCustomersByActiveStates() {
@@ -244,5 +253,12 @@ public class AuthController {
         return ResponseEntity.ok(userService.findAllByStatesAndRole(loggedInUser.getActiveStates(), RoleType.CUSTOMER).stream()
                 .map(UserMapper::userToCustomer)
                 .collect(Collectors.toList()));
+    }
+
+    @GetMapping("/api/announcements")
+    public ResponseEntity<List<ReadableAnnouncement>> getAll(){
+        List<Announcement> announcements = announcementService.findAllActives(new Date());
+        return ResponseEntity.ok(announcements.stream()
+                .map(AnnouncementMapper::announcementToReadableAnnouncement).collect(Collectors.toList()));
     }
 }

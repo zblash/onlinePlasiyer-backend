@@ -23,9 +23,13 @@ public interface UserService {
 
     List<User> findAllByRole(RoleType roleType);
 
-    List<User> findAllByRoleAndStatus(RoleType roleType,boolean status);
+    List<User> findAllByRoleAndStateAndStatus(RoleType roleType, State state, boolean status);
 
     List<User> findAllByStatus(boolean status);
+
+    List<User> findAllByStatesAndRole(List<State> activeStates, RoleType roleType);
+
+    List<User> findAllByRoleAndStatus(RoleType roleType, boolean status);
 
     User findById(Long id);
 
@@ -45,5 +49,4 @@ public interface UserService {
 
     User findByActivationToken(String activationToken);
 
-    List<User> findAllByStatesAndRole(List<State> activeStates, RoleType roleType);
 }

@@ -67,14 +67,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findAllByRoleAndStatus(RoleType roleType,boolean status) {
+    public List<User> findAllByRoleAndStateAndStatus(RoleType roleType, State state, boolean status) {
         Role role = roleService.findByName("ROLE_"+roleType.toString());
-        return userRepository.findAllByRoleAndStatusOrderByIdDesc(role,status);
+        return userRepository.findAllByRoleAndActiveStatesContainsAndStatusOrderByIdDesc(role, state,status);
     }
 
     @Override
     public List<User> findAllByStatus(boolean status) {
         return userRepository.findAllByStatusOrderByIdDesc(status);
+    }
+
+    @Override
+    public List<User> findAllByStatesAndRole(List<State> activeStates, RoleType roleType) {
+        Role role = roleService.createOrFind("ROLE_"+roleType.toString());
+        return userRepository.findAllByStateInAndRoleAndStatus(activeStates, role, true);
+    }
+
+    @Override
+    public List<User> findAllByRoleAndStatus(RoleType roleType, boolean status) {
+        Role role = roleService.createOrFind("ROLE_"+roleType.toString());
+        return userRepository.findAllByRoleAndStatusOrderByIdDesc(role, status);
     }
 
     @Override
@@ -142,12 +154,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByActivationToken(String activationToken) {
         return userRepository.findByActivationToken(activationToken).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"user", activationToken));
-    }
-
-    @Override
-    public List<User> findAllByStatesAndRole(List<State> activeStates, RoleType roleType) {
-        Role role = roleService.createOrFind("ROLE_"+roleType.toString());
-        return userRepository.findAllByStateInAndRole(activeStates, role);
     }
 
 }

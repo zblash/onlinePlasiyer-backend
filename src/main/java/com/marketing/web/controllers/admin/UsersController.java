@@ -1,4 +1,4 @@
-package com.marketing.web.controllers;
+package com.marketing.web.controllers.admin;
 
 import com.marketing.web.dtos.product.WritableCommission;
 import com.marketing.web.dtos.user.*;
@@ -113,7 +113,6 @@ public class UsersController {
             City city = cityService.findByUuid(writableRegister.getCityId());
             user.setCity(city);
             user.setState(stateService.findByUuidAndCity(writableRegister.getStateId(), city));
-            user.setAddressDetails(writableRegister.getDetails());
             User createdUser = userService.create(user, writableRegister.getRoleType());
             RoleType roleType = UserMapper.roleToRoleType(createdUser.getRole());
             if (roleType.equals(RoleType.CUSTOMER)) {

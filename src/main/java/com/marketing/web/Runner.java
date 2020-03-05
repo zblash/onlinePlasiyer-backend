@@ -109,16 +109,22 @@ public class Runner implements CommandLineRunner {
         writableRegister2.setRoleType(RoleType.CUSTOMER);
 
         User user = UserMapper.writableRegisterToUser(writableRegister);
+        user.setCity(states.get(0).getCity());
+        user.setState(states.get(0));
         user.setStatus(true);
         userService.create(user, writableRegister.getRoleType());
 
         User user1 = UserMapper.writableRegisterToUser(writableRegister1);
         user1.setStatus(true);
+        user1.setCity(states.get(0).getCity());
+        user1.setState(states.get(0));
         user1.setActiveStates(states);
         User saved = userService.create(user1, writableRegister1.getRoleType());
 
         User user2 = UserMapper.writableRegisterToUser(writableRegister2);
         user2.setStatus(true);
+        user2.setCity(states.get(0).getCity());
+        user2.setState(states.get(0));
         userService.create(user2, writableRegister2.getRoleType());
         return saved;
     }

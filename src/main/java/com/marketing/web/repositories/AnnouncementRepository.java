@@ -14,6 +14,10 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Long>
 
     List<Announcement> findAllByLastDateAfterOrderByIdDesc(Date date);
 
+    Page<Announcement> findAllByLastDateAfter(Date date, Pageable pageable);
+
+    Page<Announcement> findAllByLastDateBefore(Date date, Pageable pageable);
+
     Page<Announcement> findAllByOrderByIdDesc(Pageable pageable);
 
     Optional<Announcement> findByUuid(UUID uuid);

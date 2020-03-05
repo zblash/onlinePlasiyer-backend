@@ -21,6 +21,7 @@ public final class UserMapper {
             user.setPassword(writableRegister.getPassword());
             user.setEmail(writableRegister.getEmail());
             user.setTaxNumber(writableRegister.getTaxNumber());
+            user.setAddressDetails(writableRegister.getDetails());
             return user;
         }
     }

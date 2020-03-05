@@ -23,6 +23,8 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     List<User> findAllByRoleAndStatusOrderByIdDesc(Role role,boolean status);
 
+    List<User> findAllByRoleAndActiveStatesContainsAndStatusOrderByIdDesc(Role role, State state, boolean status);
+
     Optional<User> findByUuid(UUID uuid);
 
     Optional<User> findByUsernameOrEmailOrName(String username, String email, String name);
@@ -31,5 +33,5 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     Optional<User> findByActivationToken(String activationToken);
 
-    List<User> findAllByStateInAndRole(List<State> states, Role role);
+    List<User> findAllByStateInAndRoleAndStatus(List<State> states, Role role, boolean status);
 }
