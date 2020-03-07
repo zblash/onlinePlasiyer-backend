@@ -22,8 +22,8 @@ public final class CreditMapper {
             readableCredit.setId(credit.getUuid().toString());
             readableCredit.setCreditLimit(credit.getCreditLimit());
             readableCredit.setTotalDebt(credit.getTotalDebt());
-            readableCredit.setUserId(credit.getCustomer().getUuid().toString());
-            readableCredit.setUserName(credit.getCustomer().getUsername());
+            readableCredit.setCustomerId(credit.getCustomer().getUuid().toString());
+            readableCredit.setCustomerName(credit.getCustomer().getUsername());
             return readableCredit;
         }
     }
@@ -44,6 +44,7 @@ public final class CreditMapper {
             return null;
         } else {
             ReadableUsersCredit readableUsersCredit = new ReadableUsersCredit();
+            readableUsersCredit.setId(credit.getUuid().toString());
             readableUsersCredit.setCreditLimit(credit.getCreditLimit());
             readableUsersCredit.setTotalDebt(credit.getTotalDebt());
             readableUsersCredit.setCustomerId(credit.getCustomer().getUuid().toString());

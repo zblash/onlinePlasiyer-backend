@@ -97,31 +97,30 @@ public class CreditsController {
 
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MERCHANT')")
+    @PreAuthorize("hasRole('ROLE_MERCHANT')")
     @PostMapping("/users")
     public ResponseEntity<ReadableUsersCredit> createCredit(@RequestBody WritableUserCredit writableUserCredit) {
         User loggedInUser = userService.getLoggedInUser();
         User customer = userService.findByUUID(writableUserCredit.getCustomerId());
-        User merchant = UserMapper.roleToRoleType(loggedInUser.getRole()).equals(RoleType.MERCHANT) ? loggedInUser : userService.findByUUID(writableUserCredit.getMerchantId());
         if (UserMapper.roleToRoleType(customer.getRole()).equals(RoleType.CUSTOMER)) {
             Credit credit = new Credit();
             credit.setCreditLimit(writableUserCredit.getCreditLimit());
             credit.setCustomer(customer);
-            credit.setMerchant(merchant);
+            credit.setMerchant(loggedInUser);
             credit.setTotalDebt(writableUserCredit.getTotalDebt());
+            credit.setCreditType(CreditType.MCRD);
             return new ResponseEntity<>(CreditMapper.usersCreditToReadableUsersCredit(creditService.create(credit)), HttpStatus.CREATED);
         }
         throw new BadRequestException("You can only create credit to CUSTOMER users");
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MERCHANT')")
+    @PreAuthorize("hasRole('ROLE_MERCHANT')")
     @PutMapping("/users/{id}")
     public ResponseEntity<ReadableUsersCredit> updateCredit(@PathVariable String id, @RequestBody WritableUserCredit writableUserCredit) {
         User loggedInUser = userService.getLoggedInUser();
         User customer = userService.findByUUID(writableUserCredit.getCustomerId());
-        User merchant = UserMapper.roleToRoleType(loggedInUser.getRole()).equals(RoleType.MERCHANT) ? loggedInUser : userService.findByUUID(writableUserCredit.getMerchantId());
         if (UserMapper.roleToRoleType(customer.getRole()).equals(RoleType.CUSTOMER)) {
-            Credit credit = creditService.findByUUIDAndMerchant(id, merchant);
+            Credit credit = creditService.findByUUIDAndMerchant(id, loggedInUser);
             credit.setCreditLimit(writableUserCredit.getCreditLimit());
             credit.setCustomer(customer);
             credit.setTotalDebt(writableUserCredit.getTotalDebt());

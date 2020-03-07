@@ -17,7 +17,7 @@ public class ReadableCredit implements Serializable {
 
     private double creditLimit;
 
-    private String userId;
+    private String customerId;
 
-    private String userName;
+    private String customerName;
 }
