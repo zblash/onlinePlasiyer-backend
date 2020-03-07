@@ -29,4 +29,6 @@ public interface CreditActivityService {
     void deleteByOrder(Order order);
 
     void saveAll(List<CreditActivity> creditActivities);
+
+    Page<CreditActivity> findAllByUsers(User user1, User user2, Integer pageNumber, String sortBy, String sortType);
 }

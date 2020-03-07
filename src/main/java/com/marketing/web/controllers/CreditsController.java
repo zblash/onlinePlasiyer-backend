@@ -71,6 +71,7 @@ public class CreditsController {
         creditService.delete(systemCredit);
         return ResponseEntity.ok(CreditMapper.creditToReadableCredit(systemCredit));
     }
+
     @PreAuthorize("hasRole('ROLE_CUSTOMER') or hasRole('ROLE_MERCHANT')")
     @GetMapping("/users/byUser/{userId}")
     public ResponseEntity<ReadableUsersCredit> getByUser(@PathVariable String userId) {
@@ -87,11 +88,13 @@ public class CreditsController {
         throw new BadRequestException("There is no credit");
     }
 
+    @PreAuthorize("hasRole('ROLE_CUSTOMER') or hasRole('ROLE_MERCHANT')")
     @GetMapping("/users")
-    public ResponseEntity<List<ReadableUsersCredit>> getAllCredits(@RequestParam(required = false) String userId) {
+    public ResponseEntity<WrapperPagination<ReadableUsersCredit>> getAllCredits(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "totalDebt") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
         User loggedInUser = userService.getLoggedInUser();
-        User user = UserMapper.roleToRoleType(loggedInUser.getRole()).equals(RoleType.ADMIN) ? userService.findByUUID(userId) : loggedInUser;
-        return ResponseEntity.ok(creditService.findAllByUser(user).stream().map(CreditMapper::usersCreditToReadableUsersCredit).collect(Collectors.toList()));
+
+        return ResponseEntity.ok(CreditMapper.pagedUsersCreditListToWrapperReadableUsersCredit(creditService.findAllByUser(loggedInUser, pageNumber, sortBy, sortType)));
+
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MERCHANT')")
@@ -142,8 +145,13 @@ public class CreditsController {
     }
 
     @GetMapping("/activities")
-    public ResponseEntity<WrapperPagination<ReadableCreditActivity>> getCreditActivities(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
+    public ResponseEntity<WrapperPagination<ReadableCreditActivity>> getCreditActivities(@RequestParam(required = false) String userId, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
         User loggedInUser = userService.getLoggedInUser();
+
+        if(!userId.isEmpty()) {
+            User userById = userService.findByUUID(userId);
+            return ResponseEntity.ok(CreditMapper.pagedCreditActivityListToWrapperReadableCredityActivity(creditActivityService.findAllByUsers(loggedInUser, userById,pageNumber, sortBy, sortType)));
+        }
         return ResponseEntity.ok(CreditMapper.pagedCreditActivityListToWrapperReadableCredityActivity(creditActivityService.findAllByUser(loggedInUser, pageNumber, sortBy, sortType)));
     }
 }

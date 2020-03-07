@@ -10,6 +10,7 @@ import com.marketing.web.models.Order;
 import com.marketing.web.repositories.OrderGroup;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.OrderRepository;
+import com.marketing.web.utils.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -126,6 +127,28 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(updatedOrder.getStatus());
         order.setTotalPrice(updatedOrder.getTotalPrice());
         return orderRepository.save(order);
+    }
+
+    @Override
+    public Page<Order> findAllByUsers(User userByUserId, Integer pageNumber, String sortBy, String sortType, User user1, User user2) {
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
+        RoleType roleType = UserMapper.roleToRoleType(user1.getRole());
+        Page<Order> resultPage = orderRepository.findAllBySellerAndBuyer(RoleType.MERCHANT.equals(roleType) ? user1 : user2, RoleType.MERCHANT.equals(roleType) ? user2 : user1, pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
+        }
+        return resultPage;
+    }
+
+    @Override
+    public Page<Order> findAllByFilterAndUsers(Date startDate, Date endDate, User userByUserId, Integer pageNumber, User user1, User user2) {
+        PageRequest pageRequest = getPageRequest(pageNumber, "id", "desc");
+        RoleType roleType = UserMapper.roleToRoleType(user1.getRole());
+        Page<Order> resultPage = orderRepository.findAllByOrderDateBetweenAndSellerAndBuyer(startDate,endDate, RoleType.MERCHANT.equals(roleType) ? user1 : user2, RoleType.MERCHANT.equals(roleType) ? user2 : user1, pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
+        }
+        return resultPage;
     }
 
     private PageRequest getPageRequest(int pageNumber, String sortBy, String sortType){

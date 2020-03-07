@@ -2,10 +2,12 @@ package com.marketing.web.services.credit;
 
 import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.enums.CreditType;
+import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.User;
 import com.marketing.web.models.Credit;
 import com.marketing.web.repositories.CreditRepository;
+import com.marketing.web.utils.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,8 +45,13 @@ public class CreditServiceImpl implements CreditService {
     }
 
     @Override
-    public List<Credit> findAllByUser(User user) {
-        return creditRepository.findAllByMerchantOrCustomer(user, user);
+    public Page<Credit> findAllByUser(User user, int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
+        Page<Credit> resultPage = creditRepository.findAllByMerchantOrCustomer(user, user, pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
+        }
+        return resultPage;
     }
 
     @Override
@@ -90,6 +97,12 @@ public class CreditServiceImpl implements CreditService {
     @Override
     public void saveAll(List<Credit> credits) {
         creditRepository.saveAll(credits);
+    }
+
+    @Override
+    public List<Credit> findAllByUsers(User user1, User user2) {
+        RoleType roleType = UserMapper.roleToRoleType(user1.getRole());
+        return creditRepository.findAllByMerchantAndCustomer(RoleType.MERCHANT.equals(roleType) ? user1 : user2,RoleType.MERCHANT.equals(roleType) ? user2 : user1);
     }
 
     private PageRequest getPageRequest(int pageNumber, String sortBy, String sortType){

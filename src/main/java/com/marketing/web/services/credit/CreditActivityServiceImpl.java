@@ -1,12 +1,14 @@
 package com.marketing.web.services.credit;
 
 import com.marketing.web.configs.constants.MessagesConstants;
+import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.Credit;
 import com.marketing.web.models.CreditActivity;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.CreditActivityRepository;
+import com.marketing.web.utils.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -82,6 +84,17 @@ public class CreditActivityServiceImpl implements CreditActivityService {
     @Override
     public void saveAll(List<CreditActivity> creditActivities) {
         creditActivityRepository.saveAll(creditActivities);
+    }
+
+    @Override
+    public Page<CreditActivity> findAllByUsers(User user1, User user2, Integer pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
+        RoleType roleType = UserMapper.roleToRoleType(user1.getRole());
+        Page<CreditActivity> resultPage = creditActivityRepository.findAllByCustomerAndMerchant(RoleType.MERCHANT.equals(roleType) ? user2 : user1, RoleType.MERCHANT.equals(roleType) ? user1 : user2, pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
+        }
+        return resultPage;
     }
 
     private PageRequest getPageRequest(int pageNumber, String sortBy, String sortType){

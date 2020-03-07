@@ -125,4 +125,27 @@ public final class CreditMapper {
         }
     }
 
+    public static WrapperPagination<ReadableUsersCredit> pagedUsersCreditListToWrapperReadableUsersCredit(Page<Credit> pagedCredit) {
+        if (pagedCredit == null) {
+            return null;
+        } else {
+            WrapperPagination<ReadableUsersCredit> wrapperReadableCredit = new WrapperPagination<>();
+            wrapperReadableCredit.setKey("usercredits");
+            wrapperReadableCredit.setTotalPage(pagedCredit.getTotalPages());
+            wrapperReadableCredit.setPageNumber(pagedCredit.getNumber()+1);
+            if (pagedCredit.hasPrevious()) {
+                wrapperReadableCredit.setPreviousPage(pagedCredit.getNumber());
+            }
+            if (pagedCredit.hasNext()) {
+                wrapperReadableCredit.setNextPage(pagedCredit.getNumber()+2);
+            }
+            wrapperReadableCredit.setFirst(pagedCredit.isFirst());
+            wrapperReadableCredit.setLast(pagedCredit.isLast());
+            wrapperReadableCredit.setElementCountOfPage(pagedCredit.getNumberOfElements());
+            wrapperReadableCredit.setTotalElements(pagedCredit.getTotalElements());
+            wrapperReadableCredit.setValues(pagedCredit.getContent().stream()
+                    .map(CreditMapper::usersCreditToReadableUsersCredit).collect(Collectors.toList()));
+            return wrapperReadableCredit;
+        }
+    }
 }

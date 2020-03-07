@@ -43,7 +43,7 @@ public class AnnouncementsController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<WrapperPagination<ReadableAnnouncement>> getAll(@RequestParam(defaultValue = "false") boolean active, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
         Page<Announcement> pagedAnnouncements;
         if (active) {

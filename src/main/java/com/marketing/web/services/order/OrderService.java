@@ -34,4 +34,7 @@ public interface OrderService {
 
     Order update(String uuid, Order updatedOrder);
 
+    Page<Order> findAllByUsers(User userByUserId, Integer pageNumber, String sortBy, String sortType, User user1, User user2);
+
+    Page<Order> findAllByFilterAndUsers(Date startDate, Date endDate, User userByUserId, Integer pageNumber, User user1, User user2);
 }

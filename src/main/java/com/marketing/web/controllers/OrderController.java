@@ -48,12 +48,13 @@ public class OrderController {
     private Logger logger = LoggerFactory.getLogger(OrderController.class);
 
     @GetMapping
-    public ResponseEntity<WrapperPagination<ReadableOrder>> getOrders(@RequestParam(required = false) String userId, @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd") Date startDate, @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd") Date endDate, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
+    public ResponseEntity<WrapperPagination<ReadableOrder>> getOrders(@RequestParam(required = false) String userId, @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate, @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
 
         User user = userService.getLoggedInUser();
         endDate = (endDate != null) ? endDate : new Date();
+
         if (UserMapper.roleToRoleType(user.getRole()).equals(RoleType.ADMIN)) {
-            if (!userId.isEmpty()){
+            if (!userId.isEmpty()) {
                 User userByUserId = userService.findByUUID(userId);
                 if (startDate != null) {
                     return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByFilterAndUser(startDate, endDate, userByUserId, pageNumber)));
@@ -65,10 +66,20 @@ public class OrderController {
                 return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByFilter(startDate, endDate, pageNumber)));
             }
         }
-        if (startDate != null) {
-            return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByFilterAndUser(startDate, endDate, user, pageNumber)));
+
+        if (!userId.isEmpty()) {
+            User userByUserId = userService.findByUUID(userId);
+            if (startDate != null) {
+                return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByFilterAndUsers(startDate, endDate, userByUserId, pageNumber, user, userByUserId)));
+            }
+            return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUsers(userByUserId, pageNumber, sortBy, sortType, user, userByUserId)));
+        } else if (startDate == null) {
+            return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(user, pageNumber, sortBy, sortType)));
         }
-        return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(user, pageNumber, sortBy, sortType)));
+
+        return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByFilterAndUser(startDate, endDate, user, pageNumber)));
+
+
     }
 
     // TODO Remove
