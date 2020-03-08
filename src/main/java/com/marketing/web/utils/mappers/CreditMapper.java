@@ -22,8 +22,8 @@ public final class CreditMapper {
             readableCredit.setId(credit.getUuid().toString());
             readableCredit.setCreditLimit(credit.getCreditLimit());
             readableCredit.setTotalDebt(credit.getTotalDebt());
-            readableCredit.setUserId(credit.getCustomer().getUuid().toString());
-            readableCredit.setUserName(credit.getCustomer().getUsername());
+            readableCredit.setCustomerId(credit.getCustomer().getUuid().toString());
+            readableCredit.setCustomerName(credit.getCustomer().getUsername());
             return readableCredit;
         }
     }
@@ -44,6 +44,7 @@ public final class CreditMapper {
             return null;
         } else {
             ReadableUsersCredit readableUsersCredit = new ReadableUsersCredit();
+            readableUsersCredit.setId(credit.getUuid().toString());
             readableUsersCredit.setCreditLimit(credit.getCreditLimit());
             readableUsersCredit.setTotalDebt(credit.getTotalDebt());
             readableUsersCredit.setCustomerId(credit.getCustomer().getUuid().toString());
@@ -125,4 +126,27 @@ public final class CreditMapper {
         }
     }
 
+    public static WrapperPagination<ReadableUsersCredit> pagedUsersCreditListToWrapperReadableUsersCredit(Page<Credit> pagedCredit) {
+        if (pagedCredit == null) {
+            return null;
+        } else {
+            WrapperPagination<ReadableUsersCredit> wrapperReadableCredit = new WrapperPagination<>();
+            wrapperReadableCredit.setKey("usercredits");
+            wrapperReadableCredit.setTotalPage(pagedCredit.getTotalPages());
+            wrapperReadableCredit.setPageNumber(pagedCredit.getNumber()+1);
+            if (pagedCredit.hasPrevious()) {
+                wrapperReadableCredit.setPreviousPage(pagedCredit.getNumber());
+            }
+            if (pagedCredit.hasNext()) {
+                wrapperReadableCredit.setNextPage(pagedCredit.getNumber()+2);
+            }
+            wrapperReadableCredit.setFirst(pagedCredit.isFirst());
+            wrapperReadableCredit.setLast(pagedCredit.isLast());
+            wrapperReadableCredit.setElementCountOfPage(pagedCredit.getNumberOfElements());
+            wrapperReadableCredit.setTotalElements(pagedCredit.getTotalElements());
+            wrapperReadableCredit.setValues(pagedCredit.getContent().stream()
+                    .map(CreditMapper::usersCreditToReadableUsersCredit).collect(Collectors.toList()));
+            return wrapperReadableCredit;
+        }
+    }
 }
