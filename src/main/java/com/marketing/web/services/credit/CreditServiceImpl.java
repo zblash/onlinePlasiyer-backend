@@ -45,9 +45,26 @@ public class CreditServiceImpl implements CreditService {
     }
 
     @Override
-    public Page<Credit> findAllByUser(User user, int pageNumber, String sortBy, String sortType) {
+    public Page<Credit> findAllByUserAndCreditType(User user, CreditType creditType, int pageNumber, String sortBy, String sortType) {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
-        Page<Credit> resultPage = creditRepository.findAllByMerchantOrCustomer(user, user, pageRequest);
+        Page<Credit> resultPage = null;
+        RoleType roleType = UserMapper.roleToRoleType(user.getRole());
+        if (roleType.equals(RoleType.MERCHANT)) {
+            resultPage = creditRepository.findAllByCreditTypeAndMerchant(creditType, user, pageRequest);
+        } else {
+            resultPage = creditRepository.findAllByCreditTypeAndCustomer(creditType, user, pageRequest);
+        }
+
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
+        }
+        return resultPage;
+    }
+
+    @Override
+    public Page<Credit> findByCustomerAndMerchant(User customer, User merchant, int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
+        Page<Credit> resultPage = creditRepository.findAllByCustomerAndMerchant(customer, merchant, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
         }

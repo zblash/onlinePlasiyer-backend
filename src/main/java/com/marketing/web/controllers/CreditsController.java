@@ -38,12 +38,6 @@ public class CreditsController {
     @Autowired
     private UserService userService;
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping
-    public ResponseEntity<WrapperPagination<ReadableCredit>> getAll(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "totalDebt") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
-        return ResponseEntity.ok(CreditMapper
-                .pagedCreditListToWrapperReadableCredit(creditService.findAllByCreditType(pageNumber, sortBy, sortType, CreditType.SCRD)));
-    }
 
     @GetMapping("/my")
     public ResponseEntity<ReadableCredit> getUserCredit() {
@@ -51,31 +45,28 @@ public class CreditsController {
         return ResponseEntity.ok(CreditMapper.creditToReadableCredit(creditService.findSystemCreditByUser(user)));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/byUser/{userId}")
-    public ResponseEntity<ReadableCredit> getCreditByUser(@PathVariable String userId) {
-        User user = userService.findByUUID(userId);
-        return ResponseEntity.ok(CreditMapper.creditToReadableCredit(creditService.findSystemCreditByUser(user)));
-    }
+    @PreAuthorize("hasRole('ROLE_CUSTOMER') or hasRole('ROLE_MERCHANT')")
+    @GetMapping
+    public ResponseEntity<WrapperPagination<ReadableUsersCredit>> getAllCredits(@RequestParam(required = false) String userId, @RequestParam(required = false) String userName, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "totalDebt") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
+        User loggedInUser = userService.getLoggedInUser();
+        User foundUser = null;
+        if (userId != null && !userId.isEmpty()) {
+            foundUser = userService.findByUUID(userId);
+        } else if (userName != null && !userName.isEmpty()) {
+            foundUser = userService.findByUserName(userName);
+        }
+        if (foundUser != null) {
+            RoleType roleType = UserMapper.roleToRoleType(loggedInUser.getRole());
+            return ResponseEntity.ok(CreditMapper.pagedUsersCreditListToWrapperReadableUsersCredit(creditService.findByCustomerAndMerchant(
+                    RoleType.CUSTOMER.equals(roleType) ? loggedInUser : foundUser,
+                    RoleType.MERCHANT.equals(roleType) ? loggedInUser : foundUser, pageNumber, sortBy, sortType)));
+        }
+        return ResponseEntity.ok(CreditMapper.pagedUsersCreditListToWrapperReadableUsersCredit(creditService.findAllByUserAndCreditType(loggedInUser, CreditType.MCRD, pageNumber, sortBy, sortType)));
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("/{creditId}")
-    public ResponseEntity<ReadableCredit> updateCredit(@PathVariable String creditId, @Valid @RequestBody WritableCredit writableCredit) {
-        Credit credit = CreditMapper.writableCreditToCredit(writableCredit);
-        credit.setCreditType(CreditType.SCRD);
-        return ResponseEntity.ok(CreditMapper.creditToReadableCredit(creditService.update(creditId, credit)));
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/{creditId}")
-    public ResponseEntity<ReadableCredit> deleteCategory(@PathVariable String creditId) {
-        Credit systemCredit = creditService.findByUUID(creditId);
-        creditService.delete(systemCredit);
-        return ResponseEntity.ok(CreditMapper.creditToReadableCredit(systemCredit));
     }
 
     @PreAuthorize("hasRole('ROLE_CUSTOMER') or hasRole('ROLE_MERCHANT')")
-    @GetMapping("/users/byUser")
+    @GetMapping("/byUser")
     public ResponseEntity<ReadableUsersCredit> getByUser(@RequestParam(required = false) String userId, @RequestParam(required = false) String userName) {
         User loggedInUser = userService.getLoggedInUser();
         User foundUser = null;
@@ -95,17 +86,8 @@ public class CreditsController {
         throw new BadRequestException("There is no credit");
     }
 
-    @PreAuthorize("hasRole('ROLE_CUSTOMER') or hasRole('ROLE_MERCHANT')")
-    @GetMapping("/users")
-    public ResponseEntity<WrapperPagination<ReadableUsersCredit>> getAllCredits(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "totalDebt") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
-        User loggedInUser = userService.getLoggedInUser();
-
-        return ResponseEntity.ok(CreditMapper.pagedUsersCreditListToWrapperReadableUsersCredit(creditService.findAllByUser(loggedInUser, pageNumber, sortBy, sortType)));
-
-    }
-
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
-    @PostMapping("/users")
+    @PostMapping
     public ResponseEntity<ReadableUsersCredit> createCredit(@RequestBody WritableUserCredit writableUserCredit) {
         User loggedInUser = userService.getLoggedInUser();
         User customer = userService.findByUUID(writableUserCredit.getCustomerId());
@@ -122,7 +104,7 @@ public class CreditsController {
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
-    @PutMapping("/users/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ReadableUsersCredit> updateCredit(@PathVariable String id, @RequestBody WritableUserCredit writableUserCredit) {
         User loggedInUser = userService.getLoggedInUser();
         User customer = userService.findByUUID(writableUserCredit.getCustomerId());
@@ -137,7 +119,7 @@ public class CreditsController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MERCHANT')")
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<ReadableUsersCredit> deleteCredit(@PathVariable String id) {
         User loggedInUser = userService.getLoggedInUser();
         Credit credit;

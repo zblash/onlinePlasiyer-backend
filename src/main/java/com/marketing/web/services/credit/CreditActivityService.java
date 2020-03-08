@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface CreditActivityService {
 
+    Page<CreditActivity> findAll(int pageNumber, String sortBy, String sortType);
+
     Page<CreditActivity> findAllByUser(User user, int pageNumber, String sortBy, String sortType);
 
     CreditActivity findById(Long id);
