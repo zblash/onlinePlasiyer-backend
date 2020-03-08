@@ -6,6 +6,7 @@ import com.marketing.web.enums.CreditType;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.Credit;
+import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 import com.marketing.web.services.credit.CreditActivityService;
 import com.marketing.web.services.credit.CreditService;
@@ -13,6 +14,7 @@ import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.CreditMapper;
 import com.marketing.web.utils.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -73,14 +75,19 @@ public class CreditsController {
     }
 
     @PreAuthorize("hasRole('ROLE_CUSTOMER') or hasRole('ROLE_MERCHANT')")
-    @GetMapping("/users/byUser/{userId}")
-    public ResponseEntity<ReadableUsersCredit> getByUser(@PathVariable String userId) {
+    @GetMapping("/users/byUser")
+    public ResponseEntity<ReadableUsersCredit> getByUser(@RequestParam(required = false) String userId, @RequestParam(required = false) String userName) {
         User loggedInUser = userService.getLoggedInUser();
-        User user = userService.findByUUID(userId);
+        User foundUser = null;
+        if (userId != null && !userId.isEmpty()) {
+            foundUser = userService.findByUUID(userId);
+        } else if (userName != null && !userName.isEmpty()) {
+            foundUser = userService.findByUserName(userName);
+        }
         RoleType roleType = UserMapper.roleToRoleType(loggedInUser.getRole());
         Optional<Credit> optionalCredit = creditService.findByCustomerAndMerchant(
-                RoleType.CUSTOMER.equals(roleType) ? loggedInUser : user,
-                RoleType.MERCHANT.equals(roleType) ? loggedInUser : user
+                RoleType.CUSTOMER.equals(roleType) ? loggedInUser : foundUser,
+                RoleType.MERCHANT.equals(roleType) ? loggedInUser : foundUser
         );
         if (optionalCredit.isPresent()) {
             return ResponseEntity.ok(CreditMapper.usersCreditToReadableUsersCredit(optionalCredit.get()));

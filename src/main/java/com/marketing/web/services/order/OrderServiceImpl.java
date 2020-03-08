@@ -62,8 +62,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<Order> findAllByFilter(Date startDate, Date endDate, int pageNumber) {
-        PageRequest pageRequest = getPageRequest(pageNumber, "id", "desc");
+    public Page<Order> findAllByFilter(Date startDate, Date endDate, Integer pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Order> resultPage = orderRepository.findAllByOrOrderDateBetween(startDate, endDate, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
@@ -72,8 +72,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<Order> findAllByFilterAndUser(Date startDate, Date endDate, User user, int pageNumber) {
-        PageRequest pageRequest = getPageRequest(pageNumber, "id", "desc");
+    public Page<Order> findAllByFilterAndUser(Date startDate, Date endDate, User user, Integer pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Order> resultPage = orderRepository.findAllByOrderDateBetweenAndBuyerOrSeller(startDate,endDate, user, user, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
@@ -130,7 +130,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<Order> findAllByUsers(User userByUserId, Integer pageNumber, String sortBy, String sortType, User user1, User user2) {
+    public Page<Order> findAllByUsers(User user1, User user2, Integer pageNumber, String sortBy, String sortType) {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         RoleType roleType = UserMapper.roleToRoleType(user1.getRole());
         Page<Order> resultPage = orderRepository.findAllBySellerAndBuyer(RoleType.MERCHANT.equals(roleType) ? user1 : user2, RoleType.MERCHANT.equals(roleType) ? user2 : user1, pageRequest);
@@ -141,7 +141,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<Order> findAllByFilterAndUsers(Date startDate, Date endDate, User userByUserId, Integer pageNumber, User user1, User user2) {
+    public Page<Order> findAllByFilterAndUsers(Date startDate, Date endDate, User user1, User user2,Integer pageNumber, String sortBy, String sortType) {
         PageRequest pageRequest = getPageRequest(pageNumber, "id", "desc");
         RoleType roleType = UserMapper.roleToRoleType(user1.getRole());
         Page<Order> resultPage = orderRepository.findAllByOrderDateBetweenAndSellerAndBuyer(startDate,endDate, RoleType.MERCHANT.equals(roleType) ? user1 : user2, RoleType.MERCHANT.equals(roleType) ? user2 : user1, pageRequest);

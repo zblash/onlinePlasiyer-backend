@@ -18,6 +18,7 @@ import com.marketing.web.utils.mappers.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,39 +48,43 @@ public class OrderController {
 
     private Logger logger = LoggerFactory.getLogger(OrderController.class);
 
+    //TODO Split admin route
     @GetMapping
-    public ResponseEntity<WrapperPagination<ReadableOrder>> getOrders(@RequestParam(required = false) String userId, @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate, @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
+    public ResponseEntity<WrapperPagination<ReadableOrder>> getOrders(@RequestParam(required = false) String userId, @RequestParam(required = false) String userName, @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate, @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
 
-        User user = userService.getLoggedInUser();
+        User loggedInUser = userService.getLoggedInUser();
+        User foundUser = null;
+        Page<Order> orders;
+        if (userId != null && !userId.isEmpty()) {
+            foundUser = userService.findByUUID(userId);
+        } else if (userName != null && !userName.isEmpty()) {
+            foundUser = userService.findByUserName(userName);
+        }
         endDate = (endDate != null) ? endDate : new Date();
 
-        if (UserMapper.roleToRoleType(user.getRole()).equals(RoleType.ADMIN)) {
-            if (!userId.isEmpty()) {
-                User userByUserId = userService.findByUUID(userId);
-                if (startDate != null) {
-                    return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByFilterAndUser(startDate, endDate, userByUserId, pageNumber)));
-                }
-                return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(userByUserId, pageNumber, sortBy, sortType)));
-            } else if (startDate == null) {
-                return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAll(pageNumber, sortBy, sortType)));
+        if (!UserMapper.roleToRoleType(loggedInUser.getRole()).equals(RoleType.ADMIN)) {
+            if (foundUser != null && startDate != null) {
+                orders = orderService.findAllByFilterAndUsers(startDate, endDate, loggedInUser, foundUser, pageNumber, sortBy, sortType);
+            } else if (foundUser != null) {
+                orders = orderService.findAllByUsers(loggedInUser, foundUser, pageNumber, sortBy, sortType);
+            } else if (startDate != null) {
+                orders = orderService.findAllByFilterAndUser(startDate, endDate, loggedInUser, pageNumber, sortBy, sortType);
             } else {
-                return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByFilter(startDate, endDate, pageNumber)));
+                orders = orderService.findAllByUser(loggedInUser, pageNumber, sortBy, sortType);
+            }
+        } else {
+            if (foundUser != null && startDate != null) {
+                orders = orderService.findAllByFilterAndUser(startDate, endDate, foundUser, pageNumber, sortBy, sortType);
+            } else if (foundUser != null) {
+                orders = orderService.findAllByUser(foundUser, pageNumber, sortBy, sortType);
+            } else if (startDate != null) {
+                orders = orderService.findAllByFilter(startDate, endDate, pageNumber, sortBy, sortType);
+            } else {
+                orders = orderService.findAll(pageNumber, sortBy, sortType);
             }
         }
 
-        if (!userId.isEmpty()) {
-            User userByUserId = userService.findByUUID(userId);
-            if (startDate != null) {
-                return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByFilterAndUsers(startDate, endDate, userByUserId, pageNumber, user, userByUserId)));
-            }
-            return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUsers(userByUserId, pageNumber, sortBy, sortType, user, userByUserId)));
-        } else if (startDate == null) {
-            return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByUser(user, pageNumber, sortBy, sortType)));
-        }
-
-        return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orderService.findAllByFilterAndUser(startDate, endDate, user, pageNumber)));
-
-
+        return ResponseEntity.ok(OrderMapper.pagedOrderListToWrapperReadableOrder(orders));
     }
 
     // TODO Remove

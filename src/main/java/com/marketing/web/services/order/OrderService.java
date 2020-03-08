@@ -16,9 +16,9 @@ public interface OrderService {
 
     OrderSummary groupBy(User user);
 
-    Page<Order> findAllByFilter(Date startDate, Date endDate, int pageNumber);
+    Page<Order> findAllByFilter(Date startDate, Date endDate, Integer pageNumber, String sortBy, String sortType);
 
-    Page<Order> findAllByFilterAndUser(Date startDate, Date endDate, User user, int pageNumber);
+    Page<Order> findAllByFilterAndUser(Date startDate, Date endDate, User user, Integer pageNumber, String sortBy, String sortType);
 
     Page<Order> findAllByUser(User user, int pageNumber, String sortBy, String sortType);
 
@@ -34,7 +34,7 @@ public interface OrderService {
 
     Order update(String uuid, Order updatedOrder);
 
-    Page<Order> findAllByUsers(User userByUserId, Integer pageNumber, String sortBy, String sortType, User user1, User user2);
+    Page<Order> findAllByUsers(User user1, User user2, Integer pageNumber, String sortBy, String sortType);
 
-    Page<Order> findAllByFilterAndUsers(Date startDate, Date endDate, User userByUserId, Integer pageNumber, User user1, User user2);
+    Page<Order> findAllByFilterAndUsers(Date startDate, Date endDate, User user1, User user2,Integer pageNumber, String sortBy, String sortType);
 }
