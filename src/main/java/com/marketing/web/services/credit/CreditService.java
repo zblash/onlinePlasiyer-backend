@@ -16,7 +16,9 @@ public interface CreditService {
 
     Credit findByUUID(String uuid);
 
-    Page<Credit> findAllByUser(User user, int pageNumber, String sortBy, String sortType);
+    Page<Credit> findAllByUserAndCreditType(User user, CreditType creditType, int pageNumber, String sortBy, String sortType);
+
+    Page<Credit> findByCustomerAndMerchant(User customer, User merchant, int pageNumber, String sortBy, String sortType);
 
     Optional<Credit> findByCustomerAndMerchant(User customer, User merchant);
 

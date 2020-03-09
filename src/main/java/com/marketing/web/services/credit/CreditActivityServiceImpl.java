@@ -26,6 +26,16 @@ public class CreditActivityServiceImpl implements CreditActivityService {
     private CreditActivityRepository creditActivityRepository;
 
     @Override
+    public Page<CreditActivity> findAll(int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
+        Page<CreditActivity> resultPage = creditActivityRepository.findAll(pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
+        }
+        return resultPage;
+    }
+
+    @Override
     public Page<CreditActivity> findAllByUser(User user, int pageNumber, String sortBy, String sortType) {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<CreditActivity> resultPage = creditActivityRepository.findAllByCustomerOrMerchant(user, user, pageRequest);
@@ -91,6 +101,22 @@ public class CreditActivityServiceImpl implements CreditActivityService {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         RoleType roleType = UserMapper.roleToRoleType(user1.getRole());
         Page<CreditActivity> resultPage = creditActivityRepository.findAllByCustomerAndMerchant(RoleType.MERCHANT.equals(roleType) ? user2 : user1, RoleType.MERCHANT.equals(roleType) ? user1 : user2, pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
+        }
+        return resultPage;
+    }
+
+    @Override
+    public Page<CreditActivity> findAllByUserAndDateRange(User user, Date startDate, Date lastDate, Integer pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
+        Page<CreditActivity> resultPage = null;
+        RoleType roleType = UserMapper.roleToRoleType(user.getRole());
+        if (roleType.equals(RoleType.MERCHANT)) {
+            resultPage = creditActivityRepository.findAllByMerchantAndDateBetween(user, startDate, lastDate, pageRequest);
+        } else {
+            resultPage = creditActivityRepository.findAllByCustomerAndDateBetween(user, startDate, lastDate, pageRequest);
+        }
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
         }
