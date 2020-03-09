@@ -14,14 +14,18 @@ import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.CreditMapper;
 import com.marketing.web.utils.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +44,12 @@ public class CreditsController {
     @Autowired
     private UserService userService;
 
+    @InitBinder
+    protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        dateFormat.setLenient(false);
+        binder.registerCustomEditor(Date.class, null,  new CustomDateEditor(dateFormat, false));
+    }
 
     @GetMapping("/my")
     public ResponseEntity<ReadableCredit> getUserCredit() {

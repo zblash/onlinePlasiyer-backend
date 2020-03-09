@@ -12,11 +12,17 @@ import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.mappers.CreditMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @RestController
 @RequestMapping("/api/admin/credits")
@@ -30,6 +36,13 @@ public class SystemCreditsController {
 
     @Autowired
     private UserService userService;
+
+    @InitBinder
+    protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        dateFormat.setLenient(false);
+        binder.registerCustomEditor(Date.class, null,  new CustomDateEditor(dateFormat, false));
+    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
@@ -62,10 +75,22 @@ public class SystemCreditsController {
     }
 
     @GetMapping("/activities")
-    public ResponseEntity<WrapperPagination<ReadableCreditActivity>> getCreditActivities(@RequestParam(required = false) String userId, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
-        if(!userId.isEmpty()) {
-            User userById = userService.findByUUID(userId);
-            return ResponseEntity.ok(CreditMapper.pagedCreditActivityListToWrapperReadableCredityActivity(creditActivityService.findAllByUser(userById,pageNumber, sortBy, sortType)));
+    public ResponseEntity<WrapperPagination<ReadableCreditActivity>> getCreditActivities(@RequestParam(required = false) String userId, @RequestParam(required = false) String userName, @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate, @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date lastDate, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
+        User user = null;
+        if (userId != null && !userId.isEmpty()) {
+            user = userService.findByUUID(userId);
+        } else if (userName != null && !userName.isEmpty()) {
+            user = userService.findByUserName(userName);
+        }
+
+        if(user != null) {
+            if(startDate != null && startDate.compareTo(new Date()) < 0) {
+                if (lastDate == null) {
+                    lastDate = new Date();
+                }
+                return ResponseEntity.ok(CreditMapper.pagedCreditActivityListToWrapperReadableCredityActivity(creditActivityService.findAllByUserAndDateRange(user, startDate, lastDate, pageNumber, sortBy, sortType)));
+            }
+            return ResponseEntity.ok(CreditMapper.pagedCreditActivityListToWrapperReadableCredityActivity(creditActivityService.findAllByUser(user,pageNumber, sortBy, sortType)));
         }
         return ResponseEntity.ok(CreditMapper.pagedCreditActivityListToWrapperReadableCredityActivity(creditActivityService.findAll(pageNumber, sortBy, sortType)));
     }
