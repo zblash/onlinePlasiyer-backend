@@ -15,12 +15,14 @@ import com.marketing.web.utils.mappers.CreditMapper;
 import com.marketing.web.utils.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -133,13 +135,16 @@ public class CreditsController {
     }
 
     @GetMapping("/activities")
-    public ResponseEntity<WrapperPagination<ReadableCreditActivity>> getCreditActivities(@RequestParam(required = false) String userId, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
+    public ResponseEntity<WrapperPagination<ReadableCreditActivity>> getCreditActivities(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate, @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date lastDate, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
         User loggedInUser = userService.getLoggedInUser();
 
-        if(!userId.isEmpty()) {
-            User userById = userService.findByUUID(userId);
-            return ResponseEntity.ok(CreditMapper.pagedCreditActivityListToWrapperReadableCredityActivity(creditActivityService.findAllByUsers(loggedInUser, userById,pageNumber, sortBy, sortType)));
+        if(startDate != null && startDate.compareTo(new Date()) < 0) {
+            if (lastDate == null) {
+                lastDate = new Date();
+            }
+            return ResponseEntity.ok(CreditMapper.pagedCreditActivityListToWrapperReadableCredityActivity(creditActivityService.findAllByUserAndDateRange(loggedInUser, startDate, lastDate, pageNumber, sortBy, sortType)));
         }
+
         return ResponseEntity.ok(CreditMapper.pagedCreditActivityListToWrapperReadableCredityActivity(creditActivityService.findAllByUser(loggedInUser, pageNumber, sortBy, sortType)));
     }
 }

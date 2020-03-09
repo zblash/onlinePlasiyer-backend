@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,5 +29,9 @@ public interface CreditActivityRepository extends JpaRepository<CreditActivity, 
 
      void deleteByOrder(Order order);
 
-    Page<CreditActivity> findAllByCustomerAndMerchant(User customer, User merchant, PageRequest pageRequest);
+    Page<CreditActivity> findAllByCustomerAndMerchant(User customer, User merchant, Pageable pageable);
+
+    Page<CreditActivity> findAllByMerchantAndDateBetween(User merchant, Date startDate, Date lastDate, Pageable pageable);
+
+    Page<CreditActivity> findAllByCustomerAndDateBetween(User customer, Date startDate, Date lastDate, Pageable pageable);
 }

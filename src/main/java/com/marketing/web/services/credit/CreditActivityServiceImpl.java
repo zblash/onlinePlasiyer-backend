@@ -107,6 +107,22 @@ public class CreditActivityServiceImpl implements CreditActivityService {
         return resultPage;
     }
 
+    @Override
+    public Page<CreditActivity> findAllByUserAndDateRange(User user, Date startDate, Date lastDate, Integer pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
+        Page<CreditActivity> resultPage = null;
+        RoleType roleType = UserMapper.roleToRoleType(user.getRole());
+        if (roleType.equals(RoleType.MERCHANT)) {
+            resultPage = creditActivityRepository.findAllByMerchantAndDateBetween(user, startDate, lastDate, pageRequest);
+        } else {
+            resultPage = creditActivityRepository.findAllByCustomerAndDateBetween(user, startDate, lastDate, pageRequest);
+        }
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
+        }
+        return resultPage;
+    }
+
     private PageRequest getPageRequest(int pageNumber, String sortBy, String sortType){
         return PageRequest.of(pageNumber-1,15, Sort.by(Sort.Direction.fromString(sortType.toUpperCase()),sortBy));
     }
