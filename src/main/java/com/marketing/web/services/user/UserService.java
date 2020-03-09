@@ -1,13 +1,19 @@
 package com.marketing.web.services.user;
 
 import com.marketing.web.enums.RoleType;
+import com.marketing.web.models.State;
 import com.marketing.web.models.User;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface UserService {
 
     User findByUserName(String userName);
+
+    User findByEmail(String email);
+
+    User findByResetToken(String token);
 
     boolean checkUserByEmail(String email);
 
@@ -17,9 +23,13 @@ public interface UserService {
 
     List<User> findAllByRole(RoleType roleType);
 
-    List<User> findAllByRoleAndStatus(RoleType roleType,boolean status);
+    List<User> findAllByRoleAndStateAndStatus(RoleType roleType, State state, boolean status);
 
     List<User> findAllByStatus(boolean status);
+
+    List<User> findAllByStatesAndRole(List<State> activeStates, RoleType roleType);
+
+    List<User> findAllByRoleAndStatus(RoleType roleType, boolean status);
 
     User findById(Long id);
 
@@ -32,4 +42,11 @@ public interface UserService {
     void delete(User user);
 
     User getLoggedInUser();
+
+    User changePassword(User user, String password);
+
+    boolean loginControl(String username, String password);
+
+    User findByActivationToken(String activationToken);
+
 }

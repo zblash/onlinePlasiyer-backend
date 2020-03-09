@@ -26,6 +26,26 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     }
 
     @Override
+    public Page<Announcement> findAllActives(int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
+        Page<Announcement> resultPage = announcementRepository.findAllByLastDateAfter(new Date(), pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", String.valueOf(pageNumber));
+        }
+        return resultPage;
+    }
+
+    @Override
+    public Page<Announcement> findAllInActives(int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
+        Page<Announcement> resultPage = announcementRepository.findAllByLastDateBefore(new Date(), pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", String.valueOf(pageNumber));
+        }
+        return resultPage;
+    }
+
+    @Override
     public Page<Announcement> findAll(int pageNumber, String sortBy, String sortType) {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<Announcement> resultPage = announcementRepository.findAll(pageRequest);

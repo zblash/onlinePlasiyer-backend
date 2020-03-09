@@ -48,7 +48,7 @@ public final class OrderMapper {
             readableOrder.setCommission(order.getCommission());
             readableOrder.setOrderItems(order.getOrderItems().stream()
                     .map(OrderMapper::orderItemToReadableOrderItem).collect(Collectors.toList()));
-            readableOrder.setBuyerAddress(UserMapper.addressToReadableAddress(order.getBuyer().getAddress()));
+            readableOrder.setBuyerAddress(UserMapper.addressToReadableAddress(order.getBuyer().getCity(),order.getBuyer().getState(),order.getBuyer().getAddressDetails()));
             return readableOrder;
         }
     }

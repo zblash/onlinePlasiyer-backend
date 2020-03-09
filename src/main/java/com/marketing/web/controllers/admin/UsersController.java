@@ -1,15 +1,15 @@
-package com.marketing.web.controllers;
+package com.marketing.web.controllers.admin;
 
 import com.marketing.web.dtos.product.WritableCommission;
 import com.marketing.web.dtos.user.*;
 import com.marketing.web.enums.CreditType;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
+import com.marketing.web.errors.HttpMessage;
 import com.marketing.web.models.*;
 import com.marketing.web.services.cart.CartServiceImpl;
 import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.invoice.ObligationService;
-import com.marketing.web.services.order.OrderService;
 import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.services.user.*;
 import com.marketing.web.utils.mappers.CityMapper;
@@ -21,21 +21,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.context.request.WebRequest;
 
 import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/admin/users")
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 public class UsersController {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private AddressService addressService;
 
     @Autowired
     private CityService cityService;
@@ -110,14 +109,10 @@ public class UsersController {
         User user = UserMapper.writableRegisterToUser(writableRegister);
 
         if (userService.canRegister(user)) {
-            Address address = new Address();
-            City city = cityService.findByUuid(writableRegister.getCityId());
-            address.setCity(city);
-            address.setState(stateService.findByUuidAndCity(writableRegister.getStateId(), city));
-            address.setDetails(writableRegister.getDetails());
-
             user.setStatus(writableRegister.isStatus());
-            user.setAddress(addressService.create(address));
+            City city = cityService.findByUuid(writableRegister.getCityId());
+            user.setCity(city);
+            user.setState(stateService.findByUuidAndCity(writableRegister.getStateId(), city));
             User createdUser = userService.create(user, writableRegister.getRoleType());
             RoleType roleType = UserMapper.roleToRoleType(createdUser.getRole());
             if (roleType.equals(RoleType.CUSTOMER)) {
@@ -151,13 +146,11 @@ public class UsersController {
         if (writableUserInfo.getEmail().equals(user.getEmail()) || !userService.checkUserByEmail(writableUserInfo.getEmail())) {
             user.setName(writableUserInfo.getName());
             user.setEmail(writableUserInfo.getEmail());
-            Address address = user.getAddress();
             State state = stateService.findByUuid(writableUserInfo.getAddress().getStateId());
             City city = cityService.findByUuid(writableUserInfo.getAddress().getCityId());
-            address.setState(state);
-            address.setCity(city);
-            address.setDetails(writableUserInfo.getAddress().getDetails());
-            user.setAddress(addressService.update(address.getId(), address));
+            user.setState(state);
+            user.setCity(city);
+            user.setAddressDetails(writableUserInfo.getAddress().getDetails());
             return ResponseEntity.ok(UserMapper.userToReadableUserInfo(userService.update(user.getId(), user)));
         }
         throw new BadRequestException("Email already registered");
@@ -194,5 +187,19 @@ public class UsersController {
             return ResponseEntity.ok(UserMapper.userToReadableUserInfo(user));
         }
         throw new BadRequestException("Only merchant user's commission editable");
+    }
+
+    @PostMapping("/changePassword/{id}")
+    public ResponseEntity<HttpMessage> changeUserPassword(@PathVariable String id, @Valid @RequestBody WritablePasswordChange writablePasswordReset, WebRequest request){
+        User user = userService.findByUUID(id);
+
+        if(writablePasswordReset.getPassword().equals(writablePasswordReset.getPasswordConfirmation())){
+            userService.changePassword(user, writablePasswordReset.getPassword());
+            HttpMessage httpMessage = new HttpMessage(HttpStatus.OK);
+            httpMessage.setMessage("Password changed");
+            httpMessage.setPath(((ServletWebRequest)request).getRequest().getRequestURL().toString());
+            return ResponseEntity.ok(httpMessage);
+        }
+        throw new BadRequestException("Fields not matching");
     }
 }

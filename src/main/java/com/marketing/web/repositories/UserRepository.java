@@ -1,6 +1,7 @@
 package com.marketing.web.repositories;
 
 import com.marketing.web.models.Role;
+import com.marketing.web.models.State;
 import com.marketing.web.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -22,7 +23,15 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     List<User> findAllByRoleAndStatusOrderByIdDesc(Role role,boolean status);
 
+    List<User> findAllByRoleAndActiveStatesContainsAndStatusOrderByIdDesc(Role role, State state, boolean status);
+
     Optional<User> findByUuid(UUID uuid);
 
     Optional<User> findByUsernameOrEmailOrName(String username, String email, String name);
+
+    Optional<User> findByPasswordResetToken(String passwordResetToken);
+
+    Optional<User> findByActivationToken(String activationToken);
+
+    List<User> findAllByStateInAndRoleAndStatus(List<State> states, Role role, boolean status);
 }

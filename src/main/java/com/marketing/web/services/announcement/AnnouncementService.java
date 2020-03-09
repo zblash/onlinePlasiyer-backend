@@ -10,6 +10,10 @@ public interface AnnouncementService {
 
     List<Announcement> findAllActives(Date date);
 
+    Page<Announcement> findAllActives(int pageNumber, String sortBy, String sortType);
+
+    Page<Announcement> findAllInActives(int pageNumber, String sortBy, String sortType);
+
     Page<Announcement> findAll(int pageNumber, String sortBy, String sortType);
 
     Announcement findById(Long id);

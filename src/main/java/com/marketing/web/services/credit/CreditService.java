@@ -5,6 +5,7 @@ import com.marketing.web.models.User;
 import com.marketing.web.models.Credit;
 import org.springframework.data.domain.Page;
 
+import java.util.BitSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,7 +16,9 @@ public interface CreditService {
 
     Credit findByUUID(String uuid);
 
-    List<Credit> findAllByUser(User user);
+    Page<Credit> findAllByUserAndCreditType(User user, CreditType creditType, int pageNumber, String sortBy, String sortType);
+
+    Page<Credit> findByCustomerAndMerchant(User customer, User merchant, int pageNumber, String sortBy, String sortType);
 
     Optional<Credit> findByCustomerAndMerchant(User customer, User merchant);
 
@@ -30,4 +33,6 @@ public interface CreditService {
     Credit findSystemCreditByUser(User user);
 
     void saveAll(List<Credit> credits);
+
+    List<Credit> findAllByUsers(User user1, User user2);
 }

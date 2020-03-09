@@ -11,6 +11,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,13 +50,26 @@ public class User implements Serializable {
 
     private boolean status;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    private String activationToken;
+
+    private String passwordResetToken;
+
+    private Date resetTokenExpireTime;
+
+    @ManyToOne
     @JoinColumn(name = "role_id",referencedColumnName = "id")
     private Role role;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "address_id",referencedColumnName = "id")
-    private Address address;
+    @ManyToOne
+    @JoinColumn(name = "city_id",referencedColumnName = "id")
+    private City city;
+
+    @ManyToOne
+    @JoinColumn(name = "state_id",referencedColumnName = "id")
+    private State state;
+
+    private String addressDetails;
+
 
     @ManyToMany(fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)

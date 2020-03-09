@@ -7,11 +7,8 @@ import com.marketing.web.models.*;
 import com.marketing.web.repositories.*;
 import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.services.storage.StorageService;
-import com.marketing.web.services.user.AddressServiceImpl;
 import com.marketing.web.services.user.UserServiceImpl;
 import com.marketing.web.utils.mappers.UserMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -20,7 +17,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 @Component
 public class Runner implements CommandLineRunner {
@@ -49,9 +45,6 @@ public class Runner implements CommandLineRunner {
 
     @Autowired
     UserServiceImpl userService;
-
-    @Autowired
-    AddressServiceImpl addressService;
 
     @Autowired
     ProductSpecifyService productSpecifyService;
@@ -116,16 +109,22 @@ public class Runner implements CommandLineRunner {
         writableRegister2.setRoleType(RoleType.CUSTOMER);
 
         User user = UserMapper.writableRegisterToUser(writableRegister);
+        user.setCity(states.get(0).getCity());
+        user.setState(states.get(0));
         user.setStatus(true);
         userService.create(user, writableRegister.getRoleType());
 
         User user1 = UserMapper.writableRegisterToUser(writableRegister1);
         user1.setStatus(true);
+        user1.setCity(states.get(0).getCity());
+        user1.setState(states.get(0));
         user1.setActiveStates(states);
         User saved = userService.create(user1, writableRegister1.getRoleType());
 
         User user2 = UserMapper.writableRegisterToUser(writableRegister2);
         user2.setStatus(true);
+        user2.setCity(states.get(0).getCity());
+        user2.setState(states.get(0));
         userService.create(user2, writableRegister2.getRoleType());
         return saved;
     }

@@ -17,13 +17,19 @@ public interface CreditRepository extends JpaRepository<Credit, Long> {
 
     Page<Credit> findAllByCreditType(CreditType creditType, Pageable pageable);
 
-    List<Credit> findAllByMerchantOrCustomer(User merchant, User customer);
+    Page<Credit> findAllByCreditTypeAndMerchant(CreditType creditType, User merchant, Pageable pageable);
+
+    Page<Credit> findAllByCreditTypeAndCustomer(CreditType creditType, User customer, Pageable pageable);
 
     Optional<Credit> findByUuidAndMerchant(UUID uuid, User merchant);
+
+    Page<Credit> findAllByCustomerAndMerchant(User customer, User merchant, Pageable pageable);
 
     Optional<Credit> findByCustomerAndMerchant(User customer, User merchant);
 
     Optional<Credit> findByCustomerAndCreditType(User customer, CreditType creditType);
 
     Page<Credit> findAllByCustomerOrMerchant(User customer, User merchant, Pageable pageable);
+
+    List<Credit> findAllByMerchantAndCustomer(User merchant, User customer);
 }

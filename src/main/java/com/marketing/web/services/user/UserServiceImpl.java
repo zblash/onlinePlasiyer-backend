@@ -1,14 +1,13 @@
 package com.marketing.web.services.user;
 
 import com.marketing.web.configs.constants.MessagesConstants;
-import com.marketing.web.enums.CreditType;
 import com.marketing.web.errors.ResourceNotFoundException;
-import com.marketing.web.models.*;
 import com.marketing.web.enums.RoleType;
+import com.marketing.web.models.Role;
+import com.marketing.web.models.State;
+import com.marketing.web.models.User;
 import com.marketing.web.repositories.UserRepository;
 import com.marketing.web.configs.security.CustomPrincipal;
-import com.marketing.web.services.cart.CartServiceImpl;
-import com.marketing.web.services.credit.CreditService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,6 +36,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"user.name", email));
+    }
+
+    @Override
+    public User findByResetToken(String token) {
+        return userRepository.findByPasswordResetToken(token).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"user.name", token));
+    }
+
+    @Override
     public boolean checkUserByEmail(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
@@ -58,14 +67,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findAllByRoleAndStatus(RoleType roleType,boolean status) {
+    public List<User> findAllByRoleAndStateAndStatus(RoleType roleType, State state, boolean status) {
         Role role = roleService.findByName("ROLE_"+roleType.toString());
-        return userRepository.findAllByRoleAndStatusOrderByIdDesc(role,status);
+        return userRepository.findAllByRoleAndActiveStatesContainsAndStatusOrderByIdDesc(role, state,status);
     }
 
     @Override
     public List<User> findAllByStatus(boolean status) {
         return userRepository.findAllByStatusOrderByIdDesc(status);
+    }
+
+    @Override
+    public List<User> findAllByStatesAndRole(List<State> activeStates, RoleType roleType) {
+        Role role = roleService.createOrFind("ROLE_"+roleType.toString());
+        return userRepository.findAllByStateInAndRoleAndStatus(activeStates, role, true);
+    }
+
+    @Override
+    public List<User> findAllByRoleAndStatus(RoleType roleType, boolean status) {
+        Role role = roleService.createOrFind("ROLE_"+roleType.toString());
+        return userRepository.findAllByRoleAndStatusOrderByIdDesc(role, status);
     }
 
     @Override
@@ -97,7 +118,13 @@ public class UserServiceImpl implements UserService {
         user.setStatus(updatedUser.isStatus());
         user.setRole(updatedUser.getRole());
         user.setActiveStates(updatedUser.getActiveStates());
-        user.setAddress(updatedUser.getAddress());
+        user.setCity(updatedUser.getCity());
+        user.setState(updatedUser.getState());
+        user.setAddressDetails(updatedUser.getAddressDetails());
+        user.setPasswordResetToken(updatedUser.getPasswordResetToken());
+        if (updatedUser.getResetTokenExpireTime() != null) {
+            user.setResetTokenExpireTime(updatedUser.getResetTokenExpireTime());
+        }
         return userRepository.save(user);
     }
 
@@ -111,4 +138,22 @@ public class UserServiceImpl implements UserService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return ((CustomPrincipal) auth.getPrincipal()).getUser();
     }
+
+    @Override
+    public User changePassword(User user, String password) {
+        user.setPassword(passwordEncoder.encode(password));
+        return update(user.getId(),user);
+    }
+
+    @Override
+    public boolean loginControl(String username, String password) {
+        User user = findByUserName(username);
+       return passwordEncoder.matches(password, user.getPassword()) && user.isStatus();
+    }
+
+    @Override
+    public User findByActivationToken(String activationToken) {
+        return userRepository.findByActivationToken(activationToken).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"user", activationToken));
+    }
+
 }

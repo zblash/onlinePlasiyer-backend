@@ -9,16 +9,9 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReadableAddress implements Serializable {
+public class WritableForgotPassword implements Serializable {
 
-    private String cityId;
+    private String email;
 
-    private String cityName;
-
-    private String stateId;
-
-    private String stateName;
-
-    private String details;
-
+    private String username;
 }
