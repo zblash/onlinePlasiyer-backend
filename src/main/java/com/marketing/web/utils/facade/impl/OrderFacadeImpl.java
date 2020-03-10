@@ -56,39 +56,44 @@ public class OrderFacadeImpl implements OrderFacade {
                 && writableOrder.getWaybillDate() != null) {
 
             order.setWaybillDate(writableOrder.getWaybillDate());
-            if (PaymentOption.MCRD.equals(order.getPaymentType()) && writableOrder.getPaidPrice() > 0) {
-                Credit credit = creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller())
-                        .orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit.user",""));
-                credit.setTotalDebt(credit.getTotalDebt() - writableOrder.getPaidPrice());
+
+            if ((PaymentOption.SCRD.equals(order.getPaymentType()) || PaymentOption.MCRD.equals(order.getPaymentType())) && writableOrder.getPaidPrice() > 0) {
+                Optional<Credit> optionalCredit = creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller());
+                Credit credit;
+                if (optionalCredit.isPresent()) {
+                    credit = optionalCredit.get();
+                    credit.setTotalDebt(credit.getTotalDebt() - writableOrder.getPaidPrice());
+                    creditService.update(credit.getUuid().toString(), credit);
+                } else {
+                    credit = creditService.create(Credit.builder().creditLimit(writableOrder.getPaidPrice()).customer(order.getBuyer()).merchant(order.getSeller()).creditType(CreditType.MCRD).totalDebt(0).build());
+                }
 
                 CreditActivity creditActivity = creditActivityPopulator(order,credit,writableOrder.getPaidPrice(),CreditActivityType.CRDT);
-                creditService.update(credit.getUuid().toString(), credit);
                 creditActivityService.create(creditActivity);
-            } else if (PaymentOption.COD.equals(order.getPaymentType()) && writableOrder.getPaidPrice() > order.getTotalPrice()) {
-                double totalPrice = writableOrder.getPaidPrice() - order.getTotalPrice();
+
+            } else if (PaymentOption.COD.equals(order.getPaymentType()) && writableOrder.getPaidPrice() != order.getTotalPrice()) {
+                double totalPrice = Math.abs(writableOrder.getPaidPrice() - order.getTotalPrice());
+                CreditActivityType creditActivityType = writableOrder.getPaidPrice() > order.getTotalPrice() ?
+                        CreditActivityType.CRDT : CreditActivityType.DEBT;
+
                 Optional<Credit> creditOptional = creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller());
                 Credit credit;
                 if (creditOptional.isPresent()) {
                     credit = creditOptional.get();
-                    if (credit.getTotalDebt() >= totalPrice) {
-                        credit.setTotalDebt(credit.getTotalDebt() - totalPrice);
-                    } else {
-                        double creditLimit = totalPrice - credit.getTotalDebt();
-                        credit.setCreditLimit(credit.getCreditLimit() + creditLimit);
-                    }
+                    double debt = creditActivityType.equals(CreditActivityType.DEBT) ?
+                            credit.getTotalDebt() + totalPrice :
+                            credit.getTotalDebt() - totalPrice;
+                    credit.setTotalDebt(debt);
                     creditService.update(credit.getUuid().toString(), credit);
                 } else {
                      credit = creditService.create(Credit.builder()
                             .creditLimit(totalPrice)
+                             .totalDebt(creditActivityType.equals(CreditActivityType.DEBT) ?
+                                     totalPrice : 0)
                              .creditType(CreditType.MCRD)
-                            .customer(order.getBuyer()).merchant(order.getSeller()).totalDebt(0).build());
+                            .customer(order.getBuyer()).merchant(order.getSeller()).build());
                 }
-                CreditActivity creditActivity = creditActivityPopulator(order,credit,totalPrice,CreditActivityType.CRDT);
-                creditActivityService.create(creditActivity);
-            } else if (PaymentOption.SCRD.equals(order.getPaymentType()) && writableOrder.getPaidPrice() > 0) {
-                Credit credit = creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller())
-                        .orElseGet(() -> creditService.create(Credit.builder().creditLimit(writableOrder.getPaidPrice()).customer(order.getBuyer()).merchant(order.getSeller()).creditType(CreditType.MCRD).totalDebt(0).build()));
-                CreditActivity creditActivity = creditActivityPopulator(order, credit, writableOrder.getPaidPrice(), CreditActivityType.CRDT);
+                CreditActivity creditActivity = creditActivityPopulator(order,credit,totalPrice, creditActivityType);
                 creditActivityService.create(creditActivity);
             }
         } else if (OrderStatus.CNCL.equals(writableOrder.getStatus())) {
