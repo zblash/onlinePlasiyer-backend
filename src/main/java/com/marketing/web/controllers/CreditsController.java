@@ -78,15 +78,11 @@ public class CreditsController {
     }
 
     @PreAuthorize("hasRole('ROLE_CUSTOMER') or hasRole('ROLE_MERCHANT')")
-    @GetMapping("/byUser")
-    public ResponseEntity<ReadableUsersCredit> getByUser(@RequestParam(required = false) String userId, @RequestParam(required = false) String userName) {
+    @GetMapping("/byUser/{userId}")
+    public ResponseEntity<ReadableUsersCredit> getByUser(@PathVariable String userId) {
         User loggedInUser = userService.getLoggedInUser();
-        User foundUser = null;
-        if (userId != null && !userId.isEmpty()) {
-            foundUser = userService.findByUUID(userId);
-        } else if (userName != null && !userName.isEmpty()) {
-            foundUser = userService.findByUserName(userName);
-        }
+        User foundUser = userService.findByUUID(userId);
+
         RoleType roleType = UserMapper.roleToRoleType(loggedInUser.getRole());
         Optional<Credit> optionalCredit = creditService.findByCustomerAndMerchant(
                 RoleType.CUSTOMER.equals(roleType) ? loggedInUser : foundUser,
