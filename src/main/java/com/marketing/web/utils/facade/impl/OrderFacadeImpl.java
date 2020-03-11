@@ -51,13 +51,13 @@ public class OrderFacadeImpl implements OrderFacade {
 
     @Override
     public ReadableOrder saveOrder(WritableOrder writableOrder, Order order) {
-        if (OrderStatus.CNFRM.equals(order.getStatus())
-                && OrderStatus.FNS.equals(writableOrder.getStatus())
+        if (OrderStatus.CONFIRMED.equals(order.getStatus())
+                && OrderStatus.FINISHED.equals(writableOrder.getStatus())
                 && writableOrder.getWaybillDate() != null) {
 
             order.setWaybillDate(writableOrder.getWaybillDate());
 
-            if ((PaymentOption.SCRD.equals(order.getPaymentType()) || PaymentOption.MCRD.equals(order.getPaymentType())) && writableOrder.getPaidPrice() > 0) {
+            if ((PaymentOption.SYSTEM_CREDIT.equals(order.getPaymentType()) || PaymentOption.MERCHANT_CREDIT.equals(order.getPaymentType())) && writableOrder.getPaidPrice() > 0) {
                 Optional<Credit> optionalCredit = creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller());
                 Credit credit;
                 if (optionalCredit.isPresent()) {
@@ -65,16 +65,16 @@ public class OrderFacadeImpl implements OrderFacade {
                     credit.setTotalDebt(credit.getTotalDebt() - writableOrder.getPaidPrice());
                     creditService.update(credit.getUuid().toString(), credit);
                 } else {
-                    credit = creditService.create(Credit.builder().creditLimit(writableOrder.getPaidPrice()).customer(order.getBuyer()).merchant(order.getSeller()).creditType(CreditType.MCRD).totalDebt(0).build());
+                    credit = creditService.create(Credit.builder().creditLimit(writableOrder.getPaidPrice()).customer(order.getBuyer()).merchant(order.getSeller()).creditType(CreditType.MERCHANT_CREDIT).totalDebt(0).build());
                 }
 
-                CreditActivity creditActivity = creditActivityPopulator(order,credit,writableOrder.getPaidPrice(),CreditActivityType.CRDT);
+                CreditActivity creditActivity = creditActivityPopulator(order,credit,writableOrder.getPaidPrice(),CreditActivityType.CREDIT);
                 creditActivityService.create(creditActivity);
 
             } else if (PaymentOption.COD.equals(order.getPaymentType()) && writableOrder.getPaidPrice() != order.getTotalPrice()) {
                 double totalPrice = Math.abs(writableOrder.getPaidPrice() - order.getTotalPrice());
                 CreditActivityType creditActivityType = writableOrder.getPaidPrice() > order.getTotalPrice() ?
-                        CreditActivityType.CRDT : CreditActivityType.DEBT;
+                        CreditActivityType.CREDIT : CreditActivityType.DEBT;
 
                 Optional<Credit> creditOptional = creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller());
                 Credit credit;
@@ -90,24 +90,24 @@ public class OrderFacadeImpl implements OrderFacade {
                             .creditLimit(totalPrice)
                              .totalDebt(creditActivityType.equals(CreditActivityType.DEBT) ?
                                      totalPrice : 0)
-                             .creditType(CreditType.MCRD)
+                             .creditType(CreditType.MERCHANT_CREDIT)
                             .customer(order.getBuyer()).merchant(order.getSeller()).build());
                 }
                 CreditActivity creditActivity = creditActivityPopulator(order,credit,totalPrice, creditActivityType);
                 creditActivityService.create(creditActivity);
             }
-        } else if (OrderStatus.CNCL.equals(writableOrder.getStatus())) {
+        } else if (OrderStatus.CANCELLED.equals(writableOrder.getStatus())) {
                 Obligation obligation = obligationService.findByUser(order.getSeller());
-                if (PaymentOption.SCRD.equals(order.getPaymentType())) {
+                if (PaymentOption.SYSTEM_CREDIT.equals(order.getPaymentType())) {
                     obligation.setReceivable(obligation.getReceivable() - order.getTotalPrice());
                 } else {
                     obligation.setDebt(obligation.getDebt() - order.getTotalPrice());
                 }
                 obligationService.update(obligation.getUuid().toString(), obligation);
-                obligationActivityService.create(obligationActivityPopulator(obligation, order , CreditActivityType.CRDT));
-                Credit credit = PaymentOption.MCRD.equals(order.getPaymentType()) ? creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller())
+                obligationActivityService.create(obligationActivityPopulator(obligation, order , CreditActivityType.CREDIT));
+                Credit credit = PaymentOption.MERCHANT_CREDIT.equals(order.getPaymentType()) ? creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller())
                         .orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit.user",""))
-                        : (PaymentOption.SCRD.equals(order.getPaymentType()) ? creditService.findSystemCreditByUser(order.getBuyer()) : null);
+                        : (PaymentOption.SYSTEM_CREDIT.equals(order.getPaymentType()) ? creditService.findSystemCreditByUser(order.getBuyer()) : null);
                 if (credit != null) {
                     credit.setTotalDebt(credit.getTotalDebt() - order.getTotalPrice());
                     creditActivityService.deleteByOrder(order);
@@ -138,7 +138,7 @@ public class OrderFacadeImpl implements OrderFacade {
             }
             orderItemService.saveAll(updatedItems);
             orderItemService.deleteAllByUuid(removedItems);
-            order.setStatus(OrderStatus.CNFRM);
+            order.setStatus(OrderStatus.CONFIRMED);
             order.setCommission(updatedItems.stream().mapToDouble(OrderItem::getCommission).sum());
             double orderOldTotalPrice = order.getTotalPrice();
             order.setTotalPrice(updatedItems.stream().mapToDouble(OrderItem::getTotalPrice).sum());
@@ -149,14 +149,14 @@ public class OrderFacadeImpl implements OrderFacade {
                     CreditActivity creditActivity = new CreditActivity();
                     double activityPrice = Math.abs(order.getTotalPrice() - orderOldTotalPrice);
                     if (order.getTotalPrice() > orderOldTotalPrice) {
-                        creditActivity.setCreditActivityType(CreditActivityType.CRDT);
+                        creditActivity.setCreditActivityType(CreditActivityType.CREDIT);
                         credit.setTotalDebt(credit.getTotalDebt() + (order.getTotalPrice() - orderOldTotalPrice));
                     } else if (order.getTotalPrice() < orderOldTotalPrice){
                         creditActivity.setCreditActivityType(CreditActivityType.DEBT);
                         credit.setTotalDebt(credit.getTotalDebt() - activityPrice);
                     }
                     creditActivity.setCustomer(order.getBuyer());
-                    if (PaymentOption.MCRD.equals(order.getPaymentType())) {
+                    if (PaymentOption.MERCHANT_CREDIT.equals(order.getPaymentType())) {
                         creditActivity.setMerchant(order.getBuyer());
                     }
                     creditActivity.setCredit(credit);
@@ -170,9 +170,9 @@ public class OrderFacadeImpl implements OrderFacade {
 
             Obligation obligation = calculateObligation(order, obligationService.findByUser(order.getSeller()));
             CreditActivityType obligationActivityType;
-            if (PaymentOption.SCRD.equals(order.getPaymentType())) {
+            if (PaymentOption.SYSTEM_CREDIT.equals(order.getPaymentType())) {
                 obligation.setReceivable(obligation.getReceivable() - orderOldTotalPrice);
-                obligationActivityType = CreditActivityType.CRDT;
+                obligationActivityType = CreditActivityType.CREDIT;
             } else {
                 obligationActivityType = CreditActivityType.DEBT;
                 obligation.setDebt(obligation.getDebt() - orderOldTotalPrice);
@@ -200,12 +200,12 @@ public class OrderFacadeImpl implements OrderFacade {
                 orders.add(order);
                 Obligation obligation = calculateObligation(order, obligationService.findByUser(order.getSeller()));
                 obligations.add(calculateObligation(order, obligation));
-                CreditActivityType obligationType = PaymentOption.SCRD.equals(order.getPaymentType()) ? CreditActivityType.CRDT : CreditActivityType.DEBT;
+                CreditActivityType obligationType = PaymentOption.SYSTEM_CREDIT.equals(order.getPaymentType()) ? CreditActivityType.CREDIT : CreditActivityType.DEBT;
                 obligationActivities.add(obligationActivityPopulator(obligation, order, obligationType));
                 orderItems.addAll(order.getOrderItems());
 
-                if (PaymentOption.MCRD.equals(paymentOption) || PaymentOption.SCRD.equals(paymentOption)) {
-                    Credit credit = paymentOption.equals(PaymentOption.MCRD)
+                if (PaymentOption.MERCHANT_CREDIT.equals(paymentOption) || PaymentOption.SYSTEM_CREDIT.equals(paymentOption)) {
+                    Credit credit = paymentOption.equals(PaymentOption.MERCHANT_CREDIT)
                             ? creditService.findByCustomerAndMerchant(user, userService.findByUUID(cartItemHolder.getSellerId()))
                             .orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit.user",""))
                             :  creditService.findSystemCreditByUser(user);
@@ -217,7 +217,7 @@ public class OrderFacadeImpl implements OrderFacade {
                     creditActivity.setCreditActivityType(CreditActivityType.DEBT);
                     creditActivity.setCustomer(credit.getCustomer());
                     creditActivity.setCredit(credit);
-                    if (CreditType.MCRD.equals(credit.getCreditType())) {
+                    if (CreditType.MERCHANT_CREDIT.equals(credit.getCreditType())) {
                         creditActivity.setMerchant(credit.getMerchant());
                     }
                     creditActivity.setPriceValue(order.getTotalPrice());
@@ -257,7 +257,7 @@ public class OrderFacadeImpl implements OrderFacade {
 
     private Obligation calculateObligation(Order order, Obligation obligation) {
         double commission = order.getOrderItems().stream().mapToDouble(OrderItem::getCommission).sum();
-        boolean paymentType = order.getPaymentType().equals(PaymentOption.COD) || order.getPaymentType().equals(PaymentOption.MCRD);
+        boolean paymentType = order.getPaymentType().equals(PaymentOption.COD) || order.getPaymentType().equals(PaymentOption.MERCHANT_CREDIT);
         obligation.setDebt(paymentType ? obligation.getDebt() + commission : obligation.getDebt());
         obligation.setReceivable(paymentType ? obligation.getReceivable() : obligation.getReceivable() + (order.getTotalPrice() - commission));
         return obligation;
@@ -298,7 +298,7 @@ public class OrderFacadeImpl implements OrderFacade {
     private ObligationActivity obligationActivityPopulator(Obligation obligation, Order order, CreditActivityType creditActivityType) {
         ObligationActivity obligationActivity = new ObligationActivity();
         double commission = order.getOrderItems().stream().mapToDouble(OrderItem::getCommission).sum();
-        boolean paymentType = order.getPaymentType().equals(PaymentOption.COD) || order.getPaymentType().equals(PaymentOption.MCRD);
+        boolean paymentType = order.getPaymentType().equals(PaymentOption.COD) || order.getPaymentType().equals(PaymentOption.MERCHANT_CREDIT);
         double price = paymentType ? commission : order.getTotalPrice() - commission;
         obligationActivity.setObligation(obligation);
         obligationActivity.setPriceValue(price);

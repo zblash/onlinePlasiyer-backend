@@ -48,7 +48,7 @@ public class SystemCreditsController {
     @GetMapping
     public ResponseEntity<WrapperPagination<ReadableCredit>> getAll(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "totalDebt") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
         return ResponseEntity.ok(CreditMapper
-                .pagedCreditListToWrapperReadableCredit(creditService.findAllByCreditType(pageNumber, sortBy, sortType, CreditType.SCRD)));
+                .pagedCreditListToWrapperReadableCredit(creditService.findAllByCreditType(pageNumber, sortBy, sortType, CreditType.SYSTEM_CREDIT)));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -62,7 +62,7 @@ public class SystemCreditsController {
     @PutMapping("/{creditId}")
     public ResponseEntity<ReadableCredit> updateCredit(@PathVariable String creditId, @Valid @RequestBody WritableCredit writableCredit) {
         Credit credit = CreditMapper.writableCreditToCredit(writableCredit);
-        credit.setCreditType(CreditType.SCRD);
+        credit.setCreditType(CreditType.SYSTEM_CREDIT);
         return ResponseEntity.ok(CreditMapper.creditToReadableCredit(creditService.update(creditId, credit)));
     }
 

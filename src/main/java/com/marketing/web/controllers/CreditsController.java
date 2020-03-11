@@ -73,7 +73,7 @@ public class CreditsController {
                     RoleType.CUSTOMER.equals(roleType) ? loggedInUser : foundUser,
                     RoleType.MERCHANT.equals(roleType) ? loggedInUser : foundUser, pageNumber, sortBy, sortType)));
         }
-        return ResponseEntity.ok(CreditMapper.pagedUsersCreditListToWrapperReadableUsersCredit(creditService.findAllByUserAndCreditType(loggedInUser, CreditType.MCRD, pageNumber, sortBy, sortType)));
+        return ResponseEntity.ok(CreditMapper.pagedUsersCreditListToWrapperReadableUsersCredit(creditService.findAllByUserAndCreditType(loggedInUser, CreditType.MERCHANT_CREDIT, pageNumber, sortBy, sortType)));
 
     }
 
@@ -105,7 +105,7 @@ public class CreditsController {
             credit.setCustomer(customer);
             credit.setMerchant(loggedInUser);
             credit.setTotalDebt(writableUserCredit.getTotalDebt());
-            credit.setCreditType(CreditType.MCRD);
+            credit.setCreditType(CreditType.MERCHANT_CREDIT);
             return new ResponseEntity<>(CreditMapper.usersCreditToReadableUsersCredit(creditService.create(credit)), HttpStatus.CREATED);
         }
         throw new BadRequestException("You can only create credit to CUSTOMER users");

@@ -81,7 +81,7 @@ public class TicketsController {
     public ResponseEntity<ReadableTicket> createTicket(@RequestBody WritableTicket writableTicket){
         User user = userService.getLoggedInUser();
         Ticket ticket = TicketMapper.writableTicketToTicket(writableTicket);
-        ticket.setStatus(TicketStatus.OPN);
+        ticket.setStatus(TicketStatus.OPEN);
         ticket.setUser(user);
         Ticket savedTicket = ticketService.create(ticket);
         TicketReply ticketReply = new TicketReply();
@@ -102,7 +102,7 @@ public class TicketsController {
         if (loggedInUser.getRole().getName().equals("ROLE_ADMIN")){
             ticket = ticketService.findByUUID(id);
             if (ticket.getTicketReplies().size() <= 1){
-                ticket.setStatus(TicketStatus.ANS);
+                ticket.setStatus(TicketStatus.ANSWERED);
                 ticketService.update(ticket.getUuid().toString(),ticket);
             }
         }else{

@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum TicketStatus {
-    OPN("OPEN"),
-    ANS("ANSWERED"),
-    CLSD("CLOSED"),
-    SLVD("SOLVED");
+    OPEN("OPEN"),
+    ANSWERED("ANSWERED"),
+    CLOSED("CLOSED"),
+    SOLVED("SOLVED");
 
     private String value;
 

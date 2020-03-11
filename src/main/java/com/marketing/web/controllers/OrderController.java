@@ -140,7 +140,7 @@ public class OrderController {
     public ResponseEntity<ReadableOrder> updateOrder(@PathVariable String id, @Valid @RequestBody WritableOrder writableOrder) {
         User user = userService.getLoggedInUser();
         RoleType role = UserMapper.roleToRoleType(user.getRole());
-        if (role.equals(RoleType.MERCHANT) && writableOrder.getStatus().equals(OrderStatus.CNCL)) {
+        if (role.equals(RoleType.MERCHANT) && writableOrder.getStatus().equals(OrderStatus.CANCELLED)) {
             throw new BadRequestException("You can not cancel order directly");
         }
         ReadableOrder readableOrder = orderFacade.saveOrder(writableOrder, getOrder(user, id));
