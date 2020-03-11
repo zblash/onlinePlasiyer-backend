@@ -62,8 +62,8 @@ public final class CreditMapper {
             ReadableCreditActivity readableCreditActivity = new ReadableCreditActivity();
             readableCreditActivity.setId(creditActivity.getUuid().toString());
             readableCreditActivity.setPrice(creditActivity.getPriceValue());
-            readableCreditActivity.setCreditLimit(creditActivity.getCredit().getCreditLimit());
-            readableCreditActivity.setTotalDebt(creditActivity.getCredit().getTotalDebt());
+            readableCreditActivity.setCreditLimit(creditActivity.getCreditLimit());
+            readableCreditActivity.setTotalDebt(creditActivity.getCurrentDebt());
             readableCreditActivity.setCreditActivityType(creditActivity.getCreditActivityType());
             readableCreditActivity.setCreditType(creditActivity.getCredit().getCreditType());
             readableCreditActivity.setDocumentNo(creditActivity.getId());

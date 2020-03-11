@@ -286,6 +286,8 @@ public class OrderFacadeImpl implements OrderFacade {
         CreditActivity creditActivity = new CreditActivity();
         creditActivity.setCreditActivityType(creditActivityType);
         creditActivity.setPriceValue(totalPrice);
+        creditActivity.setCreditLimit(credit.getCreditLimit());
+        creditActivity.setCurrentDebt(credit.getTotalDebt());
         creditActivity.setCredit(credit);
         creditActivity.setMerchant(order.getSeller());
         creditActivity.setCustomer(order.getBuyer());
