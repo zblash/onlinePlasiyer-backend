@@ -17,7 +17,6 @@ public class SearchSpecification<T> implements Specification<T> {
 
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-        Path<LocalDate> dateCreatedPath = root.get(criteria.getKey());
         if (SearchOperations.GREATER_THAN.equals(criteria.getOperation())) {
             if (root.get(criteria.getKey()).getJavaType() == LocalDate.class) {
                 return criteriaBuilder.greaterThanOrEqualTo(
@@ -41,4 +40,5 @@ public class SearchSpecification<T> implements Specification<T> {
         }
         return null;
     }
+
 }
