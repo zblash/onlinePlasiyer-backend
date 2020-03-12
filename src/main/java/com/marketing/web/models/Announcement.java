@@ -15,11 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Table(name = "announcements")
-public class Announcement implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class Announcement extends BaseModel {
 
     private UUID uuid;
 

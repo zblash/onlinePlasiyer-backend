@@ -10,31 +10,31 @@ import java.util.List;
 @AllArgsConstructor
 public class SearchSpecificationBuilder<T> {
 
-    private List<SearchCriteria> criteriaList;
+    private List<SearchSpecification> criteriaList;
 
     public SearchSpecificationBuilder() {
         this.criteriaList = new ArrayList<>();
     }
 
-    public SearchSpecificationBuilder add(String key, SearchOperations operation, Object value, boolean orPredicate) {
-        criteriaList.add(new SearchCriteria(key, operation, value, orPredicate));
+    public <X extends Comparable<? super X>> SearchSpecificationBuilder add(String key, SearchOperations operation, X value, boolean orPredicate) {
+        criteriaList.add(new SearchSpecification(key, operation, value, orPredicate));
         return this;
     }
 
-    public Specification<T> build() {
+    public <X extends Comparable<? super X>> Specification<T> build() {
         if (criteriaList.size() == 0) {
             return null;
         }
 
-        Specification<T> result = Specification.where(new SearchSpecification<>(criteriaList.get(0)));
+        Specification<T> result = Specification.where(criteriaList.get(0));
 
         for (int i = 1; i < criteriaList.size(); i++) {
-            result = criteriaList.get(i)
+            result = criteriaList.get(i).getCriteria()
                     .isOrPredicate()
                     ? Specification.where(result)
-                    .or(new SearchSpecification<>(criteriaList.get(i)))
+                    .or(criteriaList.get(i))
                     : Specification.where(result)
-                    .and(new SearchSpecification<>(criteriaList.get(i)));
+                    .and(criteriaList.get(i));
         }
         return result;
     }

@@ -99,17 +99,6 @@ public class CreditActivityServiceImpl implements CreditActivityService {
     }
 
     @Override
-    public Page<CreditActivity> findAllByUsers(User user1, User user2, Integer pageNumber, String sortBy, String sortType) {
-        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
-        RoleType roleType = UserMapper.roleToRoleType(user1.getRole());
-        Page<CreditActivity> resultPage = creditActivityRepository.findAllByCustomerAndMerchant(RoleType.MERCHANT.equals(roleType) ? user2 : user1, RoleType.MERCHANT.equals(roleType) ? user1 : user2, pageRequest);
-        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
-        }
-        return resultPage;
-    }
-
-    @Override
     public Page<CreditActivity> findAllBySpecification(Specification<CreditActivity> specification, Integer pageNumber, String sortBy, String sortType) {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<CreditActivity> resultPage = creditActivityRepository.findAll(specification, pageRequest);

@@ -15,11 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Table(name = "barcodes")
-public class Barcode implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class Barcode extends BaseModel {
 
     private UUID uuid;
 

@@ -16,11 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Table(name = "states")
-public class State implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class State extends BaseModel {
 
     private UUID uuid;
 

@@ -16,11 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Table(name = "creditactivities")
-public class CreditActivity implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class CreditActivity extends BaseModel {
 
     private UUID uuid;
 

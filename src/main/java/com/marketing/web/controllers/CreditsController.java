@@ -153,7 +153,6 @@ public class CreditsController {
         User loggedInUser = userService.getLoggedInUser();
 
         SearchSpecificationBuilder<CreditActivity> searchBuilder = new SearchSpecificationBuilder<>();
-
         searchBuilder.add("customer", SearchOperations.EQUAL, loggedInUser, false);
         searchBuilder.add("merchant", SearchOperations.EQUAL, loggedInUser, true);
 
@@ -163,7 +162,7 @@ public class CreditsController {
         }
 
         if (startDate != null) {
-            searchBuilder.add("date", SearchOperations.EQUAL, startDate, false);
+            searchBuilder.add("date", SearchOperations.GREATER_THAN, startDate, false);
             if (lastDate != null) {
                 searchBuilder.add("date", SearchOperations.LESS_THAN, lastDate, false);
             }

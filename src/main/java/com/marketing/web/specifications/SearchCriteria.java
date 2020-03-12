@@ -6,10 +6,10 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class SearchCriteria {
+public class SearchCriteria<X extends Comparable<? super X>> {
     private String key;
     private SearchOperations operation;
-    private Object value;
+    private X value;
     private boolean orPredicate;
 
 }
