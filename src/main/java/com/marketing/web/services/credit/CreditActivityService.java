@@ -5,7 +5,9 @@ import com.marketing.web.models.CreditActivity;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -33,7 +35,5 @@ public interface CreditActivityService {
 
     void saveAll(List<CreditActivity> creditActivities);
 
-    Page<CreditActivity> findAllByUsers(User user1, User user2, Integer pageNumber, String sortBy, String sortType);
-
-    Page<CreditActivity> findAllByUserAndDateRange(User user, Date startDate, Date lastDate, Integer pageNumber, String sortBy, String sortType);
+    Page<CreditActivity> findAllBySpecification(Specification<CreditActivity> specification, Integer pageNumber, String sortBy, String sortType);
 }

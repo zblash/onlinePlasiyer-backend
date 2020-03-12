@@ -13,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -68,7 +70,7 @@ public class CreditActivityServiceImpl implements CreditActivityService {
 
     @Override
     public CreditActivity create(CreditActivity creditActivity) {
-        creditActivity.setDate(new Date());
+        creditActivity.setDate(LocalDate.now());
         return creditActivityRepository.save(creditActivity);
     }
 
@@ -77,7 +79,7 @@ public class CreditActivityServiceImpl implements CreditActivityService {
         CreditActivity creditActivity = findByUUID(uuid);
         creditActivity.setCreditActivityType(updatedCreditActivity.getCreditActivityType());
         creditActivity.setPriceValue(updatedCreditActivity.getPriceValue());
-        creditActivity.setDate(new Date());
+        creditActivity.setDate(LocalDate.now());
         return creditActivity;
     }
 
@@ -108,15 +110,9 @@ public class CreditActivityServiceImpl implements CreditActivityService {
     }
 
     @Override
-    public Page<CreditActivity> findAllByUserAndDateRange(User user, Date startDate, Date lastDate, Integer pageNumber, String sortBy, String sortType) {
+    public Page<CreditActivity> findAllBySpecification(Specification<CreditActivity> specification, Integer pageNumber, String sortBy, String sortType) {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
-        Page<CreditActivity> resultPage = null;
-        RoleType roleType = UserMapper.roleToRoleType(user.getRole());
-        if (roleType.equals(RoleType.MERCHANT)) {
-            resultPage = creditActivityRepository.findAllByMerchantAndDateBetween(user, startDate, lastDate, pageRequest);
-        } else {
-            resultPage = creditActivityRepository.findAllByCustomerAndDateBetween(user, startDate, lastDate, pageRequest);
-        }
+        Page<CreditActivity> resultPage = creditActivityRepository.findAll(specification, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
         }

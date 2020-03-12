@@ -2,20 +2,29 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.credit.*;
+import com.marketing.web.enums.CreditActivityType;
 import com.marketing.web.enums.CreditType;
 import com.marketing.web.enums.RoleType;
+import com.marketing.web.enums.SearchOperations;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.Credit;
+import com.marketing.web.models.CreditActivity;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 import com.marketing.web.services.credit.CreditActivityService;
 import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.user.UserService;
+import com.marketing.web.specifications.SearchCriteria;
+import com.marketing.web.specifications.SearchSpecification;
+import com.marketing.web.specifications.SearchSpecificationBuilder;
 import com.marketing.web.utils.mappers.CreditMapper;
 import com.marketing.web.utils.mappers.UserMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +34,14 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -44,12 +57,7 @@ public class CreditsController {
     @Autowired
     private UserService userService;
 
-    @InitBinder
-    protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        dateFormat.setLenient(false);
-        binder.registerCustomEditor(Date.class, null,  new CustomDateEditor(dateFormat, false));
-    }
+    private Logger logger = LoggerFactory.getLogger(CreditsController.class);
 
     @GetMapping("/my")
     public ResponseEntity<ReadableCredit> getUserCredit() {
@@ -141,16 +149,26 @@ public class CreditsController {
     }
 
     @GetMapping("/activities")
-    public ResponseEntity<WrapperPagination<ReadableCreditActivity>> getCreditActivities(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate, @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date lastDate, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
+    public ResponseEntity<WrapperPagination<ReadableCreditActivity>> getCreditActivities(@RequestParam(required = false) String creditId, @RequestParam(required = false) @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate startDate, @RequestParam(required = false) @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate lastDate, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
         User loggedInUser = userService.getLoggedInUser();
 
-        if(startDate != null && startDate.compareTo(new Date()) < 0) {
-            if (lastDate == null) {
-                lastDate = new Date();
-            }
-            return ResponseEntity.ok(CreditMapper.pagedCreditActivityListToWrapperReadableCredityActivity(creditActivityService.findAllByUserAndDateRange(loggedInUser, startDate, lastDate, pageNumber, sortBy, sortType)));
+        SearchSpecificationBuilder<CreditActivity> searchBuilder = new SearchSpecificationBuilder<>();
+
+        searchBuilder.add("customer", SearchOperations.EQUAL, loggedInUser, false);
+        searchBuilder.add("merchant", SearchOperations.EQUAL, loggedInUser, true);
+
+        if (creditId != null && !creditId.isEmpty()) {
+            Credit credit = creditService.findByUUID(creditId);
+            searchBuilder.add("credit", SearchOperations.EQUAL, credit,false);
         }
 
-        return ResponseEntity.ok(CreditMapper.pagedCreditActivityListToWrapperReadableCredityActivity(creditActivityService.findAllByUser(loggedInUser, pageNumber, sortBy, sortType)));
+        if (startDate != null) {
+            searchBuilder.add("date", SearchOperations.EQUAL, startDate, false);
+            if (lastDate != null) {
+                searchBuilder.add("date", SearchOperations.LESS_THAN, lastDate, false);
+            }
+        }
+
+        return ResponseEntity.ok(CreditMapper.pagedCreditActivityListToWrapperReadableCredityActivity(creditActivityService.findAllBySpecification(searchBuilder.build(), pageNumber, sortBy, sortType)));
     }
 }
