@@ -11,6 +11,8 @@ import com.marketing.web.repositories.OrderGroup;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.OrderRepository;
 import com.marketing.web.utils.mappers.UserMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +26,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    private Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     @Override
     public Page<Order> findAll(int pageNumber, String sortBy, String sortType){
@@ -39,23 +43,23 @@ public class OrderServiceImpl implements OrderService {
     public OrderSummary groupBy(User user) {
         List<OrderGroup> orderGroups = orderRepository.groupBy(user);
         OrderSummary orderSummary = new OrderSummary();
-        for (OrderGroup orderGroup : orderGroups){
-            switch (OrderStatus.fromValue(orderGroup.getStatus())){
-                case NEW :
-                    orderSummary.setNewCount(orderGroup.getCnt().intValue());
-                    break;
-                case FNS:
-                    orderSummary.setFinishedCount(orderGroup.getCnt().intValue());
-                    break;
-                case CNRQ:
-                    orderSummary.setCancelRequestCount(orderGroup.getCnt().intValue());
-                    break;
-                case CNCL:
-                    orderSummary.setCancelledCount(orderGroup.getCnt().intValue());
-                    break;
-                case CNFRM:
-                    orderSummary.setSubmittedCount(orderGroup.getCnt().intValue());
-            }
+        for (OrderGroup orderGroup : orderGroups) {
+                switch (Objects.requireNonNull(OrderStatus.fromValue(orderGroup.getStatus()))) {
+                    case NEW:
+                        orderSummary.setNewCount(orderGroup.getCnt().intValue());
+                        break;
+                    case FINISHED:
+                        orderSummary.setFinishedCount(orderGroup.getCnt().intValue());
+                        break;
+                    case CANCEL_REQUEST:
+                        orderSummary.setCancelRequestCount(orderGroup.getCnt().intValue());
+                        break;
+                    case CANCELLED:
+                        orderSummary.setCancelledCount(orderGroup.getCnt().intValue());
+                        break;
+                    case CONFIRMED:
+                        orderSummary.setSubmittedCount(orderGroup.getCnt().intValue());
+                }
         }
         orderSummary.setId(user.getId() + "ordersummary".hashCode() + user.getUuid().toString());
         return orderSummary;

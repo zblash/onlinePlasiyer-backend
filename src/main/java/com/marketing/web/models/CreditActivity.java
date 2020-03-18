@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.UUID;
 
@@ -15,37 +16,36 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Table(name = "creditactivities")
-public class CreditActivity implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class CreditActivity extends BaseModel {
 
     private UUID uuid;
 
     private double priceValue;
 
+    private double currentDebt;
+
+    private double creditLimit;
+
     @Enumerated(EnumType.STRING)
     private CreditActivityType creditActivityType;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "credit_id", referencedColumnName = "id")
     private Credit credit;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     private Order order;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "merchant_id",referencedColumnName = "id")
     private User merchant;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id",referencedColumnName = "id")
     private User customer;
 
-    @Temporal(TemporalType.DATE)
-    private Date date;
+    private LocalDate date;
 
     @PrePersist
     public void autofill() {

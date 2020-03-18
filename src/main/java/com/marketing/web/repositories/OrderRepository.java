@@ -20,7 +20,7 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
 
     List<Order> findAllBySeller_Id(Long id);
 
-    @Query("SELECT o.status AS status, COUNT(o.status) AS cnt FROM Order o WHERE o.buyer = ?1 or o.seller = ?1 GROUP BY o.status")
+    @Query("SELECT o.status AS status, COUNT(o.status) AS cnt FROM Order o WHERE o.seller = ?1 GROUP BY o.status")
     List<OrderGroup> groupBy(User user);
 
     Page<Order> findAllByOrOrderDateBetween(Date startDate, Date endDate, Pageable pageable);

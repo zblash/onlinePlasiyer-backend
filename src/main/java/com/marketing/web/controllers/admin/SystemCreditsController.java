@@ -5,11 +5,14 @@ import com.marketing.web.dtos.credit.ReadableCredit;
 import com.marketing.web.dtos.credit.ReadableCreditActivity;
 import com.marketing.web.dtos.credit.WritableCredit;
 import com.marketing.web.enums.CreditType;
+import com.marketing.web.enums.SearchOperations;
 import com.marketing.web.models.Credit;
+import com.marketing.web.models.CreditActivity;
 import com.marketing.web.models.User;
 import com.marketing.web.services.credit.CreditActivityService;
 import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.user.UserService;
+import com.marketing.web.specifications.SearchSpecificationBuilder;
 import com.marketing.web.utils.mappers.CreditMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 
 @RestController
@@ -48,7 +52,7 @@ public class SystemCreditsController {
     @GetMapping
     public ResponseEntity<WrapperPagination<ReadableCredit>> getAll(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "totalDebt") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
         return ResponseEntity.ok(CreditMapper
-                .pagedCreditListToWrapperReadableCredit(creditService.findAllByCreditType(pageNumber, sortBy, sortType, CreditType.SCRD)));
+                .pagedCreditListToWrapperReadableCredit(creditService.findAllByCreditType(pageNumber, sortBy, sortType, CreditType.SYSTEM_CREDIT)));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -62,7 +66,7 @@ public class SystemCreditsController {
     @PutMapping("/{creditId}")
     public ResponseEntity<ReadableCredit> updateCredit(@PathVariable String creditId, @Valid @RequestBody WritableCredit writableCredit) {
         Credit credit = CreditMapper.writableCreditToCredit(writableCredit);
-        credit.setCreditType(CreditType.SCRD);
+        credit.setCreditType(CreditType.SYSTEM_CREDIT);
         return ResponseEntity.ok(CreditMapper.creditToReadableCredit(creditService.update(creditId, credit)));
     }
 
@@ -75,23 +79,22 @@ public class SystemCreditsController {
     }
 
     @GetMapping("/activities")
-    public ResponseEntity<WrapperPagination<ReadableCreditActivity>> getCreditActivities(@RequestParam(required = false) String userId, @RequestParam(required = false) String userName, @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate, @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date lastDate, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
-        User user = null;
-        if (userId != null && !userId.isEmpty()) {
-            user = userService.findByUUID(userId);
-        } else if (userName != null && !userName.isEmpty()) {
-            user = userService.findByUserName(userName);
+    public ResponseEntity<WrapperPagination<ReadableCreditActivity>> getCreditActivities(@RequestParam(required = false) String creditId, @RequestParam(required = false) @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate startDate, @RequestParam(required = false) @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate lastDate, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
+
+        SearchSpecificationBuilder<CreditActivity> searchBuilder = new SearchSpecificationBuilder<>();
+
+        if (creditId != null && !creditId.isEmpty()) {
+            Credit credit = creditService.findByUUID(creditId);
+            searchBuilder.add("credit", SearchOperations.EQUAL, credit,false);
         }
 
-        if(user != null) {
-            if(startDate != null && startDate.compareTo(new Date()) < 0) {
-                if (lastDate == null) {
-                    lastDate = new Date();
-                }
-                return ResponseEntity.ok(CreditMapper.pagedCreditActivityListToWrapperReadableCredityActivity(creditActivityService.findAllByUserAndDateRange(user, startDate, lastDate, pageNumber, sortBy, sortType)));
+        if (startDate != null) {
+            searchBuilder.add("date", SearchOperations.GREATER_THAN, startDate, false);
+            if (lastDate != null) {
+                searchBuilder.add("date", SearchOperations.LESS_THAN, lastDate, false);
             }
-            return ResponseEntity.ok(CreditMapper.pagedCreditActivityListToWrapperReadableCredityActivity(creditActivityService.findAllByUser(user,pageNumber, sortBy, sortType)));
         }
-        return ResponseEntity.ok(CreditMapper.pagedCreditActivityListToWrapperReadableCredityActivity(creditActivityService.findAll(pageNumber, sortBy, sortType)));
+
+        return ResponseEntity.ok(CreditMapper.pagedCreditActivityListToWrapperReadableCredityActivity(creditActivityService.findAllBySpecification(searchBuilder.build(), pageNumber, sortBy, sortType)));
     }
 }

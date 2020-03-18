@@ -1,5 +1,6 @@
 package com.marketing.web.dtos.ticket;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,5 +20,6 @@ public class ReadableTicketReply implements Serializable {
 
     private String username;
 
+    @JsonFormat(pattern="dd-MM-yyyy")
     private Date addedTime;
 }

@@ -16,13 +16,8 @@ import java.util.*;
 @Data
 @Table(name = "cartitemholders")
 @Builder
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class CartItemHolder implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @EqualsAndHashCode.Include
-    private Long id;
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+public class CartItemHolder extends BaseModel {
 
     @EqualsAndHashCode.Include
     private UUID uuid;

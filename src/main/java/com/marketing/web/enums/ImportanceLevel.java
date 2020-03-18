@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum ImportanceLevel {
     LOW("LOW"),
     MID("MIDDLE"),
-    URG("URGENT");
+    URGENT("URGENT");
 
     private String value;
 

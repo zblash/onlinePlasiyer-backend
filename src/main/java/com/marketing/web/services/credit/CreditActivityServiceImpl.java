@@ -13,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -29,6 +31,16 @@ public class CreditActivityServiceImpl implements CreditActivityService {
     public Page<CreditActivity> findAll(int pageNumber, String sortBy, String sortType) {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<CreditActivity> resultPage = creditActivityRepository.findAll(pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
+        }
+        return resultPage;
+    }
+
+    @Override
+    public Page<CreditActivity> findAllBySpecification(Specification<CreditActivity> specification, Integer pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
+        Page<CreditActivity> resultPage = creditActivityRepository.findAll(specification, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
         }
@@ -57,18 +69,13 @@ public class CreditActivityServiceImpl implements CreditActivityService {
     }
 
     @Override
-    public List<CreditActivity> findAllByCredit(Credit credit) {
-        return creditActivityRepository.findAllByCredit(credit);
-    }
-
-    @Override
     public List<CreditActivity> findAllByOrder(Order order) {
         return creditActivityRepository.findAllByOrder(order);
     }
 
     @Override
     public CreditActivity create(CreditActivity creditActivity) {
-        creditActivity.setDate(new Date());
+        creditActivity.setDate(LocalDate.now());
         return creditActivityRepository.save(creditActivity);
     }
 
@@ -77,7 +84,7 @@ public class CreditActivityServiceImpl implements CreditActivityService {
         CreditActivity creditActivity = findByUUID(uuid);
         creditActivity.setCreditActivityType(updatedCreditActivity.getCreditActivityType());
         creditActivity.setPriceValue(updatedCreditActivity.getPriceValue());
-        creditActivity.setDate(new Date());
+        creditActivity.setDate(LocalDate.now());
         return creditActivity;
     }
 
@@ -94,33 +101,6 @@ public class CreditActivityServiceImpl implements CreditActivityService {
     @Override
     public void saveAll(List<CreditActivity> creditActivities) {
         creditActivityRepository.saveAll(creditActivities);
-    }
-
-    @Override
-    public Page<CreditActivity> findAllByUsers(User user1, User user2, Integer pageNumber, String sortBy, String sortType) {
-        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
-        RoleType roleType = UserMapper.roleToRoleType(user1.getRole());
-        Page<CreditActivity> resultPage = creditActivityRepository.findAllByCustomerAndMerchant(RoleType.MERCHANT.equals(roleType) ? user2 : user1, RoleType.MERCHANT.equals(roleType) ? user1 : user2, pageRequest);
-        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
-        }
-        return resultPage;
-    }
-
-    @Override
-    public Page<CreditActivity> findAllByUserAndDateRange(User user, Date startDate, Date lastDate, Integer pageNumber, String sortBy, String sortType) {
-        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
-        Page<CreditActivity> resultPage = null;
-        RoleType roleType = UserMapper.roleToRoleType(user.getRole());
-        if (roleType.equals(RoleType.MERCHANT)) {
-            resultPage = creditActivityRepository.findAllByMerchantAndDateBetween(user, startDate, lastDate, pageRequest);
-        } else {
-            resultPage = creditActivityRepository.findAllByCustomerAndDateBetween(user, startDate, lastDate, pageRequest);
-        }
-        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
-        }
-        return resultPage;
     }
 
     private PageRequest getPageRequest(int pageNumber, String sortBy, String sortType){

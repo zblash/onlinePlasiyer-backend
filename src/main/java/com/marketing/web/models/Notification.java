@@ -14,11 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Table(name = "notifications")
-public class Notification implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class Notification extends BaseModel {
 
     private UUID uuid;
 

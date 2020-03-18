@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum CreditType {
-    SCRD("SYSTEM_CREDIT"),
-    MCRD("MERCHANT_CREDIT");
+    SYSTEM_CREDIT("SYSTEM_CREDIT"),
+    MERCHANT_CREDIT("MERCHANT_CREDIT");
 
     private String value;
 

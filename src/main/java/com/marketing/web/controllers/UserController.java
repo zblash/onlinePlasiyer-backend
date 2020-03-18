@@ -124,7 +124,7 @@ public class UserController {
                 credit.setCustomer(createdUser);
                 credit.setTotalDebt(0);
                 credit.setCreditLimit(0);
-                credit.setCreditType(CreditType.SCRD);
+                credit.setCreditType(CreditType.SYSTEM_CREDIT);
                 creditService.create(credit);
             } else if (roleType.equals(RoleType.MERCHANT)) {
                 Obligation obligation = new Obligation();

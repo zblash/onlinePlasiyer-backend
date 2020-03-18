@@ -115,9 +115,9 @@ public class ProductFacadeImpl implements ProductFacade {
     }
 
     private double calculateDiscountPercent(PromotionType promotionType, double price, double discount, int unit) {
-        if (promotionType.equals(PromotionType.PRCNT) && discount < 100 && discount > 0) {
+        if (promotionType.equals(PromotionType.PERCENT) && discount < 100 && discount > 0) {
             return discount;
-        } else if (promotionType.equals(PromotionType.PROMO) && discount / unit < price) {
+        } else if (promotionType.equals(PromotionType.PROMOTION) && discount / unit < price) {
             return 100 - (((discount / unit) * 100) / price);
         }
         throw new BadRequestException("Discount can't calculated");

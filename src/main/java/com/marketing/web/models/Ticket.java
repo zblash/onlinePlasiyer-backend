@@ -20,11 +20,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Table(name = "tickets")
-public class Ticket implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class Ticket extends BaseModel {
 
     private UUID uuid;
 

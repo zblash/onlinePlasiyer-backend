@@ -13,10 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Table(name = "invoices")
-public class Invoice implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class Invoice extends BaseModel {
 
     private UUID uuid;
 
