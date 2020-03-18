@@ -21,8 +21,6 @@ public interface CreditActivityService {
 
     CreditActivity findByUUID(String uuid);
 
-    List<CreditActivity> findAllByCredit(Credit credit);
-
     List<CreditActivity> findAllByOrder(Order order);
 
     CreditActivity create(CreditActivity creditActivity);

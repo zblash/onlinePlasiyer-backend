@@ -2,47 +2,30 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.credit.*;
-import com.marketing.web.enums.CreditActivityType;
 import com.marketing.web.enums.CreditType;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.enums.SearchOperations;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.Credit;
 import com.marketing.web.models.CreditActivity;
-import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 import com.marketing.web.services.credit.CreditActivityService;
 import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.user.UserService;
-import com.marketing.web.specifications.SearchCriteria;
-import com.marketing.web.specifications.SearchSpecification;
 import com.marketing.web.specifications.SearchSpecificationBuilder;
 import com.marketing.web.utils.mappers.CreditMapper;
 import com.marketing.web.utils.mappers.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/credits")
@@ -160,7 +143,6 @@ public class CreditsController {
             Credit credit = creditService.findByUUID(creditId);
             searchBuilder.add("credit", SearchOperations.EQUAL, credit,false);
         }
-
         if (startDate != null) {
             searchBuilder.add("date", SearchOperations.GREATER_THAN, startDate, false);
             if (lastDate != null) {

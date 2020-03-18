@@ -38,6 +38,16 @@ public class CreditActivityServiceImpl implements CreditActivityService {
     }
 
     @Override
+    public Page<CreditActivity> findAllBySpecification(Specification<CreditActivity> specification, Integer pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
+        Page<CreditActivity> resultPage = creditActivityRepository.findAll(specification, pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
+        }
+        return resultPage;
+    }
+
+    @Override
     public Page<CreditActivity> findAllByUser(User user, int pageNumber, String sortBy, String sortType) {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
         Page<CreditActivity> resultPage = creditActivityRepository.findAllByCustomerOrMerchant(user, user, pageRequest);
@@ -56,11 +66,6 @@ public class CreditActivityServiceImpl implements CreditActivityService {
     public CreditActivity findByUUID(String uuid) {
         return creditActivityRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit.user",uuid));
 
-    }
-
-    @Override
-    public List<CreditActivity> findAllByCredit(Credit credit) {
-        return creditActivityRepository.findAllByCredit(credit);
     }
 
     @Override
@@ -96,16 +101,6 @@ public class CreditActivityServiceImpl implements CreditActivityService {
     @Override
     public void saveAll(List<CreditActivity> creditActivities) {
         creditActivityRepository.saveAll(creditActivities);
-    }
-
-    @Override
-    public Page<CreditActivity> findAllBySpecification(Specification<CreditActivity> specification, Integer pageNumber, String sortBy, String sortType) {
-        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
-        Page<CreditActivity> resultPage = creditActivityRepository.findAll(specification, pageRequest);
-        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
-        }
-        return resultPage;
     }
 
     private PageRequest getPageRequest(int pageNumber, String sortBy, String sortType){
