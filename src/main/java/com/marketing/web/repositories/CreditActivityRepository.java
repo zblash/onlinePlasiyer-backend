@@ -9,13 +9,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface CreditActivityRepository extends JpaRepository<CreditActivity, Long> {
+public interface CreditActivityRepository extends JpaRepository<CreditActivity, Long>, JpaSpecificationExecutor<CreditActivity> {
 
      Page<CreditActivity> findAllByCustomerOrMerchant(User customer, User merchant, Pageable pageable);
 
@@ -31,7 +33,7 @@ public interface CreditActivityRepository extends JpaRepository<CreditActivity, 
 
     Page<CreditActivity> findAllByCustomerAndMerchant(User customer, User merchant, Pageable pageable);
 
-    Page<CreditActivity> findAllByMerchantAndDateBetween(User merchant, Date startDate, Date lastDate, Pageable pageable);
+    Page<CreditActivity> findAllByMerchantAndDateBetween(User merchant, LocalDate startDate, LocalDate lastDate, Pageable pageable);
 
-    Page<CreditActivity> findAllByCustomerAndDateBetween(User customer, Date startDate, Date lastDate, Pageable pageable);
+    Page<CreditActivity> findAllByCustomerAndDateBetween(User customer, LocalDate startDate, LocalDate lastDate, Pageable pageable);
 }

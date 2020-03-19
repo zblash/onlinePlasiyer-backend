@@ -38,6 +38,7 @@ public final class OrderMapper {
             return null;
         } else {
             ReadableOrder readableOrder = new ReadableOrder();
+            readableOrder.setCode(order.getId());
             readableOrder.setId(order.getUuid().toString());
             readableOrder.setBuyerName(order.getBuyer().getName());
             readableOrder.setSellerName(order.getSeller().getName());

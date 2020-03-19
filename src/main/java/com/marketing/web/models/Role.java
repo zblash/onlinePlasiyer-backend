@@ -17,11 +17,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Data
 @Table(name = "roles")
-public class Role implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class Role extends BaseModel {
 
     @NotNull
     private String name;

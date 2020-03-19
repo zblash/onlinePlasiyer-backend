@@ -118,7 +118,7 @@ public class CartController {
                 && cart.getItems().stream()
                 .filter(cartItemHolder -> writableCheckout.getSellerIdList().contains(cartItemHolder.getUuid().toString()))
                 .allMatch(cartItemHolder -> cartItemHolder.getPaymentOption() != null)
-                && CartStatus.PRCD.equals(cart.getCartStatus())) {
+                && CartStatus.PROCEED.equals(cart.getCartStatus())) {
 
             Set<CartItemHolder> cartItemHolderList = cart.getItems().stream()
                     .filter(cartItemHolder -> writableCheckout.getSellerIdList().contains(cartItemHolder.getUuid().toString()))
@@ -140,7 +140,7 @@ public class CartController {
         User loggedInUser = userService.getLoggedInUser();
         Cart cart = loggedInUser.getCart();
         CartItemHolder cartItemHolder = cartItemHolderService.findByCartAndUuid(cart, paymentMethod.getHolderId());
-        if (PaymentOption.MCRD.equals(paymentMethod.getPaymentOption())) {
+        if (PaymentOption.MERCHANT_CREDIT.equals(paymentMethod.getPaymentOption())) {
             Credit credit = creditService.findByCustomerAndMerchant(loggedInUser, userService.findByUUID(cartItemHolder.getSellerId()))
                     .orElseThrow(() -> new BadRequestException("You have not credit from this merchant"));
             double holderTotalPrice = cartItemHolder.getCartItems().stream().mapToDouble(CartItem::getDiscountedTotalPrice).sum();
@@ -149,7 +149,7 @@ public class CartController {
             }
         }
         cartItemHolder.setPaymentOption(paymentMethod.getPaymentOption());
-        cart.setCartStatus(CartStatus.PRCD);
+        cart.setCartStatus(CartStatus.PROCEED);
         return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.update(cart.getId(), cart)));
     }
 

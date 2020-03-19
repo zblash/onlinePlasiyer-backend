@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum PromotionType {
-    PRCNT("PERCENT"),
-    PROMO("PROMOTION");
+    PERCENT("PERCENT"),
+    PROMOTION("PROMOTION");
 
     private String value;
 

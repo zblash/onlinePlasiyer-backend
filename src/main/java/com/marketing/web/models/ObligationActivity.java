@@ -15,11 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Table(name = "obligationactivities")
-public class ObligationActivity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class ObligationActivity extends BaseModel {
 
     private UUID uuid;
 

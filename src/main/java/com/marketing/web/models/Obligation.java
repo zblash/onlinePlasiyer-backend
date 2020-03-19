@@ -15,11 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Table(name = "obligations")
-public class Obligation implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class Obligation extends BaseModel {
 
     private UUID uuid;
 

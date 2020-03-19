@@ -108,7 +108,7 @@ public class CreditServiceImpl implements CreditService {
 
     @Override
     public Credit findSystemCreditByUser(User user) {
-        return creditRepository.findByCustomerAndCreditType(user, CreditType.SCRD).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit", ""));
+        return creditRepository.findByCustomerAndCreditType(user, CreditType.SYSTEM_CREDIT).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit", ""));
     }
 
     @Override

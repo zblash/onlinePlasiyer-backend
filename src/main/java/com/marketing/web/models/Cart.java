@@ -18,11 +18,7 @@ import java.util.*;
 @AllArgsConstructor
 @Data
 @Table(name = "carts")
-public class Cart implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class Cart extends BaseModel {
 
     private UUID uuid;
 

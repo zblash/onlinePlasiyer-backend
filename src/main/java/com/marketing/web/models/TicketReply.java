@@ -15,11 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Table(name = "ticketreplies")
-public class TicketReply implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class TicketReply extends BaseModel {
 
     private UUID uuid;
 

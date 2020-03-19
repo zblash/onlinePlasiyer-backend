@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum CreditActivityType {
     DEBT("DEBT"),
-    CRDT("CREDIT");
+    CREDIT("CREDIT");
 
     private String value;
 

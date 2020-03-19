@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum CommissionType {
     ALL("ALL"),
-    PRD("PRODUCT"),
+    PRODUCT("PRODUCT"),
     USER("USER");
 
     private String value;

@@ -1,5 +1,6 @@
 package com.marketing.web.dtos.order;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.marketing.web.dtos.user.ReadableAddress;
 import com.marketing.web.enums.OrderStatus;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,8 @@ public class ReadableOrder implements Serializable {
 
     private String id;
 
+    private Long code;
+
     private double totalPrice;
 
     private OrderStatus status;
@@ -30,6 +33,7 @@ public class ReadableOrder implements Serializable {
 
     private Date orderDate;
 
+    @JsonFormat(pattern="dd-MM-yyyy")
     private Date waybillDate;
 
     private ReadableAddress buyerAddress;

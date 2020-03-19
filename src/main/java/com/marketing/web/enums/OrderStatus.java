@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum OrderStatus {
-    FNS("FINISHED"),
+    FINISHED("FINISHED"),
     NEW("NEW"),
-    CNFRM("CONFIRMED"),
-    CNCL("CANCELLED"),
-    CNRQ("CANCEL_REQUEST");
+    CONFIRMED("CONFIRMED"),
+    CANCELLED("CANCELLED"),
+    CANCEL_REQUEST("CANCEL_REQUEST");
 
     private String value;
 

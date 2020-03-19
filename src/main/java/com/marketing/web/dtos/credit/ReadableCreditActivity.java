@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -38,6 +39,6 @@ public class ReadableCreditActivity implements Serializable {
     private String merchantName;
 
     @JsonFormat(pattern="dd-MM-yyyy")
-    private Date date;
+    private LocalDate date;
 
 }
