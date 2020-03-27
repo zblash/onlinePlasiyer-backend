@@ -2,7 +2,6 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.dtos.common.WrapperPagination;
 import com.marketing.web.dtos.product.*;
-import com.marketing.web.enums.CommissionType;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.models.*;
