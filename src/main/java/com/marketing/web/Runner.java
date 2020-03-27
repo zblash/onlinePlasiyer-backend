@@ -247,13 +247,7 @@ public class Runner implements CommandLineRunner {
 
     private List<Category> categoryPopulator() {
         List<Category> categories = new ArrayList<>();
-        for (int i = 0; i < +9; i++) {
-            Category category = new Category();
-            category.setName("Category - " + i);
-            category.setPhotoUrl(randomPhoto());
-            category.setSubCategory(false);
-            categories.add(category);
-        }
+
         Category category1 = new Category();
         category1.setName("Soğuk Içecekler");
         category1.setSubCategory(false);
@@ -339,16 +333,7 @@ public class Runner implements CommandLineRunner {
         categories.add(category14);
         List<Category> savedCategories = categoryRepository.saveAll(categories);
         List<Category> subCats = new ArrayList<>();
-        for (Category baseCategory : savedCategories) {
-            for (int i = 0; i < rn(15, 35); i++) {
-                Category subCat = new Category();
-                subCat.setName("Sub Category - " + i);
-                subCat.setSubCategory(true);
-                subCat.setParent(baseCategory);
-                subCat.setPhotoUrl(randomPhoto());
-                subCats.add(subCat);
-            }
-        }
+
         Category category1i1 = new Category();
         category1i1.setName("Gazlı Içecekler");
         category1i1.setSubCategory(true);
