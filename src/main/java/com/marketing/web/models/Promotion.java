@@ -18,9 +18,6 @@ public class Promotion extends BaseModel {
 
     private UUID uuid;
 
-    @Enumerated(EnumType.STRING)
-    private PromotionType promotionType;
-
     private String promotionText;
 
     private double discountValue;

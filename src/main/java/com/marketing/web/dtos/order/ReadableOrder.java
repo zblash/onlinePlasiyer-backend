@@ -3,6 +3,7 @@ package com.marketing.web.dtos.order;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.marketing.web.dtos.user.ReadableAddress;
 import com.marketing.web.enums.OrderStatus;
+import com.marketing.web.enums.PaymentOption;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,6 +25,8 @@ public class ReadableOrder implements Serializable {
     private double totalPrice;
 
     private OrderStatus status;
+
+    private PaymentOption paymentType;
 
     private double commission;
 

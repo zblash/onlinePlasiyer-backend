@@ -46,6 +46,7 @@ public final class OrderMapper {
             readableOrder.setWaybillDate(order.getWaybillDate());
             readableOrder.setTotalPrice(order.getTotalPrice());
             readableOrder.setStatus(order.getStatus());
+            readableOrder.setPaymentType(order.getPaymentType());
             readableOrder.setCommission(order.getCommission());
             readableOrder.setOrderItems(order.getOrderItems().stream()
                     .map(OrderMapper::orderItemToReadableOrderItem).collect(Collectors.toList()));
