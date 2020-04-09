@@ -169,19 +169,6 @@ public class OrderFacadeImpl implements OrderFacade {
                 }
             }
 
-
-            Obligation obligation = calculateObligation(order, obligationService.findByUser(order.getSeller()));
-            CreditActivityType obligationActivityType;
-            if (PaymentOption.SYSTEM_CREDIT.equals(order.getPaymentType())) {
-                obligation.setReceivable(obligation.getReceivable() - orderOldTotalPrice);
-                obligationActivityType = CreditActivityType.CREDIT;
-            } else {
-                obligationActivityType = CreditActivityType.DEBT;
-                obligation.setDebt(obligation.getDebt() - orderOldTotalPrice);
-            }
-            obligationService.update(obligation.getUuid().toString(), obligation);
-            obligationActivityService.create(obligationActivityPopulator(obligation, order, obligationActivityType));
-
             return OrderMapper.orderToReadableOrder(orderService.update(order.getUuid().toString(), order));
         }
         throw new BadRequestException("You can not confirm this order");
