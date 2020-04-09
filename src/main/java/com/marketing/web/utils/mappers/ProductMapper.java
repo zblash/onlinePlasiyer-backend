@@ -93,7 +93,6 @@ public final class ProductMapper {
             readablePromotion.setDiscountValue(promotion.getDiscountValue());
             readablePromotion.setDiscountUnit(promotion.getDiscountUnit());
             readablePromotion.setPromotionText(promotion.getPromotionText());
-            readablePromotion.setPromotionType(promotion.getPromotionType());
             return readablePromotion;
         }
     }

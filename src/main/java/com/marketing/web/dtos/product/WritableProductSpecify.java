@@ -50,7 +50,5 @@ public class WritableProductSpecify implements Serializable {
 
     private int discountUnit;
 
-    private PromotionType promotionType;
-
     private String promotionText;
 }

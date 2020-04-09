@@ -40,9 +40,6 @@ public class ProductFacadeImpl implements ProductFacade {
     @Autowired
     private StateService stateService;
 
-
-
-
     @Override
     public ReadableProductSpecify createProductSpecify(WritableProductSpecify writableProductSpecify, User user) {
         Barcode barcode = barcodeService.findByBarcodeNo(writableProductSpecify.getBarcode());
@@ -61,7 +58,7 @@ public class ProductFacadeImpl implements ProductFacade {
         double commission = user.getCommission() != 0.0 ? user.getCommission() : (product.getCommission() != 0.0 ? product.getCommission() : product.getCategory().getCommission());
         productSpecify.setCommission(commission);
         if (writableProductSpecify.isDiscount()) {
-            productSpecify.setPromotion(generatePromotion(productSpecify, writableProductSpecify));
+            productSpecify.setPromotion(populatePromotion(productSpecify, writableProductSpecify));
         }
         product.addUser(user);
         productService.update(product.getUuid().toString(), product);
@@ -92,35 +89,24 @@ public class ProductFacadeImpl implements ProductFacade {
         double commission = user.getCommission() != 0.0 ? user.getCommission() : (product.getCommission() != 0.0 ? product.getCommission() : product.getCategory().getCommission());
         updatedProductSpecify.setCommission(commission);
         if (writableProductSpecify.isDiscount()) {
-            updatedProductSpecify.setPromotion(generatePromotion(productSpecify, writableProductSpecify));
+            updatedProductSpecify.setPromotion(populatePromotion(productSpecify, writableProductSpecify));
         }
         product.addUser(user);
         productService.update(product.getUuid().toString(), product);
         return ProductMapper.productSpecifyToReadableProductSpecify(productSpecifyService.update(productSpecify.getUuid().toString(), updatedProductSpecify));
     }
 
-    private Promotion generatePromotion(ProductSpecify productSpecify, WritableProductSpecify writableProductSpecify) {
-        if (writableProductSpecify.getPromotionType() != null
-                && !writableProductSpecify.getPromotionText().isEmpty()
+    private Promotion populatePromotion(ProductSpecify productSpecify, WritableProductSpecify writableProductSpecify) {
+        if (!writableProductSpecify.getPromotionText().isEmpty()
                 && writableProductSpecify.getDiscountValue() > 0) {
             Promotion promotion = productSpecify.getPromotion() != null ? productSpecify.getPromotion() : new Promotion();
             promotion.setDiscountUnit(writableProductSpecify.getDiscountUnit() > 0 ? writableProductSpecify.getDiscountUnit() : 1);
-            promotion.setPromotionType(writableProductSpecify.getPromotionType());
-            promotion.setDiscountValue(calculateDiscountPercent(writableProductSpecify.getPromotionType(), productSpecify.getTotalPrice(), writableProductSpecify.getDiscountValue(), writableProductSpecify.getDiscountUnit()));
+            promotion.setDiscountValue(writableProductSpecify.getDiscountValue());
             promotion.setPromotionText(writableProductSpecify.getPromotionText());
             return promotionRepository.save(promotion);
         } else {
-            throw new BadRequestException("Discount percent, type, text must not null or empty");
+            throw new BadRequestException("Discount percent, text must not null or empty");
         }
-    }
-
-    private double calculateDiscountPercent(PromotionType promotionType, double price, double discount, int unit) {
-        if (promotionType.equals(PromotionType.PERCENT) && discount < 100 && discount > 0) {
-            return discount;
-        } else if (promotionType.equals(PromotionType.PROMOTION) && discount / unit < price) {
-            return 100 - (((discount / unit) * 100) / price);
-        }
-        throw new BadRequestException("Discount can't calculated");
     }
 
 }

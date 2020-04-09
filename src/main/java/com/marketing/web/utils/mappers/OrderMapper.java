@@ -28,7 +28,7 @@ public final class OrderMapper {
             orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setTotalPrice(cartItem.getTotalPrice());
             double totalPrice = cartItem.getDiscountedTotalPrice() > 0 ? cartItem.getDiscountedTotalPrice() : cartItem.getTotalPrice();
-            orderItem.setCommission(totalPrice * cartItem.getProduct().getCommission());
+            orderItem.setCommission(totalPrice * (cartItem.getProduct().getCommission() / 100));
             return orderItem;
         }
     }
@@ -46,6 +46,7 @@ public final class OrderMapper {
             readableOrder.setWaybillDate(order.getWaybillDate());
             readableOrder.setTotalPrice(order.getTotalPrice());
             readableOrder.setStatus(order.getStatus());
+            readableOrder.setPaymentType(order.getPaymentType());
             readableOrder.setCommission(order.getCommission());
             readableOrder.setOrderItems(order.getOrderItems().stream()
                     .map(OrderMapper::orderItemToReadableOrderItem).collect(Collectors.toList()));
