@@ -19,15 +19,12 @@ import com.marketing.web.utils.facade.OrderFacade;
 import com.marketing.web.utils.mappers.CartMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,28 +33,31 @@ import java.util.stream.Collectors;
 @PreAuthorize("hasRole('ROLE_CUSTOMER')")
 public class CartController {
 
-    @Autowired
-    private CartItemService cartItemService;
+    private final CartItemService cartItemService;
 
-    @Autowired
-    private CartItemHolderService cartItemHolderService;
+    private final CartItemHolderService cartItemHolderService;
 
-    @Autowired
-    private CartService cartService;
+    private final CartService cartService;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private ProductSpecifyService productSpecifyService;
+    private final ProductSpecifyService productSpecifyService;
 
-    @Autowired
-    private OrderFacade orderFacade;
+    private final OrderFacade orderFacade;
 
-    @Autowired
-    private CreditService creditService;
+    private final CreditService creditService;
 
     private Logger logger = LoggerFactory.getLogger(CartController.class);
+
+    public CartController(CartItemService cartItemService, CartItemHolderService cartItemHolderService, CartService cartService, UserService userService, ProductSpecifyService productSpecifyService, OrderFacade orderFacade, CreditService creditService) {
+        this.cartItemService = cartItemService;
+        this.cartItemHolderService = cartItemHolderService;
+        this.cartService = cartService;
+        this.userService = userService;
+        this.productSpecifyService = productSpecifyService;
+        this.orderFacade = orderFacade;
+        this.creditService = creditService;
+    }
 
     @GetMapping
     public ResponseEntity<ReadableCart> getCart() {
@@ -140,14 +140,17 @@ public class CartController {
         User loggedInUser = userService.getLoggedInUser();
         Cart cart = loggedInUser.getCart();
         CartItemHolder cartItemHolder = cartItemHolderService.findByCartAndUuid(cart, paymentMethod.getHolderId());
-        if (PaymentOption.MERCHANT_CREDIT.equals(paymentMethod.getPaymentOption())) {
-            Credit credit = creditService.findByCustomerAndMerchant(loggedInUser, userService.findByUUID(cartItemHolder.getSellerId()))
-                    .orElseThrow(() -> new BadRequestException("You have not credit from this merchant"));
+        if (!PaymentOption.COD.equals(paymentMethod.getPaymentOption())) {
+            Credit credit = paymentMethod.getPaymentOption().equals(PaymentOption.MERCHANT_CREDIT)
+                    ? creditService.findByCustomerAndMerchant(loggedInUser, userService.findByUUID(cartItemHolder.getSellerId()))
+                    .orElseThrow(() -> new BadRequestException("You have not credit from this merchant"))
+                    : creditService.findSystemCreditByUser(loggedInUser);
             double holderTotalPrice = cartItemHolder.getCartItems().stream().mapToDouble(CartItem::getDiscountedTotalPrice).sum();
             if (credit.getTotalDebt() + holderTotalPrice > credit.getCreditLimit()) {
                 throw new BadRequestException("Insufficient credit");
             }
         }
+
         cartItemHolder.setPaymentOption(paymentMethod.getPaymentOption());
         cart.setCartStatus(CartStatus.PROCEED);
         return ResponseEntity.ok(CartMapper.cartToReadableCart(cartService.update(cart.getId(), cart)));

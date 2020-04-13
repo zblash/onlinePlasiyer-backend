@@ -6,9 +6,11 @@ import com.marketing.web.enums.CreditType;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.enums.SearchOperations;
 import com.marketing.web.errors.BadRequestException;
+import com.marketing.web.models.Activity;
 import com.marketing.web.models.Credit;
 import com.marketing.web.models.CreditActivity;
 import com.marketing.web.models.User;
+import com.marketing.web.services.credit.ActivityService;
 import com.marketing.web.services.credit.CreditActivityService;
 import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.user.UserService;
@@ -31,16 +33,19 @@ import java.util.Optional;
 @RequestMapping("/api/credits")
 public class CreditsController {
 
-    @Autowired
-    private CreditService creditService;
+    private final CreditService creditService;
 
-    @Autowired
-    private CreditActivityService creditActivityService;
+    private final ActivityService activityService;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     private Logger logger = LoggerFactory.getLogger(CreditsController.class);
+
+    public CreditsController(CreditService creditService, ActivityService activityService, UserService userService) {
+        this.creditService = creditService;
+        this.activityService = activityService;
+        this.userService = userService;
+    }
 
     @GetMapping("/my")
     public ResponseEntity<ReadableCredit> getUserCredit() {
@@ -132,17 +137,13 @@ public class CreditsController {
     }
 
     @GetMapping("/activities")
-    public ResponseEntity<WrapperPagination<ReadableCreditActivity>> getCreditActivities(@RequestParam(required = false) String creditId, @RequestParam(required = false) @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate startDate, @RequestParam(required = false) @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate lastDate, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
+    public ResponseEntity<WrapperPagination<ReadableActivity>> getActivities(@RequestParam(required = false) @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate startDate, @RequestParam(required = false) @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate lastDate, @RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType) {
         User loggedInUser = userService.getLoggedInUser();
 
-        SearchSpecificationBuilder<CreditActivity> searchBuilder = new SearchSpecificationBuilder<>();
+        SearchSpecificationBuilder<Activity> searchBuilder = new SearchSpecificationBuilder<>();
         searchBuilder.add("customer", SearchOperations.EQUAL, loggedInUser, false);
         searchBuilder.add("merchant", SearchOperations.EQUAL, loggedInUser, true);
 
-        if (creditId != null && !creditId.isEmpty()) {
-            Credit credit = creditService.findByUUID(creditId);
-            searchBuilder.add("credit", SearchOperations.EQUAL, credit,false);
-        }
         if (startDate != null) {
             searchBuilder.add("date", SearchOperations.GREATER_THAN, startDate, false);
             if (lastDate != null) {
@@ -150,6 +151,6 @@ public class CreditsController {
             }
         }
 
-        return ResponseEntity.ok(CreditMapper.pagedCreditActivityListToWrapperReadableCredityActivity(creditActivityService.findAllBySpecification(searchBuilder.build(), pageNumber, sortBy, sortType)));
+        return ResponseEntity.ok(CreditMapper.pagedActivityListToWrapperReadableActivity(activityService.findAllBySpecification(searchBuilder.build(), pageNumber, sortBy, sortType)));
     }
 }
