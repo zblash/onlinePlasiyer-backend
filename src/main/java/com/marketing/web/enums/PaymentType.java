@@ -1,0 +1,35 @@
+package com.marketing.web.enums;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
+public enum PaymentType {
+    CREDIT_CARD("CREDIT_CARD"),
+    CASH("CASH"),
+    SYSTEM_CREDIT("SYSTEM_CREDIT"),
+    MERCHANT_CREDIT("MERCHANT_CREDIT"),
+    COD("COD");
+
+    private String value;
+
+    PaymentType(String value) {
+        this.value = value;
+    }
+
+    @JsonCreator
+    public static PaymentType fromValue(String text) {
+        for (PaymentType b : PaymentType.values()) {
+            if (String.valueOf(b.value).equals(text)) {
+                return b;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    @JsonValue
+    public String toString() {
+        return String.valueOf(value);
+    }
+
+}
