@@ -18,10 +18,10 @@ spring:
     ssl: false
   mail:
     debug: true
-    host: smtp.gmail.com
+    host: smtp.xxx.com
     port: 587
-    username: zblashh7@gmail.com
-    password: fb19077774+
+    username: xxxxx
+    password: xxxxxx
     protocol: smtp
     properties:
       mail:

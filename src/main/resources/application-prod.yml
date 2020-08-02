@@ -1,7 +1,7 @@
 spring:
   datasource:
-    password: vAKj9GgWLLh3Y1MHIEA4
-    url: jdbc:postgresql://onlineplasiyerpostgres.c8pqewmiooar.eu-central-1.rds.amazonaws.com:5432/marketing
+    password: xxxxxxxxx
+    url: jdbc:postgresql:xxxxxxxxxxxx
     username: onlineplasiyer
   jpa:
     hibernate:
