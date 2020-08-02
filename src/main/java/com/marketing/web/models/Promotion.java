@@ -1,13 +1,11 @@
 package com.marketing.web.models;
 
-import com.marketing.web.enums.PromotionType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.io.Serializable;
-import java.util.UUID;
+import java.math.BigDecimal;
 
 @Entity
 @NoArgsConstructor
@@ -16,16 +14,9 @@ import java.util.UUID;
 @Table(name = "promotions")
 public class Promotion extends BaseModel {
 
-    private UUID uuid;
-
     private String promotionText;
 
-    private double discountValue;
+    private BigDecimal discountValue;
 
     private int discountUnit;
-
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
-    }
 }

@@ -1,46 +1,39 @@
 package com.marketing.web.repositories;
 
-import com.marketing.web.models.Order;
-import com.marketing.web.models.User;
+import com.marketing.web.models.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface OrderRepository extends JpaRepository<Order,Long> {
+public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecificationExecutor<Order> {
 
     Page<Order> findAll(Pageable pageable);
 
-    List<Order> findAllByBuyer_Id(Long id);
+    @Query("SELECT o.status AS status, COUNT(o.status) AS cnt FROM Order o WHERE o.merchant = ?1 GROUP BY o.status")
+    List<OrderGroup> groupBy(Merchant merchant);
 
-    List<Order> findAllBySeller_Id(Long id);
+    Page<Order> findAllByOrOrderDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
 
-    @Query("SELECT o.status AS status, COUNT(o.status) AS cnt FROM Order o WHERE o.seller = ?1 GROUP BY o.status")
-    List<OrderGroup> groupBy(User user);
+    Page<Order> findAllByOrderDateBetweenAndCustomerOrMerchant(LocalDate startDate, LocalDate endDate, Customer customer, Merchant merchant, Pageable pageable);
 
-    Page<Order> findAllByOrOrderDateBetween(Date startDate, Date endDate, Pageable pageable);
+    Page<Order> findAllByMerchantOrCustomer(Merchant merchant, Customer customer, Pageable pageable);
 
-    Page<Order> findAllByOrderDateBetweenAndBuyerOrSeller(Date startDate, Date endDate,User buyer, User seller, Pageable pageable);
+    Page<Order> findAllByMerchantAndCustomer(Merchant merchant, Customer customer, Pageable pageable);
 
-    @Query("SELECT o FROM Order o WHERE o.uuid = ?1 and o.seller = ?2 or o.buyer = ?3")
-    List<Order> findAllByUuidAndSeller(Long sellerId, Long buyerId);
+    Page<Order> findAllByOrderDateBetweenAndMerchantAndCustomer(LocalDate startDate, LocalDate endDate, Merchant merchant, Customer customer, Pageable pageable);
 
-    Optional<Order> findByUuid(UUID uuid);
+    List<Order> findAllByMerchantOrCustomerOrderByIdDesc(Merchant merchant, Customer customer);
 
-    Page<Order> findAllBySellerOrBuyer(User seller, User buyer, Pageable pageable);
+    Optional<Order> findByMerchantAndId(Merchant merchant, UUID id);
 
-    Page<Order> findAllBySellerAndBuyer(User seller, User buyer, Pageable pageable);
+    Optional<Order> findByCustomerAndId(Customer customer, UUID id);
 
-    Page<Order> findAllByOrderDateBetweenAndSellerAndBuyer(Date startDate, Date endDate,User seller, User buyer, Pageable pageable);
-
-    List<Order> findAllBySellerOrBuyerOrderByIdDesc(User seller, User buyer);
-
-    Optional<Order> findBySellerAndUuid(User seller, UUID uuid);
-
-    Optional<Order> findByBuyerAndUuid(User buyer, UUID uuid);
 }

@@ -2,7 +2,7 @@ package com.marketing.web.services.websocket;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.marketing.web.dtos.user.ReadableState;
+import com.marketing.web.dtos.user.readable.ReadableState;
 import com.marketing.web.dtos.websockets.WrapperWsProductSpecify;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;

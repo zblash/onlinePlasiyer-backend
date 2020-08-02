@@ -11,6 +11,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -23,10 +24,10 @@ public class WritableProductSpecify implements Serializable {
     private String barcode;
 
     @NotNull(message = "{validation.notNull}")
-    private double totalPrice;
+    private BigDecimal totalPrice;
 
     @NotNull(message = "{validation.notNull}")
-    private double unitPrice;
+    private BigDecimal unitPrice;
 
     @NotNull(message = "{validation.notNull}")
     private int quantity;
@@ -38,7 +39,7 @@ public class WritableProductSpecify implements Serializable {
     private UnitType unitType;
 
     @NotNull(message = "{validation.notNull}")
-    private double recommendedRetailPrice;
+    private BigDecimal recommendedRetailPrice;
 
     @NotNull(message = "{validation.notNull}")
     private List<String> stateList;
@@ -46,7 +47,7 @@ public class WritableProductSpecify implements Serializable {
     @NotNull(message = "{validation.notNull}")
     private boolean discount;
 
-    private double discountValue;
+    private BigDecimal discountValue;
 
     private int discountUnit;
 

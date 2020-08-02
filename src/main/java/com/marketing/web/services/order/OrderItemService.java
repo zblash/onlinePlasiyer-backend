@@ -10,11 +10,11 @@ public interface OrderItemService {
 
     List<OrderItem> saveAll(List<OrderItem> orderItems);
 
-    OrderItem findByUUID(String uuid);
+    OrderItem findById(String id);
 
     List<OrderItem> findByOrder(Order order);
 
     void deleteAllByUuid(List<OrderItem> removedItems);
 
-    OrderItem findByUUIDAndOrder(String uuid, Order order);
+    OrderItem findByIdAndOrder(String id, Order order);
 }

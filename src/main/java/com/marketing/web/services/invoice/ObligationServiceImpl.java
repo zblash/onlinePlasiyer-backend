@@ -3,6 +3,7 @@ package com.marketing.web.services.invoice;
 import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.dtos.obligation.ReadableTotalObligation;
 import com.marketing.web.errors.ResourceNotFoundException;
+import com.marketing.web.models.Merchant;
 import com.marketing.web.models.Obligation;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
@@ -22,11 +23,13 @@ import java.util.stream.DoubleStream;
 @Service
 public class ObligationServiceImpl implements ObligationService {
 
-    @Autowired
-    private ObligationRepository obligationRepository;
+    private final ObligationRepository obligationRepository;
 
     private Logger logger = LoggerFactory.getLogger(ObligationServiceImpl.class);
 
+    public ObligationServiceImpl(ObligationRepository obligationRepository) {
+        this.obligationRepository = obligationRepository;
+    }
 
     @Override
     public Page<Obligation> findAll(int pageNumber, String sortBy, String sortType) {
@@ -39,18 +42,13 @@ public class ObligationServiceImpl implements ObligationService {
     }
 
     @Override
-    public Obligation findById(Long id) {
-        return obligationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"obligation",id.toString()));
+    public Obligation findById(String id) {
+        return obligationRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"obligation",id.toString()));
     }
 
     @Override
-    public Obligation findByUuid(String uuid) {
-        return obligationRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"obligation", uuid));
-    }
-
-    @Override
-    public Obligation findByUser(User user) {
-        return obligationRepository.findByUser(user).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"obligation", ""));
+    public Obligation findByMerchant(Merchant merchant) {
+        return obligationRepository.findByMerchant(merchant).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"obligation", ""));
 
     }
 
@@ -66,8 +64,8 @@ public class ObligationServiceImpl implements ObligationService {
 
     @Override
     public Obligation update(String uuid, Obligation updatedObligation) {
-        Obligation obligation = findByUuid(uuid);
-        obligation.setUser(updatedObligation.getUser());
+        Obligation obligation = findById(uuid);
+        obligation.setMerchant(updatedObligation.getMerchant());
         obligation.setReceivable(updatedObligation.getReceivable());
         obligation.setDebt(updatedObligation.getDebt());
         return obligationRepository.save(obligation);

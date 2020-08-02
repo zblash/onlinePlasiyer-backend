@@ -2,8 +2,10 @@ package com.marketing.web.controllers;
 
 import com.marketing.web.configs.constants.ApplicationContstants;
 import com.marketing.web.dtos.announcement.ReadableAnnouncement;
-import com.marketing.web.dtos.category.ReadableCategory;
-import com.marketing.web.dtos.user.*;
+import com.marketing.web.dtos.user.readable.*;
+import com.marketing.web.dtos.user.register.WritableCustomerRegister;
+import com.marketing.web.dtos.user.register.WritableMerchantRegister;
+import com.marketing.web.dtos.user.writable.*;
 import com.marketing.web.enums.CreditType;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.BadRequestException;
@@ -14,16 +16,12 @@ import com.marketing.web.services.announcement.AnnouncementService;
 import com.marketing.web.services.cart.CartServiceImpl;
 import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.invoice.ObligationService;
-import com.marketing.web.services.product.ProductService;
-import com.marketing.web.services.user.CityService;
-import com.marketing.web.services.user.StateService;
-import com.marketing.web.services.user.UserService;
+import com.marketing.web.services.user.*;
 import com.marketing.web.utils.MailUtil;
 import com.marketing.web.utils.RandomStringGenerator;
 import com.marketing.web.utils.mappers.AnnouncementMapper;
 import com.marketing.web.utils.mappers.CityMapper;
 import com.marketing.web.utils.mappers.UserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,6 +30,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -42,55 +41,121 @@ import java.util.stream.Collectors;
 public class UserController {
 
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private StateService stateService;
+    private final StateService stateService;
 
-    @Autowired
-    private CityService cityService;
+    private final CityService cityService;
 
-    @Autowired
-    private CartServiceImpl cartService;
+    private final CartServiceImpl cartService;
 
-    @Autowired
-    private CreditService creditService;
+    private final CreditService creditService;
 
-    @Autowired
-    private ObligationService obligationService;
+    private final ObligationService obligationService;
 
-    @Autowired
-    private MailUtil mailUtil;
+    private final MailUtil mailUtil;
 
-    @Autowired
-    private AnnouncementService announcementService;
+    private final AnnouncementService announcementService;
 
-    @PostMapping("/signin")
-    public ResponseEntity<?> login(@RequestBody WritableLogin writableLogin, WebRequest request) {
-        User userDetails = userService.findByUserName(writableLogin.getUsername());
+    private final MerchantService merchantService;
+
+    private final CustomerService customerService;
+
+    public UserController(UserService userService, StateService stateService, CityService cityService, CartServiceImpl cartService, CreditService creditService, ObligationService obligationService, MailUtil mailUtil, AnnouncementService announcementService, MerchantService merchantService, CustomerService customerService) {
+        this.userService = userService;
+        this.stateService = stateService;
+        this.cityService = cityService;
+        this.cartService = cartService;
+        this.creditService = creditService;
+        this.obligationService = obligationService;
+        this.mailUtil = mailUtil;
+        this.announcementService = announcementService;
+        this.merchantService = merchantService;
+        this.customerService = customerService;
+    }
+    //TODO Move from here
+    @PostMapping("/admin/login")
+    public ResponseEntity<?> adminLogin(@RequestBody WritableLogin writableLogin, WebRequest request) {
+        User user = userService.findByUserName(writableLogin.getUsername());
 
         if (userService.loginControl(writableLogin.getUsername(), writableLogin.getPassword())) {
             Map<String, Object> body = new HashMap<>();
-            body.put("role", userDetails.getRole().getName());
-            body.put("userId", userDetails.getId());
-            String jwt = JWTGenerator.generate(ApplicationContstants.JWT_SECRET, null, 86_400_000, body);
+            body.put("role", user.getRole().getName());
+            body.put("userId", user.getId().toString());
+            ReadableLogin.LoginDTOBuilder loginDTOBuilder = new ReadableLogin.LoginDTOBuilder(JWTGenerator.generate(ApplicationContstants.JWT_SECRET, null, 86_400_000, body));
+            loginDTOBuilder.email(user.getEmail());
+            loginDTOBuilder.name(user.getName());
+            loginDTOBuilder.userName(user.getUsername());
+            String role = user.getRole().getName().split("_")[1];
+            loginDTOBuilder.role(role);
+            return ResponseEntity.ok(loginDTOBuilder.build());
+        }
+        HttpMessage httpMessage = new HttpMessage(HttpStatus.UNAUTHORIZED);
+        httpMessage.setMessage("Given username or password incorrect");
+        httpMessage.setPath(((ServletWebRequest) request).getRequest().getRequestURL().toString());
+        return new ResponseEntity<>(httpMessage, httpMessage.getStatus());
+    }
+
+    @PostMapping("/merchant/login")
+    public ResponseEntity<?> merchantLogin(@RequestBody WritableLogin writableLogin, WebRequest request) {
+        User user = userService.findByUserName(writableLogin.getUsername());
+
+        if (userService.loginControl(writableLogin.getUsername(), writableLogin.getPassword())) {
+            Merchant merchant = merchantService.findByUser(user);
+            Map<String, Object> body = new HashMap<>();
+            body.put("role", user.getRole().getName());
+            body.put("userId", user.getId().toString());
+            body.put("merchantId", merchant.getId().toString());
 
             ReadableAddress address = new ReadableAddress();
-            address.setCityId(userDetails.getCity().getUuid().toString());
-            address.setCityName(userDetails.getCity().getTitle());
-            address.setStateId(userDetails.getState().getUuid().toString());
-            address.setStateName(userDetails.getState().getTitle());
-            address.setDetails(userDetails.getAddressDetails());
+            address.setCityId(user.getCity().getId().toString());
+            address.setCityName(user.getCity().getTitle());
+            address.setStateId(user.getState().getId().toString());
+            address.setStateName(user.getState().getTitle());
+            address.setDetails(user.getAddressDetails());
 
-            ReadableLogin.LoginDTOBuilder loginDTOBuilder = new ReadableLogin.LoginDTOBuilder(jwt);
-            loginDTOBuilder.email(userDetails.getEmail());
-            loginDTOBuilder.name(userDetails.getName());
-            loginDTOBuilder.userName(userDetails.getUsername());
-            String role = userDetails.getRole().getName().split("_")[1];
+            ReadableLogin.LoginDTOBuilder loginDTOBuilder = new ReadableLogin.LoginDTOBuilder(JWTGenerator.generate(ApplicationContstants.JWT_SECRET, null, 86_400_000, body));
+            loginDTOBuilder.email(user.getEmail());
+            loginDTOBuilder.name(user.getName());
+            loginDTOBuilder.userName(user.getUsername());
+            String role = user.getRole().getName().split("_")[1];
             loginDTOBuilder.role(role);
             loginDTOBuilder.address(address);
-            loginDTOBuilder.activeStates(userDetails.getActiveStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
+            loginDTOBuilder.activeStates(merchant.getActiveStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
+
+            return ResponseEntity.ok(loginDTOBuilder.build());
+        }
+        HttpMessage httpMessage = new HttpMessage(HttpStatus.UNAUTHORIZED);
+        httpMessage.setMessage("Given username or password incorrect");
+        httpMessage.setPath(((ServletWebRequest) request).getRequest().getRequestURL().toString());
+        return new ResponseEntity<>(httpMessage, httpMessage.getStatus());
+    }
+
+    @PostMapping("/customer/login")
+    public ResponseEntity<?> customerLogin(@RequestBody WritableLogin writableLogin, WebRequest request) {
+        User user = userService.findByUserName(writableLogin.getUsername());
+
+        if (userService.loginControl(writableLogin.getUsername(), writableLogin.getPassword())) {
+            Customer customer = customerService.findByUser(user);
+            Map<String, Object> body = new HashMap<>();
+            body.put("role", user.getRole().getName());
+            body.put("userId", user.getId().toString());
+            body.put("customerId", customer.getId().toString());
+
+            ReadableAddress address = new ReadableAddress();
+            address.setCityId(user.getCity().getId().toString());
+            address.setCityName(user.getCity().getTitle());
+            address.setStateId(user.getState().getId().toString());
+            address.setStateName(user.getState().getTitle());
+            address.setDetails(user.getAddressDetails());
+
+            ReadableLogin.LoginDTOBuilder loginDTOBuilder = new ReadableLogin.LoginDTOBuilder(JWTGenerator.generate(ApplicationContstants.JWT_SECRET, null, 86_400_000, body));
+            loginDTOBuilder.email(user.getEmail());
+            loginDTOBuilder.name(user.getName());
+            loginDTOBuilder.userName(user.getUsername());
+            String role = user.getRole().getName().split("_")[1];
+            loginDTOBuilder.role(role);
+            loginDTOBuilder.address(address);
             ReadableLogin readableLogin = loginDTOBuilder
                     .build();
             return ResponseEntity.ok(readableLogin);
@@ -103,36 +168,70 @@ public class UserController {
 
     }
 
-    @PostMapping("/sign-up")
-    public ResponseEntity<ReadableRegister> signUp(@Valid @RequestBody WritableRegister writableRegister) {
+    @PostMapping("/customer/register")
+    public ResponseEntity<ReadableRegister> customerRegister(@Valid @RequestBody WritableCustomerRegister writableRegister) {
         User user = UserMapper.writableRegisterToUser(writableRegister);
         if (userService.canRegister(user)) {
 
-            City city = cityService.findByUuid(writableRegister.getCityId());
+            City city = cityService.findById(writableRegister.getCityId());
 
             user.setStatus(true);
             user.setActivationToken(RandomStringGenerator.generateId());
             user.setCity(city);
+            user.setPhoneNumber(writableRegister.getPhoneNumber());
             user.setState(stateService.findByUuidAndCity(writableRegister.getStateId(), city));
 
-            User createdUser = userService.create(user, writableRegister.getRoleType());
-            RoleType roleType = UserMapper.roleToRoleType(createdUser.getRole());
-            if (roleType.equals(RoleType.CUSTOMER)) {
-                Cart cart = cartService.create(createdUser);
-                user.setCart(cart);
-                Credit credit = new Credit();
-                credit.setCustomer(createdUser);
-                credit.setTotalDebt(0);
-                credit.setCreditLimit(0);
-                credit.setCreditType(CreditType.SYSTEM_CREDIT);
-                creditService.create(credit);
-            } else if (roleType.equals(RoleType.MERCHANT)) {
-                Obligation obligation = new Obligation();
-                obligation.setUser(createdUser);
-                obligation.setReceivable(0);
-                obligation.setReceivable(0);
-                obligationService.create(obligation);
-            }
+            User createdUser = userService.create(user, RoleType.CUSTOMER);
+
+            Customer customer = new Customer();
+            customer.setUser(createdUser);
+            customer.setTaxNumber(writableRegister.getTaxNumber());
+            customerService.create(customer);
+
+            cartService.create(customer);
+
+            Credit credit = new Credit();
+            credit.setCustomer(customer);
+            credit.setCreditType(CreditType.SYSTEM_CREDIT);
+            credit.setTotalDebt(BigDecimal.ZERO);
+            credit.setCreditLimit(BigDecimal.ZERO);
+
+            creditService.create(credit);
+
+            return ResponseEntity.ok(UserMapper.userToReadableRegister(createdUser));
+        }
+        throw new BadRequestException("Username or email already registered");
+    }
+
+    @PostMapping("/merchant/register")
+    public ResponseEntity<ReadableRegister> merchantRegister(@Valid @RequestBody WritableMerchantRegister writableRegister) {
+        User user = UserMapper.writableRegisterToUser(writableRegister);
+        if (userService.canRegister(user)) {
+
+            City city = cityService.findById(writableRegister.getCityId());
+
+            user.setStatus(true);
+            user.setActivationToken(RandomStringGenerator.generateId());
+            user.setCity(city);
+            user.setPhoneNumber(writableRegister.getPhoneNumber());
+            user.setState(stateService.findByUuidAndCity(writableRegister.getStateId(), city));
+
+            User createdUser = userService.create(user, RoleType.MERCHANT);
+
+            Merchant merchant = new Merchant();
+            merchant.setUser(createdUser);
+            merchant.setTaxNumber(writableRegister.getTaxNumber());
+
+            Set<State> stateList = new HashSet<>(stateService.findAllByIds(new ArrayList<>(writableRegister.getActiveStates())));
+            merchant.setActiveStates(stateList);
+            merchantService.create(merchant);
+
+            Obligation obligation = new Obligation();
+            obligation.setMerchant(merchant);
+            obligation.setDebt(BigDecimal.ZERO);
+            obligation.setReceivable(BigDecimal.ZERO);
+            obligationService.create(obligation);
+
             return ResponseEntity.ok(UserMapper.userToReadableRegister(createdUser));
         }
         throw new BadRequestException("Username or email already registered");
@@ -152,7 +251,7 @@ public class UserController {
         user.setResetTokenExpireTime(
                 Date.from(LocalDateTime.now().plus(1, ChronoUnit.DAYS).atZone(ZoneId.systemDefault()).toInstant()));
         mailUtil.sendPasswordResetMail(user.getEmail(), user.getPasswordResetToken(), locale);
-        userService.update(user.getId(), user);
+        userService.update(user.getId().toString(), user);
         HttpMessage httpMessage = new HttpMessage(HttpStatus.OK);
         httpMessage.setMessage("Password reset token has been sent to to your email");
         httpMessage.setPath(((ServletWebRequest) request).getRequest().getRequestURL().toString());
@@ -178,10 +277,14 @@ public class UserController {
     public ResponseEntity<ReadableUserInfo> userActivation(@Valid @RequestBody WritableActivation writableActivation) {
         User user = userService.findByActivationToken(writableActivation.getActivationToken());
         user.setStatus(true);
-        return ResponseEntity.ok(UserMapper.userToReadableUserInfo(userService.update(user.getId(), user)));
+        RoleType role = UserMapper.roleToRoleType(user.getRole());
+        if(role.equals(RoleType.MERCHANT)) {
+            return ResponseEntity.ok(UserMapper.userToReadableUserInfo(merchantService.findByUser(userService.update(user.getId().toString(), user))));
+        }
+        return ResponseEntity.ok(UserMapper.userToReadableUserInfo(userService.update(user.getId().toString(), user)));
     }
 
-    @PostMapping("/api/user/changePassword")
+    @PostMapping("/private/user/changePassword")
     public ResponseEntity<HttpMessage> changeUserPassword(@Valid @RequestBody WritablePasswordChange writablePasswordReset, WebRequest request) {
         User user = userService.getLoggedInUser();
 
@@ -196,66 +299,75 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
-    @PostMapping("/api/user/activeStates")
+    @PostMapping("/private/user/activeStates")
     public ResponseEntity<List<ReadableState>> addActiveState(@RequestBody List<String> states) {
-        User user = userService.getLoggedInUser();
-        List<State> stateList = stateService.findAllByUuids(states);
-        List<State> addedList = user.getActiveStates();
-        addedList.addAll(stateList);
-        user.setActiveStates(addedList.stream().distinct().collect(Collectors.toList()));
-        userService.update(user.getId(), user);
-        return ResponseEntity.ok(addedList.stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
+        Merchant merchant = merchantService.getLoggedInMerchant();
+        List<State> stateList = stateService.findAllByIds(states);
+        Set<State> merchantStates = merchant.getActiveStates();
+        merchantStates.addAll(stateList);
+        merchant.setActiveStates(merchantStates);
+        merchantService.update(merchant.getId().toString(), merchant);
+        return ResponseEntity.ok(merchantStates.stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
     }
 
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
-    @GetMapping("/api/user/activeStates")
+    @GetMapping("/private/user/activeStates")
     public ResponseEntity<List<ReadableState>> getActiveStates() {
         User user = userService.getLoggedInUser();
-        return ResponseEntity.ok(user.getActiveStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
+        Merchant merchant = merchantService.findByUser(user);
+        return ResponseEntity.ok(merchant.getActiveStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
     }
 
-    @GetMapping("/api/user/info")
+    @GetMapping("/private/user/info")
     public ResponseEntity<ReadableUserInfo> getUserInfos() {
         User user = userService.getLoggedInUser();
+        RoleType role = UserMapper.roleToRoleType(user.getRole());
+        if(role.equals(RoleType.MERCHANT)) {
+            return ResponseEntity.ok(UserMapper.userToReadableUserInfo(merchantService.findByUser(user)));
+        }
         return ResponseEntity.ok(UserMapper.userToReadableUserInfo(user));
     }
 
-    @PutMapping("/api/user/info")
+    @PutMapping("/private/user/info")
     public ResponseEntity<ReadableUserInfo> updateUserInfo(@Valid @RequestBody WritableUserInfo writableUserInfo) {
         User user = userService.getLoggedInUser();
         if (writableUserInfo.getEmail().equals(user.getEmail()) || !userService.checkUserByEmail(writableUserInfo.getEmail())) {
             user.setName(writableUserInfo.getName());
             user.setEmail(writableUserInfo.getEmail());
-            State state = stateService.findByUuid(writableUserInfo.getAddress().getStateId());
-            City city = cityService.findByUuid(writableUserInfo.getAddress().getCityId());
+            State state = stateService.findById(writableUserInfo.getAddress().getStateId());
+            City city = cityService.findById(writableUserInfo.getAddress().getCityId());
             user.setState(state);
             user.setCity(city);
             user.setAddressDetails(writableUserInfo.getAddress().getDetails());
-            return ResponseEntity.ok(UserMapper.userToReadableUserInfo(userService.update(user.getId(), user)));
+            RoleType role = UserMapper.roleToRoleType(user.getRole());
+            if(role.equals(RoleType.MERCHANT)) {
+                return ResponseEntity.ok(UserMapper.userToReadableUserInfo(merchantService.findByUser(userService.update(user.getId().toString(), user))));
+            }
+            return ResponseEntity.ok(UserMapper.userToReadableUserInfo(userService.update(user.getId().toString(), user)));
         }
         throw new BadRequestException("Email already registered");
     }
 
-    @GetMapping("/api/merchants")
+    @GetMapping("/private/merchants")
+    @PreAuthorize("hasRole('ROLE_CUSTOMER')")
     public ResponseEntity<List<MerchantUser>> getAllMerchants() {
         User loggedInUser = userService.getLoggedInUser();
-        List<User> users = userService.findAllByRoleAndStateAndStatus(RoleType.MERCHANT, loggedInUser.getState(), true);
-        return ResponseEntity.ok(users.stream()
-                .map(UserMapper::userToMerchant)
-                .collect(Collectors.toList()));
+        List<Merchant> merchants = merchantService.findAllByState(loggedInUser.getState());
+
+        return ResponseEntity.ok(merchants.stream().filter(merchant -> merchant.getUser().isStatus()).map(UserMapper::userToMerchant).collect(Collectors.toList()));
     }
 
-    @GetMapping("/api/customers")
+    @GetMapping("/private/customers")
     @PreAuthorize("hasRole('ROLE_MERCHANT')")
     public ResponseEntity<List<CustomerUser>> getAllCustomersByActiveStates() {
-        User loggedInUser = userService.getLoggedInUser();
+        Merchant merchant = merchantService.getLoggedInMerchant();
 
-        return ResponseEntity.ok(userService.findAllByStatesAndRole(loggedInUser.getActiveStates(), RoleType.CUSTOMER).stream()
+        return ResponseEntity.ok(customerService.findAllByStatesAndStatus(new ArrayList<>(merchant.getActiveStates()), true).stream()
                 .map(UserMapper::userToCustomer)
                 .collect(Collectors.toList()));
     }
 
-    @GetMapping("/api/announcements")
+    @GetMapping("/private/announcements")
     public ResponseEntity<List<ReadableAnnouncement>> getAll(){
         List<Announcement> announcements = announcementService.findAllActives(new Date());
         return ResponseEntity.ok(announcements.stream()

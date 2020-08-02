@@ -9,9 +9,7 @@ public interface CategoryService {
 
     List<Category> findBySubCategory(boolean isSub);
 
-    Category findById(Long id);
-
-    Category findByUUID(String uuid);
+    Category findById(String id);
 
     Category create(Category category);
 

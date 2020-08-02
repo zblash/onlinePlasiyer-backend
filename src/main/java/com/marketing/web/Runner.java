@@ -1,53 +1,68 @@
 package com.marketing.web;
 
-import com.marketing.web.dtos.user.WritableRegister;
+import com.marketing.web.dtos.user.register.WritableRegister;
 import com.marketing.web.enums.RoleType;
 import com.marketing.web.enums.UnitType;
 import com.marketing.web.models.*;
 import com.marketing.web.repositories.*;
 import com.marketing.web.services.product.ProductSpecifyService;
 import com.marketing.web.services.storage.StorageService;
+import com.marketing.web.services.user.MerchantService;
 import com.marketing.web.services.user.UserServiceImpl;
 import com.marketing.web.utils.mappers.UserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Component
 public class Runner implements CommandLineRunner {
     private Random r = new Random();
 
-    @Autowired
-    private StateRepository stateRepository;
+    private final StateRepository stateRepository;
 
-    @Autowired
-    private CityRepository cityRepository;
+    private final CityRepository cityRepository;
 
-    @Autowired
+    private final
     StorageService storageService;
 
-    @Autowired
+    private final
     CategoryRepository categoryRepository;
 
-    @Autowired
+    private final
     ProductRepository productRepository;
 
-    @Autowired
+    private final
     BarcodeRepository barcodeRepository;
 
-    @Autowired
+    private final
     UserRepository userRepository;
 
-    @Autowired
+    private final
     UserServiceImpl userService;
 
-    @Autowired
+    private final
     ProductSpecifyService productSpecifyService;
+
+    private final MerchantService merchantService;
+
+    public Runner(StateRepository stateRepository, CityRepository cityRepository, StorageService storageService, CategoryRepository categoryRepository, ProductRepository productRepository, BarcodeRepository barcodeRepository, UserRepository userRepository, UserServiceImpl userService, ProductSpecifyService productSpecifyService, MerchantService merchantService) {
+        this.stateRepository = stateRepository;
+        this.cityRepository = cityRepository;
+        this.storageService = storageService;
+        this.categoryRepository = categoryRepository;
+        this.productRepository = productRepository;
+        this.barcodeRepository = barcodeRepository;
+        this.userRepository = userRepository;
+        this.userService = userService;
+        this.productSpecifyService = productSpecifyService;
+        this.merchantService = merchantService;
+    }
 
     @Override
     public void run(String... args) throws Exception {
@@ -66,25 +81,26 @@ public class Runner implements CommandLineRunner {
 
         List<State> states = statePopulator();
 
-        User user = userPopulator(states);
+        Merchant merchant = userPopulator(states);
 
         List<Category> categories = categoryPopulator();
 
-        List<Product> products = productPopulator(categories, user);
+        List<Product> products = productPopulator(categories, merchant);
 
         barcodePopulator(products);
 
-        productSpecifyPopulator(products, user);
+        productSpecifyPopulator(products, merchant);
     }
 
 
-    public User userPopulator(List<State> states) throws URISyntaxException {
+    public Merchant userPopulator(List<State> states) throws URISyntaxException {
 
         WritableRegister writableRegister = new WritableRegister();
         writableRegister.setUsername("admin");
         writableRegister.setName("Admin Account");
         writableRegister.setPassword("12345");
         writableRegister.setTaxNumber("TR23123123");
+        writableRegister.setPhoneNumber("5555555555");
         writableRegister.setEmail("admin@admin.com");
         writableRegister.setDetails("falan");
         writableRegister.setRoleType(RoleType.ADMIN);
@@ -95,6 +111,7 @@ public class Runner implements CommandLineRunner {
         writableRegister1.setName("Merchant Account");
         writableRegister1.setPassword("12345");
         writableRegister1.setTaxNumber("TR31313131");
+        writableRegister1.setPhoneNumber("5556666666");
         writableRegister1.setEmail("merchant@merchant.com");
         writableRegister1.setDetails("falan");
         writableRegister1.setRoleType(RoleType.MERCHANT);
@@ -104,6 +121,7 @@ public class Runner implements CommandLineRunner {
         writableRegister2.setName("Customer Account");
         writableRegister2.setPassword("12345");
         writableRegister2.setTaxNumber("TR4234234234");
+        writableRegister2.setPhoneNumber("5557777777");
         writableRegister2.setEmail("customer@customer.com");
         writableRegister2.setDetails("falan");
         writableRegister2.setRoleType(RoleType.CUSTOMER);
@@ -118,8 +136,13 @@ public class Runner implements CommandLineRunner {
         user1.setStatus(true);
         user1.setCity(states.get(0).getCity());
         user1.setState(states.get(0));
-        user1.setActiveStates(states);
-        User saved = userService.create(user1, writableRegister1.getRoleType());
+        userService.create(user1, writableRegister1.getRoleType());
+        Merchant merchant = new Merchant();
+        merchant.setActiveStates(states.stream().collect(Collectors.toSet()));
+        merchant.setUser(user1);
+        merchant.setTaxNumber("123456789");
+        merchant.setCommission(1);
+        Merchant saved = merchantService.create(merchant);
 
         User user2 = UserMapper.writableRegisterToUser(writableRegister2);
         user2.setStatus(true);
@@ -144,15 +167,15 @@ public class Runner implements CommandLineRunner {
         return barcodes;
     }
 
-    private List<ProductSpecify> productSpecifyPopulator(List<Product> products, User user) {
+    private List<ProductSpecify> productSpecifyPopulator(List<Product> products, Merchant merchant) {
         List<ProductSpecify> productSpecifies = new ArrayList<>();
 
         for (Product product : products) {
             for (int i = 0; i < 5; i++) {
-                List<State> states = new ArrayList<>(user.getActiveStates());
+                List<State> states = new ArrayList<>(merchant.getActiveStates());
                 ProductSpecify productSpecify = new ProductSpecify();
                 productSpecify.setProduct(product);
-                productSpecify.setRecommendedRetailPrice(rn(15, 999));
+                productSpecify.setRecommendedRetailPrice(BigDecimal.valueOf(rn(15, 999)));
                 int randomForUnitType = rn(1, 3);
                 if (randomForUnitType == 1) {
                     productSpecify.setUnitType(UnitType.KG);
@@ -165,10 +188,10 @@ public class Runner implements CommandLineRunner {
                 }
                 productSpecify.setContents(rn(15, 1500));
                 productSpecify.setQuantity(rn(99, 1500));
-                productSpecify.setUnitPrice(rn(2, 1500));
-                productSpecify.setTotalPrice(rn(5, 1500));
+                productSpecify.setUnitPrice(BigDecimal.valueOf(rn(2, 1500)));
+                productSpecify.setTotalPrice(BigDecimal.valueOf(rn(5, 1500)));
                 productSpecify.setStates(states);
-                productSpecify.setUser(user);
+                productSpecify.setMerchant(merchant);
                 productSpecifies.add(productSpecify);
                 productSpecifyService.create(productSpecify);
 
@@ -179,7 +202,7 @@ public class Runner implements CommandLineRunner {
         return productSpecifies;
     }
 
-    private List<Product> productPopulator(List<Category> categories, User user) {
+    private List<Product> productPopulator(List<Category> categories, Merchant merchant) {
         int j = 0;
         List<Product> productList = new ArrayList<>();
         for (Category category : categories) {
@@ -191,7 +214,7 @@ public class Runner implements CommandLineRunner {
                 product.setStatus(true);
                 product.setPhotoUrl(randomPhoto());
                 product.setTax(rn(10, 20));
-                product.addUser(user);
+                product.addMerchant(merchant);
                 productRepository.save(product);
                 productList.add(product);
             }

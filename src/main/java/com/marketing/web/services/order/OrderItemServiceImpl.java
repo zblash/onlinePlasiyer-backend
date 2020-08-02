@@ -14,8 +14,11 @@ import java.util.UUID;
 @Service
 public class OrderItemServiceImpl implements OrderItemService {
 
-    @Autowired
-    private OrderItemRepository orderItemRepository;
+    private final OrderItemRepository orderItemRepository;
+
+    public OrderItemServiceImpl(OrderItemRepository orderItemRepository) {
+        this.orderItemRepository = orderItemRepository;
+    }
 
     @Override
     public List<OrderItem> saveAll(List<OrderItem> orderItems) {
@@ -23,8 +26,8 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public OrderItem findByUUID(String uuid) {
-        return orderItemRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"order.item",uuid));
+    public OrderItem findById(String id) {
+        return orderItemRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"order.item",id));
     }
 
     @Override
@@ -38,7 +41,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public OrderItem findByUUIDAndOrder(String uuid, Order order) {
-        return orderItemRepository.findByUuidAndOrder(UUID.fromString(uuid), order).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"order.item",uuid));
+    public OrderItem findByIdAndOrder(String id, Order order) {
+        return orderItemRepository.findByIdAndOrder(UUID.fromString(id), order).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"order.item",id));
     }
 }

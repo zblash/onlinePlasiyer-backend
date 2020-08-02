@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/announcements")
+@RequestMapping("/private/announcements")
 public class AnnouncementsController {
 
     @Autowired
@@ -73,7 +73,7 @@ public class AnnouncementsController {
     @PutMapping("/{id}")
     public ResponseEntity<ReadableAnnouncement> updateAnnouncement(@PathVariable String id, @Valid WritableAnnouncement writableAnnouncement, @ValidImg @RequestParam(value="uploadfile", required = false) final MultipartFile uploadfile){
 
-        Announcement announcement = announcementService.findByUUID(id);
+        Announcement announcement = announcementService.findById(id);
         amazonClient.deleteFileFromS3Bucket(announcement.getFileUrl());
         announcement.setTitle(writableAnnouncement.getTitle());
         announcement.setMessage(writableAnnouncement.getMessage());
@@ -89,7 +89,7 @@ public class AnnouncementsController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ReadableAnnouncement> deleteAnnouncement(@PathVariable String id){
-        Announcement announcement = announcementService.findByUUID(id);
+        Announcement announcement = announcementService.findById(id);
         amazonClient.deleteFileFromS3Bucket(announcement.getFileUrl());
         announcementService.delete(announcement);
         return ResponseEntity.ok(AnnouncementMapper.announcementToReadableAnnouncement(announcement));

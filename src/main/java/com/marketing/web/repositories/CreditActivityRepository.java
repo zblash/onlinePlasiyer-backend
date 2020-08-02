@@ -1,10 +1,7 @@
 package com.marketing.web.repositories;
 
 import com.marketing.web.enums.CreditActivityType;
-import com.marketing.web.models.Credit;
-import com.marketing.web.models.CreditActivity;
-import com.marketing.web.models.Order;
-import com.marketing.web.models.User;
+import com.marketing.web.models.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,11 +14,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface CreditActivityRepository extends JpaRepository<CreditActivity, Long>, JpaSpecificationExecutor<CreditActivity> {
+public interface CreditActivityRepository extends JpaRepository<CreditActivity, UUID>, JpaSpecificationExecutor<CreditActivity> {
 
-     Page<CreditActivity> findAllByCustomerOrMerchant(User customer, User merchant, Pageable pageable);
-
-     Optional<CreditActivity> findByUuid(UUID uuid);
+     Page<CreditActivity> findAllByCustomerOrMerchant(Customer customer, Merchant merchant, Pageable pageable);
 
      Page<CreditActivity> findAllByCreditActivityType(CreditActivityType creditActivityType, Pageable pageable);
 
@@ -31,9 +26,9 @@ public interface CreditActivityRepository extends JpaRepository<CreditActivity, 
 
      void deleteByOrder(Order order);
 
-    Page<CreditActivity> findAllByCustomerAndMerchant(User customer, User merchant, Pageable pageable);
+    Page<CreditActivity> findAllByCustomerAndMerchant(Customer customer, Merchant merchant, Pageable pageable);
 
-    Page<CreditActivity> findAllByMerchantAndDateBetween(User merchant, LocalDate startDate, LocalDate lastDate, Pageable pageable);
+    Page<CreditActivity> findAllByMerchantAndDateBetween(Merchant merchant, LocalDate startDate, LocalDate lastDate, Pageable pageable);
 
-    Page<CreditActivity> findAllByCustomerAndDateBetween(User customer, LocalDate startDate, LocalDate lastDate, Pageable pageable);
+    Page<CreditActivity> findAllByCustomerAndDateBetween(Customer customer, LocalDate startDate, LocalDate lastDate, Pageable pageable);
 }

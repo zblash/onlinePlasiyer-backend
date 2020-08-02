@@ -7,6 +7,7 @@ import com.marketing.web.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -23,11 +24,11 @@ public final class CartMapper {
             List<CartItem> items = new ArrayList<>();
             holderItems.stream().map(CartItemHolder::getCartItems).forEach(items::addAll);
 
-            double totalPrice = items.stream().mapToDouble(CartItem::getTotalPrice).sum();
-            double discountedTotalPrice = items.stream().mapToDouble(CartItem::getDiscountedTotalPrice).sum();
+            BigDecimal totalPrice = items.stream().map(CartItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal discountedTotalPrice = items.stream().map(CartItem::getDiscountedTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
             int quantity = items.stream().mapToInt(CartItem::getQuantity).sum();
             ReadableCart readableCart = new ReadableCart();
-            readableCart.setId(cart.getUuid().toString());
+            readableCart.setId(cart.getId().toString());
 
             readableCart.setItems(holderItems.stream().map(CartMapper::cartItemHolderToReadableCartItemDetail).collect(Collectors.toList()));
             readableCart.setDiscountedTotalPrice(discountedTotalPrice);
@@ -42,8 +43,8 @@ public final class CartMapper {
             return null;
         } else {
             ReadableCartItem readableCartItem = new ReadableCartItem();
-            readableCartItem.setId(cartItem.getUuid().toString());
-            readableCartItem.setProductId(cartItem.getProduct().getUuid().toString());
+            readableCartItem.setId(cartItem.getId().toString());
+            readableCartItem.setProductId(cartItem.getProduct().getId().toString());
             readableCartItem.setProductPrice(cartItem.getProduct().getTotalPrice());
             readableCartItem.setUnitContents(cartItem.getProduct().getContents());
             readableCartItem.setUnitPrice(cartItem.getProduct().getUnitPrice());
@@ -53,7 +54,7 @@ public final class CartMapper {
             readableCartItem.setProductBarcodeList(cartItem.getProduct().getProduct().getBarcodes().stream().map(Barcode::getBarcodeNo).collect(Collectors.toList()));
             readableCartItem.setProductPhotoUrl(cartItem.getProduct().getProduct().getPhotoUrl());
             readableCartItem.setProductTax(cartItem.getProduct().getProduct().getTax());
-            readableCartItem.setSellerName(cartItem.getProduct().getUser().getName());
+            readableCartItem.setMerchant(UserMapper.merchantToCommonMerchant(cartItem.getProduct().getMerchant()));
             readableCartItem.setQuantity(cartItem.getQuantity());
             readableCartItem.setTotalPrice(cartItem.getTotalPrice());
             readableCartItem.setDiscountedTotalPrice(cartItem.getDiscountedTotalPrice());
@@ -71,13 +72,13 @@ public final class CartMapper {
             return null;
         } else {
             ReadableCartItemDetail readableCartItemDetail = new ReadableCartItemDetail();
-            readableCartItemDetail.setId(cartItemHolder.getUuid().toString());
+            readableCartItemDetail.setId(cartItemHolder.getId().toString());
             readableCartItemDetail.setQuantity(cartItemHolder.getCartItems().stream().mapToInt(CartItem::getQuantity).sum());
-            readableCartItemDetail.setTotalPrice(cartItemHolder.getCartItems().stream().mapToDouble(CartItem::getTotalPrice).sum());
-            readableCartItemDetail.setDiscountedTotalPrice(cartItemHolder.getCartItems().stream().mapToDouble(CartItem::getDiscountedTotalPrice).sum());
+            readableCartItemDetail.setTotalPrice(cartItemHolder.getCartItems().stream().map(CartItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add));
+            readableCartItemDetail.setDiscountedTotalPrice(cartItemHolder.getCartItems().stream().map(CartItem::getDiscountedTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add));
             readableCartItemDetail.setDetails(cartItemHolder.getCartItems().stream().map(CartMapper::cartItemToReadableCartItem).collect(Collectors.toList()));
-            readableCartItemDetail.setSellerId(cartItemHolder.getSellerId());
-            readableCartItemDetail.setSellerName(cartItemHolder.getSellerName());
+            readableCartItemDetail.setSellerId(cartItemHolder.getMerchantId());
+            readableCartItemDetail.setSellerName(cartItemHolder.getMerchantName());
             return readableCartItemDetail;
         }
     }

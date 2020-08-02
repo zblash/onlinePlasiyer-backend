@@ -3,11 +3,8 @@ package com.marketing.web.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.marketing.web.enums.PaymentOption;
 import lombok.*;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.*;
 
 @Entity
@@ -16,33 +13,23 @@ import java.util.*;
 @Data
 @Table(name = "cartitemholders")
 @Builder
-@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class CartItemHolder extends BaseModel {
-
-    @EqualsAndHashCode.Include
-    private UUID uuid;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id")
     @JsonIgnore
     private Cart cart;
 
-    @OneToMany(mappedBy = "cartItemHolder",cascade = CascadeType.REMOVE,orphanRemoval = true,fetch = FetchType.EAGER)
-    @OrderBy("id desc")
-    @Fetch(value = FetchMode.SUBSELECT)
+    @OneToMany(mappedBy = "cartItemHolder", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
     private Set<CartItem> cartItems;
 
     @Enumerated(EnumType.STRING)
     private PaymentOption paymentOption;
 
-    private String sellerId;
+    private String merchantId;
 
-    private String sellerName;
-
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
-    }
+    private String merchantName;
 
     public void addCartItem(CartItem cartItem){
         if (cartItems == null){

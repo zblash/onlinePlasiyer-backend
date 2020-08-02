@@ -1,16 +1,17 @@
 package com.marketing.web.dtos.order;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.marketing.web.dtos.user.ReadableAddress;
+import com.marketing.web.dtos.user.readable.CommonMerchant;
+import com.marketing.web.dtos.user.readable.ReadableAddress;
 import com.marketing.web.enums.OrderStatus;
 import com.marketing.web.enums.PaymentOption;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -22,22 +23,24 @@ public class ReadableOrder implements Serializable {
 
     private Long code;
 
-    private double totalPrice;
+    private BigDecimal totalPrice;
 
     private OrderStatus status;
+
+    private boolean commentable;
 
     private PaymentOption paymentType;
 
     private double commission;
 
-    private String sellerName;
+    private CommonMerchant merchant;
 
     private String buyerName;
 
-    private Date orderDate;
+    private LocalDate orderDate;
 
     @JsonFormat(pattern="dd-MM-yyyy")
-    private Date waybillDate;
+    private LocalDate waybillDate;
 
     private ReadableAddress buyerAddress;
 

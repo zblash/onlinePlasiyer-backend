@@ -4,20 +4,19 @@ import com.marketing.web.models.City;
 import com.marketing.web.models.State;
 
 import java.util.List;
+import java.util.Set;
 
 public interface StateService {
 
     List<State> findAll();
 
-    List<State> findAllByUuids(List<String> uuids);
+    List<State> findAllByIds(List<String> ids);
 
     List<State> findAllByCity(City city);
 
-    State findById(Long id);
+    State findById(String id);
 
-    State findByUuid(String uuid);
-
-    State findByUuidAndCity(String uuid, City city);
+    State findByUuidAndCity(String id, City city);
 
     State create(State state);
 

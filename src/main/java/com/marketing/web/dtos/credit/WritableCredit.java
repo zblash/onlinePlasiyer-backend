@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
@@ -14,9 +15,9 @@ import java.io.Serializable;
 public class WritableCredit implements Serializable {
 
     @NotNull(message = "{validation.notNull}")
-    private double totalDebt;
+    private BigDecimal totalDebt;
 
     @NotNull(message = "{validation.notNull}")
-    private double creditLimit;
+    private BigDecimal creditLimit;
 
 }

@@ -17,8 +17,6 @@ import java.util.UUID;
 @Table(name = "ticketreplies")
 public class TicketReply extends BaseModel {
 
-    private UUID uuid;
-
     @NotBlank
     private String message;
 
@@ -32,9 +30,4 @@ public class TicketReply extends BaseModel {
 
     @Temporal(TemporalType.DATE)
     private Date addedTime;
-
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
-    }
 }

@@ -4,11 +4,13 @@ spring:
     url: jdbc:postgresql://localhost:4540/marketing
     username: postgres
   jpa:
+    show-sql: true
     hibernate:
       ddl-auto: create
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
   redis:
     host: localhost
     password: ''
@@ -16,10 +18,10 @@ spring:
     ssl: false
   mail:
     debug: true
-    host: your.mail.host
-    port: 111
-    username: your.mail.username
-    password: your.mail.password
+    host: smtp.gmail.com
+    port: 587
+    username: zblashh7@gmail.com
+    password: fb19077774+
     protocol: smtp
     properties:
       mail:

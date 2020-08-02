@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -13,9 +14,9 @@ public class ReadableUsersCredit implements Serializable {
 
     private String id;
 
-    private double totalDebt;
+    private BigDecimal totalDebt;
 
-    private double creditLimit;
+    private BigDecimal creditLimit;
 
     private String customerId;
 

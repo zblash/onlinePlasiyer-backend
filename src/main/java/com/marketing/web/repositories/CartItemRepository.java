@@ -8,11 +8,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface CartItemRepository extends JpaRepository<CartItem,Long> {
+public interface CartItemRepository extends JpaRepository<CartItem,UUID> {
 
-    Optional<CartItem> findByUuid(UUID uuid);
-
-    Optional<CartItem> findByCart_IdAndProduct_Uuid(Long cartId, UUID uuid);
+    Optional<CartItem> findByCart_IdAndProduct_Id(UUID cartId, UUID id);
 
     List<CartItem> deleteAllByCart(Cart cart);
 }

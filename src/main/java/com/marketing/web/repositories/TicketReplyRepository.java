@@ -7,12 +7,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface TicketReplyRepository extends JpaRepository<TicketReply,Long> {
+public interface TicketReplyRepository extends JpaRepository<TicketReply, UUID> {
 
     List<TicketReply> findAllByOrderByIdDesc();
 
-    List<TicketReply> findAllByTicket_Id(Long ticketId);
+    List<TicketReply> findAllByTicket_Id(UUID ticketId);
 
-    Optional<TicketReply> findByUuid(UUID uuid);
 
 }

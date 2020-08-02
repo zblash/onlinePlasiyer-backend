@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,13 +19,11 @@ import java.util.UUID;
 @Table(name = "product_specifies")
 public class ProductSpecify extends BaseModel {
 
-    private UUID uuid;
+    @NotNull
+    private BigDecimal totalPrice;
 
     @NotNull
-    private double totalPrice;
-
-    @NotNull
-    private double unitPrice;
+    private BigDecimal unitPrice;
 
     @NotNull
     private int quantity;
@@ -39,15 +38,15 @@ public class ProductSpecify extends BaseModel {
     private double commission;
 
     @NotNull
-    private double recommendedRetailPrice;
+    private BigDecimal recommendedRetailPrice;
 
     @ManyToOne
     @JoinColumn(name = "product_id",referencedColumnName = "id")
     private Product product;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id",referencedColumnName = "id")
-    private User user;
+    @JoinColumn(name = "merchant_id",referencedColumnName = "id")
+    private Merchant merchant;
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<State> states;
@@ -55,9 +54,4 @@ public class ProductSpecify extends BaseModel {
     @OneToOne
     @JoinColumn(name = "promotion_id", referencedColumnName = "id")
     private Promotion promotion;
-
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
-    }
 }

@@ -19,7 +19,7 @@ public final class TicketMapper {
             return null;
         } else {
             ReadableTicket readableTicket = new ReadableTicket();
-            readableTicket.setId(ticket.getUuid().toString());
+            readableTicket.setId(ticket.getId().toString());
             readableTicket.setOpenerName(ticket.getUser().getName());
             readableTicket.setStatus(ticket.getStatus());
             readableTicket.setTitle(ticket.getTitle());
@@ -45,7 +45,7 @@ public final class TicketMapper {
             return null;
         } else {
             ReadableTicketReply readableTicketReply = new ReadableTicketReply();
-            readableTicketReply.setId(ticketReply.getUuid().toString());
+            readableTicketReply.setId(ticketReply.getId().toString());
             readableTicketReply.setAddedTime(ticketReply.getAddedTime());
             readableTicketReply.setMessage(ticketReply.getMessage());
             readableTicketReply.setUsername(ticketReply.getUser().getUsername());

@@ -8,13 +8,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface OrderItemRepository extends JpaRepository<OrderItem,Long> {
-
-    Optional<OrderItem> findByUuid(UUID uuid);
+public interface OrderItemRepository extends JpaRepository<OrderItem,UUID> {
 
     List<OrderItem> findByOrder(Order order);
 
-    Optional<OrderItem> findByUuidAndOrder(UUID uuid, Order order);
+    Optional<OrderItem> findByIdAndOrder(UUID id, Order order);
 
 
 }

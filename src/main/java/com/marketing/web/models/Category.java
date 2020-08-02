@@ -21,8 +21,6 @@ import java.util.UUID;
 @Table(name = "categories")
 public class Category extends BaseModel {
 
-    private UUID uuid;
-
     @NotBlank
     private String name;
 
@@ -54,10 +52,5 @@ public class Category extends BaseModel {
             childs.forEach(child -> results.addAll(child.collectLeafChildren()));
         }
         return results;
-    }
-
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
     }
 }

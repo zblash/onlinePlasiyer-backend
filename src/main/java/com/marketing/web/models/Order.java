@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -20,13 +21,6 @@ import java.util.UUID;
 @Data
 @Table(name = "orders")
 public class Order extends BaseModel  {
-
-    private UUID uuid;
-
-    @NotNull
-    private double totalPrice;
-
-    private double commission;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -40,18 +34,18 @@ public class Order extends BaseModel  {
     private List<OrderItem> orderItems;
 
     @OneToOne
-    @JoinColumn(name = "seller_id",referencedColumnName = "id")
-    private User seller;
+    @JoinColumn(name = "merchant_id",referencedColumnName = "id")
+    private Merchant merchant;
 
     @OneToOne
-    @JoinColumn(name = "buyer_id",referencedColumnName = "id")
-    private User buyer;
+    @JoinColumn(name = "customer_id",referencedColumnName = "id")
+    private Customer customer;
 
-    @Temporal(TemporalType.DATE)
-    private Date orderDate;
+    private LocalDate orderDate;
 
-    @Temporal(TemporalType.DATE)
-    private Date waybillDate;
+    private LocalDate waybillDate;
+
+    private boolean commentable;
 
     public void addOrderItem(OrderItem orderItem){
         if (orderItems == null){
@@ -65,10 +59,5 @@ public class Order extends BaseModel  {
             orderItems.remove(orderItem);
         }
 
-    }
-
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
     }
 }

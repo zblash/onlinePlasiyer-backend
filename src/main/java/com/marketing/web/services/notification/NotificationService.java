@@ -11,7 +11,7 @@ public interface NotificationService {
 
     List<Notification> findAll();
 
-    Notification findByUUID(String uuid);
+    Notification findById(String id);
 
     Notification create(Notification notification);
 

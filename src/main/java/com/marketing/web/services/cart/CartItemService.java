@@ -12,9 +12,7 @@ public interface CartItemService {
 
     List<CartItem> findAll();
 
-    CartItem findById(Long id);
-
-    CartItem findByUUID(String uuid);
+    CartItem findById(String id);
 
     CartItem create(CartItem cartItem);
 

@@ -14,11 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/payment")
+@RequestMapping("/private/payment")
 public class PaymentController {
 
-    @Autowired
-    private MessageSource messageSource;
+    private final MessageSource messageSource;
+
+    public PaymentController(MessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
 
     @GetMapping("/methods")
     public ResponseEntity<List<ReadablePaymentMethods>> getMethods(Locale locale) {

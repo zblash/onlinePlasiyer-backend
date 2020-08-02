@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -17,9 +18,9 @@ public class ReadableCart implements Serializable {
 
     private int quantity;
 
-    private double totalPrice;
+    private BigDecimal totalPrice;
 
-    private double discountedTotalPrice;
+    private BigDecimal discountedTotalPrice;
 
     private List<ReadableCartItemDetail> items;
 }

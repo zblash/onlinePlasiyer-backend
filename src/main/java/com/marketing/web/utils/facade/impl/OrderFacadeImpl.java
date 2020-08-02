@@ -11,19 +11,21 @@ import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.ResourceNotFoundException;
 import com.marketing.web.models.*;
 import com.marketing.web.services.credit.ActivityService;
-import com.marketing.web.services.credit.CreditActivityService;
 import com.marketing.web.services.credit.CreditService;
 import com.marketing.web.services.invoice.ObligationActivityService;
 import com.marketing.web.services.invoice.ObligationService;
+import com.marketing.web.services.product.ProductSpecifyService;
+import com.marketing.web.services.user.MerchantService;
 import com.marketing.web.services.order.OrderItemService;
 import com.marketing.web.services.order.OrderService;
-import com.marketing.web.services.user.UserService;
 import com.marketing.web.utils.facade.OrderFacade;
 import com.marketing.web.utils.mappers.OrderMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,7 +34,7 @@ public class OrderFacadeImpl implements OrderFacade {
 
     private final OrderService orderService;
 
-    private final UserService userService;
+    private final MerchantService merchantService;
 
     private final OrderItemService orderItemService;
 
@@ -44,88 +46,111 @@ public class OrderFacadeImpl implements OrderFacade {
 
     private final ActivityService activityService;
 
+    private final ProductSpecifyService productSpecifyService;
+
     private Logger logger = LoggerFactory.getLogger(OrderFacadeImpl.class);
 
-    public OrderFacadeImpl(OrderService orderService, UserService userService, OrderItemService orderItemService, ObligationService obligationService, ObligationActivityService obligationActivityService, CreditService creditService, ActivityService activityService) {
+    public OrderFacadeImpl(OrderService orderService, MerchantService merchantService, OrderItemService orderItemService, ObligationService obligationService, ObligationActivityService obligationActivityService, CreditService creditService, ActivityService activityService, ProductSpecifyService productSpecifyService) {
         this.orderService = orderService;
-        this.userService = userService;
+        this.merchantService = merchantService;
         this.orderItemService = orderItemService;
         this.obligationService = obligationService;
         this.obligationActivityService = obligationActivityService;
         this.creditService = creditService;
         this.activityService = activityService;
+        this.productSpecifyService = productSpecifyService;
     }
 
     @Override
     public ReadableOrder saveOrder(WritableOrder writableOrder, Order order) {
-        if (OrderStatus.CONFIRMED.equals(order.getStatus())
+        if ((OrderStatus.CONFIRMED.equals(order.getStatus()) || OrderStatus.PREPARED.equals(order.getStatus()))
                 && OrderStatus.FINISHED.equals(writableOrder.getStatus())
                 && writableOrder.getWaybillDate() != null) {
+            Credit credit;
+            Optional<Credit> optionalMerchantCredit = creditService.findByCustomerAndMerchant(order.getCustomer(), order.getMerchant());
+            order.setCommentable(true);
+            if (PaymentOption.SYSTEM_CREDIT.equals(order.getPaymentType()) && writableOrder.getPaidPrice().compareTo(BigDecimal.ZERO) > 0) {
+                Credit systemCredit = creditService.findSystemCreditByCustomer(order.getCustomer());
+                systemCredit.setTotalDebt(systemCredit.getTotalDebt().subtract(writableOrder.getPaidPrice()));
+                Obligation obligation = obligationService.findByMerchant(order.getMerchant());
+                obligation.setReceivable(obligation.getReceivable().subtract(writableOrder.getPaidPrice()));
+                obligationService.update(obligation.getId().toString(), obligation);
+                creditService.update(systemCredit.getId().toString(), systemCredit);
 
-            order.setWaybillDate(writableOrder.getWaybillDate());
-            if (PaymentOption.SYSTEM_CREDIT.equals(order.getPaymentType()) && writableOrder.getPaidPrice() > 0) {
-                Credit credit = creditService.findSystemCreditByUser(order.getBuyer());
-                credit.setTotalDebt(credit.getTotalDebt() - writableOrder.getPaidPrice());
-                Obligation obligation = obligationService.findByUser(order.getSeller());
-                obligation.setReceivable(obligation.getReceivable() - writableOrder.getPaidPrice());
-                obligationService.update(obligation.getUuid().toString(), obligation);
-                creditService.update(credit.getUuid().toString(), credit);
-                activityService.create(activityPopulator(order.getBuyer(), order.getSeller(), writableOrder.getPaidPrice(), credit.getTotalDebt(), credit.getCreditLimit() - credit.getTotalDebt(), credit.getCreditLimit(), writableOrder.getPaymentType(), ActivityType.SYSTEM_CREDIT));
-            } else if (PaymentOption.MERCHANT_CREDIT.equals(order.getPaymentType()) && writableOrder.getPaidPrice() > 0) {
-                Credit credit = creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller())
+                activityService.create(activityService.populator(order.getCustomer(), null, writableOrder.getPaidPrice(), order.getOrderItems().stream().map(OrderItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add), systemCredit.getTotalDebt(), systemCredit.getCreditLimit().subtract(systemCredit.getTotalDebt()), systemCredit.getCreditLimit(), writableOrder.getPaymentType() != null ? writableOrder.getPaymentType() : PaymentType.RUNNING_ACCOUNT, ActivityType.SYSTEM_CREDIT));
+
+                credit = optionalMerchantCredit.orElseGet(() -> {
+                    Credit c = new Credit();
+                    c.setCreditType(CreditType.MERCHANT_CREDIT);
+                    return c;
+                });
+
+            } else if (PaymentOption.MERCHANT_CREDIT.equals(order.getPaymentType()) && writableOrder.getPaidPrice().compareTo(BigDecimal.ZERO) > 0) {
+                credit = optionalMerchantCredit
                         .orElseThrow(() -> new BadRequestException("You have not credit from this merchant"));
-                credit.setTotalDebt(credit.getTotalDebt() - writableOrder.getPaidPrice());
-                creditService.update(credit.getUuid().toString(), credit);
-                activityService.create(activityPopulator(order.getBuyer(), order.getSeller(), writableOrder.getPaidPrice(), credit.getTotalDebt(), credit.getCreditLimit() - credit.getTotalDebt(), credit.getCreditLimit(), writableOrder.getPaymentType(), ActivityType.MERCHANT_CREDIT));
-            } else if (PaymentOption.COD.equals(order.getPaymentType()) && writableOrder.getPaidPrice() != order.getTotalPrice()) {
-                double totalPrice = Math.abs(writableOrder.getPaidPrice() - order.getTotalPrice());
-                CreditActivityType creditActivityType = writableOrder.getPaidPrice() > order.getTotalPrice() ?
-                        CreditActivityType.CREDIT : CreditActivityType.DEBT;
+                credit.setTotalDebt(credit.getTotalDebt().subtract(writableOrder.getPaidPrice()));
+                creditService.update(credit.getId().toString(), credit);
 
-                Optional<Credit> creditOptional = creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller());
-                Credit credit;
-                if (creditOptional.isPresent()) {
-                    credit = creditOptional.get();
-                    double debt = creditActivityType.equals(CreditActivityType.DEBT) ?
-                            credit.getTotalDebt() + totalPrice :
-                            credit.getTotalDebt() - totalPrice;
-                    credit.setTotalDebt(debt);
-                    creditService.update(credit.getUuid().toString(), credit);
+            } else if (PaymentOption.COD.equals(order.getPaymentType()) && writableOrder.getPaidPrice() != order.getOrderItems().stream().map(OrderItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add)) {
+                BigDecimal totalPrice = BigDecimal.valueOf(Math.abs(writableOrder.getPaidPrice().subtract(order.getOrderItems().stream().map(OrderItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add)).doubleValue()));
+                boolean isDebt = writableOrder.getPaidPrice().compareTo(order.getOrderItems().stream().map(OrderItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add)) < 0;
+
+                if (optionalMerchantCredit.isPresent()) {
+                    credit = optionalMerchantCredit.get();
+                    credit.setTotalDebt(isDebt ?
+                            credit.getTotalDebt().add(totalPrice) :
+                            credit.getTotalDebt().subtract(totalPrice));
+                    creditService.update(credit.getId().toString(), credit);
                 } else {
                     credit = creditService.create(Credit.builder()
                             .creditLimit(totalPrice)
-                            .totalDebt(creditActivityType.equals(CreditActivityType.DEBT) ?
-                                    totalPrice : 0)
+                            .totalDebt(isDebt ?
+                                    totalPrice : BigDecimal.ZERO)
                             .creditType(CreditType.MERCHANT_CREDIT)
-                            .customer(order.getBuyer()).merchant(order.getSeller()).build());
+                            .customer(order.getCustomer()).merchant(order.getMerchant()).build());
                 }
 
-                activityService.create(activityPopulator(order.getBuyer(), order.getSeller(), writableOrder.getPaidPrice(), credit.getTotalDebt(), credit.getCreditLimit() - credit.getTotalDebt(), credit.getCreditLimit(), writableOrder.getPaymentType(), ActivityType.MERCHANT_CREDIT));
-
-            }
-        } else if (OrderStatus.CANCELLED.equals(writableOrder.getStatus())) {
-            Obligation obligation = obligationService.findByUser(order.getSeller());
-            if (PaymentOption.SYSTEM_CREDIT.equals(order.getPaymentType())) {
-                obligation.setReceivable(obligation.getReceivable() - order.getCommission());
             } else {
-                obligation.setDebt(obligation.getDebt() - order.getCommission());
+                credit = optionalMerchantCredit.orElseGet(() -> {
+                    Credit c = new Credit();
+                    c.setCreditType(CreditType.MERCHANT_CREDIT);
+                    c.setTotalDebt(BigDecimal.ZERO);
+                    c.setCreditLimit(BigDecimal.ZERO);
+                    c.setCustomer(order.getCustomer());
+                    c.setMerchant(order.getMerchant());
+                    return creditService.create(c);
+                });
             }
-            obligationService.update(obligation.getUuid().toString(), obligation);
-            obligationActivityService.create(obligationActivityPopulator(obligation, order, CreditActivityType.CREDIT));
-            Credit credit = PaymentOption.MERCHANT_CREDIT.equals(order.getPaymentType()) ? creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller())
-                    .orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND + "credit.user", ""))
-                    : (PaymentOption.SYSTEM_CREDIT.equals(order.getPaymentType()) ? creditService.findSystemCreditByUser(order.getBuyer()) : null);
-            if (credit != null) {
-                credit.setTotalDebt(credit.getTotalDebt() - order.getTotalPrice());
 
-                activityService.create(activityPopulator(order.getBuyer(), order.getSeller(), order.getTotalPrice(), credit.getTotalDebt(), credit.getCreditLimit() - credit.getTotalDebt(), credit.getCreditLimit(), null, ActivityType.ORDER_CANCEL));
-                creditService.update(credit.getUuid().toString(), credit);
+            activityService.create(activityService.populator(order.getCustomer(), order.getMerchant(), writableOrder.getPaidPrice(), order.getOrderItems().stream().map(OrderItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add), credit.getTotalDebt(), credit.getCreditLimit().subtract(credit.getTotalDebt()), credit.getCreditLimit(), writableOrder.getPaymentType() != null ? writableOrder.getPaymentType() : PaymentType.RUNNING_ACCOUNT, ActivityType.ORDER));
+            updateProductsStock(order.getOrderItems());
+        } else if (OrderStatus.CANCELLED.equals(writableOrder.getStatus())) {
+            Obligation obligation = obligationService.findByMerchant(order.getMerchant());
+            if (PaymentOption.SYSTEM_CREDIT.equals(order.getPaymentType())) {
+                obligation.setReceivable(obligation.getReceivable().subtract(BigDecimal.valueOf(order.getOrderItems().stream().mapToDouble(OrderItem::getCommission).sum())));
+            } else {
+                obligation.setDebt(obligation.getDebt().subtract(BigDecimal.valueOf(order.getOrderItems().stream().mapToDouble(OrderItem::getCommission).sum())));
+            }
+            obligationService.update(obligation.getId().toString(), obligation);
+
+            obligationActivityService.create(obligationActivityService.populator(obligation, order));
+            Credit credit = PaymentOption.MERCHANT_CREDIT.equals(order.getPaymentType()) ? creditService.findByCustomerAndMerchant(order.getCustomer(), order.getMerchant())
+                    .orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND + "credit.user", ""))
+                    : (PaymentOption.SYSTEM_CREDIT.equals(order.getPaymentType()) ? creditService.findSystemCreditByCustomer(order.getCustomer()) : null);
+            if (credit != null) {
+                credit.setTotalDebt(credit.getTotalDebt().subtract(order.getOrderItems().stream().map(OrderItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add)));
+
+                activityService.create(activityService.populator(order.getCustomer(), order.getMerchant(), BigDecimal.ZERO, order.getOrderItems().stream().map(OrderItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add), credit.getTotalDebt(), credit.getCreditLimit().subtract(credit.getTotalDebt()), credit.getCreditLimit(), null, ActivityType.ORDER_CANCEL));
+                creditService.update(credit.getId().toString(), credit);
             }
         }
 
         order.setStatus(writableOrder.getStatus());
 
-        return OrderMapper.orderToReadableOrder(orderService.update(order.getUuid().toString(), order));
+        if (writableOrder.getWaybillDate() != null) {
+            order.setWaybillDate(writableOrder.getWaybillDate());
+        }
+        return OrderMapper.orderToReadableOrder(orderService.update(order.getId().toString(), order));
     }
 
     @Override
@@ -138,9 +163,8 @@ public class OrderFacadeImpl implements OrderFacade {
         }
         List<OrderItem> removedItems = new ArrayList<>();
         List<OrderItem> updatedItems = new ArrayList<>();
-        double currentDebt = 0;
         for (WritableConfirmOrderItem writableConfirmOrderItem : writableConfirmOrder.getItems()) {
-            OrderItem orderItem = orderItemService.findByUUID(writableConfirmOrderItem.getId());
+            OrderItem orderItem = orderItemService.findById(writableConfirmOrderItem.getId());
             if (writableConfirmOrderItem.isRemoved()) {
                 removedItems.add(orderItem);
             } else {
@@ -151,42 +175,45 @@ public class OrderFacadeImpl implements OrderFacade {
         orderItemService.saveAll(updatedItems);
         orderItemService.deleteAllByUuid(removedItems);
         order.setStatus(OrderStatus.CONFIRMED);
-        order.setCommission(updatedItems.stream().mapToDouble(OrderItem::getCommission).sum());
-        double orderOldTotalPrice = order.getTotalPrice();
-        order.setTotalPrice(updatedItems.stream().mapToDouble(OrderItem::getTotalPrice).sum());
-        if (orderOldTotalPrice != order.getTotalPrice()) {
-            Obligation obligation = obligationService.findByUser(order.getSeller());
-            obligationService.update(obligation.getUuid().toString(), calculateObligation(order, obligation, orderOldTotalPrice));
-        }
-        Credit credit = order.getPaymentType().equals(PaymentOption.MERCHANT_CREDIT)
-                ? creditService.findByCustomerAndMerchant(order.getBuyer(), order.getSeller())
-                .orElseThrow(() -> new BadRequestException("You have not credit from this merchant"))
-                : creditService.findSystemCreditByUser(order.getBuyer());
-        if (!PaymentOption.COD.equals(order.getPaymentType())) {
-            credit.setTotalDebt(credit.getTotalDebt() + order.getTotalPrice());
-            currentDebt = order.getTotalPrice();
-            creditService.update(credit.getUuid().toString(), credit);
+
+        if (writableConfirmOrder.getWaybillDate() != null) {
+            order.setWaybillDate(writableConfirmOrder.getWaybillDate());
         }
 
-        activityService.create(activityPopulator(order.getBuyer(), order.getSeller(), order.getTotalPrice(), currentDebt, 0, credit.getCreditLimit(), PaymentType.fromValue(order.getPaymentType().toString()), ActivityType.ORDER));
-        return OrderMapper.orderToReadableOrder(orderService.update(order.getUuid().toString(), order));
+
+        if (order.getOrderItems().stream().map(OrderItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add).compareTo(updatedItems.stream().map(OrderItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add)) != 0) {
+            double oldCommission = order.getOrderItems().stream().mapToDouble(OrderItem::getCommission).sum();
+            Obligation obligation = obligationService.findByMerchant(order.getMerchant());
+            obligationService.update(obligation.getId().toString(), calculateObligation(order, obligation, oldCommission));
+            obligationActivityService.update(obligationActivityService.findByOrder(order).getId().toString(), obligationActivityService.populator(obligation, order));
+        }
+        Credit credit = order.getPaymentType().equals(PaymentOption.MERCHANT_CREDIT)
+                ? creditService.findByCustomerAndMerchant(order.getCustomer(), order.getMerchant())
+                .orElseThrow(() -> new BadRequestException("You have not credit from this merchant"))
+                : creditService.findSystemCreditByCustomer(order.getCustomer());
+        if (!PaymentOption.COD.equals(order.getPaymentType())) {
+            credit.setTotalDebt(credit.getTotalDebt().add(order.getOrderItems().stream().map(OrderItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add)));
+            creditService.update(credit.getId().toString(), credit);
+        }
+
+        return OrderMapper.orderToReadableOrder(orderService.update(order.getId().toString(), order));
     }
 
     @Override
-    public List<ReadableOrder> checkoutCart(User user, Set<CartItemHolder> cartItemHolderList, WritableCheckout writableCheckout) {
+    public List<ReadableOrder> checkoutCart(Customer customer, Set<CartItemHolder> cartItemHolderList, WritableCheckout writableCheckout) {
         {
             List<Order> orders = new ArrayList<>();
             List<OrderItem> orderItems = new ArrayList<>();
             List<Obligation> obligations = new ArrayList<>();
             List<ObligationActivity> obligationActivities = new ArrayList<>();
             for (CartItemHolder cartItemHolder : cartItemHolderList) {
-                Order order = ordersPopulator(cartItemHolder, user);
-                order.setOrderItems(orderItemsPopulator(cartItemHolder.getCartItems(), order));
+                Order order = ordersPopulator(cartItemHolder, customer);
+                order.setOrderItems(orderItemsPopulator(new HashSet<>(cartItemHolder.getCartItems()), order));
                 orders.add(order);
-                Obligation obligation = calculateObligation(order, obligationService.findByUser(order.getSeller()), 0);
+                Obligation obligation = calculateObligation(order, obligationService.findByMerchant(order.getMerchant()), 0);
                 obligations.add(obligation);
-                CreditActivityType obligationType = PaymentOption.SYSTEM_CREDIT.equals(order.getPaymentType()) ? CreditActivityType.CREDIT : CreditActivityType.DEBT;
-                obligationActivities.add(obligationActivityPopulator(obligation, order, obligationType));
+
+                obligationActivities.add(obligationActivityService.populator(obligation, order));
                 orderItems.addAll(order.getOrderItems());
 
             }
@@ -199,17 +226,11 @@ public class OrderFacadeImpl implements OrderFacade {
         }
     }
 
-    private Order ordersPopulator(CartItemHolder cartItemHolder, User user) {
-        double orderTotalPrice = cartItemHolder.getCartItems().stream().mapToDouble(CartItem::getTotalPrice).sum();
-        double discountedTotalPrice = cartItemHolder.getCartItems().stream().mapToDouble(CartItem::getDiscountedTotalPrice).sum();
-        if (discountedTotalPrice == 0) {
-            discountedTotalPrice = orderTotalPrice;
-        }
+    private Order ordersPopulator(CartItemHolder cartItemHolder, Customer customer) {
         Order order = new Order();
-        order.setBuyer(user);
-        order.setSeller(userService.findByUUID(cartItemHolder.getSellerId()));
-        order.setOrderDate(new Date());
-        order.setTotalPrice(discountedTotalPrice);
+        order.setCustomer(customer);
+        order.setMerchant(merchantService.findById(cartItemHolder.getMerchantId()));
+        order.setOrderDate(LocalDate.now());
         order.setPaymentType(cartItemHolder.getPaymentOption());
         order.setStatus(OrderStatus.NEW);
         return order;
@@ -218,8 +239,8 @@ public class OrderFacadeImpl implements OrderFacade {
     private Obligation calculateObligation(Order order, Obligation obligation, double oldCommission) {
         double commission = Math.abs(order.getOrderItems().stream().mapToDouble(OrderItem::getCommission).sum() - oldCommission);
         boolean paymentType = order.getPaymentType().equals(PaymentOption.COD) || order.getPaymentType().equals(PaymentOption.MERCHANT_CREDIT);
-        obligation.setDebt(paymentType ? obligation.getDebt() + commission : obligation.getDebt());
-        obligation.setReceivable(paymentType ? obligation.getReceivable() : obligation.getReceivable() + (order.getTotalPrice() - commission));
+        obligation.setDebt(paymentType ? obligation.getDebt().add(BigDecimal.valueOf(commission)) : obligation.getDebt());
+        obligation.setReceivable(paymentType ? obligation.getReceivable() : obligation.getReceivable().subtract(order.getOrderItems().stream().map(OrderItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add).subtract(BigDecimal.valueOf(commission))));
         return obligation;
     }
 
@@ -237,40 +258,19 @@ public class OrderFacadeImpl implements OrderFacade {
 
     private OrderItem calculateOrderItem(OrderItem orderItem, WritableConfirmOrderItem writableConfirmOrderItem) {
         orderItem.setQuantity(writableConfirmOrderItem.getQuantity());
-        orderItem.setTotalPrice(orderItem.getPrice() * writableConfirmOrderItem.getQuantity());
-        orderItem.setCommission(orderItem.getTotalPrice() * orderItem.getProductSpecify().getCommission());
+        orderItem.setTotalPrice(orderItem.getPrice().multiply(BigDecimal.valueOf(writableConfirmOrderItem.getQuantity())));
+        orderItem.setCommission((orderItem.getTotalPrice().doubleValue() * orderItem.getProductSpecify().getCommission()) / 100);
         return orderItem;
     }
 
-    private CreditActivity creditActivityPopulator(Order order, Credit credit, double totalPrice, CreditActivityType creditActivityType) {
-        CreditActivity creditActivity = new CreditActivity();
-        creditActivity.setCreditActivityType(creditActivityType);
-        creditActivity.setPriceValue(totalPrice);
-        creditActivity.setCreditLimit(credit.getCreditLimit());
-        creditActivity.setCurrentDebt(credit.getTotalDebt());
-        creditActivity.setCredit(credit);
-        creditActivity.setMerchant(order.getSeller());
-        creditActivity.setCustomer(order.getBuyer());
-        creditActivity.setOrder(order);
-        return creditActivity;
+    private void updateProductsStock(List<OrderItem> orderItems) {
+        List<ProductSpecify> productSpecifies = new ArrayList<>();
+        for (OrderItem orderItem : orderItems) {
+            ProductSpecify productSpecify = orderItem.getProductSpecify();
+            productSpecify.setQuantity(productSpecify.getQuantity() - orderItem.getQuantity());
+            productSpecifies.add(productSpecify);
+        }
+        productSpecifyService.updateAll(productSpecifies);
     }
 
-    private ObligationActivity obligationActivityPopulator(Obligation obligation, Order order, CreditActivityType creditActivityType) {
-        ObligationActivity obligationActivity = new ObligationActivity();
-        double commission = order.getOrderItems().stream().mapToDouble(OrderItem::getCommission).sum();
-        boolean paymentType = order.getPaymentType().equals(PaymentOption.COD) || order.getPaymentType().equals(PaymentOption.MERCHANT_CREDIT);
-        double price = paymentType ? commission : order.getTotalPrice() - commission;
-        obligationActivity.setObligation(obligation);
-        obligationActivity.setPriceValue(price);
-        obligationActivity.setCreditActivityType(creditActivityType);
-        obligationActivity.setDate(new Date());
-        return obligationActivity;
-    }
-
-    private Activity activityPopulator(User customer, User merchant, double price, double currentDebt, double currentReceivable, double creditLimit, PaymentType paymentType, ActivityType activityType) {
-        return Activity.builder().activityType(activityType).paymentType(paymentType)
-                .customer(customer).merchant(merchant)
-                .price(price).creditLimit(creditLimit).currentDebt(currentDebt).currentReceivable(currentReceivable)
-                .build();
-    }
 }

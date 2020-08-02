@@ -23,17 +23,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/notifications")
+@RequestMapping("/private/notifications")
 public class NotificationsController {
 
-    @Autowired
-    private NotificationService notificationService;
+    private final NotificationService notificationService;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private NotificationProducer notificationProducer;
+    private final NotificationProducer notificationProducer;
+
+    public NotificationsController(NotificationService notificationService, UserService userService, NotificationProducer notificationProducer) {
+        this.notificationService = notificationService;
+        this.userService = userService;
+        this.notificationProducer = notificationProducer;
+    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
@@ -55,7 +58,7 @@ public class NotificationsController {
         Notification notification = new Notification();
         notification.setMessage(writableNotification.getMessage());
         notification.setTitle(writableNotification.getTitle());
-        notification.setUser(userService.findByUUID(writableNotification.getUserId()));
+        notification.setUser(userService.findById(writableNotification.getUserId()));
         ReadableNotification readableNotification = NotificationMapper.notificationToReadableNotification(notificationService.create(notification));
 
         WrapperWsNotification wrapperWsNotification = new WrapperWsNotification();
@@ -68,7 +71,7 @@ public class NotificationsController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ReadableNotification> deleteNotification(@PathVariable String id){
-        Notification notification = notificationService.findByUUID(id);
+        Notification notification = notificationService.findById(id);
         notificationService.delete(notification);
         return ResponseEntity.ok(NotificationMapper.notificationToReadableNotification(notification));
     }

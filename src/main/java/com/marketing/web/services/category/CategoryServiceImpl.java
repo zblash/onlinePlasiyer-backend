@@ -34,12 +34,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category findById(Long id) {
-        return categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"category",id.toString()));
-    }
-
-    public Category findByUUID(String uuid) {
-        return categoryRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart", uuid));
+    public Category findById(String id) {
+        return categoryRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"category",id.toString()));
     }
 
     @Override
@@ -49,7 +45,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category update(String id, Category updatedCategory) {
-        Category category = findByUUID(id);
+        Category category = findById(id);
         if (updatedCategory.isSubCategory() && updatedCategory.getParent() != null){
             category.setParent(updatedCategory.getParent());
             category.setSubCategory(updatedCategory.isSubCategory());

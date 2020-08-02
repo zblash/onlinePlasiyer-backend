@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
@@ -17,19 +18,25 @@ public class ReadableObligationActivity implements Serializable {
 
     private String id;
 
-    private double price;
+    private BigDecimal price;
 
     private Long documentNo;
 
-    private double totalDebt;
+    private BigDecimal totalDebt;
 
-    private double totalReceivable;
+    private BigDecimal totalReceivable;
 
     private CreditActivityType obligationActivityType;
 
     private String userId;
 
     private String userName;
+
+    private String customerName;
+
+    private BigDecimal orderTotalPrice;
+
+    private double orderCommissionPrice;
 
     @JsonFormat(pattern="dd-MM-yyyy")
     private Date date;

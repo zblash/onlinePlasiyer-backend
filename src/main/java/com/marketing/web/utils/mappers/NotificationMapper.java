@@ -10,10 +10,10 @@ public final class NotificationMapper {
             return null;
         } else {
             ReadableNotification readableNotification = new ReadableNotification();
-            readableNotification.setId(notification.getUuid().toString());
+            readableNotification.setId(notification.getId().toString());
             readableNotification.setMessage(notification.getMessage());
             readableNotification.setTitle(notification.getTitle());
-            readableNotification.setUserId(notification.getUser().getUuid().toString());
+            readableNotification.setUserId(notification.getUser().getId().toString());
             readableNotification.setUserName(notification.getUser().getUsername());
             return readableNotification;
         }

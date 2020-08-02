@@ -18,8 +18,6 @@ import java.util.UUID;
 @Table(name = "states")
 public class State extends BaseModel {
 
-    private UUID uuid;
-
     @NotBlank
     private String title;
 
@@ -30,9 +28,4 @@ public class State extends BaseModel {
     @ManyToOne
     @JoinColumn(name = "city_id",referencedColumnName = "id")
     private City city;
-
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
-    }
 }

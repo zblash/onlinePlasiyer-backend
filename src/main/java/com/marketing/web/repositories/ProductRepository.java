@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface ProductRepository extends JpaRepository<Product,Long> {
+public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     Page<Product> findAll(Pageable pageable);
 
@@ -23,21 +23,19 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
 
     Optional<Product> findByName(String name);
 
-    Optional<Product> findByUuid(UUID uuid);
-
     Page<Product> findAllByCategoryInAndStatus(List<Category> categories, boolean status, Pageable pageable);
 
     List<Product> findAllByNameLikeIgnoreCase(String name);
 
-    Page<Product> findAllByCategoryInAndUsers_Id(List<Category> categories, Long id, Pageable pageable);
+    Page<Product> findAllByCategoryInAndMerchants_Id(List<Category> categories, UUID id, Pageable pageable);
 
-    Page<Product> findAllByCategoryInAndUsers_IdAndStatus(List<Category> categories, Long id, boolean status, Pageable pageable);
+    Page<Product> findAllByCategoryInAndMerchants_IdAndStatus(List<Category> categories, UUID id, boolean status, Pageable pageable);
 
-    List<Product> findAllByUsers_Id(Long id);
+    List<Product> findAllByMerchants_Id(UUID id);
 
-    Page<Product> findAllByUsers_Id(Long id, Pageable pageable);
+    Page<Product> findAllByMerchants_Id(UUID id, Pageable pageable);
 
-    Optional<Product> findByUuidAndUsers_Id(UUID uuid, Long id);
+    Optional<Product> findByIdAndMerchants_Id(UUID id, UUID merchantId);
 
-    List<Product> findAllByCategoryId(Long categoryId);
+    List<Product> findAllByCategoryId(UUID categoryId);
 }

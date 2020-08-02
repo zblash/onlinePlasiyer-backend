@@ -19,8 +19,11 @@ import java.util.UUID;
 @Service
 public class TicketServiceImpl implements TicketService {
 
-    @Autowired
-    private TicketRepository ticketRepository;
+    private final TicketRepository ticketRepository;
+
+    public TicketServiceImpl(TicketRepository ticketRepository) {
+        this.ticketRepository = ticketRepository;
+    }
 
     @Override
     public Page<Ticket> findAll(int pageNumber, String sortBy, String sortType) {
@@ -33,13 +36,8 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public Ticket findById(Long id) {
-        return ticketRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"ticket",id.toString()));
-    }
-
-    @Override
-    public Ticket findByUUID(String uuid) {
-        return ticketRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"ticket",uuid));
+    public Ticket findById(String id) {
+        return ticketRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"ticket",id.toString()));
     }
 
     @Override
@@ -54,7 +52,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public Ticket findByUserAndUUid(User user,String uuid) {
-        return ticketRepository.findByUuidAndUser_Id(UUID.fromString(uuid),user.getId()).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"ticket",uuid));
+        return ticketRepository.findByIdAndUser_Id(UUID.fromString(uuid),user.getId()).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"ticket",uuid));
     }
 
     @Override
@@ -63,8 +61,8 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public Ticket update(String uuid, Ticket updatedTicket) {
-        Ticket ticket = findByUUID(uuid);
+    public Ticket update(String id, Ticket updatedTicket) {
+        Ticket ticket = findById(id);
         ticket.setStatus(updatedTicket.getStatus());
         ticket.setTitle(updatedTicket.getTitle());
         ticket.setAddedTime(updatedTicket.getAddedTime());

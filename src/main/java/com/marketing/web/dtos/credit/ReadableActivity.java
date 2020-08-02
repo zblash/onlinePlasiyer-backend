@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -25,13 +26,15 @@ public class ReadableActivity implements Serializable {
 
     private PaymentType paymentType;
 
-    private double price;
+    private BigDecimal price;
 
-    private double currentDebt;
+    private BigDecimal paidPrice;
 
-    private double currentReceivable;
+    private BigDecimal currentDebt;
 
-    private double creditLimit;
+    private BigDecimal currentReceivable;
+
+    private BigDecimal creditLimit;
 
     private String customerId;
 

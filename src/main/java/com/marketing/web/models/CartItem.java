@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -16,11 +17,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Table(name = "cartitems")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class CartItem extends BaseModel {
-
-    @EqualsAndHashCode.Include
-    private UUID uuid;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id")
@@ -45,13 +42,8 @@ public class CartItem extends BaseModel {
     private int quantity;
 
     @NotNull
-    private double totalPrice;
+    private BigDecimal totalPrice;
 
-    private double discountedTotalPrice;
-
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
-    }
+    private BigDecimal discountedTotalPrice;
 
 }

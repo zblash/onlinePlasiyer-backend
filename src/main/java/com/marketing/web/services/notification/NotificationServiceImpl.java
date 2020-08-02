@@ -14,8 +14,11 @@ import java.util.UUID;
 @Service
 public class NotificationServiceImpl implements NotificationService {
 
-    @Autowired
-    private NotificationRepository notificationRepository;
+    private final NotificationRepository notificationRepository;
+
+    public NotificationServiceImpl(NotificationRepository notificationRepository) {
+        this.notificationRepository = notificationRepository;
+    }
 
 
     @Override
@@ -29,8 +32,8 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public Notification findByUUID(String uuid) {
-        return notificationRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"notification",uuid));
+    public Notification findById(String id) {
+        return notificationRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"notification",id));
     }
 
     @Override

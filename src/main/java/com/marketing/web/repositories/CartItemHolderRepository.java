@@ -7,13 +7,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface CartItemHolderRepository extends JpaRepository<CartItemHolder, Long> {
+public interface CartItemHolderRepository extends JpaRepository<CartItemHolder, UUID> {
 
-    Optional<CartItemHolder> findBySellerId(String userId);
+    Optional<CartItemHolder> findByMerchantId(String merchantId);
 
-    Optional<CartItemHolder> findByUuid(UUID uuid);
 
-    Optional<CartItemHolder> findByCartAndSellerId(Cart cart, String sellerId);
+    Optional<CartItemHolder> findByCartAndMerchantId(Cart cart, String merchantId);
 
-    Optional<CartItemHolder> findByCartAndUuid(Cart cart, UUID uuid);
+    Optional<CartItemHolder> findByCartAndId(Cart cart, UUID uuid);
 }

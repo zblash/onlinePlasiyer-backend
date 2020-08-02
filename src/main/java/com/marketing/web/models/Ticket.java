@@ -22,8 +22,6 @@ import java.util.UUID;
 @Table(name = "tickets")
 public class Ticket extends BaseModel {
 
-    private UUID uuid;
-
     @NotBlank
     private String title;
 
@@ -47,8 +45,4 @@ public class Ticket extends BaseModel {
     @OrderBy("id asc")
     private List<TicketReply> ticketReplies;
 
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
-    }
 }

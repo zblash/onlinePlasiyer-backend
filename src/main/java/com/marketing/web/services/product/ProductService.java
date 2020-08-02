@@ -1,6 +1,7 @@
 package com.marketing.web.services.product;
 
 import com.marketing.web.models.Category;
+import com.marketing.web.models.Merchant;
 import com.marketing.web.models.Product;
 import com.marketing.web.models.User;
 import org.springframework.data.domain.Page;
@@ -12,11 +13,11 @@ public interface ProductService {
 
     List<Product> simpleFilterByName(String name);
 
-    List<Product> findAllByUserWithoutPagination(User user);
+    List<Product> findAllByMerchantWithoutPagination(Merchant merchant);
 
-    List<Product> findAllByCategoryId(Long categoryId);
+    List<Product> findAllByCategoryId(String categoryId);
 
-    Page<Product> findAllByUser(User user, int pageNumber, String sortBy, String sortType);
+    Page<Product> findAllByMerchant(Merchant merchant, int pageNumber, String sortBy, String sortType);
 
     Page<Product> findAllByStatus(boolean status, int pageNumber, String sortBy, String sortType);
 
@@ -28,24 +29,22 @@ public interface ProductService {
 
     List<Product> findAllWithoutPagination(String sortBy, String sortType);
 
-    Product findById(Long id);
+    Product findById(String id);
 
     Product findByName(String name);
 
-    Product findByUUID(String uuid);
-
-    Product findByUUIDAndUser(String uuid, User user);
+    Product findByUUIDAndMerchant(String uuid, Merchant merchant);
 
     Product create(Product product);
 
     List<Product> saveAll(List<Product> products);
 
-    Product update(String uuid,Product updatedProduct);
+    Product update(String id,Product updatedProduct);
 
     void delete(Product product);
 
-    Page<Product> findAllByCategoryAndUser(Category category, User user, Integer pageNumber, String sortBy, String sortType);
+    Page<Product> findAllByCategoryAndMerchant(Category category, Merchant merchant, Integer pageNumber, String sortBy, String sortType);
 
-    Page<Product> findAllByCategoryAndUserAndStatus(Category category, User user, boolean status, Integer pageNumber, String sortBy, String sortType);
+    Page<Product> findAllByCategoryAndMerchantAndStatus(Category category, Merchant merchant, boolean status, Integer pageNumber, String sortBy, String sortType);
 
 }

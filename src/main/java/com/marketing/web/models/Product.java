@@ -17,8 +17,6 @@ import java.util.*;
 @Table(name = "products")
 public class Product extends BaseModel  {
 
-    private UUID uuid;
-
     @NotBlank
     @Column(unique = true)
     private String name;
@@ -47,7 +45,7 @@ public class Product extends BaseModel  {
     private Set<Barcode> barcodes;
 
     @ManyToMany
-    private List<User> users;
+    private List<Merchant> merchants;
 
     public void addProductSpecify(ProductSpecify productSpecify){
         if (productSpecifies == null){
@@ -75,23 +73,18 @@ public class Product extends BaseModel  {
         }
     }
 
-    public void addUser(User user){
-        if (users == null){
-            users = new ArrayList<>();
+    public void addMerchant(Merchant merchant){
+        if (merchants == null){
+            merchants = new ArrayList<>();
         }
-            if (!users.contains(user)){
-                users.add(user);
+            if (!merchants.contains(merchant)){
+                merchants.add(merchant);
             }
     }
 
-    public void removeUser(User user) {
-        if (users != null){
-            users.remove(user);
+    public void removeMerchant(Merchant merchant) {
+        if (merchants != null){
+            merchants.remove(merchant);
         }
-    }
-
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
     }
 }

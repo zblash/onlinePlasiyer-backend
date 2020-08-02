@@ -29,7 +29,7 @@ public class WebSocketJWTValidator {
         Matcher matcher = p.matcher(url);
         if (matcher.find()) {
             Claims body = (Claims) JWTGenerator.validate(matcher.group(1), ApplicationContstants.JWT_SECRET);
-            User user = userService.findById(Long.parseLong(body.get("userId").toString()));
+            User user = userService.findById((body.get("userId").toString()));
             List<GrantedAuthority> grantedAuthorities = AuthorityUtils
                     .commaSeparatedStringToAuthorityList(user.getRole().getName());
             user.setName(user.getUsername());

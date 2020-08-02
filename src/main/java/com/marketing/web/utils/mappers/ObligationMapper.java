@@ -6,8 +6,10 @@ import com.marketing.web.dtos.obligation.ReadableObligationActivity;
 import com.marketing.web.dtos.websockets.WrapperWsNotification;
 import com.marketing.web.models.Obligation;
 import com.marketing.web.models.ObligationActivity;
+import com.marketing.web.models.OrderItem;
 import org.springframework.data.domain.Page;
 
+import java.math.BigDecimal;
 import java.util.stream.Collectors;
 
 public final class ObligationMapper {
@@ -17,11 +19,11 @@ public final class ObligationMapper {
             return null;
         } else {
             ReadableObligation readableObligation = new ReadableObligation();
-            readableObligation.setId(obligation.getUuid().toString());
+            readableObligation.setId(obligation.getId().toString());
             readableObligation.setDebt(obligation.getDebt());
             readableObligation.setReceivable(obligation.getReceivable());
-            readableObligation.setUserId(obligation.getUser().getUuid().toString());
-            readableObligation.setUserName(obligation.getUser().getName());
+            readableObligation.setUserId(obligation.getMerchant().getUser().getId().toString());
+            readableObligation.setUserName(obligation.getMerchant().getUser().getName());
             return readableObligation;
         }
     }
@@ -31,14 +33,17 @@ public final class ObligationMapper {
         return null;
         } else {
             ReadableObligationActivity readableObligationActivity = new ReadableObligationActivity();
+            readableObligationActivity.setId(obligationActivity.getId().toString());
             readableObligationActivity.setObligationActivityType(obligationActivity.getCreditActivityType());
-            readableObligationActivity.setTotalDebt(obligationActivity.getObligation().getDebt());
-            readableObligationActivity.setTotalReceivable(obligationActivity.getObligation().getReceivable());
+            readableObligationActivity.setTotalDebt(obligationActivity.getTotalDebt());
+            readableObligationActivity.setTotalReceivable(obligationActivity.getTotalReceivable());
             readableObligationActivity.setDate(obligationActivity.getDate());
-            readableObligationActivity.setDocumentNo(obligationActivity.getId());
             readableObligationActivity.setPrice(obligationActivity.getPriceValue());
-            readableObligationActivity.setUserId(obligationActivity.getObligation().getUser().getUuid().toString());
-            readableObligationActivity.setUserName(obligationActivity.getObligation().getUser().getName());
+            readableObligationActivity.setUserId(obligationActivity.getMerchant().getId().toString());
+            readableObligationActivity.setUserName(obligationActivity.getMerchant().getUser().getName());
+            readableObligationActivity.setCustomerName(obligationActivity.getOrder().getCustomer().getUser().getName());
+            readableObligationActivity.setOrderTotalPrice(obligationActivity.getOrder().getOrderItems().stream().map(OrderItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add));
+            readableObligationActivity.setOrderCommissionPrice(obligationActivity.getOrder().getOrderItems().stream().mapToDouble(OrderItem::getCommission).sum());
             return readableObligationActivity;
         }
     }

@@ -17,19 +17,11 @@ import java.util.UUID;
 @Table(name = "barcodes")
 public class Barcode extends BaseModel {
 
-    private UUID uuid;
-
     @Column(unique = true)
     private String barcodeNo;
 
     @ManyToOne
     @JoinColumn(name = "product_id",referencedColumnName = "id")
     private Product product;
-
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
-    }
-
 
 }

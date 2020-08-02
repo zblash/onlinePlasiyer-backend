@@ -1,6 +1,7 @@
 package com.marketing.web.utils.mappers;
 
 import com.marketing.web.dtos.common.WrapperPagination;
+import com.marketing.web.dtos.order.OrderItemPDF;
 import com.marketing.web.dtos.order.ReadableOrder;
 import com.marketing.web.dtos.order.ReadableOrderItem;
 import com.marketing.web.models.Barcode;
@@ -9,6 +10,8 @@ import com.marketing.web.models.Order;
 import com.marketing.web.models.OrderItem;
 import org.springframework.data.domain.Page;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.stream.Collectors;
 
 public final class OrderMapper {
@@ -24,11 +27,12 @@ public final class OrderMapper {
             orderItem.setRecommendedRetailPrice(cartItem.getProduct().getRecommendedRetailPrice());
             orderItem.setProduct(cartItem.getProduct().getProduct());
             orderItem.setProductSpecify(cartItem.getProduct());
-            orderItem.setSeller(cartItem.getProduct().getUser());
+            orderItem.setMerchant(cartItem.getProduct().getMerchant());
             orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setTotalPrice(cartItem.getTotalPrice());
-            double totalPrice = cartItem.getDiscountedTotalPrice() > 0 ? cartItem.getDiscountedTotalPrice() : cartItem.getTotalPrice();
-            orderItem.setCommission(totalPrice * (cartItem.getProduct().getCommission() / 100));
+            BigDecimal totalPrice = cartItem.getDiscountedTotalPrice().compareTo(BigDecimal.ZERO) > 0 ? cartItem.getDiscountedTotalPrice() : cartItem.getTotalPrice();
+            orderItem.setDiscountedTotalPrice(totalPrice);
+            orderItem.setCommission(totalPrice.multiply(BigDecimal.valueOf(cartItem.getProduct().getCommission() / 100)).doubleValue());
             return orderItem;
         }
     }
@@ -38,19 +42,19 @@ public final class OrderMapper {
             return null;
         } else {
             ReadableOrder readableOrder = new ReadableOrder();
-            readableOrder.setCode(order.getId());
-            readableOrder.setId(order.getUuid().toString());
-            readableOrder.setBuyerName(order.getBuyer().getName());
-            readableOrder.setSellerName(order.getSeller().getName());
+            readableOrder.setId(order.getId().toString());
+            readableOrder.setBuyerName(order.getCustomer().getUser().getName());
+            readableOrder.setMerchant(UserMapper.merchantToCommonMerchant(order.getMerchant()));
             readableOrder.setOrderDate(order.getOrderDate());
             readableOrder.setWaybillDate(order.getWaybillDate());
-            readableOrder.setTotalPrice(order.getTotalPrice());
+            readableOrder.setTotalPrice(order.getOrderItems().stream().map(OrderItem::getDiscountedTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add));
             readableOrder.setStatus(order.getStatus());
             readableOrder.setPaymentType(order.getPaymentType());
-            readableOrder.setCommission(order.getCommission());
+            readableOrder.setCommentable(order.isCommentable());
+            readableOrder.setCommission(order.getOrderItems().stream().mapToDouble(OrderItem::getCommission).sum());
             readableOrder.setOrderItems(order.getOrderItems().stream()
                     .map(OrderMapper::orderItemToReadableOrderItem).collect(Collectors.toList()));
-            readableOrder.setBuyerAddress(UserMapper.addressToReadableAddress(order.getBuyer().getCity(),order.getBuyer().getState(),order.getBuyer().getAddressDetails()));
+            readableOrder.setBuyerAddress(UserMapper.addressToReadableAddress(order.getCustomer().getUser().getCity(),order.getCustomer().getUser().getState(),order.getCustomer().getUser().getAddressDetails()));
             return readableOrder;
         }
     }
@@ -60,7 +64,7 @@ public final class OrderMapper {
             return null;
         } else {
             ReadableOrderItem readableOrderItem = new ReadableOrderItem();
-            readableOrderItem.setId(orderItem.getUuid().toString());
+            readableOrderItem.setId(orderItem.getId().toString());
             readableOrderItem.setPrice(orderItem.getPrice());
             readableOrderItem.setUnitPrice(orderItem.getUnitPrice());
             readableOrderItem.setUnitType(orderItem.getUnitType());
@@ -69,9 +73,10 @@ public final class OrderMapper {
             readableOrderItem.setProductBarcodeList(orderItem.getProduct().getBarcodes().stream().map(Barcode::getBarcodeNo).collect(Collectors.toList()));
             readableOrderItem.setProductPhotoUrl(orderItem.getProduct().getPhotoUrl());
             readableOrderItem.setProductTax(orderItem.getProduct().getTax());
-            readableOrderItem.setSellerName(orderItem.getSeller().getName());
+            readableOrderItem.setMerchant(UserMapper.merchantToCommonMerchant(orderItem.getMerchant()));
             readableOrderItem.setQuantity(orderItem.getQuantity());
             readableOrderItem.setTotalPrice(orderItem.getTotalPrice());
+            readableOrderItem.setDiscountedTotalPrice(orderItem.getDiscountedTotalPrice());
             return readableOrderItem;
         }
     }
@@ -98,5 +103,24 @@ public final class OrderMapper {
                     .map(OrderMapper::orderToReadableOrder).collect(Collectors.toList()));
             return wrapperReadableOrder;
         }
+    }
+
+    public static OrderItemPDF orderItemToOrderItemPDF(OrderItem orderItem) {
+        if (orderItem == null) {
+            return null;
+        }
+        OrderItemPDF orderItemPDF = new OrderItemPDF();
+        orderItemPDF.setBarcode(orderItem.getProduct().getBarcodes().stream().findFirst().get().getBarcodeNo());
+        if (orderItem.getTotalPrice().compareTo(orderItem.getDiscountedTotalPrice()) == 0) {
+            orderItemPDF.setDiscountPrice(BigDecimal.ZERO);
+        } else {
+            orderItemPDF.setDiscountPrice(orderItem.getTotalPrice().subtract(orderItem.getDiscountedTotalPrice()));
+        }
+        orderItemPDF.setProductName(orderItem.getProduct().getName());
+        orderItemPDF.setQuantity(orderItem.getQuantity());
+        orderItemPDF.setUnitPrice(orderItem.getUnitPrice());
+        orderItemPDF.setUnitType(orderItem.getUnitType().toString());
+        orderItemPDF.setTotalPrice(orderItem.getTotalPrice());
+        return orderItemPDF;
     }
 }

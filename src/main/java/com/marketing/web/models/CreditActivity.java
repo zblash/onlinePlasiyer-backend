@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.UUID;
@@ -18,13 +19,11 @@ import java.util.UUID;
 @Table(name = "creditactivities")
 public class CreditActivity extends BaseModel {
 
-    private UUID uuid;
+    private BigDecimal priceValue;
 
-    private double priceValue;
+    private BigDecimal currentDebt;
 
-    private double currentDebt;
-
-    private double creditLimit;
+    private BigDecimal creditLimit;
 
     @Enumerated(EnumType.STRING)
     private CreditActivityType creditActivityType;
@@ -39,16 +38,11 @@ public class CreditActivity extends BaseModel {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "merchant_id",referencedColumnName = "id")
-    private User merchant;
+    private Merchant merchant;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id",referencedColumnName = "id")
-    private User customer;
+    private Customer customer;
 
     private LocalDate date;
-
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
-    }
 }

@@ -2,7 +2,9 @@ package com.marketing.web.services.cart;
 
 import com.marketing.web.models.Cart;
 import com.marketing.web.models.CartItemHolder;
+import com.marketing.web.models.Merchant;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -11,19 +13,17 @@ public interface CartItemHolderService {
 
     List<CartItemHolder> findAll();
 
-    CartItemHolder findById(Long id);
-
-    CartItemHolder findByUUID(String uuid);
+    CartItemHolder findById(String id);
 
     CartItemHolder findByCartAndUuid(Cart cart, String holderId);
 
-    Optional<CartItemHolder> findByCartAndSeller(Cart cart, String userId);
+    Optional<CartItemHolder> findByCartAndMerchant(Cart cart, String merchantId);
 
     CartItemHolder create(CartItemHolder cartItemHolder);
 
-    CartItemHolder update(Long id, CartItemHolder updatedCartItemHolder);
+    CartItemHolder update(String id, CartItemHolder updatedCartItemHolder);
 
     void delete(Cart cart, CartItemHolder cartItemHolder);
 
-    void deleteAll(Set<CartItemHolder> cartItemHolders);
+    void deleteAll(Collection<CartItemHolder> cartItemHolders);
 }

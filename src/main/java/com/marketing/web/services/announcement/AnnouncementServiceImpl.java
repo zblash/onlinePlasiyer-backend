@@ -17,8 +17,11 @@ import java.util.UUID;
 @Service
 public class AnnouncementServiceImpl implements AnnouncementService {
 
-    @Autowired
-    private AnnouncementRepository announcementRepository;
+    private final AnnouncementRepository announcementRepository;
+
+    public AnnouncementServiceImpl(AnnouncementRepository announcementRepository) {
+        this.announcementRepository = announcementRepository;
+    }
 
     @Override
     public List<Announcement> findAllActives(Date date) {
@@ -56,13 +59,8 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     }
 
     @Override
-    public Announcement findById(Long id) {
-        return announcementRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"announcement",id.toString()));
-    }
-
-    @Override
-    public Announcement findByUUID(String uuid) {
-        return announcementRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"announcement",uuid));
+    public Announcement findById(String id) {
+        return announcementRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"announcement",id.toString()));
     }
 
     @Override
@@ -72,7 +70,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     @Override
     public Announcement update(String uuid, Announcement updatedAnnouncement) {
-        Announcement announcement = findByUUID(uuid);
+        Announcement announcement = findById(uuid);
         announcement.setLastDate(updatedAnnouncement.getLastDate());
         announcement.setFileUrl(updatedAnnouncement.getFileUrl());
         announcement.setMessage(updatedAnnouncement.getMessage());

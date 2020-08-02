@@ -8,16 +8,16 @@ import com.marketing.web.repositories.CartItemHolderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class CartItemHolderServiceImpl implements CartItemHolderService {
 
-    @Autowired
-    private CartItemHolderRepository cartItemHolderRepository;
+    private final CartItemHolderRepository cartItemHolderRepository;
+
+    public CartItemHolderServiceImpl(CartItemHolderRepository cartItemHolderRepository) {
+        this.cartItemHolderRepository = cartItemHolderRepository;
+    }
 
     @Override
     public List<CartItemHolder> findAll() {
@@ -25,23 +25,18 @@ public class CartItemHolderServiceImpl implements CartItemHolderService {
     }
 
     @Override
-    public CartItemHolder findById(Long id) {
-        return cartItemHolderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart.item.holder", id.toString()));
-    }
-
-    @Override
-    public CartItemHolder findByUUID(String uuid) {
-        return cartItemHolderRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart.item.holder", uuid));
+    public CartItemHolder findById(String id) {
+        return cartItemHolderRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart.item.holder", id.toString()));
     }
 
     @Override
     public CartItemHolder findByCartAndUuid(Cart cart, String holderId) {
-        return cartItemHolderRepository.findByCartAndUuid(cart, UUID.fromString(holderId)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart.item.holder", holderId));
+        return cartItemHolderRepository.findByCartAndId(cart, UUID.fromString(holderId)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart.item.holder", holderId));
     }
 
     @Override
-    public Optional<CartItemHolder> findByCartAndSeller(Cart cart, String userId) {
-       return cartItemHolderRepository.findByCartAndSellerId(cart, userId);
+    public Optional<CartItemHolder> findByCartAndMerchant(Cart cart, String merchantId) {
+       return cartItemHolderRepository.findByCartAndMerchantId(cart, merchantId);
     }
 
     @Override
@@ -50,19 +45,19 @@ public class CartItemHolderServiceImpl implements CartItemHolderService {
     }
 
     @Override
-    public CartItemHolder update(Long id, CartItemHolder updatedCartItemHolder) {
+    public CartItemHolder update(String id, CartItemHolder updatedCartItemHolder) {
         CartItemHolder cartItemHolder = findById(id);
         cartItemHolder.setCart(updatedCartItemHolder.getCart());
         cartItemHolder.setCartItems(updatedCartItemHolder.getCartItems());
         cartItemHolder.setPaymentOption(updatedCartItemHolder.getPaymentOption());
-        cartItemHolder.setSellerId(updatedCartItemHolder.getSellerId());
-        cartItemHolder.setSellerName(updatedCartItemHolder.getSellerName());
+        cartItemHolder.setMerchantId(updatedCartItemHolder.getMerchantId());
+        cartItemHolder.setMerchantName(updatedCartItemHolder.getMerchantName());
         return cartItemHolderRepository.save(cartItemHolder);
     }
 
     @Override
     public void delete(Cart cart, CartItemHolder cartItemHolder) {
-        Optional<CartItemHolder> optionalCartItemHolder = cartItemHolderRepository.findByCartAndSellerId(cart,cartItemHolder.getSellerId());
+        Optional<CartItemHolder> optionalCartItemHolder = findByCartAndMerchant(cart,cartItemHolder.getMerchantId());
         if (optionalCartItemHolder.isPresent()) {
             cartItemHolderRepository.delete(optionalCartItemHolder.get());
         } else {
@@ -71,7 +66,7 @@ public class CartItemHolderServiceImpl implements CartItemHolderService {
     }
 
     @Override
-    public void deleteAll(Set<CartItemHolder> cartItemHolders) {
+    public void deleteAll(Collection<CartItemHolder> cartItemHolders) {
         cartItemHolderRepository.deleteAll(cartItemHolders);
     }
 }

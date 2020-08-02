@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,33 +21,22 @@ import java.util.UUID;
 @Builder
 public class Credit extends BaseModel {
 
-    private UUID uuid;
-
     @ManyToOne
     @JoinColumn(name = "merchant_id",referencedColumnName = "id")
-    private User merchant;
+    private Merchant merchant;
 
     @ManyToOne
     @JoinColumn(name = "customer_id",referencedColumnName = "id")
-    private User customer;
+    private Customer customer;
 
     @NotNull
-    private double totalDebt;
+    private BigDecimal totalDebt;
 
     @NotNull
-    private double creditLimit;
+    private BigDecimal creditLimit;
 
     @NotNull
     @Enumerated(EnumType.STRING)
     private CreditType creditType;
-
-    @OneToMany(mappedBy = "credit",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
-    @OrderBy("id desc")
-    private List<CreditActivity> creditActivities;
-
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
-    }
 
 }

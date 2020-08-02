@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -18,18 +19,16 @@ import java.util.UUID;
 @Table(name = "orderitems")
 public class OrderItem extends BaseModel {
 
-    private UUID uuid;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     @JsonIgnore
     private Order order;
 
     @NotNull
-    private double price;
+    private BigDecimal price;
 
     @NotNull
-    private double unitPrice;
+    private BigDecimal unitPrice;
 
     @Enumerated(EnumType.STRING)
     private UnitType unitType;
@@ -37,11 +36,11 @@ public class OrderItem extends BaseModel {
     private double commission;
 
     @NotNull
-    private double recommendedRetailPrice;
+    private BigDecimal recommendedRetailPrice;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id",referencedColumnName = "id")
-    private User seller;
+    @JoinColumn(name = "merchant_id",referencedColumnName = "id")
+    private Merchant merchant;
 
     @ManyToOne
     @JoinColumn(name = "product_id",referencedColumnName = "id")
@@ -55,10 +54,8 @@ public class OrderItem extends BaseModel {
     private int quantity;
 
     @NotNull
-    private double totalPrice;
+    private BigDecimal totalPrice;
 
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
-    }
+    @NotNull
+    private BigDecimal discountedTotalPrice;
 }

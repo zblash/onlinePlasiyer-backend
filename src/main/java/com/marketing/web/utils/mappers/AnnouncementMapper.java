@@ -14,7 +14,7 @@ public final class AnnouncementMapper {
             return null;
         } else {
             ReadableAnnouncement readableAnnouncement = new ReadableAnnouncement();
-            readableAnnouncement.setId(announcement.getUuid().toString());
+            readableAnnouncement.setId(announcement.getId().toString());
             readableAnnouncement.setFileUrl(announcement.getFileUrl());
             readableAnnouncement.setMessage(announcement.getMessage());
             readableAnnouncement.setTitle(announcement.getTitle());

@@ -14,8 +14,11 @@ import java.util.UUID;
 @Service
 public class TicketReplyServiceImpl implements TicketReplyService {
 
-    @Autowired
-    private TicketReplyRepository ticketReplyRepository;
+    private final TicketReplyRepository ticketReplyRepository;
+
+    public TicketReplyServiceImpl(TicketReplyRepository ticketReplyRepository) {
+        this.ticketReplyRepository = ticketReplyRepository;
+    }
 
     @Override
     public List<TicketReply> findAll() {
@@ -23,13 +26,8 @@ public class TicketReplyServiceImpl implements TicketReplyService {
     }
 
     @Override
-    public TicketReply findById(Long id) {
-        return ticketReplyRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"ticket.reply",id.toString()));
-    }
-
-    @Override
-    public TicketReply findByUUID(String uuid) {
-        return ticketReplyRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"ticket.reply",uuid));
+    public TicketReply findById(String id) {
+        return ticketReplyRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"ticket.reply",id));
     }
 
     @Override
@@ -43,7 +41,7 @@ public class TicketReplyServiceImpl implements TicketReplyService {
     }
 
     @Override
-    public TicketReply update(Long id, TicketReply updatedTicketReply) {
+    public TicketReply update(String id, TicketReply updatedTicketReply) {
         TicketReply ticketReply = findById(id);
         ticketReply.setMessage(updatedTicketReply.getMessage());
         ticketReply.setTicket(updatedTicketReply.getTicket());

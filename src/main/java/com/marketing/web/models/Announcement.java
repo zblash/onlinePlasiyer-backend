@@ -17,8 +17,6 @@ import java.util.UUID;
 @Table(name = "announcements")
 public class Announcement extends BaseModel {
 
-    private UUID uuid;
-
     @NotBlank
     private String title;
 
@@ -31,8 +29,4 @@ public class Announcement extends BaseModel {
     @Temporal(TemporalType.DATE)
     private Date lastDate;
 
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
-    }
 }

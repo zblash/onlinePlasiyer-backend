@@ -7,6 +7,6 @@ spring:
     type: redis
 amazonProperties:
   endpointUrl: https://s3.eu-central-1.amazonaws.com
-  accessKey: xxxxxxxxxxxxx
-  secretKey: xxxxxxxxxxxxx
-  bucketName: xxxxxxxxxxxx
+  accessKey: AKIA4VPKRZHYKEPPQWU3
+  secretKey: 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
+  bucketName: onlineplasiyer

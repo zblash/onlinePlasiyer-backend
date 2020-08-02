@@ -3,10 +3,7 @@ package com.marketing.web.services.product;
 import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.errors.BadRequestException;
 import com.marketing.web.errors.ResourceNotFoundException;
-import com.marketing.web.models.Product;
-import com.marketing.web.models.ProductSpecify;
-import com.marketing.web.models.State;
-import com.marketing.web.models.User;
+import com.marketing.web.models.*;
 import com.marketing.web.repositories.ProductSpecifyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +23,11 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
 
     private Logger logger = LoggerFactory.getLogger(ProductSpecifyServiceImpl.class);
 
-    @Autowired
-    private ProductSpecifyRepository productSpecifyRepository;
+    private final ProductSpecifyRepository productSpecifyRepository;
+
+    public ProductSpecifyServiceImpl(ProductSpecifyRepository productSpecifyRepository) {
+        this.productSpecifyRepository = productSpecifyRepository;
+    }
 
     @Override
     public Page<ProductSpecify> findAll(int pageNumber, String sortBy, String sortType) {
@@ -37,26 +37,6 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
             throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", String.valueOf(pageNumber));
         }
         return resultPage;
-    }
-
-    @Override
-    public List<ProductSpecify> findAllWithoutPagination() {
-       return productSpecifyRepository.findAll();
-    }
-
-    @Override
-    public Page<ProductSpecify> findAllByUser(User user, int pageNumber, String sortBy, String sortType) {
-        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
-        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByUser(user, pageRequest);
-        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", String.valueOf(pageNumber));
-        }
-        return resultPage;
-    }
-
-    @Override
-    public List<ProductSpecify> findAllByUserWithoutPagination(User user) {
-       return productSpecifyRepository.findAllByUser(user);
     }
 
     @Override
@@ -70,8 +50,28 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     }
 
     @Override
-    public List<ProductSpecify> findAllByProductWithoutPagination(Product product){
-        return productSpecifyRepository.findAllByProduct(product);
+    public Page<ProductSpecify> findAllByProductAndMerchant(Product product, Merchant merchant, int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
+        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByProductAndMerchant(product, merchant, pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", String.valueOf(pageNumber));
+        }
+        return resultPage;
+    }
+
+    @Override
+    public Page<ProductSpecify> findAllByMerchant(Merchant merchant, int pageNumber, String sortBy, String sortType) {
+        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
+        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByMerchant(merchant, pageRequest);
+        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", String.valueOf(pageNumber));
+        }
+        return resultPage;
+    }
+
+    @Override
+    public List<ProductSpecify> findAllByMerchant(Merchant merchant) {
+        return productSpecifyRepository.findAllByMerchant(merchant);
     }
 
     @Override
@@ -84,36 +84,15 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
         return resultPage;
     }
 
+
     @Override
-    public List<ProductSpecify> findAllByProductAndStatesLimit(Product product, List<State> states, int limit) {
-        PageRequest pageRequest = PageRequest.of(0,2, Sort.by(Sort.Direction.ASC,"totalPrice"));
-        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByProductAndStatesIn(product,states, pageRequest);
-        return resultPage.getContent();
+    public ProductSpecify findById(String id) {
+        return productSpecifyRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"product.specify",id));
     }
 
     @Override
-    public Page<ProductSpecify> findAllByProductAndUser(Product product, User user, int pageNumber, String sortBy, String sortType){
-        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
-        Page<ProductSpecify> resultPage = productSpecifyRepository.findAllByProductAndUser(product, user, pageRequest);
-        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", String.valueOf(pageNumber));
-        }
-        return resultPage;
-    }
-
-    @Override
-    public ProductSpecify findById(Long id) {
-        return productSpecifyRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"product.specify",id.toString()));
-    }
-
-    @Override
-    public ProductSpecify findByUUID(String uuid) {
-        return productSpecifyRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"product.specify", uuid));
-    }
-
-    @Override
-    public ProductSpecify findByUUIDAndUser(String uuid,User user) {
-        return productSpecifyRepository.findByUuidAndUser_Id(UUID.fromString(uuid),user.getId()).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"product.specify", uuid));
+    public ProductSpecify findByIdAndMerchant(String id, Merchant merchant) {
+        return productSpecifyRepository.findByIdAndMerchant(UUID.fromString(id), merchant).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"product.specify", id));
     }
 
     @Override
@@ -122,8 +101,8 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     }
 
     @Override
-    public ProductSpecify update(String uuid,ProductSpecify updatedProductSpecify) {
-        ProductSpecify productSpecify = findByUUID(uuid);
+    public ProductSpecify update(String id,ProductSpecify updatedProductSpecify) {
+        ProductSpecify productSpecify = findById(id);
         productSpecify.setUnitType(updatedProductSpecify.getUnitType());
         productSpecify.setContents(updatedProductSpecify.getContents());
         productSpecify.setQuantity(updatedProductSpecify.getQuantity());
@@ -147,8 +126,8 @@ public class ProductSpecifyServiceImpl implements ProductSpecifyService {
     }
 
     @Override
-    public List<State> allowedStates(User user, List<State> states){
-        boolean isAllowed = user.getActiveStates().containsAll(states);
+    public List<State> allowedStates(Merchant merchant, List<State> states){
+        boolean isAllowed = merchant.getActiveStates().containsAll(states);
         if (isAllowed){
             return states;
         }

@@ -1,6 +1,7 @@
 package com.marketing.web.services.user;
 
 
+import com.marketing.web.enums.RoleType;
 import com.marketing.web.models.Role;
 
 import java.util.List;
@@ -18,4 +19,6 @@ public interface RoleService {
     void delete(Role role);
 
     Role createOrFind(String roleName);
+
+    RoleType getLoggedInUserRole();
 }

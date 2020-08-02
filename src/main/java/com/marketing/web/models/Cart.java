@@ -2,10 +2,7 @@ package com.marketing.web.models;
 
 import com.marketing.web.enums.CartStatus;
 import com.marketing.web.enums.PaymentOption;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -20,25 +17,17 @@ import java.util.*;
 @Table(name = "carts")
 public class Cart extends BaseModel {
 
-    private UUID uuid;
-
     @OneToOne
-    @JoinColumn(name = "user_id",referencedColumnName = "id")
-    private User user;
+    @JoinColumn(name = "customer_id",referencedColumnName = "id")
+    private Customer customer;
 
-    @OneToMany(mappedBy = "cart",cascade = CascadeType.REMOVE,orphanRemoval = true,fetch = FetchType.EAGER)
-    @OrderBy("id desc")
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.REMOVE,orphanRemoval = true)
     @Fetch(value = FetchMode.SUBSELECT)
     @EqualsAndHashCode.Exclude
     private Set<CartItemHolder> items;
 
     @Enumerated(EnumType.STRING)
     private CartStatus cartStatus;
-
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
-    }
 
     public void addItem(CartItemHolder cartItemHolder){
         if (items == null){

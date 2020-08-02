@@ -1,9 +1,7 @@
 package com.marketing.web.services.invoice;
 
-import com.marketing.web.dtos.obligation.ReadableTotalObligation;
+import com.marketing.web.models.Merchant;
 import com.marketing.web.models.Obligation;
-import com.marketing.web.models.Order;
-import com.marketing.web.models.User;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -13,17 +11,15 @@ public interface ObligationService {
 
     Page<Obligation> findAll(int pageNumber, String sortBy, String sortType);
 
-    Obligation findById(Long id);
+    Obligation findById(String id);
 
-    Obligation findByUuid(String uuid);
-
-    Obligation findByUser(User user);
+    Obligation findByMerchant(Merchant merchant);
 
     Obligation create(Obligation obligation);
 
     List<Obligation> createAll(List<Obligation> obligations);
 
-    Obligation update(String uuid, Obligation updatedObligation);
+    Obligation update(String id, Obligation updatedObligation);
 
     void delete(Obligation obligation);
 }

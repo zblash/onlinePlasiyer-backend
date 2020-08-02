@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,24 +18,14 @@ import java.util.UUID;
 @Table(name = "obligations")
 public class Obligation extends BaseModel {
 
-    private UUID uuid;
-
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id",referencedColumnName = "id")
-    private User user;
-
-    @OneToMany(mappedBy = "obligation",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.EAGER)
-    @OrderBy("id desc")
-    private List<ObligationActivity> obligationActivities;
+    @JoinColumn(name = "merchant_id",referencedColumnName = "id")
+    private Merchant merchant;
 
     @NotNull
-    private double debt;
+    private BigDecimal debt;
 
     @NotNull
-    private double receivable;
+    private BigDecimal receivable;
 
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
-    }
 }

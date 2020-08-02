@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -13,8 +14,8 @@ public class ReadableTotalObligation implements Serializable {
 
     private String id;
 
-    private double totalDebts;
+    private BigDecimal totalDebts;
 
-    private double totalReceivables;
+    private BigDecimal totalReceivables;
 
 }

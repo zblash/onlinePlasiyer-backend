@@ -1,33 +1,41 @@
 package com.marketing.web.services.order;
 
 import com.marketing.web.configs.constants.MessagesConstants;
+import com.marketing.web.dtos.order.OrderItemPDF;
 import com.marketing.web.dtos.order.OrderSummary;
-import com.marketing.web.dtos.order.SearchOrder;
 import com.marketing.web.enums.OrderStatus;
-import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.ResourceNotFoundException;
-import com.marketing.web.models.Order;
+import com.marketing.web.models.*;
 import com.marketing.web.repositories.OrderGroup;
-import com.marketing.web.models.User;
 import com.marketing.web.repositories.OrderRepository;
-import com.marketing.web.utils.mappers.UserMapper;
+import com.marketing.web.utils.PdfGenerator;
+import com.marketing.web.utils.mappers.OrderMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
 
-    @Autowired
-    private OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
+
+    private final PdfGenerator pdfGenerator;
 
     private Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
+
+    public OrderServiceImpl(OrderRepository orderRepository, PdfGenerator pdfGenerator) {
+        this.orderRepository = orderRepository;
+        this.pdfGenerator = pdfGenerator;
+    }
 
     @Override
     public Page<Order> findAll(int pageNumber, String sortBy, String sortType){
@@ -40,8 +48,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderSummary groupBy(User user) {
-        List<OrderGroup> orderGroups = orderRepository.groupBy(user);
+    public List<Order> findAll() {
+       return orderRepository.findAll();
+    }
+
+    @Override
+    public OrderSummary groupBy(Merchant merchant) {
+        List<OrderGroup> orderGroups = orderRepository.groupBy(merchant);
         OrderSummary orderSummary = new OrderSummary();
         for (OrderGroup orderGroup : orderGroups) {
                 switch (Objects.requireNonNull(OrderStatus.fromValue(orderGroup.getStatus()))) {
@@ -61,53 +74,28 @@ public class OrderServiceImpl implements OrderService {
                         orderSummary.setSubmittedCount(orderGroup.getCnt().intValue());
                 }
         }
-        orderSummary.setId(user.getId() + "ordersummary".hashCode() + user.getUuid().toString());
+        orderSummary.setId("ordersummary".hashCode() + merchant.getId().toString());
         return orderSummary;
     }
 
     @Override
-    public Page<Order> findAllByFilter(Date startDate, Date endDate, Integer pageNumber, String sortBy, String sortType) {
+    public Page<Order> findAllBySpecification(Specification<Order> specification, Integer pageNumber, String sortBy, String sortType) {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
-        Page<Order> resultPage = orderRepository.findAllByOrOrderDateBetween(startDate, endDate, pageRequest);
+        Page<Order> resultPage = orderRepository.findAll(specification, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
+            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
         }
         return resultPage;
     }
 
     @Override
-    public Page<Order> findAllByFilterAndUser(Date startDate, Date endDate, User user, Integer pageNumber, String sortBy, String sortType) {
-        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
-        Page<Order> resultPage = orderRepository.findAllByOrderDateBetweenAndBuyerOrSeller(startDate,endDate, user, user, pageRequest);
-        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
-        }
-        return resultPage;
+    public List<Order> findAllBySpecification(Specification<Order> specification) {
+        return orderRepository.findAll(specification);
     }
 
     @Override
-    public Page<Order> findAllByUser(User user, int pageNumber, String sortBy, String sortType){
-        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
-        Page<Order> resultPage = orderRepository.findAllBySellerOrBuyer(user,user,pageRequest);
-        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
-        }
-        return resultPage;
-    }
-
-    @Override
-    public List<Order> findAllByUserWithoutPagination(User user) {
-        return orderRepository.findAllBySellerOrBuyerOrderByIdDesc(user,user);
-    }
-
-    @Override
-    public Order findById(Long id) {
-        return orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"order", id.toString()));
-    }
-
-    @Override
-    public Order findByUUID(String uuid) {
-        return orderRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"order", uuid));
+    public Order findById(String id) {
+        return orderRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"order", id.toString()));
     }
 
     @Override
@@ -115,44 +103,44 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.saveAll(orders);
     }
 
+    @Override
+    public Order findByIdAndMerchant(String id, Merchant merchant) {
+        return orderRepository.findByMerchantAndId(merchant, UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"order",id));
+    }
 
     @Override
-    public Order findByUuidAndUser(String uuid,User user, RoleType roleType) {
-        if (roleType.equals(RoleType.MERCHANT)){
-            return orderRepository.findBySellerAndUuid(user, UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"order",uuid));
-        }
-        return orderRepository.findByBuyerAndUuid(user, UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"order", uuid));
-}
+    public Order findByIdAndCustomer(String id, Customer customer) {
+        return orderRepository.findByCustomerAndId(customer, UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"order", id));
+    }
 
     @Override
-    public Order update(String uuid, Order updatedOrder) {
-        Order order = findByUUID(uuid);
+    public Order update(String id, Order updatedOrder) {
+        Order order = findById(id);
         order.setWaybillDate(updatedOrder.getWaybillDate());
         order.setStatus(updatedOrder.getStatus());
-        order.setTotalPrice(updatedOrder.getTotalPrice());
+        order.setCommentable(updatedOrder.isCommentable());
         return orderRepository.save(order);
     }
 
     @Override
-    public Page<Order> findAllByUsers(User user1, User user2, Integer pageNumber, String sortBy, String sortType) {
-        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
-        RoleType roleType = UserMapper.roleToRoleType(user1.getRole());
-        Page<Order> resultPage = orderRepository.findAllBySellerAndBuyer(RoleType.MERCHANT.equals(roleType) ? user1 : user2, RoleType.MERCHANT.equals(roleType) ? user2 : user1, pageRequest);
-        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
-        }
-        return resultPage;
+    public byte[] orderToPDF(Order order) {
+        List<OrderItemPDF> orderItemPDFList = order.getOrderItems().stream().map(OrderMapper::orderItemToOrderItemPDF).collect(Collectors.toList());
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("invoiceId",order.getId().toString());
+        parameters.put("totalOrderPrice", order.getOrderItems().stream().map(OrderItem::getDiscountedTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add));
+        parameters.put("merchantName", order.getMerchant().getUser().getName());
+        parameters.put("customerName", order.getCustomer().getUser().getName());
+        parameters.put("customerPhone", order.getCustomer().getUser().getPhoneNumber());
+        parameters.put("customerAddress", order.getCustomer().getUser().getAddressDetails());
+        parameters.put("customerState", order.getCustomer().getUser().getState().getTitle());
+        parameters.put("customerCity", order.getCustomer().getUser().getCity().getTitle());
+        parameters.put("orderDate", Date.from(order.getOrderDate().atStartOfDay(ZoneId.of("Europe/Istanbul")).toInstant()));
+        return pdfGenerator.generateJasperPDF("order-report.jrxml", orderItemPDFList, parameters);
     }
 
     @Override
-    public Page<Order> findAllByFilterAndUsers(Date startDate, Date endDate, User user1, User user2,Integer pageNumber, String sortBy, String sortType) {
-        PageRequest pageRequest = getPageRequest(pageNumber, "id", "desc");
-        RoleType roleType = UserMapper.roleToRoleType(user1.getRole());
-        Page<Order> resultPage = orderRepository.findAllByOrderDateBetweenAndSellerAndBuyer(startDate,endDate, RoleType.MERCHANT.equals(roleType) ? user1 : user2, RoleType.MERCHANT.equals(roleType) ? user2 : user1, pageRequest);
-        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page",String.valueOf(pageNumber));
-        }
-        return resultPage;
+    public byte[] orderToExcel(Order order) {
+        return new byte[0];
     }
 
     private PageRequest getPageRequest(int pageNumber, String sortBy, String sortType){

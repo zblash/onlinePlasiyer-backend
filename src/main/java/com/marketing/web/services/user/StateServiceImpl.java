@@ -15,8 +15,11 @@ import java.util.stream.Collectors;
 @Service
 public class StateServiceImpl implements StateService {
 
-    @Autowired
-    private StateRepository stateRepository;
+    private final StateRepository stateRepository;
+
+    public StateServiceImpl(StateRepository stateRepository) {
+        this.stateRepository = stateRepository;
+    }
 
     @Override
     public List<State> findAll() {
@@ -24,8 +27,8 @@ public class StateServiceImpl implements StateService {
     }
 
     @Override
-    public List<State> findAllByUuids(List<String> uuids) {
-        return stateRepository.findAllByUuidIn(uuids.stream().map(UUID::fromString).collect(Collectors.toList()));
+    public List<State> findAllByIds(List<String> ids) {
+        return stateRepository.findAllByIdIn(ids.stream().map(UUID::fromString).collect(Collectors.toList()));
     }
 
     @Override
@@ -34,18 +37,13 @@ public class StateServiceImpl implements StateService {
     }
 
     @Override
-    public State findById(Long id) {
-        return stateRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"state",id.toString()));
+    public State findById(String id) {
+        return stateRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"state",id));
     }
 
     @Override
-    public State findByUuid(String uuid) {
-        return stateRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"state",uuid));
-    }
-
-    @Override
-    public State findByUuidAndCity(String uuid, City city) {
-        return stateRepository.findByUuidAndCity(UUID.fromString(uuid), city).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"state",uuid));
+    public State findByUuidAndCity(String id, City city) {
+        return stateRepository.findByIdAndCity(UUID.fromString(id), city).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"state",id));
     }
 
     @Override
@@ -55,7 +53,7 @@ public class StateServiceImpl implements StateService {
 
     @Override
     public State update(String uuid, State updatedState) {
-        State state = findByUuid(uuid);
+        State state = findById(uuid);
         state.setCity(updatedState.getCity());
         state.setCode(updatedState.getCode());
         state.setTitle(updatedState.getTitle());

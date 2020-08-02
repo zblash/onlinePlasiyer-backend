@@ -18,17 +18,10 @@ import java.util.UUID;
 @Table(name = "cities")
 public class City extends BaseModel {
 
-    private UUID uuid;
-
     @NotBlank
     private String title;
 
     @NotNull
     private int code;
-
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
-    }
 
 }

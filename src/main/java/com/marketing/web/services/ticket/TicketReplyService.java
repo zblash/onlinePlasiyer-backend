@@ -9,15 +9,13 @@ public interface TicketReplyService {
 
     List<TicketReply> findAll();
 
-    TicketReply findById(Long id);
-
-    TicketReply findByUUID(String uuid);
+    TicketReply findById(String id);
 
     List<TicketReply> findAllByTicket(Ticket ticket);
 
     TicketReply create(TicketReply ticketReply);
 
-    TicketReply update(Long id, TicketReply updatedTicketReply);
+    TicketReply update(String id, TicketReply updatedTicketReply);
 
     void delete(TicketReply ticketReply);
 }

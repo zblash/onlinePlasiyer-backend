@@ -5,6 +5,7 @@ import com.marketing.web.dtos.order.ReadableOrder;
 import com.marketing.web.dtos.order.WritableConfirmOrder;
 import com.marketing.web.dtos.order.WritableOrder;
 import com.marketing.web.models.CartItemHolder;
+import com.marketing.web.models.Customer;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 
@@ -17,6 +18,6 @@ public interface OrderFacade {
 
     ReadableOrder confirmOrder(WritableConfirmOrder writableConfirmOrder, Order order);
 
-    List<ReadableOrder> checkoutCart(User user, Set<CartItemHolder> cartItemHolderList, WritableCheckout writableCheckout);
+    List<ReadableOrder> checkoutCart(Customer customer, Set<CartItemHolder> cartItemHolderList, WritableCheckout writableCheckout);
 
 }

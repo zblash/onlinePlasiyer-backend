@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum PaymentOption {
     SYSTEM_CREDIT("SYSTEM_CREDIT"),
     MERCHANT_CREDIT("MERCHANT_CREDIT"),
+    CCOD("CCOD"),
     COD("COD");
 
     private String value;

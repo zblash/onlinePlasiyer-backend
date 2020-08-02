@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface UserRepository extends JpaRepository<User,Long> {
+public interface UserRepository extends JpaRepository<User, UUID> {
 
     List<User> findAllByOrderByIdDesc();
 
@@ -22,10 +22,6 @@ public interface UserRepository extends JpaRepository<User,Long> {
     List<User> findAllByRoleOrderByIdDesc(Role role);
 
     List<User> findAllByRoleAndStatusOrderByIdDesc(Role role,boolean status);
-
-    List<User> findAllByRoleAndActiveStatesContainsAndStatusOrderByIdDesc(Role role, State state, boolean status);
-
-    Optional<User> findByUuid(UUID uuid);
 
     Optional<User> findByUsernameOrEmailOrName(String username, String email, String name);
 

@@ -8,15 +8,13 @@ public interface CityService {
 
     List<City> findAll();
 
-    City findById(Long id);
-
-    City findByUuid(String uuid);
+    City findById(String id);
 
     City findByTitle(String title);
 
     City create(City city);
 
-    City update(String uuid, City updatedCity);
+    City update(String id, City updatedCity);
 
     void delete(City city);
 }

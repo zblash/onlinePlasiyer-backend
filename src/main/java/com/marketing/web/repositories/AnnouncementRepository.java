@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface AnnouncementRepository extends JpaRepository<Announcement,Long> {
+public interface AnnouncementRepository extends JpaRepository<Announcement, UUID> {
 
     List<Announcement> findAllByLastDateAfterOrderByIdDesc(Date date);
 
@@ -20,5 +20,4 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Long>
 
     Page<Announcement> findAllByOrderByIdDesc(Pageable pageable);
 
-    Optional<Announcement> findByUuid(UUID uuid);
 }

@@ -15,17 +15,13 @@ public interface CreditActivityService {
 
     Page<CreditActivity> findAll(int pageNumber, String sortBy, String sortType);
 
-    Page<CreditActivity> findAllByUser(User user, int pageNumber, String sortBy, String sortType);
-
-    CreditActivity findById(Long id);
-
-    CreditActivity findByUUID(String uuid);
+    CreditActivity findById(String id);
 
     List<CreditActivity> findAllByOrder(Order order);
 
     CreditActivity create(CreditActivity creditActivity);
 
-    CreditActivity update(String uuid, CreditActivity updatedCreditActivity);
+    CreditActivity update(String id, CreditActivity updatedCreditActivity);
 
     void delete(CreditActivity creditActivity);
 

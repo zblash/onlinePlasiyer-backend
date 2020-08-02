@@ -2,10 +2,7 @@ package com.marketing.web.services.product;
 
 import com.marketing.web.configs.constants.MessagesConstants;
 import com.marketing.web.errors.ResourceNotFoundException;
-import com.marketing.web.models.Category;
-import com.marketing.web.models.Product;
-import com.marketing.web.models.ProductSpecify;
-import com.marketing.web.models.User;
+import com.marketing.web.models.*;
 import com.marketing.web.repositories.ProductRepository;
 import com.marketing.web.services.category.CategoryServiceImpl;
 import org.slf4j.Logger;
@@ -21,10 +18,13 @@ import java.util.*;
 @Service
 public class ProductServiceImpl implements ProductService {
 
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     private Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
+
+    public ProductServiceImpl(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
 
     @Override
     public List<Product> simpleFilterByName(String name) {
@@ -32,19 +32,19 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> findAllByUserWithoutPagination(User user) {
-        return productRepository.findAllByUsers_Id(user.getId());
+    public List<Product> findAllByMerchantWithoutPagination(Merchant merchant) {
+        return productRepository.findAllByMerchants_Id(merchant.getId());
     }
 
     @Override
-    public List<Product> findAllByCategoryId(Long categoryId) {
-       return productRepository.findAllByCategoryId(categoryId);
+    public List<Product> findAllByCategoryId(String categoryId) {
+       return productRepository.findAllByCategoryId(UUID.fromString(categoryId));
     }
 
     @Override
-    public Page<Product> findAllByUser(User user, int pageNumber, String sortBy, String sortType) {
+    public Page<Product> findAllByMerchant(Merchant merchant, int pageNumber, String sortBy, String sortType) {
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
-        Page<Product> resultPage = productRepository.findAllByUsers_Id(user.getId(), pageRequest);
+        Page<Product> resultPage = productRepository.findAllByMerchants_Id(merchant.getId(), pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
         }
@@ -101,8 +101,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product findById(Long id) {
-        return productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"product",id.toString()));
+    public Product findById(String id) {
+        return productRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"product",id.toString()));
     }
 
     @Override
@@ -111,13 +111,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product findByUUID(String uuid) {
-        return productRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"product",uuid));
-    }
-
-    @Override
-    public Product findByUUIDAndUser(String uuid, User user) {
-        return productRepository.findByUuidAndUsers_Id(UUID.fromString(uuid), user.getId()).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"product",uuid));
+    public Product findByUUIDAndMerchant(String uuid, Merchant merchant) {
+        return productRepository.findByIdAndMerchants_Id(UUID.fromString(uuid), merchant.getId()).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"product",uuid));
     }
 
     @Override
@@ -131,14 +126,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product update(String uuid,Product updatedProduct) {
-        Product product = findByUUID(uuid);
+    public Product update(String id,Product updatedProduct) {
+        Product product = findById(id);
         product.setBarcodes(updatedProduct.getBarcodes());
         product.setName(updatedProduct.getName());
         if (updatedProduct.getPhotoUrl() != null && !updatedProduct.getPhotoUrl().isEmpty()) {
             product.setPhotoUrl(updatedProduct.getPhotoUrl());
         }
-        product.setUsers(updatedProduct.getUsers());
+        product.setMerchants(updatedProduct.getMerchants());
         product.setCategory(updatedProduct.getCategory());
         return productRepository.save(product);
     }
@@ -149,10 +144,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<Product> findAllByCategoryAndUser(Category category, User user, Integer pageNumber, String sortBy, String sortType) {
+    public Page<Product> findAllByCategoryAndMerchant(Category category, Merchant merchant, Integer pageNumber, String sortBy, String sortType) {
         List<Category> categories = category.collectLeafChildren();
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
-        Page<Product> resultPage = productRepository.findAllByCategoryInAndUsers_Id(categories, user.getId(), pageRequest);
+        Page<Product> resultPage = productRepository.findAllByCategoryInAndMerchants_Id(categories, merchant.getId(), pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
         }
@@ -160,10 +155,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<Product> findAllByCategoryAndUserAndStatus(Category category, User user, boolean status, Integer pageNumber, String sortBy, String sortType) {
+    public Page<Product> findAllByCategoryAndMerchantAndStatus(Category category, Merchant merchant, boolean status, Integer pageNumber, String sortBy, String sortType) {
         List<Category> categories = category.collectLeafChildren();
         PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
-        Page<Product> resultPage = productRepository.findAllByCategoryInAndUsers_IdAndStatus(categories, user.getId(), status, pageRequest);
+        Page<Product> resultPage = productRepository.findAllByCategoryInAndMerchants_IdAndStatus(categories, merchant.getId(), status, pageRequest);
         if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
             throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
         }

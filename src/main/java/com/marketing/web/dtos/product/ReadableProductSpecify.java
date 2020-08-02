@@ -1,14 +1,14 @@
 package com.marketing.web.dtos.product;
 
-import com.marketing.web.dtos.user.ReadableState;
-import com.marketing.web.enums.PromotionType;
+import com.marketing.web.dtos.user.readable.CommonMerchant;
+import com.marketing.web.dtos.user.readable.ReadableState;
 import com.marketing.web.enums.UnitType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -18,9 +18,9 @@ public class ReadableProductSpecify implements Serializable {
 
     private String id;
 
-    private double totalPrice;
+    private BigDecimal totalPrice;
 
-    private double unitPrice;
+    private BigDecimal unitPrice;
 
     private int quantity;
 
@@ -28,7 +28,7 @@ public class ReadableProductSpecify implements Serializable {
 
     private UnitType unitType;
 
-    private double recommendedRetailPrice;
+    private BigDecimal recommendedRetailPrice;
 
     private double commission;
 
@@ -36,7 +36,7 @@ public class ReadableProductSpecify implements Serializable {
 
     private String productName;
 
-    private String sellerName;
+    private CommonMerchant merchant;
 
     private List<ReadableState> states;
 

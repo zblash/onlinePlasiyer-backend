@@ -14,8 +14,11 @@ import java.util.UUID;
 @Service
 public class BarcodeServiceImpl implements BarcodeService {
 
-    @Autowired
-    private BarcodeRepository barcodeRepository;
+    private final BarcodeRepository barcodeRepository;
+
+    public BarcodeServiceImpl(BarcodeRepository barcodeRepository) {
+        this.barcodeRepository = barcodeRepository;
+    }
 
     @Override
     public List<Barcode> findAll() {
@@ -43,13 +46,8 @@ public class BarcodeServiceImpl implements BarcodeService {
     }
 
     @Override
-    public Barcode findById(Long id) {
-        return barcodeRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"product.barcode",id.toString()));
-    }
-
-    @Override
-    public Barcode findByUuid(String uuid) {
-        return barcodeRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"product.barcode",uuid));
+    public Barcode findById(String id) {
+        return barcodeRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"product.barcode",id.toString()));
     }
 
     @Override
@@ -58,8 +56,8 @@ public class BarcodeServiceImpl implements BarcodeService {
     }
 
     @Override
-    public Barcode update(String uuid, Barcode updatedBarcode) {
-        Barcode barcode = findByUuid(uuid);
+    public Barcode update(String id, Barcode updatedBarcode) {
+        Barcode barcode = findById(id);
         barcode.setBarcodeNo(updatedBarcode.getBarcodeNo());
         barcode.setProduct(updatedBarcode.getProduct());
         return barcodeRepository.save(barcode);

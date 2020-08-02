@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,10 +19,13 @@ import java.util.UUID;
 @Service
 public class CartItemServiceImpl implements CartItemService {
 
-    @Autowired
-    private CartItemRepository cartItemRepository;
+    private final CartItemRepository cartItemRepository;
 
     Logger logger = LoggerFactory.getLogger(CartItemServiceImpl.class);
+
+    public CartItemServiceImpl(CartItemRepository cartItemRepository) {
+        this.cartItemRepository = cartItemRepository;
+    }
 
     @Override
     public List<CartItem> findAll() {
@@ -28,13 +33,8 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
-    public CartItem findById(Long id) {
-        return cartItemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart.item", id.toString()));
-    }
-
-    @Override
-    public CartItem findByUUID(String uuid) {
-        return cartItemRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart.item", uuid));
+    public CartItem findById(String id) {
+        return cartItemRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"cart.item", id.toString()));
     }
 
     @Override
@@ -44,7 +44,7 @@ public class CartItemServiceImpl implements CartItemService {
 
     @Override
     public CartItem update(String id, CartItem updatedCartItem) {
-        CartItem cartItem = findByUUID(id);
+        CartItem cartItem = findById(id);
         cartItem.setProduct(updatedCartItem.getProduct());
         cartItem.setQuantity(updatedCartItem.getQuantity());
         cartItem.setTotalPrice(updatedCartItem.getTotalPrice());
@@ -56,7 +56,7 @@ public class CartItemServiceImpl implements CartItemService {
     @Override
     public void delete(Cart cart, CartItem cartItem) {
 
-        Optional<CartItem> optionalCartItem = cartItemRepository.findByCart_IdAndProduct_Uuid(cart.getId(), cartItem.getProduct().getUuid());
+        Optional<CartItem> optionalCartItem = cartItemRepository.findByCart_IdAndProduct_Id(cart.getId(), cartItem.getProduct().getId());
         if (optionalCartItem.isPresent()) {
             cartItemRepository.delete(optionalCartItem.get());
         } else {
@@ -72,11 +72,9 @@ public class CartItemServiceImpl implements CartItemService {
     @Override
     public CartItem createOrUpdate(CartItemHolder cartItemHolder, int quantity, ProductSpecify productSpecify) {
         CartItem cartItem = cartItemDTOtoCartItem(quantity, productSpecify);
-
-        Optional<CartItem> optionalCartItem = cartItemRepository.findByCart_IdAndProduct_Uuid(cartItemHolder.getCart().getId(), productSpecify.getUuid());
+        Optional<CartItem> optionalCartItem = cartItemRepository.findByCart_IdAndProduct_Id(cartItemHolder.getCart().getId(), productSpecify.getId());
         if (optionalCartItem.isPresent()) {
-            logger.info(optionalCartItem.get().getUuid().toString());
-            return update(optionalCartItem.get().getUuid().toString(), cartItem);
+            return update(optionalCartItem.get().getId().toString(), cartItem);
         }
         cartItem.setCart(cartItemHolder.getCart());
         cartItem.setCartItemHolder(cartItemHolder);
@@ -88,7 +86,7 @@ public class CartItemServiceImpl implements CartItemService {
             throw new BadRequestException("Cart item quantity must smaller or equal product quantity");
         }
         CartItem cartItem = new CartItem();
-        double totalPrice = product.getTotalPrice() * quantity;
+        BigDecimal totalPrice = product.getTotalPrice().multiply(BigDecimal.valueOf(quantity));
         cartItem.setProduct(product);
         cartItem.setQuantity(quantity);
         cartItem.setTotalPrice(totalPrice);
@@ -102,12 +100,13 @@ public class CartItemServiceImpl implements CartItemService {
         return cartItem;
     }
 
-    private double discountCalculator(CartItem cartItem, ProductSpecify product) {
+    private BigDecimal discountCalculator(CartItem cartItem, ProductSpecify product) {
         Promotion promotion = product.getPromotion();
-        double totalPrice = 0;
+        BigDecimal totalPrice = cartItem.getTotalPrice();
         if (cartItem.getQuantity() >= promotion.getDiscountUnit()) {
-            double notDiscountedPrice = product.getTotalPrice() * promotion.getDiscountUnit();
-            totalPrice = cartItem.getTotalPrice() - ((notDiscountedPrice * promotion.getDiscountValue()) / 100);
+            BigDecimal notDiscountedPrice = product.getTotalPrice().multiply(BigDecimal.valueOf(promotion.getDiscountUnit()));
+            BigDecimal calculatedPrice = notDiscountedPrice.multiply(promotion.getDiscountValue()).divide(BigDecimal.valueOf(100), RoundingMode.CEILING);
+            totalPrice = cartItem.getTotalPrice().subtract(calculatedPrice);
         }
         return totalPrice;
     }

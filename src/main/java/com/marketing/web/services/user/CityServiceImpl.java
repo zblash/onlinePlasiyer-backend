@@ -13,8 +13,11 @@ import java.util.UUID;
 @Service
 public class CityServiceImpl implements CityService {
 
-    @Autowired
-    private CityRepository cityRepository;
+    private final CityRepository cityRepository;
+
+    public CityServiceImpl(CityRepository cityRepository) {
+        this.cityRepository = cityRepository;
+    }
 
     @Override
     public List<City> findAll() {
@@ -22,13 +25,8 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
-    public City findById(Long id) {
-        return cityRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"city",id.toString()));
-    }
-
-    @Override
-    public City findByUuid(String uuid) {
-        return cityRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"city",uuid));
+    public City findById(String id) {
+        return cityRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"city",id.toString()));
     }
 
     @Override
@@ -42,8 +40,8 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
-    public City update(String uuid, City updatedCity) {
-        City city = findByUuid(uuid);
+    public City update(String id, City updatedCity) {
+        City city = findById(id);
         city.setCode(updatedCity.getCode());
         city.setTitle(updatedCity.getTitle());
         return cityRepository.save(city);

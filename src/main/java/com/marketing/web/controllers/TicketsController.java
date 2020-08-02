@@ -26,17 +26,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/tickets")
+@RequestMapping("/private/tickets")
 public class TicketsController {
 
-    @Autowired
-    private TicketService ticketService;
+    private final TicketService ticketService;
 
-    @Autowired
-    private TicketReplyService ticketReplyService;
+    private final TicketReplyService ticketReplyService;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public TicketsController(TicketService ticketService, TicketReplyService ticketReplyService, UserService userService) {
+        this.ticketService = ticketService;
+        this.ticketReplyService = ticketReplyService;
+        this.userService = userService;
+    }
 
     @GetMapping
     public ResponseEntity<WrapperPagination<ReadableTicket>> getAllTickets(@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "desc") String sortType){
@@ -54,7 +57,7 @@ public class TicketsController {
         Ticket ticket;
 
         if (loggedInUser.getRole().getName().equals("ROLE_ADMIN")){
-            ticket = ticketService.findByUUID(id);
+            ticket = ticketService.findById(id);
         }else{
             ticket = ticketService.findByUserAndUUid(loggedInUser,id);
         }
@@ -67,7 +70,7 @@ public class TicketsController {
         Ticket ticket;
 
         if (loggedInUser.getRole().getName().equals("ROLE_ADMIN")){
-            ticket = ticketService.findByUUID(id);
+            ticket = ticketService.findById(id);
         }else{
             ticket = ticketService.findByUserAndUUid(loggedInUser,id);
         }
@@ -100,10 +103,10 @@ public class TicketsController {
         Ticket ticket;
 
         if (loggedInUser.getRole().getName().equals("ROLE_ADMIN")){
-            ticket = ticketService.findByUUID(id);
+            ticket = ticketService.findById(id);
             if (ticket.getTicketReplies().size() <= 1){
                 ticket.setStatus(TicketStatus.ANSWERED);
-                ticketService.update(ticket.getUuid().toString(),ticket);
+                ticketService.update(ticket.getId().toString(),ticket);
             }
         }else{
             ticket = ticketService.findByUserAndUUid(loggedInUser,id);
@@ -118,7 +121,7 @@ public class TicketsController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/changeStatus/{id}")
     public ResponseEntity<ReadableTicket> changeTicketStatus(@PathVariable String id, @RequestBody TicketStatus ticketStatus){
-        Ticket ticket = ticketService.findByUUID(id);
+        Ticket ticket = ticketService.findById(id);
         ticket.setStatus(ticketStatus);
         return ResponseEntity.ok(TicketMapper.ticketToReadableTicket(ticketService.update(id,ticket)));
     }

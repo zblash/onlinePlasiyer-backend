@@ -11,13 +11,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface TicketRepository extends JpaRepository<Ticket,Long> {
+public interface TicketRepository extends JpaRepository<Ticket, UUID> {
 
     Page<Ticket> findAllByUser(User user, Pageable pageable);
 
     List<Ticket> findAllByUser_IdAndStatusOrderByIdDesc(Long userId, TicketStatus status);
 
-    Optional<Ticket> findByUuidAndUser_Id(UUID uuid, Long userId);
+    Optional<Ticket> findByIdAndUser_Id(UUID id, UUID userId);
 
-    Optional<Ticket> findByUuid(UUID uuid);
 }

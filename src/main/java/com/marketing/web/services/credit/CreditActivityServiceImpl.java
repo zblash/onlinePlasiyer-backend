@@ -1,15 +1,11 @@
 package com.marketing.web.services.credit;
 
 import com.marketing.web.configs.constants.MessagesConstants;
-import com.marketing.web.enums.RoleType;
 import com.marketing.web.errors.ResourceNotFoundException;
-import com.marketing.web.models.Credit;
 import com.marketing.web.models.CreditActivity;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
 import com.marketing.web.repositories.CreditActivityRepository;
-import com.marketing.web.utils.mappers.UserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -17,15 +13,17 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class CreditActivityServiceImpl implements CreditActivityService {
 
-    @Autowired
-    private CreditActivityRepository creditActivityRepository;
+    private final CreditActivityRepository creditActivityRepository;
+
+    public CreditActivityServiceImpl(CreditActivityRepository creditActivityRepository) {
+        this.creditActivityRepository = creditActivityRepository;
+    }
 
     @Override
     public Page<CreditActivity> findAll(int pageNumber, String sortBy, String sortType) {
@@ -48,24 +46,8 @@ public class CreditActivityServiceImpl implements CreditActivityService {
     }
 
     @Override
-    public Page<CreditActivity> findAllByUser(User user, int pageNumber, String sortBy, String sortType) {
-        PageRequest pageRequest = getPageRequest(pageNumber, sortBy, sortType);
-        Page<CreditActivity> resultPage = creditActivityRepository.findAllByCustomerOrMerchant(user, user, pageRequest);
-        if (pageNumber > resultPage.getTotalPages() && pageNumber != 1) {
-            throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"page", Integer.toString(pageNumber));
-        }
-        return resultPage;
-    }
-
-    @Override
-    public CreditActivity findById(Long id) {
-        return creditActivityRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit.user",id.toString()));
-    }
-
-    @Override
-    public CreditActivity findByUUID(String uuid) {
-        return creditActivityRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit.user",uuid));
-
+    public CreditActivity findById(String id) {
+        return creditActivityRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"credit.user",id.toString()));
     }
 
     @Override
@@ -80,8 +62,8 @@ public class CreditActivityServiceImpl implements CreditActivityService {
     }
 
     @Override
-    public CreditActivity update(String uuid, CreditActivity updatedCreditActivity) {
-        CreditActivity creditActivity = findByUUID(uuid);
+    public CreditActivity update(String id, CreditActivity updatedCreditActivity) {
+        CreditActivity creditActivity = findById(id);
         creditActivity.setCreditActivityType(updatedCreditActivity.getCreditActivityType());
         creditActivity.setPriceValue(updatedCreditActivity.getPriceValue());
         creditActivity.setDate(LocalDate.now());

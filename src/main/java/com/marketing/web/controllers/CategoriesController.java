@@ -26,22 +26,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/categories")
+@RequestMapping("/private/categories")
 public class CategoriesController {
 
-    @Autowired
-    private CategoryService categoryService;
+    private final CategoryService categoryService;
 
-    @Autowired
-    private AmazonClient amazonClient;
+    private final AmazonClient amazonClient;
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
 
-    @Autowired
-    private ProductSpecifyService productSpecifyService;
+    private final ProductSpecifyService productSpecifyService;
 
     private Logger logger = LoggerFactory.getLogger(CategoriesController.class);
+
+    public CategoriesController(CategoryService categoryService, AmazonClient amazonClient, ProductService productService, ProductSpecifyService productSpecifyService) {
+        this.categoryService = categoryService;
+        this.amazonClient = amazonClient;
+        this.productService = productService;
+        this.productSpecifyService = productSpecifyService;
+    }
 
 
     @GetMapping
@@ -59,7 +62,7 @@ public class CategoriesController {
 
     @GetMapping("/{id}/subCategories")
     public ResponseEntity<List<ReadableCategory>> getSubCategoriesById(@PathVariable String id) {
-        Category category = categoryService.findByUUID(id);
+        Category category = categoryService.findById(id);
         if (!category.isSubCategory()) {
             return ResponseEntity.ok(category.getChilds().stream()
                     .map(CategoryMapper::categoryToReadableCategory).collect(Collectors.toList()));
@@ -69,7 +72,7 @@ public class CategoriesController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ReadableCategory> findByUUID(@PathVariable String id) {
-        return ResponseEntity.ok(CategoryMapper.categoryToReadableCategory(categoryService.findByUUID(id)));
+        return ResponseEntity.ok(CategoryMapper.categoryToReadableCategory(categoryService.findById(id)));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -83,7 +86,7 @@ public class CategoriesController {
         category.setPhotoUrl(fileUrl);
 
         if (category.isSubCategory()) {
-            category.setParent(categoryService.findByUUID(writableCategory.getParentId()));
+            category.setParent(categoryService.findById(writableCategory.getParentId()));
         }
         Category savedCategory = categoryService.create(category);
 
@@ -93,7 +96,7 @@ public class CategoriesController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ReadableCategory> deleteCategory(@PathVariable String id) {
-        Category category = categoryService.findByUUID(id);
+        Category category = categoryService.findById(id);
         amazonClient.deleteFileFromS3Bucket(category.getPhotoUrl());
         categoryService.delete(category);
         return ResponseEntity.ok(CategoryMapper.categoryToReadableCategory(category));
@@ -110,11 +113,11 @@ public class CategoriesController {
             category.setPhotoUrl(fileUrl);
         }
         if (category.isSubCategory()) {
-            category.setParent(categoryService.findByUUID(updatedCategory.getParentId()));
+            category.setParent(categoryService.findById(updatedCategory.getParentId()));
         }
         category = categoryService.update(id, category);
         if (category.getCommission() > 0) {
-            List<Product> products = productService.findAllByCategoryId(category.getId()).stream().peek(product -> product.setCommission(updatedCategory.getCommission())).collect(Collectors.toList());
+            List<Product> products = productService.findAllByCategoryId(category.getId().toString()).stream().peek(product -> product.setCommission(updatedCategory.getCommission())).collect(Collectors.toList());
             List<ProductSpecify> productSpecifies = products.stream()
                     .map(Product::getProductSpecifies)
                     .flatMap(Collection::stream)

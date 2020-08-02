@@ -19,13 +19,16 @@ import java.util.Objects;
 @Component
 public class MailUtil {
 
-    @Autowired
-    private JavaMailSender javaMailSender;
+    private final JavaMailSender javaMailSender;
 
-    @Autowired
-    private MessageSource messageSource;
+    private final MessageSource messageSource;
 
     private final Logger logger = LoggerFactory.getLogger(MailUtil.class);
+
+    public MailUtil(JavaMailSender javaMailSender, MessageSource messageSource) {
+        this.javaMailSender = javaMailSender;
+        this.messageSource = messageSource;
+    }
 
     private SimpleMailMessage mailTemplate(String mailType, Locale locale) {
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();

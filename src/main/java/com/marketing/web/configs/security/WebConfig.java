@@ -1,13 +1,15 @@
 package com.marketing.web.configs.security;
 
 
+import com.marketing.web.configs.EnumConverterFactory;
 import com.marketing.web.configs.security.JWTAuthentication.JWTAuthEntryPoint;
-import com.marketing.web.configs.security.JWTAuthentication.JWTAuthenticationFilter;
+import com.marketing.web.configs.security.JWTAuthentication.JWTAuthorizationFilter;
 import com.marketing.web.configs.security.JWTAuthentication.JWTSuccessHandler;
 import com.marketing.web.configs.security.JWTAuthentication.JWTAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -45,9 +47,9 @@ public class WebConfig extends WebSecurityConfigurerAdapter implements WebMvcCon
     }
 
     @Bean
-    public JWTAuthenticationFilter authTokenFilter() {
+    public JWTAuthorizationFilter authTokenFilter() {
 
-        JWTAuthenticationFilter filter =new JWTAuthenticationFilter();
+        JWTAuthorizationFilter filter =new JWTAuthorizationFilter();
         filter.setAuthenticationManager(authenticationManager());
         filter.setAuthenticationSuccessHandler(new JWTSuccessHandler());
         return filter;
@@ -75,5 +77,10 @@ public class WebConfig extends WebSecurityConfigurerAdapter implements WebMvcCon
         AntPathMatcher matcher = new AntPathMatcher();
         matcher.setCaseSensitive(false);
         configurer.setPathMatcher(matcher);
+    }
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        registry.addConverterFactory(new EnumConverterFactory());
     }
 }

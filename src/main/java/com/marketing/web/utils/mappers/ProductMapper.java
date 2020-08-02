@@ -46,11 +46,11 @@ public final class ProductMapper {
             return null;
         } else {
             ReadableProduct readableProduct = new ReadableProduct();
-            readableProduct.setId(product.getUuid().toString());
+            readableProduct.setId(product.getId().toString());
             readableProduct.setActive(product.isStatus());
             readableProduct.setBarcodeList(product.getBarcodes().stream().map(Barcode::getBarcodeNo).collect(Collectors.toList()));
             readableProduct.setCategoryName(product.getCategory().getName());
-            readableProduct.setCategoryId(product.getCategory().getUuid().toString());
+            readableProduct.setCategoryId(product.getCategory().getId().toString());
             readableProduct.setName(product.getName());
             readableProduct.setPhotoUrl(product.getPhotoUrl());
             readableProduct.setCommission(product.getCommission());
@@ -64,16 +64,16 @@ public final class ProductMapper {
             return null;
         } else {
             ReadableProductSpecify readableProductSpecify = new ReadableProductSpecify();
-            readableProductSpecify.setId(productSpecify.getUuid().toString());
+            readableProductSpecify.setId(productSpecify.getId().toString());
             readableProductSpecify.setContents(productSpecify.getContents());
             readableProductSpecify.setQuantity(productSpecify.getQuantity());
             readableProductSpecify.setRecommendedRetailPrice(productSpecify.getRecommendedRetailPrice());
             readableProductSpecify.setTotalPrice(productSpecify.getTotalPrice());
             readableProductSpecify.setUnitPrice(productSpecify.getUnitPrice());
             readableProductSpecify.setUnitType(productSpecify.getUnitType());
-            readableProductSpecify.setProductId(productSpecify.getProduct().getUuid().toString());
+            readableProductSpecify.setProductId(productSpecify.getProduct().getId().toString());
             readableProductSpecify.setProductName(productSpecify.getProduct().getName());
-            readableProductSpecify.setSellerName(productSpecify.getUser().getName());
+            readableProductSpecify.setMerchant(UserMapper.merchantToCommonMerchant(productSpecify.getMerchant()));
             readableProductSpecify.setCommission(productSpecify.getCommission());
             readableProductSpecify.setStates(productSpecify.getStates().stream().map(CityMapper::stateToReadableState).collect(Collectors.toList()));
             readableProductSpecify.setProductBarcodeList(productSpecify.getProduct().getBarcodes().stream().map(Barcode::getBarcodeNo).collect(Collectors.toList()));

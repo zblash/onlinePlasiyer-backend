@@ -17,13 +17,11 @@ public interface BarcodeService {
 
     Barcode checkByBarcodeNo(String barcodeNo);
 
-    Barcode findById(Long id);
-
-    Barcode findByUuid(String uuid);
+    Barcode findById(String id);
 
     Barcode create(Barcode barcode);
 
-    Barcode update(String uuid,Barcode updatedBarcode);
+    Barcode update(String id,Barcode updatedBarcode);
 
     void delete(Barcode barcode);
 }

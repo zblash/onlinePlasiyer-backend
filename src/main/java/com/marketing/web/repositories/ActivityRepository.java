@@ -7,8 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface ActivityRepository extends JpaRepository<Activity,Long>, JpaSpecificationExecutor<Activity> {
+public interface ActivityRepository extends JpaRepository<Activity,UUID>, JpaSpecificationExecutor<Activity> {
 
-    Optional<Activity> findByUuid(UUID uuid);
 
 }

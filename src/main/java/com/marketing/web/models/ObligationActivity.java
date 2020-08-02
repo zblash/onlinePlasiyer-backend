@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.UUID;
 
@@ -17,11 +18,13 @@ import java.util.UUID;
 @Table(name = "obligationactivities")
 public class ObligationActivity extends BaseModel {
 
-    private UUID uuid;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "merchant_id", referencedColumnName = "id")
+    private Merchant merchant;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "obligation_id",referencedColumnName = "id")
-    private Obligation obligation;
+    @JoinColumn(name = "order_id", referencedColumnName = "id")
+    private Order order;
 
     @Temporal(TemporalType.DATE)
     private Date date;
@@ -30,10 +33,11 @@ public class ObligationActivity extends BaseModel {
     private CreditActivityType creditActivityType;
 
     @NotNull
-    private double priceValue;
+    private BigDecimal priceValue;
 
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
-    }
+    @NotNull
+    private BigDecimal totalDebt;
+
+    @NotNull
+    private BigDecimal totalReceivable;
 }

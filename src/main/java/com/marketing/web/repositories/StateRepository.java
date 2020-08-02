@@ -7,15 +7,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface StateRepository extends JpaRepository<State,Long> {
+public interface StateRepository extends JpaRepository<State, UUID> {
 
     List<State> findAllByTitleIn(List<String> titles);
 
     List<State> findAllByCity(City city);
 
-    Optional<State> findByUuid(UUID uuid);
+    List<State> findAllByIdIn(List<UUID> ids);
 
-    List<State> findAllByUuidIn(List<UUID> uuids);
-
-    Optional<State> findByUuidAndCity(UUID uuid, City city);
+    Optional<State> findByIdAndCity(UUID id, City city);
 }

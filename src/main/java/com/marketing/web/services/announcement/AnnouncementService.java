@@ -16,9 +16,7 @@ public interface AnnouncementService {
 
     Page<Announcement> findAll(int pageNumber, String sortBy, String sortType);
 
-    Announcement findById(Long id);
-
-    Announcement findByUUID(String uuid);
+    Announcement findById(String id);
 
     Announcement create(Announcement announcement);
 

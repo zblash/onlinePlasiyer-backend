@@ -16,8 +16,6 @@ import java.util.UUID;
 @Table(name = "notifications")
 public class Notification extends BaseModel {
 
-    private UUID uuid;
-
     @NotBlank
     private String title;
 
@@ -27,9 +25,4 @@ public class Notification extends BaseModel {
     @ManyToOne
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;
-
-    @PrePersist
-    public void autofill() {
-        this.setUuid(UUID.randomUUID());
-    }
 }

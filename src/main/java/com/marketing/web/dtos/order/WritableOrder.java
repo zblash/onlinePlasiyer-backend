@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -16,13 +18,13 @@ import java.util.Date;
 @AllArgsConstructor
 public class WritableOrder implements Serializable {
 
-    private double paidPrice;
+    private BigDecimal paidPrice;
 
     @NotNull(message = "{validation.notNull}")
     private OrderStatus status;
 
     @JsonFormat(pattern="dd-MM-yyyy")
-    private Date waybillDate;
+    private LocalDate waybillDate;
 
     private PaymentType paymentType;
 }

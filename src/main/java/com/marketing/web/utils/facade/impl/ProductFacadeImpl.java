@@ -20,28 +20,32 @@ import com.marketing.web.utils.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service(value = "productFacade")
 public class ProductFacadeImpl implements ProductFacade {
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
 
-    @Autowired
-    private BarcodeService barcodeService;
+    private final BarcodeService barcodeService;
 
-    @Autowired
-    private ProductSpecifyService productSpecifyService;
+    private final ProductSpecifyService productSpecifyService;
 
-    @Autowired
-    private PromotionRepository promotionRepository;
+    private final PromotionRepository promotionRepository;
 
-    @Autowired
-    private StateService stateService;
+    private final StateService stateService;
+
+    public ProductFacadeImpl(ProductService productService, BarcodeService barcodeService, ProductSpecifyService productSpecifyService, PromotionRepository promotionRepository, StateService stateService) {
+        this.productService = productService;
+        this.barcodeService = barcodeService;
+        this.productSpecifyService = productSpecifyService;
+        this.promotionRepository = promotionRepository;
+        this.stateService = stateService;
+    }
 
     @Override
-    public ReadableProductSpecify createProductSpecify(WritableProductSpecify writableProductSpecify, User user) {
+    public ReadableProductSpecify createProductSpecify(WritableProductSpecify writableProductSpecify, Merchant merchant) {
         Barcode barcode = barcodeService.findByBarcodeNo(writableProductSpecify.getBarcode());
         if (barcode == null || barcode.getProduct() == null) {
             throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND + "product.barcode", writableProductSpecify.getBarcode());
@@ -50,55 +54,52 @@ public class ProductFacadeImpl implements ProductFacade {
         Product product = barcode.getProduct();
         ProductSpecify productSpecify = ProductMapper.writableProductSpecifyToProductSpecify(writableProductSpecify);
 
-        List<State> states = stateService.findAllByUuids(writableProductSpecify.getStateList());
-
+        List<State> states = stateService.findAllByIds(writableProductSpecify.getStateList());
+        if (states.isEmpty()) {
+            throw new BadRequestException("There is no state with sent id list");
+        }
         productSpecify.setProduct(product);
-        productSpecify.setUser(user);
-        productSpecify.setStates(productSpecifyService.allowedStates(user, states));
-        double commission = user.getCommission() != 0.0 ? user.getCommission() : (product.getCommission() != 0.0 ? product.getCommission() : product.getCategory().getCommission());
+        productSpecify.setMerchant(merchant);
+        productSpecify.setStates(productSpecifyService.allowedStates(merchant, states));
+        double commission = merchant.getCommission() != 0.0 ? merchant.getCommission() : (product.getCommission() != 0.0 ? product.getCommission() : product.getCategory().getCommission());
         productSpecify.setCommission(commission);
         if (writableProductSpecify.isDiscount()) {
             productSpecify.setPromotion(populatePromotion(productSpecify, writableProductSpecify));
         }
-        product.addUser(user);
-        productService.update(product.getUuid().toString(), product);
+        product.addMerchant(merchant);
+        productService.update(product.getId().toString(), product);
         return ProductMapper.productSpecifyToReadableProductSpecify(productSpecifyService.create(productSpecify));
+
     }
 
     @Override
-    public ReadableProductSpecify updateProductSpecify(String uuid, WritableProductSpecify writableProductSpecify, User user) {
+    public ReadableProductSpecify updateProductSpecify(String uuid, WritableProductSpecify writableProductSpecify, Merchant merchant) {
         Barcode barcode = barcodeService.findByBarcodeNo(writableProductSpecify.getBarcode());
         if (barcode == null || barcode.getProduct() == null) {
             throw new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND + "product.barcode", writableProductSpecify.getBarcode());
         }
-        ProductSpecify productSpecify;
-        RoleType roleType = UserMapper.roleToRoleType(user.getRole());
-        if (roleType.equals(RoleType.ADMIN)) {
-            productSpecify = productSpecifyService.findByUUID(uuid);
-        } else {
-            productSpecify = productSpecifyService.findByUUIDAndUser(uuid, user);
-        }
+        ProductSpecify productSpecify = productSpecifyService.findByIdAndMerchant(uuid, merchant);
 
         Product product = barcode.getProduct();
         ProductSpecify updatedProductSpecify = ProductMapper.writableProductSpecifyToProductSpecify(writableProductSpecify);
 
-        List<State> states = stateService.findAllByUuids(writableProductSpecify.getStateList());
+        List<State> states = stateService.findAllByIds(writableProductSpecify.getStateList());
 
-        updatedProductSpecify.setStates(productSpecifyService.allowedStates(productSpecify.getUser(), states));
+        updatedProductSpecify.setStates(productSpecifyService.allowedStates(productSpecify.getMerchant(), states));
         updatedProductSpecify.setProduct(product);
-        double commission = user.getCommission() != 0.0 ? user.getCommission() : (product.getCommission() != 0.0 ? product.getCommission() : product.getCategory().getCommission());
+        double commission = merchant.getCommission() != 0.0 ? merchant.getCommission() : (product.getCommission() != 0.0 ? product.getCommission() : product.getCategory().getCommission());
         updatedProductSpecify.setCommission(commission);
         if (writableProductSpecify.isDiscount()) {
             updatedProductSpecify.setPromotion(populatePromotion(productSpecify, writableProductSpecify));
         }
-        product.addUser(user);
-        productService.update(product.getUuid().toString(), product);
-        return ProductMapper.productSpecifyToReadableProductSpecify(productSpecifyService.update(productSpecify.getUuid().toString(), updatedProductSpecify));
+        product.addMerchant(merchant);
+        productService.update(product.getId().toString(), product);
+        return ProductMapper.productSpecifyToReadableProductSpecify(productSpecifyService.update(productSpecify.getId().toString(), updatedProductSpecify));
     }
 
     private Promotion populatePromotion(ProductSpecify productSpecify, WritableProductSpecify writableProductSpecify) {
         if (!writableProductSpecify.getPromotionText().isEmpty()
-                && writableProductSpecify.getDiscountValue() > 0) {
+                && writableProductSpecify.getDiscountValue().compareTo(BigDecimal.ZERO) > 0) {
             Promotion promotion = productSpecify.getPromotion() != null ? productSpecify.getPromotion() : new Promotion();
             promotion.setDiscountUnit(writableProductSpecify.getDiscountUnit() > 0 ? writableProductSpecify.getDiscountUnit() : 1);
             promotion.setDiscountValue(writableProductSpecify.getDiscountValue());

@@ -25,13 +25,13 @@ public final class CategoryMapper {
             return null;
         } else {
             ReadableCategory readableCategory = new ReadableCategory();
-            readableCategory.setId(category.getUuid().toString());
+            readableCategory.setId(category.getId().toString());
             readableCategory.setName(category.getName());
             readableCategory.setPhotoUrl(category.getPhotoUrl());
             readableCategory.setSubCategory(category.isSubCategory());
             readableCategory.setCommission(category.getCommission());
             if (category.isSubCategory()) {
-                readableCategory.setParentId(category.getParent().getUuid().toString());
+                readableCategory.setParentId(category.getParent().getId().toString());
                 readableCategory.setSubCategoryCount(0);
             } else {
                 readableCategory.setSubCategoryCount(category.getChilds() != null ? category.getChilds().size() : 0);

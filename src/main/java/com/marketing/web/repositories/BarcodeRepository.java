@@ -8,9 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface BarcodeRepository extends JpaRepository<Barcode,Long> {
-
-    Optional<Barcode> findByUuid(UUID uuid);
+public interface BarcodeRepository extends JpaRepository<Barcode, UUID> {
 
     Optional<Barcode> findByBarcodeNo(String barcodeNo);
 

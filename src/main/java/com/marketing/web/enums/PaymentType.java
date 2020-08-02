@@ -6,9 +6,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum PaymentType {
     CREDIT_CARD("CREDIT_CARD"),
     CASH("CASH"),
-    SYSTEM_CREDIT("SYSTEM_CREDIT"),
-    MERCHANT_CREDIT("MERCHANT_CREDIT"),
-    COD("COD");
+    RUNNING_ACCOUNT("RUNNING_ACCOUNT");
 
     private String value;
 

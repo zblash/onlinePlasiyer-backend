@@ -20,14 +20,17 @@ import java.util.UUID;
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private RoleServiceImpl roleService;
+    private final RoleServiceImpl roleService;
+
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleServiceImpl roleService) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.roleService = roleService;
+    }
 
 
     @Override
@@ -67,12 +70,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findAllByRoleAndStateAndStatus(RoleType roleType, State state, boolean status) {
-        Role role = roleService.findByName("ROLE_"+roleType.toString());
-        return userRepository.findAllByRoleAndActiveStatesContainsAndStatusOrderByIdDesc(role, state,status);
-    }
-
-    @Override
     public List<User> findAllByStatus(boolean status) {
         return userRepository.findAllByStatusOrderByIdDesc(status);
     }
@@ -90,14 +87,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"user",""));
+    public User findById(String id) {
+        return userRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"user",id));
     }
 
-    @Override
-    public User findByUUID(String uuid) {
-        return userRepository.findByUuid(UUID.fromString(uuid)).orElseThrow(() -> new ResourceNotFoundException(MessagesConstants.RESOURCES_NOT_FOUND+"user", uuid));
-    }
 
     @Override
     public User create(User user, RoleType roleType) {
@@ -108,19 +101,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User update(Long id, User updatedUser) {
+    public User update(String id, User updatedUser) {
         User user = findById(id);
         user.setUsername(updatedUser.getUsername());
         user.setName(updatedUser.getName());
         user.setPassword(updatedUser.getPassword());
         user.setEmail(updatedUser.getEmail());
-        user.setTaxNumber(updatedUser.getTaxNumber());
         user.setStatus(updatedUser.isStatus());
         user.setRole(updatedUser.getRole());
-        user.setActiveStates(updatedUser.getActiveStates());
-        user.setCity(updatedUser.getCity());
-        user.setState(updatedUser.getState());
-        user.setAddressDetails(updatedUser.getAddressDetails());
         user.setPasswordResetToken(updatedUser.getPasswordResetToken());
         if (updatedUser.getResetTokenExpireTime() != null) {
             user.setResetTokenExpireTime(updatedUser.getResetTokenExpireTime());
@@ -142,7 +130,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User changePassword(User user, String password) {
         user.setPassword(passwordEncoder.encode(password));
-        return update(user.getId(),user);
+        return update(user.getId().toString(),user);
     }
 
     @Override

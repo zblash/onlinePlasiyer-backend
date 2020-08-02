@@ -1,6 +1,8 @@
 package com.marketing.web.repositories;
 
 import com.marketing.web.enums.CreditType;
+import com.marketing.web.models.Customer;
+import com.marketing.web.models.Merchant;
 import com.marketing.web.models.User;
 import com.marketing.web.models.Credit;
 import org.springframework.data.domain.Page;
@@ -11,25 +13,29 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface CreditRepository extends JpaRepository<Credit, Long> {
-
-    Optional<Credit> findByUuid(UUID uuid);
+public interface CreditRepository extends JpaRepository<Credit, UUID> {
 
     Page<Credit> findAllByCreditType(CreditType creditType, Pageable pageable);
 
-    Page<Credit> findAllByCreditTypeAndMerchant(CreditType creditType, User merchant, Pageable pageable);
+    Page<Credit> findAllByCreditTypeAndMerchant(CreditType creditType, Merchant merchant, Pageable pageable);
 
-    Page<Credit> findAllByCreditTypeAndCustomer(CreditType creditType, User customer, Pageable pageable);
+    Page<Credit> findAllByCreditTypeAndCustomer(CreditType creditType, Customer customer, Pageable pageable);
 
-    Optional<Credit> findByUuidAndMerchant(UUID uuid, User merchant);
+    Optional<Credit> findByIdAndMerchant(UUID id, Merchant merchant);
 
-    Page<Credit> findAllByCustomerAndMerchant(User customer, User merchant, Pageable pageable);
+    Page<Credit> findAllByCustomerAndMerchant(Customer customer, Merchant merchant, Pageable pageable);
 
-    Optional<Credit> findByCustomerAndMerchant(User customer, User merchant);
+    Page<Credit> findAllByCustomer(Customer customer, Pageable pageable);
 
-    Optional<Credit> findByCustomerAndCreditType(User customer, CreditType creditType);
+    Page<Credit> findAllByMerchant(Merchant merchant, Pageable pageable);
 
-    Page<Credit> findAllByCustomerOrMerchant(User customer, User merchant, Pageable pageable);
+    Optional<Credit> findByCustomerAndMerchant(Customer customer, Merchant merchant);
 
-    List<Credit> findAllByMerchantAndCustomer(User merchant, User customer);
+    Optional<Credit> findByCustomerAndCreditType(Customer customer, CreditType creditType);
+
+    Page<Credit> findAllByCustomerOrMerchant(Customer customer, Merchant merchant, Pageable pageable);
+
+    List<Credit> findAllByMerchantAndCustomer(Merchant merchant, Customer customer);
+
+    Optional<Credit> findByCustomer(Customer customer);
 }

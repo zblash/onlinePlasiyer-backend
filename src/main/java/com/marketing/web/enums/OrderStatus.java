@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum OrderStatus {
     FINISHED("FINISHED"),
+    PREPARED("PREPARED"),
     NEW("NEW"),
     CONFIRMED("CONFIRMED"),
     CANCELLED("CANCELLED"),

@@ -1,5 +1,6 @@
 package com.marketing.web.repositories;
 
+import com.marketing.web.models.Merchant;
 import com.marketing.web.models.Obligation;
 import com.marketing.web.models.Order;
 import com.marketing.web.models.User;
@@ -12,11 +13,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 
-public interface ObligationRepository extends JpaRepository<Obligation, Long> {
+public interface ObligationRepository extends JpaRepository<Obligation, UUID> {
 
     Page<Obligation> findAll(Pageable pageable);
 
-    Optional<Obligation> findByUuid(UUID uuid);
-
-    Optional<Obligation> findByUser(User user);
+    Optional<Obligation> findByMerchant(Merchant merchant);
 }
